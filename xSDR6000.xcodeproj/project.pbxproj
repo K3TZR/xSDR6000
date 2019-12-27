@@ -7,8 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		91E4788723B666EE004DA6A7 /* ChangeLog.txt in Resources */ = {isa = PBXBuildFile; fileRef = 91E4780423B666ED004DA6A7 /* ChangeLog.txt */; };
-		91E4788923B666EE004DA6A7 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 91E4780623B666ED004DA6A7 /* README.md */; };
 		91E4788A23B666EE004DA6A7 /* AudioHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91E4780923B666EE004DA6A7 /* AudioHelper.swift */; };
 		91E4788B23B666EE004DA6A7 /* TPCircularBuffer+AudioBufferList.c in Sources */ = {isa = PBXBuildFile; fileRef = 91E4780D23B666EE004DA6A7 /* TPCircularBuffer+AudioBufferList.c */; };
 		91E4788C23B666EE004DA6A7 /* README.markdown in Resources */ = {isa = PBXBuildFile; fileRef = 91E4780F23B666EE004DA6A7 /* README.markdown */; };
@@ -101,20 +99,22 @@
 		91E4790623B667EA004DA6A7 /* xLib6000 in Frameworks */ = {isa = PBXBuildFile; productRef = 91E4790523B667EA004DA6A7 /* xLib6000 */; };
 		91E4790A23B6683C004DA6A7 /* ObjcExceptionBridging in Frameworks */ = {isa = PBXBuildFile; productRef = 91E4790923B6683C004DA6A7 /* ObjcExceptionBridging */; };
 		91E4790C23B6683C004DA6A7 /* XCGLogger in Frameworks */ = {isa = PBXBuildFile; productRef = 91E4790B23B6683C004DA6A7 /* XCGLogger */; };
-		91E4790E23B66A7C004DA6A7 /* OpusOSX.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 91E4780523B666ED004DA6A7 /* OpusOSX.framework */; };
-		91E4790F23B66A7C004DA6A7 /* OpusOSX.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 91E4780523B666ED004DA6A7 /* OpusOSX.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		91E4791723B68C7D004DA6A7 /* RingBuffer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 91E4791123B68C7D004DA6A7 /* RingBuffer.mm */; };
 		91E4791823B68C7D004DA6A7 /* CARingBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 91E4791423B68C7D004DA6A7 /* CARingBuffer.cpp */; };
+		91E4791A23B691B0004DA6A7 /* OpusOSX.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 91E4780523B666ED004DA6A7 /* OpusOSX.framework */; };
+		91E4791B23B691B0004DA6A7 /* OpusOSX.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 91E4780523B666ED004DA6A7 /* OpusOSX.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		91E4791D23B69202004DA6A7 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 91E4780623B666ED004DA6A7 /* README.md */; };
+		91E4791E23B69232004DA6A7 /* ChangeLog.txt in Resources */ = {isa = PBXBuildFile; fileRef = 91E4780423B666ED004DA6A7 /* ChangeLog.txt */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		91E4791023B66A7C004DA6A7 /* Embed Frameworks */ = {
+		91E4791C23B691B0004DA6A7 /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				91E4790F23B66A7C004DA6A7 /* OpusOSX.framework in Embed Frameworks */,
+				91E4791B23B691B0004DA6A7 /* OpusOSX.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -156,7 +156,7 @@
 		91E4782E23B666EE004DA6A7 /* RadioPrefsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RadioPrefsViewController.swift; sourceTree = "<group>"; };
 		91E4782F23B666EE004DA6A7 /* NetworkPrefsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkPrefsViewController.swift; sourceTree = "<group>"; };
 		91E4783023B666EE004DA6A7 /* TXPrefsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TXPrefsViewController.swift; sourceTree = "<group>"; };
-		91E4783123B666EE004DA6A7 /* xSDR6000-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "xSDR6000-Bridging-Header.h"; sourceTree = "<group>"; };
+		91E4783123B666EE004DA6A7 /* xSDR6000-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "xSDR6000-Bridging-Header.h"; path = "xSDR6000/xSDR6000-Bridging-Header.h"; sourceTree = "<group>"; };
 		91E4783323B666EE004DA6A7 /* MainWindowController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainWindowController.swift; sourceTree = "<group>"; };
 		91E4783423B666EE004DA6A7 /* RadioViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RadioViewController.swift; sourceTree = "<group>"; };
 		91E4783623B666EE004DA6A7 /* BandButtonViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BandButtonViewController.swift; sourceTree = "<group>"; };
@@ -206,7 +206,7 @@
 		91E4786F23B666EE004DA6A7 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		91E4787123B666EE004DA6A7 /* ProfileViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileViewController.swift; sourceTree = "<group>"; };
 		91E4787223B666EE004DA6A7 /* AppExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppExtensions.swift; sourceTree = "<group>"; };
-		91E4787323B666EE004DA6A7 /* xSDR6000.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = xSDR6000.entitlements; sourceTree = "<group>"; };
+		91E4787323B666EE004DA6A7 /* xSDR6000.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; name = xSDR6000.entitlements; path = xSDR6000/xSDR6000.entitlements; sourceTree = "<group>"; };
 		91E4787423B666EE004DA6A7 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		91E4787723B666EE004DA6A7 /* Keychain.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Keychain.swift; sourceTree = "<group>"; };
 		91E4787923B666EE004DA6A7 /* JWTDecode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JWTDecode.swift; sourceTree = "<group>"; };
@@ -234,7 +234,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				91E4790A23B6683C004DA6A7 /* ObjcExceptionBridging in Frameworks */,
-				91E4790E23B66A7C004DA6A7 /* OpusOSX.framework in Frameworks */,
+				91E4791A23B691B0004DA6A7 /* OpusOSX.framework in Frameworks */,
 				91E4790623B667EA004DA6A7 /* xLib6000 in Frameworks */,
 				91E4790323B667BE004DA6A7 /* SwiftyUserDefaults in Frameworks */,
 				91E4790C23B6683C004DA6A7 /* XCGLogger in Frameworks */,
@@ -247,7 +247,13 @@
 		91E477E823B66661004DA6A7 = {
 			isa = PBXGroup;
 			children = (
-				91E477F323B66661004DA6A7 /* xSDR6000 */,
+				91E4780423B666ED004DA6A7 /* ChangeLog.txt */,
+				91E4787423B666EE004DA6A7 /* Info.plist */,
+				91E4787323B666EE004DA6A7 /* xSDR6000.entitlements */,
+				91E4783123B666EE004DA6A7 /* xSDR6000-Bridging-Header.h */,
+				91E4780523B666ED004DA6A7 /* OpusOSX.framework */,
+				91E4780623B666ED004DA6A7 /* README.md */,
+				91E4780723B666EE004DA6A7 /* xSDR6000 */,
 				91E477F223B66661004DA6A7 /* Products */,
 				91E4790823B6683C004DA6A7 /* Frameworks */,
 			);
@@ -259,20 +265,6 @@
 				91E477F123B66661004DA6A7 /* xSDR6000.app */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		91E477F323B66661004DA6A7 /* xSDR6000 */ = {
-			isa = PBXGroup;
-			children = (
-				91E4780423B666ED004DA6A7 /* ChangeLog.txt */,
-				91E4787423B666EE004DA6A7 /* Info.plist */,
-				91E4787323B666EE004DA6A7 /* xSDR6000.entitlements */,
-				91E4783123B666EE004DA6A7 /* xSDR6000-Bridging-Header.h */,
-				91E4780523B666ED004DA6A7 /* OpusOSX.framework */,
-				91E4780623B666ED004DA6A7 /* README.md */,
-				91E4780723B666EE004DA6A7 /* xSDR6000 */,
-			);
-			path = xSDR6000;
 			sourceTree = "<group>";
 		};
 		91E4780723B666EE004DA6A7 /* xSDR6000 */ = {
@@ -556,7 +548,7 @@
 				91E477ED23B66661004DA6A7 /* Sources */,
 				91E477EE23B66661004DA6A7 /* Frameworks */,
 				91E477EF23B66661004DA6A7 /* Resources */,
-				91E4791023B66A7C004DA6A7 /* Embed Frameworks */,
+				91E4791C23B691B0004DA6A7 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -616,14 +608,14 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				91E4791E23B69232004DA6A7 /* ChangeLog.txt in Resources */,
+				91E4791D23B69202004DA6A7 /* README.md in Resources */,
 				91E478C223B666EE004DA6A7 /* Main.storyboard in Resources */,
 				91E4789723B666EE004DA6A7 /* Filters.plist in Resources */,
-				91E4788923B666EE004DA6A7 /* README.md in Resources */,
 				91E478C123B666EE004DA6A7 /* RadioPicker.storyboard in Resources */,
 				91E478C323B666EE004DA6A7 /* Flag.storyboard in Resources */,
 				91E478B223B666EE004DA6A7 /* Basic.tex in Resources */,
 				91E4789B23B666EE004DA6A7 /* xSDR6000.pdf in Resources */,
-				91E4788723B666EE004DA6A7 /* ChangeLog.txt in Resources */,
 				91E478C023B666EE004DA6A7 /* Side.storyboard in Resources */,
 				91E478B323B666EE004DA6A7 /* Purple.tex in Resources */,
 				91E478B023B666EE004DA6A7 /* Deuteranopia.tex in Resources */,
@@ -900,7 +892,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_ENTITLEMENTS = xSDR6000/xSDR6000.entitlements;
+				CODE_SIGN_ENTITLEMENTS = xSDR6000.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = EE5B8TYXGA;
@@ -908,15 +900,16 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/xSDR6000",
+					"$(PROJECT_DIR)",
 				);
-				INFOPLIST_FILE = xSDR6000/Info.plist;
+				INFOPLIST_FILE = Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = net.k3tzr.xSDR6000;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_OBJC_BRIDGING_HEADER = "xSDR6000/xSDR6000-Bridging-Header.h";
+				SWIFT_OBJC_BRIDGING_HEADER = "xSDR6000-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
@@ -925,7 +918,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_ENTITLEMENTS = xSDR6000/xSDR6000.entitlements;
+				CODE_SIGN_ENTITLEMENTS = xSDR6000.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = EE5B8TYXGA;
@@ -933,15 +926,16 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/xSDR6000",
+					"$(PROJECT_DIR)",
 				);
-				INFOPLIST_FILE = xSDR6000/Info.plist;
+				INFOPLIST_FILE = Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = net.k3tzr.xSDR6000;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_OBJC_BRIDGING_HEADER = "xSDR6000/xSDR6000-Bridging-Header.h";
+				SWIFT_OBJC_BRIDGING_HEADER = "xSDR6000-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
