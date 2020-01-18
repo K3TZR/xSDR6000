@@ -122,6 +122,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		919614F423D28DB50069AE94 /* xSDR6000-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "xSDR6000-Bridging-Header.h"; sourceTree = "<group>"; };
+		919614F523D28DB50069AE94 /* xSDR6000.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = xSDR6000.entitlements; sourceTree = "<group>"; };
 		91E477F123B66661004DA6A7 /* xSDR6000.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = xSDR6000.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		91E4780423B666ED004DA6A7 /* ChangeLog.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ChangeLog.txt; sourceTree = "<group>"; };
 		91E4780523B666ED004DA6A7 /* OpusOSX.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = OpusOSX.framework; sourceTree = "<group>"; };
@@ -156,7 +158,6 @@
 		91E4782E23B666EE004DA6A7 /* RadioPrefsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RadioPrefsViewController.swift; sourceTree = "<group>"; };
 		91E4782F23B666EE004DA6A7 /* NetworkPrefsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkPrefsViewController.swift; sourceTree = "<group>"; };
 		91E4783023B666EE004DA6A7 /* TXPrefsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TXPrefsViewController.swift; sourceTree = "<group>"; };
-		91E4783123B666EE004DA6A7 /* xSDR6000-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "xSDR6000-Bridging-Header.h"; sourceTree = "<group>"; };
 		91E4783323B666EE004DA6A7 /* MainWindowController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainWindowController.swift; sourceTree = "<group>"; };
 		91E4783423B666EE004DA6A7 /* RadioViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RadioViewController.swift; sourceTree = "<group>"; };
 		91E4783623B666EE004DA6A7 /* BandButtonViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BandButtonViewController.swift; sourceTree = "<group>"; };
@@ -199,7 +200,6 @@
 		91E4786F23B666EE004DA6A7 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		91E4787123B666EE004DA6A7 /* ProfileViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileViewController.swift; sourceTree = "<group>"; };
 		91E4787223B666EE004DA6A7 /* AppExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppExtensions.swift; sourceTree = "<group>"; };
-		91E4787323B666EE004DA6A7 /* xSDR6000.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = xSDR6000.entitlements; sourceTree = "<group>"; };
 		91E4787423B666EE004DA6A7 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		91E4787723B666EE004DA6A7 /* Keychain.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Keychain.swift; sourceTree = "<group>"; };
 		91E4787923B666EE004DA6A7 /* JWTDecode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JWTDecode.swift; sourceTree = "<group>"; };
@@ -265,11 +265,11 @@
 		91E4780723B666EE004DA6A7 /* xSDR6000 */ = {
 			isa = PBXGroup;
 			children = (
+				919614F423D28DB50069AE94 /* xSDR6000-Bridging-Header.h */,
+				919614F523D28DB50069AE94 /* xSDR6000.entitlements */,
 				91E4784623B666EE004DA6A7 /* Assets.xcassets */,
 				91E4791F23B69A2A004DA6A7 /* Base.lproj */,
 				91E4787423B666EE004DA6A7 /* Info.plist */,
-				91E4783123B666EE004DA6A7 /* xSDR6000-Bridging-Header.h */,
-				91E4787323B666EE004DA6A7 /* xSDR6000.entitlements */,
 				91E4780623B666ED004DA6A7 /* README.md */,
 				91E4780423B666ED004DA6A7 /* ChangeLog.txt */,
 				91E4786F23B666EE004DA6A7 /* AppDelegate.swift */,
