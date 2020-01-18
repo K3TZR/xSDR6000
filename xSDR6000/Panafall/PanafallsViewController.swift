@@ -79,7 +79,7 @@ final class PanafallsViewController         : NSSplitViewController {
     // In V3, check is it for this Client
     if (_api.radioVersion.isV3 && panadapter.clientHandle == _api.connectionHandle) || _api.radioVersion.isV3 == false {
       // log the event
-      _log.msg("Panadapter added: ID = \(panadapter.id.hex)", level: .info, function: #function, file: #file, line: #line)
+      _log.msg("Panadapter added: Stream Id = \(panadapter.id.hex)", level: .info, function: #function, file: #file, line: #line)
     }
   }
   /// Process .waterfallHasBeenAdded Notification
@@ -95,7 +95,7 @@ final class PanafallsViewController         : NSSplitViewController {
     // In V3, check is it for this Client
     if (_api.radioVersion.isV3 && waterfall.clientHandle == _api.connectionHandle) || _api.radioVersion.isV3 == false {
       // log the event
-      _log.msg("Waterfall added: ID = \(waterfall.id.hex)", level: .info, function: #function, file: #file, line: #line)
+      _log.msg("Waterfall added: Stream Id = \(waterfall.id.hex)", level: .info, function: #function, file: #file, line: #line)
       
       let panadapter = _api.radio!.panadapters[waterfall.panadapterId]
       

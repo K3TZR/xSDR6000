@@ -11,7 +11,6 @@ import SwiftyUserDefaults
 import simd
 
 typealias NC = NotificationCenter
-typealias UD = UserDefaults
 
 //extension UserDefaults {
   
@@ -27,62 +26,62 @@ extension DefaultsKeys {
   
   // Radio level info
   
-  static var username: DefaultsKey<String?> { return .init("username") }
+  static var username                 : DefaultsKey<String?>        { return .init("username") }
   
-  static var cwxViewOpen                  : DefaultsKey<Bool> { return .init("cwxViewOpen", defaultValue: false)}
-  static var clientId                     : DefaultsKey<String?> { return .init("clientId")}
-  static var defaultRadioSerialNumber     : DefaultsKey<String?> { return .init("defaultRadioSerialNumber")}
-  static var eqRxSelected                 : DefaultsKey<Bool> { return .init("eqRxSelected", defaultValue: false)}
-  static var flagBorderEnabled            : DefaultsKey<Bool> { return .init("flagBorderEnabled", defaultValue: false)}
-  static var fullDuplexEnabled            : DefaultsKey<Bool> { return .init("fullDuplexEnabled", defaultValue: false)}
-  static var lowBandwidthEnabled          : DefaultsKey<Bool> { return .init("lowBandwidthEnabled", defaultValue: false)}
-  static var macAudioEnabled              : DefaultsKey<Bool> { return .init("macAudioEnabled", defaultValue: false)}
-  static var markersEnabled               : DefaultsKey<Bool> { return .init("markersEnabled", defaultValue: false)}
-  static var preferencesTabId             : DefaultsKey<String> { return .init("preferencesTabId", defaultValue: "")}
-  static var profilesTabId                : DefaultsKey<String> { return .init("profilesTabId", defaultValue: "")}
-  static var quickMode0                   : DefaultsKey<String> { return .init("quickMode0", defaultValue: "")}
-  static var quickMode1                   : DefaultsKey<String> { return .init("quickMode1", defaultValue: "")}
-  static var quickMode2                   : DefaultsKey<String> { return .init("quickMode2", defaultValue: "")}
-  static var quickMode3                   : DefaultsKey<String> { return .init("quickMode3", defaultValue: "")}
-  static var radioModel                   : DefaultsKey<String> { return .init("radioModel", defaultValue: "")}
-  static var remoteViewOpen               : DefaultsKey<Bool> { return .init("remoteViewOpen", defaultValue: false)}
-  static var sideViewOpen                 : DefaultsKey<Bool> { return .init("sideViewOpen", defaultValue: false)}
-  static var sideRxOpen                   : DefaultsKey<Bool> { return .init("sideRxOpen", defaultValue: false)}
-  static var sideTxOpen                   : DefaultsKey<Bool> { return .init("sideTxOpen", defaultValue: false)}
-  static var sidePcwOpen                  : DefaultsKey<Bool> { return .init("sidePcwOpen", defaultValue: false)}
-  static var sidePhneOpen                 : DefaultsKey<Bool> { return .init("sidePhneOpen", defaultValue: false)}
-  static var sideEqOpen                   : DefaultsKey<Bool> { return .init("sideEqOpen", defaultValue: false)}
-  static var smartLinkAuth0Email          : DefaultsKey<String> { return .init("smartLinkAuth0Email", defaultValue: "")}
-  static var smartLinkToken               : DefaultsKey<String?> { return .init("smartLinkToken")}
-  static var smartLinkTokenExpiry         : DefaultsKey<Date?> { return .init("smartLinkTokenExpiry")}
-  static var splitDistance                : DefaultsKey<Int> { return .init("splitDistance", defaultValue: 0)}
-  static var supportingApps               : DefaultsKey<[[String:Any]]> { return .init("supportingApps", defaultValue:[])}
-  static var tnfsEnabled                  : DefaultsKey<Bool> { return .init("tnfsEnabled", defaultValue: false)}
-  static var spectrumFillLevel            : DefaultsKey<Int> { return .init("spectrumFillLevel", defaultValue: 0)}
-  static var spectrumIsFilled             : DefaultsKey<Bool> { return .init("spectrumIsFilled", defaultValue: false)}
-  static var versionRadio                 : DefaultsKey<String> { return .init("versionRadio", defaultValue: "")}
+  static var cwxViewOpen              : DefaultsKey<Bool>           { return .init("cwxViewOpen", defaultValue: false)}
+  static var clientId                 : DefaultsKey<String?>        { return .init("clientId")}
+  static var defaultRadioSerialNumber : DefaultsKey<String?>        { return .init("defaultRadioSerialNumber")}
+  static var eqRxSelected             : DefaultsKey<Bool>           { return .init("eqRxSelected", defaultValue: false)}
+  static var flagBorderEnabled        : DefaultsKey<Bool>           { return .init("flagBorderEnabled", defaultValue: false)}
+  static var fullDuplexEnabled        : DefaultsKey<Bool>           { return .init("fullDuplexEnabled", defaultValue: false)}
+  static var lowBandwidthEnabled      : DefaultsKey<Bool>           { return .init("lowBandwidthEnabled", defaultValue: false)}
+  static var macAudioEnabled          : DefaultsKey<Bool>           { return .init("macAudioEnabled", defaultValue: false)}
+  static var markersEnabled           : DefaultsKey<Bool>           { return .init("markersEnabled", defaultValue: false)}
+  static var preferencesTabId         : DefaultsKey<String>         { return .init("preferencesTabId", defaultValue: "")}
+  static var profilesTabId            : DefaultsKey<String>         { return .init("profilesTabId", defaultValue: "")}
+  static var quickMode0               : DefaultsKey<String>         { return .init("quickMode0", defaultValue: "")}
+  static var quickMode1               : DefaultsKey<String>         { return .init("quickMode1", defaultValue: "")}
+  static var quickMode2               : DefaultsKey<String>         { return .init("quickMode2", defaultValue: "")}
+  static var quickMode3               : DefaultsKey<String>         { return .init("quickMode3", defaultValue: "")}
+  static var radioModel               : DefaultsKey<String>         { return .init("radioModel", defaultValue: "")}
+  static var remoteViewOpen           : DefaultsKey<Bool>           { return .init("remoteViewOpen", defaultValue: false)}
+  static var sideViewOpen             : DefaultsKey<Bool>           { return .init("sideViewOpen", defaultValue: false)}
+  static var sideRxOpen               : DefaultsKey<Bool>           { return .init("sideRxOpen", defaultValue: false)}
+  static var sideTxOpen               : DefaultsKey<Bool>           { return .init("sideTxOpen", defaultValue: false)}
+  static var sidePcwOpen              : DefaultsKey<Bool>           { return .init("sidePcwOpen", defaultValue: false)}
+  static var sidePhneOpen             : DefaultsKey<Bool>           { return .init("sidePhneOpen", defaultValue: false)}
+  static var sideEqOpen               : DefaultsKey<Bool>           { return .init("sideEqOpen", defaultValue: false)}
+  static var smartLinkAuth0Email      : DefaultsKey<String>         { return .init("smartLinkAuth0Email", defaultValue: "")}
+  static var smartLinkToken           : DefaultsKey<String?>        { return .init("smartLinkToken")}
+  static var smartLinkTokenExpiry     : DefaultsKey<Date?>          { return .init("smartLinkTokenExpiry")}
+  static var splitDistance            : DefaultsKey<Int>            { return .init("splitDistance", defaultValue: 0)}
+  static var supportingApps           : DefaultsKey<[[String:Any]]> { return .init("supportingApps", defaultValue:[])}
+  static var tnfsEnabled              : DefaultsKey<Bool>           { return .init("tnfsEnabled", defaultValue: false)}
+  static var spectrumFillLevel        : DefaultsKey<Int>            { return .init("spectrumFillLevel", defaultValue: 0)}
+  static var spectrumIsFilled         : DefaultsKey<Bool>           { return .init("spectrumIsFilled", defaultValue: false)}
+  static var versionRadio             : DefaultsKey<String>         { return .init("versionRadio", defaultValue: "")}
 
   // Colors common to all Panafalls
-  static var dbLegend                     : DefaultsKey<NSColor> { return .init("dbLegend", defaultValue: .red)}
-  static var frequencyLegend              : DefaultsKey<NSColor> { return .init("frequencyLegend", defaultValue: .red)}
-  static var gridLine                     : DefaultsKey<NSColor> { return .init("gridLine", defaultValue: .red)}
-  static var marker                       : DefaultsKey<NSColor> { return .init("marker", defaultValue: .red)}
-  static var markerEdge                   : DefaultsKey<NSColor> { return .init("markerEdge", defaultValue: .red)}
-  static var markerSegment                : DefaultsKey<NSColor> { return .init("markerSegment", defaultValue: .red)}
-  static var sliceActive                  : DefaultsKey<NSColor> { return .init("sliceActive", defaultValue: .red)}
-  static var sliceFilter                  : DefaultsKey<NSColor> { return .init("sliceFilter", defaultValue: .red)}
-  static var sliceInactive                : DefaultsKey<NSColor> { return .init("sliceInactive", defaultValue: .red)}
-  static var spectrum                     : DefaultsKey<NSColor> { return .init("spectrum", defaultValue: .red)}
-  static var spectrumBackground           : DefaultsKey<NSColor> { return .init("spectrumBackground", defaultValue: .red)}
-  static var spectrumFill                 : DefaultsKey<NSColor> { return .init("spectrumFill", defaultValue: .red)}
-  static var tnfActive                    : DefaultsKey<NSColor> { return .init("tnfActive", defaultValue: .red)}
-  static var tnfInactive                  : DefaultsKey<NSColor> { return .init("tnfInactive", defaultValue: .red)}
+  static var dbLegend                 : DefaultsKey<NSColor>        { return .init("dbLegend", defaultValue: .red)}
+  static var frequencyLegend          : DefaultsKey<NSColor>        { return .init("frequencyLegend", defaultValue: .red)}
+  static var gridLine                 : DefaultsKey<NSColor>        { return .init("gridLine", defaultValue: .red)}
+  static var marker                   : DefaultsKey<NSColor>        { return .init("marker", defaultValue: .red)}
+  static var markerEdge               : DefaultsKey<NSColor>        { return .init("markerEdge", defaultValue: .red)}
+  static var markerSegment            : DefaultsKey<NSColor>        { return .init("markerSegment", defaultValue: .red)}
+  static var sliceActive              : DefaultsKey<NSColor>        { return .init("sliceActive", defaultValue: .red)}
+  static var sliceFilter              : DefaultsKey<NSColor>        { return .init("sliceFilter", defaultValue: .red)}
+  static var sliceInactive            : DefaultsKey<NSColor>        { return .init("sliceInactive", defaultValue: .red)}
+  static var spectrum                 : DefaultsKey<NSColor>        { return .init("spectrum", defaultValue: .red)}
+  static var spectrumBackground       : DefaultsKey<NSColor>        { return .init("spectrumBackground", defaultValue: .red)}
+  static var spectrumFill             : DefaultsKey<NSColor>        { return .init("spectrumFill", defaultValue: .red)}
+  static var tnfActive                : DefaultsKey<NSColor>        { return .init("tnfActive", defaultValue: .red)}
+  static var tnfInactive              : DefaultsKey<NSColor>        { return .init("tnfInactive", defaultValue: .red)}
   
   // Settings common to all Panafalls
-  static var dbLegendSpacing              : DefaultsKey<String> { return .init("dbLegendSpacing", defaultValue: "")}
-  static var dbLegendSpacings             : DefaultsKey<[String]> { return .init("dbLegendSpacings", defaultValue: [])}
-  static var timeLegendSpacing            : DefaultsKey<String> { return .init("timeLegendSpacing", defaultValue: "")}
-  static var timeLegendSpacings           : DefaultsKey<[String]> { return .init("timeLegendSpacings", defaultValue: [])}
+  static var dbLegendSpacing          : DefaultsKey<String>         { return .init("dbLegendSpacing", defaultValue: "")}
+  static var dbLegendSpacings         : DefaultsKey<[String]>       { return .init("dbLegendSpacings", defaultValue: [])}
+  static var timeLegendSpacing        : DefaultsKey<String>         { return .init("timeLegendSpacing", defaultValue: "")}
+  static var timeLegendSpacings       : DefaultsKey<[String]>       { return .init("timeLegendSpacings", defaultValue: [])}
 }
 
 extension  UserDefaults {

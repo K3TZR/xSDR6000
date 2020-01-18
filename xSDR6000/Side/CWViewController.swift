@@ -32,7 +32,7 @@ final class CWViewController                          : NSViewController {
   private var _radio               : Radio? { return Api.sharedInstance.radio }
   private var _observations        = [NSKeyValueObservation]()
 
-  private let kAlcLevel            = Api.MeterShortName.voltageHwAlc.rawValue
+  private let kAlcLevel            = Meter.ShortName.voltageHwAlc.rawValue
 
   // ----------------------------------------------------------------------------
   // MARK: - Overriden methods

@@ -28,7 +28,7 @@ class ParameterMonitor: NSToolbarItem {
 
   private weak var _radio                   : Radio?
   private var _id                           : NSToolbarItem.Identifier
-  private var _meterShortNames              = [Api.MeterShortName]()
+  private var _shortNames                   = [Meter.ShortName]()
   private var _units                        = [String]()
   private var _observations                 = [NSKeyValueObservation]()
   
@@ -51,20 +51,20 @@ class ParameterMonitor: NSToolbarItem {
   ///
   /// - Parameters:
   ///   - radio:              a reference to the Radio class
-  ///   - meterShortNames:    an array of MeterShortNames
+  ///   - meterShortNames:    an array of  Meter ShortNames
   ///   - units:              an array of units
   ///
-  func activate(radio: Radio, meterShortNames: [Api.MeterShortName], units: [String]) {
+  func activate(radio: Radio, shortNames: [Meter.ShortName], units: [String]) {
     
     _radio = radio
-    _meterShortNames = meterShortNames
+    _shortNames = shortNames
     _units = units
     
     // for the first two short names (others are ignored)
-    for i in kTopValue...kBottomValue {
+    for shortName in _shortNames {
       
       // is there a Meter by that name?
-      if let meter = _radio?.findMeter(shortName: _meterShortNames[i].rawValue) {
+      if let meter = _radio?.findMeter(shortName: shortName.rawValue) {
         
         // YES, observe it's value
         _observations.append( meter.observe(\.value, options: [.initial, .new],changeHandler: updateValue))
@@ -99,18 +99,18 @@ class ParameterMonitor: NSToolbarItem {
   ///   - change:             a change dictionary
   ///
   private func updateValue(_ object: Any, _ change: Any) {
-
+    let kTop = 0
+    let kBottom = 1
+    
     let meter = object as! Meter
 
     // which Meter?
     switch meter.name {
-    case _meterShortNames[kTopValue].rawValue:
-      // top one
-      updateField(topField, for: meter, units: _units[kTopValue])
+    case _shortNames[kTop].rawValue:
+      updateField(topField, for: meter, units: _units[kTop])
 
-    case _meterShortNames[kBottomValue].rawValue:
-      // bottom one
-      updateField(bottomField, for: meter, units: _units[kBottomValue])
+    case _shortNames[kBottom].rawValue:
+      updateField(bottomField, for: meter, units: _units[kBottom])
 
     default:
       // should never happen

@@ -175,11 +175,11 @@ final class XritViewController: NSViewController {
       _slice.observe(\.xitOffset, options: [.initial, .new]) { [weak self] (slice, change) in
         self?.changeHandler(slice, change)},
       
-      _slice.observe(\.step, options: [.initial, .new]) { [weak self] (slice, change) in
+      _slice.observe(\Slice.step, options: [.initial, .new]) { [weak self] (slice, change) in
         self?.stepHandler(slice, change) },
       
       Defaults.observe(\.splitDistance, options: [.initial, .new]) { [weak self] (defaults, change) in
-        self?.stepHandler(defaults, change) }
+        self?.stepHandler(Defaults, change) }
     ]
   }
   /// Process observations
@@ -207,14 +207,14 @@ final class XritViewController: NSViewController {
   ///   - defaults:                 the Defaults being observed
   ///   - change:                   the change
   ///
-  private func stepHandler(_ object: Any, _ change: Any) {
+  private func stepHandler(_ object: AnyObject, _ change: Any) {
     var value = 0
 
     if let slice = object as? xLib6000.Slice {
       value = slice.step
 
     } else if let defaults = object as? UserDefaults {
-      value = defaults[.splitDistance]
+      value = Defaults[.splitDistance]
     }
     DispatchQueue.main.async { [weak self] in
 

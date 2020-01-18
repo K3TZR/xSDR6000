@@ -90,7 +90,7 @@ final class RxPrefsViewController: NSViewController {
     
     switch sender.identifier?.rawValue {
     case "CalFreq":
-      _radio!.calFreq = sender.integerValue
+      _radio!.calFreq = Hz(sender.integerValue)
     case "Offset":
       _radio!.freqErrorPpb = sender.integerValue
    default:

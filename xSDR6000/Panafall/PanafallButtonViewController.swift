@@ -26,7 +26,7 @@ final class PanafallButtonViewController    : NSViewController {
   private weak var _radio                   : Radio?
   private weak var _panadapter              : Panadapter?
   private weak var _waterfall               : Waterfall?
-  private var _bandwidth                    : Int { return _panadapter!.bandwidth }
+  private var _bandwidth                    : Hz { _panadapter!.bandwidth }
   private var _popover                      : NSPopover?
   
   private let kPanafallEmbedIdentifier      = "PanafallEmbed"
@@ -184,25 +184,25 @@ final class PanafallButtonViewController    : NSViewController {
   @IBAction func rx(_ sender: NSButton) {
     
     // tell the Radio (hardware) to add a Slice on this Panadapter
-    _radio?.createSlice(panadapter: _panadapter!)
+    _radio?.requestSlice(panadapter: _panadapter!)
   }
   /// Create a new Tnf
   ///
   /// - Parameter sender:           the sender
   ///
   @IBAction func tnf(_ sender: NSButton) {
-    var freq = 0
+    var frequency : Hz = 0
     
     if let slice = _radio?.findActiveSlice(on: _panadapter!.id) {
       // put the Tnf in the center of the active Slice
-      freq = slice.frequency + (slice.filterHigh - slice.filterLow) / 2
+      frequency = Hz(Int(slice.frequency) + (slice.filterHigh - slice.filterLow) / 2)
 
     } else {
       // put the Tnf in the center of the Panadapter
-      freq = _panadapter!.center
+      frequency = _panadapter!.center
     }
     // tell the Radio (hardware) to add a Tnf on this Panadapter
 //    Tnf.create(frequency: freq.hzToMhz)
-    _radio?.createTnf(frequency: freq.hzToMhz)
+    _radio?.requestTnf(at: frequency)
   }
 }

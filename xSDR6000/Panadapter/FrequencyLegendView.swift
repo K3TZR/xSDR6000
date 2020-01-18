@@ -188,12 +188,12 @@ public final class FrequencyLegendView      : NSView {
       if abs(deltaX) > abs(deltaY) {
         
         // drag
-        tnf.frequency = UInt(dr.current.x * _hzPerUnit) + UInt(_start)
+        tnf.frequency = Hz(dr.current.x * _hzPerUnit) + _start
       } else {
         
         // resize
 //        tnf.width = UInt( max( Int(tnf.width) + Int(deltaY * CGFloat(_bandwidth) * kMultiplier), Int(Tnf.kWidthMin)) )
-        tnf.width = UInt( Int(tnf.width) + Int(deltaY * CGFloat(_bandwidth) * kMultiplier) )
+        tnf.width = tnf.width + Hz(deltaY * CGFloat(_bandwidth) * kMultiplier)
       }
     }
     // redraw the tnfs
@@ -494,7 +494,7 @@ public final class FrequencyLegendView      : NSView {
       if tnf.frequency >= _start && tnf.frequency <= _end {
         
         // YES, calculate the position & width
-        let tnfPosition = CGFloat(tnf.frequency - tnf.width/2 - UInt(_start)) / _hzPerUnit
+        let tnfPosition = CGFloat(tnf.frequency - tnf.width/2 - _start) / _hzPerUnit
         let tnfWidth = CGFloat(tnf.width) / _hzPerUnit
         
         // draw the rectangle

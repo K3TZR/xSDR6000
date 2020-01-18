@@ -29,7 +29,7 @@ final class ColorsPrefsViewController            : NSViewController {
   @IBOutlet private weak var _tnfInactive        : NSColorWell!
   
   private var _observations                      = [NSKeyValueObservation]()
-  
+
   // ----------------------------------------------------------------------------
   // MARK: - Overridden methods
   
@@ -157,43 +157,44 @@ final class ColorsPrefsViewController            : NSViewController {
   private func addObservations() {
     
     _observations = [
-      Defaults.observe(\.dbLegend, options: [.initial, .new]) { [weak self] (defaults, change) in
-        self?._dbLegend.color = defaults[.dbLegend] },
-                       
-      Defaults.observe(\.frequencyLegend, options: [.initial, .new]) { [weak self] (defaults, change) in
-        self?._frequencyLegend.color = defaults[.frequencyLegend] },
       
-      Defaults.observe(\.gridLine, options: [.initial, .new]) { [weak self] (defaults, change) in
+      Defaults.observe(\.dbLegend, options: [.initial, .new]) { [weak self] (object, change) in
+        self?._dbLegend.color = Defaults[.dbLegend] },
+
+      Defaults.observe(\.frequencyLegend, options: [.initial, .new]) { [weak self] (object, change) in
+        self?._frequencyLegend.color = Defaults[.frequencyLegend] },
+
+      Defaults.observe(\.gridLine, options: [.initial, .new]) { [weak self] (object, change) in
         self?._gridLine.color = Defaults[.gridLine] },
-      
-      Defaults.observe(\.marker, options: [.initial, .new]) { [weak self] (defaults, change) in
+
+      Defaults.observe(\.marker, options: [.initial, .new]) { [weak self] (object, change) in
         self?._marker.color = Defaults[.marker] },
-      
-      Defaults.observe(\.markerEdge, options: [.initial, .new]) { [weak self] (defaults, change) in
+
+      Defaults.observe(\.markerEdge, options: [.initial, .new]) { [weak self] (object, change) in
         self?._markerEdge.color = Defaults[.markerEdge] },
-      
-      Defaults.observe(\.markerSegment, options: [.initial, .new]) { [weak self] (defaults, change) in
-        self?._markerSegment.color = Defaults[.markerSegment]},
-      
-      Defaults.observe(\.sliceActive, options: [.initial, .new]) { [weak self] (defaults, change) in
+
+      Defaults.observe(\.markerSegment, options: [.initial, .new]) { [weak self] (object, change) in
+        self?._markerSegment.color = Defaults[.markerSegment] },
+
+      Defaults.observe(\.sliceActive, options: [.initial, .new]) { [weak self] (object, change) in
         self?._sliceActive.color = Defaults[.sliceActive] },
-      
-      Defaults.observe(\.sliceFilter, options: [.initial, .new]) { [weak self] (defaults, change) in
+
+      Defaults.observe(\.sliceFilter, options: [.initial, .new]) { [weak self] (object, change) in
         self?._sliceFilter.color = Defaults[.sliceFilter] },
-      
-      Defaults.observe(\.sliceInactive, options: [.initial, .new]) { [weak self] (defaults, change) in
+
+      Defaults.observe(\.sliceInactive, options: [.initial, .new]) { [weak self] (object, change) in
         self?._sliceInactive.color = Defaults[.sliceInactive] },
-      
-      Defaults.observe(\.spectrum, options: [.initial, .new]) { [weak self] (defaults, change) in
+
+      Defaults.observe(\.spectrum, options: [.initial, .new]) { [weak self] (object, change) in
         self?._spectrum.color = Defaults[.spectrum] },
-      
-      Defaults.observe(\.spectrumBackground, options: [.initial, .new]) { [weak self] (defaults, change) in
+
+      Defaults.observe(\.spectrumBackground, options: [.initial, .new]) { [weak self] (object, change) in
         self?._spectrumBackground.color = Defaults[.spectrumBackground] },
-      
-      Defaults.observe(\.tnfActive, options: [.initial, .new]) { [weak self] (defaults, change) in
-        self?._tnfActive.color = Defaults[.tnfActive]},
-      
-      Defaults.observe(\.tnfInactive, options: [.initial, .new]) { [weak self] (defaults, change) in
+
+      Defaults.observe(\.tnfActive, options: [.initial, .new]) { [weak self] (object, change) in
+        self?._tnfActive.color = Defaults[.tnfActive] },
+
+      Defaults.observe(\.tnfInactive, options: [.initial, .new]) { [weak self] (object, change) in
         self?._tnfInactive.color = Defaults[.tnfInactive] }
     ]
   }

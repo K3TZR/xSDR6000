@@ -96,12 +96,12 @@ final class NetworkPrefsViewController: NSViewController {
       _radio?.staticNetParamsSet()
     }
     // reboot the radio
-    _radio?.rebootRequest()
+    _radio?.requestReboot()
     
     sleep(1)
     
-    // perform an orderly shutdown of all the components
-    Api.sharedInstance.shutdown(reason: .normal)
+    // perform an orderly disconnect of all the components
+    Api.sharedInstance.disconnect(reason: .normal)
   }
 
   // ----------------------------------------------------------------------------

@@ -30,9 +30,9 @@ final class PCWViewController                     : NSViewController {
   private var _radio                        : Radio? { return Api.sharedInstance.radio }
   private var _observations                 = [NSKeyValueObservation]()
   
-  private let kMicrophoneAverage            = Api.MeterShortName.microphoneAverage.rawValue
-  private let kMicrophonePeak               = Api.MeterShortName.microphonePeak.rawValue
-  private let kCompression                  = Api.MeterShortName.postClipper.rawValue
+  private let kMicrophoneAverage            = Meter.ShortName.microphoneAverage.rawValue
+  private let kMicrophonePeak               = Meter.ShortName.microphonePeak.rawValue
+  private let kCompression                  = Meter.ShortName.postClipper.rawValue
 
   // ----------------------------------------------------------------------------
   // MARK: - Overriden methods

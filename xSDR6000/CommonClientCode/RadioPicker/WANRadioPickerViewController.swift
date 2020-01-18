@@ -46,13 +46,13 @@ final class WANRadioPickerViewController    : NSViewController, NSTableViewDeleg
   @IBOutlet private weak var _testButton    : NSButton!
   
   private var _api                          = Api.sharedInstance
-  private var _radios                       = [DiscoveredRadio]()           // Radios discovered
+  private var _radios                       = [DiscoveryStruct]()           // Radios discovered
   private let _log                          = (NSApp.delegate as! AppDelegate)
   private var _auth0ViewController          : Auth0ViewController?
   private weak var _delegate                : RadioPickerDelegate? {
     return representedObject as? RadioPickerDelegate
   }
-  private var _selectedRadio                : DiscoveredRadio?              // Radio in selected row
+  private var _selectedRadio                : DiscoveryStruct?              // Radio in selected row
   private var _wanServer                    : WanServer?
   private var _parentVc                     : NSViewController!
 
@@ -186,8 +186,8 @@ final class WANRadioPickerViewController    : NSViewController, NSTableViewDeleg
     
     _parentVc.dismiss(sender)
     
-    // perform an orderly shutdown of all the components
-    _api.shutdown(reason: .normal)
+    // perform an orderly disconnect of all the components
+    _api.disconnect(reason: .normal)
     
     _log.msg("Application closed by user", level: .info, function: #function, file: #file, line: #line)
     DispatchQueue.main.async {
@@ -295,22 +295,23 @@ final class WANRadioPickerViewController    : NSViewController, NSTableViewDeleg
   ///
   /// - Parameter radio: Radio to connect to
   ///
-  private func getAuthentificationForRadio(_ radio: DiscoveredRadio?) {
+  private func getAuthentificationForRadio(_ radio: DiscoveryStruct?) {
+    
+    // FIXME: Is this correct
     
     if let radio = radio {
       
       // is a "Hole Punch" required?
       if radio.requiresHolePunch {
         
-        // TODO: handle hole punch port
+        // YES
+        _wanServer?.sendConnectMessageForRadio(radioSerial: radio.serialNumber, holePunchPort: radio.negotiatedHolePunchPort)
 
       } else {
         
         // NO
-        radio.negotiatedHolePunchPort = 0
+        _wanServer?.sendConnectMessageForRadio(radioSerial: radio.serialNumber)
       }
-      // ???
-      _wanServer?.sendConnectMessageForRadio(radioSerial: radio.serialNumber, holePunchPort: radio.negotiatedHolePunchPort)
     }
   }
   /// Login or Logout to Auth0
@@ -542,7 +543,7 @@ final class WANRadioPickerViewController    : NSViewController, NSTableViewDeleg
   
   /// Received radio list from server
   ///
-  func wanRadioListReceived(wanRadioList: [DiscoveredRadio]) {
+  func wanRadioListReceived(wanRadioList: [DiscoveryStruct]) {
     
     // relaod to display the updated list
     _radios = wanRadioList

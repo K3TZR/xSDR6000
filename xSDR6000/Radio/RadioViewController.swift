@@ -21,12 +21,12 @@ protocol RadioPickerDelegate: class {
   /// Open the specified Radio
   ///
   /// - Parameters:
-  ///   - radio:          a DiscoveredRadio struct
+  ///   - radio:          a DiscoveryStruct struct
   ///   - remote:         remote / local
   ///   - handle:         remote handle
   /// - Returns:          success / failure
   ///
-  func openRadio(_ radio: DiscoveredRadio?, isWan: Bool, wanHandle: String) -> Radio?
+  func openRadio(_ radio: DiscoveryStruct?, isWan: Bool, wanHandle: String) -> Radio?
   
   /// Close the active Radio
   ///
@@ -45,7 +45,7 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
   // MARK: - Private properties
   
   private let _log                          = NSApp.delegate as! AppDelegate
-  private var _radios                       : [DiscoveredRadio] {
+  private var _radios                       : [DiscoveryStruct] {
     return Discovery.sharedInstance.discoveredRadios }
   private var _api                          = Api.sharedInstance
   private var _mainWindowController         : MainWindowController?
@@ -182,8 +182,8 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
     
     _tcpPingFirstResponseReceived = false
     
-    // perform an orderly shutdown of all the components
-    _api.shutdown(reason: .normal)
+    // perform an orderly disconnect of all the components
+    _api.disconnect(reason: .normal)
     
     _log.msg("Application closed by user", level: .info, function: #function, file: #file, line: #line)
     DispatchQueue.main.async {
@@ -207,7 +207,7 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
     // create / remove the RemoteRxAudioStream
     if sender.boolState {
       // create the Stream
-      let _ = radio?.createRxAudioStream(compression: RemoteRxAudioStream.kOpus)
+      let _ = radio?.requestRxAudioStream(compression: RemoteRxAudioStream.kOpus)
     } else {
       // remove the Stream (if any)
       let _ = _remoteRxAudioStream?.remove()
@@ -252,7 +252,7 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
   @IBAction func panButton(_ sender: AnyObject) {
     
     // dimensions are dummy values; when created, will be resized to fit its view
-    radio?.createPanadapter(CGSize(width: 50, height: 50))
+    radio?.requestPanadapter(CGSize(width: 50, height: 50))
   }
   /// Respond to the Side button
   ///
@@ -562,7 +562,7 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
     if let radio = radio {
       
       // format and set the window title
-      title = "v\(radio.version)     \(radio.nickname) (\(_api.isWan ? "SmartLink" : "Local"))"
+      title = "v\(radio.version.string)     \(radio.nickname) (\(_api.isWan ? "SmartLink" : "Local"))"
     
     }
     DispatchQueue.main.async { [weak self] in
@@ -629,10 +629,10 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
   }
   /// Check if there is a Default Radio
   ///
-  /// - Returns:        a DiscoveredRadio struct or nil
+  /// - Returns:        a DiscoveryStruct struct or nil
   ///
-  private func defaultRadioFound() -> DiscoveredRadio? {
-    var defaultRadio: DiscoveredRadio?
+  private func defaultRadioFound() -> DiscoveryStruct? {
+    var defaultRadio: DiscoveryStruct?
     
     // see if there is a valid default Radio
     let defaultSerialNumber = Defaults[.defaultRadioSerialNumber]
@@ -706,10 +706,10 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
     
     // is it one we need to watch?
     switch meter.name {
-    case Api.MeterShortName.voltageAfterFuse.rawValue:
+    case Meter.ShortName.voltageAfterFuse.rawValue:
       _voltageMeterAvailable = true
       
-    case Api.MeterShortName.temperaturePa.rawValue:
+    case Meter.ShortName.temperaturePa.rawValue:
       _temperatureMeterAvailable = true
       
     default:
@@ -721,7 +721,7 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
       // start the Voltage/Temperature monitor
       if let toolbar = self?.view.window?.toolbar {
         let monitor = toolbar.items.findElement({  $0.itemIdentifier.rawValue == "VoltageTemp"} ) as! ParameterMonitor
-        monitor.activate(radio: self!._api.radio!, meterShortNames: [.voltageAfterFuse, .temperaturePa], units: ["v", "c"])
+        monitor.activate(radio: self!._api.radio!, shortNames: [.voltageAfterFuse, .temperaturePa], units: ["v", "c"])
       }
     }
   }
@@ -736,7 +736,7 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
     
     _log.msg("Radio initialized: \(radio.nickname)", level: .info, function: #function, file: #file, line: #line)
 
-    Defaults[.versionRadio] = radio.version
+    Defaults[.versionRadio] = radio.discoveryPacket.firmwareVersion
     Defaults[.radioModel] = radio.discoveryPacket.model
     
     // update the title bar
@@ -749,19 +749,20 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
   @objc private func radioWillBeRemoved(_ note: Notification) {
     
     // the Radio class is being removed
-    let radio = note.object as! Radio
-    
-    _log.msg("Radio will be removed: \(radio.nickname)", level: .info, function: #function, file: #file, line: #line)
-
-    Defaults[.versionRadio] = ""
-    
-    // update the toolbar items
-    enableToolbarItems(false)
-
-    if Defaults[.macAudioEnabled] { self._opusPlayer?.stop() }
-
-    // remove all objects on Radio
-    radio.removeAll()
+    if let radio = note.object as? Radio {
+      
+      _log.msg("Radio will be removed: \(radio.nickname)", level: .info, function: #function, file: #file, line: #line)
+      
+      Defaults[.versionRadio] = ""
+      
+      // update the toolbar items
+      enableToolbarItems(false)
+      
+      if Defaults[.macAudioEnabled] { self._opusPlayer?.stop() }
+      
+      // remove all objects on Radio
+      radio.removeAll()
+    }
   }
   /// Process .radioHasBeenRemoved Notification
   ///
@@ -929,12 +930,12 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
   /// Connect the selected Radio
   ///
   /// - Parameters:
-  ///   - radio:                the DiscoveredRadio
+  ///   - radio:                the DiscoveryStruct
   ///   - isWan:                Local / Wan
   ///   - wanHandle:            Wan handle (if any)
   /// - Returns:                success / failure
   ///
-  func openRadio(_ radio: DiscoveredRadio?, isWan: Bool = false, wanHandle: String = "") -> Radio? {
+  func openRadio(_ radio: DiscoveryStruct?, isWan: Bool = false, wanHandle: String = "") -> Radio? {
     
     if let _ = _radioPickerTabViewController {
       self._radioPickerTabViewController = nil
@@ -950,7 +951,7 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
     let station = (Host.current().localizedName ?? "Mac").replacingSpaces(with: "_")
     return _api.connect(selectedRadio,
                         clientStation: station,
-                        clientProgram: AppDelegate.kName,
+                        programName: AppDelegate.kName,
                         clientId: _clientId,
                         isGui: true,
                         isWan: isWan,
@@ -976,7 +977,7 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
         monitor.deactivate()
       }
     }
-    // perform an orderly shutdown of all the components
-    _api.shutdown(reason: .normal)
+    // perform an orderly disconnect of all the components
+    _api.disconnect(reason: .normal)
   }
 }

@@ -490,7 +490,7 @@ final class PanadapterViewController        : NSViewController, NSGestureRecogni
     var tnf: Tnf? = nil
     
     // calculate a minimum width for hit testing
-    let effectiveWidth = UInt( CGFloat(_bandwidth) * 0.01)
+    let effectiveWidth = Hz( CGFloat(_bandwidth) * 0.01)
     
     _radio!.tnfs.forEach {
       let halfWidth = max(effectiveWidth, $0.value.width/2)
@@ -504,84 +504,85 @@ final class PanadapterViewController        : NSViewController, NSGestureRecogni
   // ----------------------------------------------------------------------------
   // MARK: - Observation methods
 
-  private var _baseObservations    = [NSKeyValueObservation]()
-  private var _tnfObservations     = [NSKeyValueObservation]()
+  private var _baseObservations       = [NSKeyValueObservation]()
+  private var _tnfObservations        = [NSKeyValueObservation]()
 
   /// Add observations of various properties used by the Panadapter
   ///
   private func createBaseObservations(_ observations: inout [NSKeyValueObservation]) {
 
     observations = [
-      Defaults.observe(\.dbLegend, options: [.initial, .new]) { [weak self] (object, change) in
-        self?.redrawDbLegend(object, change) },
+
+      _panadapter!.observe(\Panadapter.bandwidth, options: [.initial, .new]) { [weak self] (object, change) in
+        self?.redrawLegends() },
+      
+      _panadapter!.observe(\Panadapter.center, options: [.initial, .new]) { [weak self] (object, change) in
+        self?.redrawLegends() },
+      
+      _radio!.observe(\Radio.tnfsEnabled, options: [.initial, .new]) { [weak self] (object, change) in
+        self?.redrawLegends() },
+
+      Defaults.observe(\UserDefaults.dbLegend, options: [.initial, .new]) { [weak self] (object, change) in
+        self?.redrawLegends() },
       
       Defaults.observe(\.marker, options: [.initial, .new]) { [weak self] (object, change) in
-        self?.redrawFrequencyLegend(object, change) },
+        self?.redrawLegends() },
       
       Defaults.observe(\.dbLegendSpacing, options: [.initial, .new]) { [weak self] (object, change) in
-        self?.redrawFrequencyLegend(object, change) },
+        self?.redrawLegends() },
       
       Defaults.observe(\.frequencyLegend, options: [.initial, .new]) { [weak self] (object, change) in
-        self?.redrawFrequencyLegend(object, change) },
+        self?.redrawLegends() },
       
       Defaults.observe(\.sliceActive, options: [.initial, .new]) { [weak self] (object, change) in
-        self?.redrawFrequencyLegend(object, change) },
+        self?.redrawLegends() },
       
       Defaults.observe(\.markersEnabled, options: [.initial, .new]) { [weak self] (object, change) in
-        self?.redrawFrequencyLegend(object, change) },
+        self?.redrawLegends() },
       
       Defaults.observe(\.markerSegment, options: [.initial, .new]) { [weak self] (object, change) in
-        self?.redrawFrequencyLegend(object, change) },
+        self?.redrawLegends() },
       
       Defaults.observe(\.markerEdge, options: [.initial, .new]) { [weak self] (object, change) in
-        self?.redrawFrequencyLegend(object, change) },
+        self?.redrawLegends() },
       
       Defaults.observe(\.sliceFilter, options: [.initial, .new]) { [weak self] (object, change) in
-        self?.redrawFrequencyLegend(object, change) },
+        self?.redrawLegends() },
       
       Defaults.observe(\.sliceInactive, options: [.initial, .new]) { [weak self] (object, change) in
-        self?.redrawFrequencyLegend(object, change) },
+        self?.redrawLegends() },
       
       Defaults.observe(\.tnfActive, options: [.initial, .new]) { [weak self] (object, change) in
-        self?.redrawFrequencyLegend(object, change) },
+        self?.redrawLegends() },
       
       Defaults.observe(\.tnfInactive, options: [.initial, .new]) { [weak self] (object, change) in
-        self?.redrawFrequencyLegend(object, change) },
+        self?.redrawLegends() },
       
       Defaults.observe(\.gridLine, options: [.initial, .new]) { [weak self] (object, change) in
-        self?.redrawFrequencyAndDbLegend(object, change) },
-
-      _panadapter!.observe(\.bandwidth, options: [.initial, .new]) { [weak self] (object, change) in
-        self?.redrawFrequencyLegend(object, change) },
-      
-      _panadapter!.observe(\.center, options: [.initial, .new]) { [weak self] (object, change) in
-        self?.redrawFrequencyLegend(object, change) },
-      
-      _radio!.observe(\.tnfsEnabled, options: [.initial, .new]) { [weak self] (object, change) in
-        self?.redrawFrequencyLegend(object, change) },
+        self?.redrawLegends() },
       
       Defaults.observe(\.spectrumFillLevel, options: [.initial, .new]) { [weak self] (object, change) in
-        self?.defaultsObserver(object, change) },
+        self?.defaultsObserver() },
       
       Defaults.observe(\.spectrum, options: [.initial, .new]) { [weak self] (object, change) in
-        self?.defaultsObserver(object, change) },
+        self?.defaultsObserver() },
       
       Defaults.observe(\.spectrumBackground, options: [.initial, .new]) { [weak self] (object, change) in
-        self?.defaultsObserver(object, change) },
+        self?.defaultsObserver() },
     ]
   }
   /// Add observations of Tnf's used by the Panadapter
   ///
   private func addTnfObservations(_ observations: inout [NSKeyValueObservation], tnf: Tnf ) {
 
-    observations.append( tnf.observe(\.frequency, options: [.initial, .new]) { [weak self] (object, change) in
-      self?.redrawFrequencyLegend(object, change) })
-    observations.append( tnf.observe(\.depth, options: [.initial, .new]) { [weak self] (object, change) in
-      self?.redrawFrequencyLegend(object, change) })
-    observations.append( tnf.observe(\.width, options: [.initial, .new]) { [weak self] (object, change) in
-      self?.redrawFrequencyLegend(object, change) })
-    observations.append( tnf.observe(\.permanent, options: [.initial, .new]) { [weak self] (object, change) in
-      self?.redrawFrequencyLegend(object, change) })
+    observations.append( tnf.observe(\Tnf.frequency, options: [.initial, .new]) { [weak self] (_,_) in
+      self?.redrawFrequencyLegend() })
+    observations.append( tnf.observe(\Tnf.depth, options: [.initial, .new]) { [weak self] (_,_) in
+      self?.redrawFrequencyLegend() })
+    observations.append( tnf.observe(\Tnf.width, options: [.initial, .new]) { [weak self] (_,_) in
+      self?.redrawFrequencyLegend() })
+    observations.append( tnf.observe(\Tnf.permanent, options: [.initial, .new]) { [weak self] (_,_) in
+      self?.redrawFrequencyLegend() })
   }
   /// Invalidate observations (optionally remove)
   ///
@@ -603,9 +604,9 @@ final class PanadapterViewController        : NSViewController, NSGestureRecogni
   ///   - object:                       the object holding the properties
   ///   - change:                       the change
   ///
-  private func defaultsObserver(_ defaults: UserDefaults, _ change: Any) {
+  private func defaultsObserver() {
 
-    _panadapterRenderer.updateColor(spectrumColor: defaults[.spectrum], fillLevel: defaults[.spectrumFillLevel], fillColor: defaults[.spectrum])
+    _panadapterRenderer.updateColor(spectrumColor: Defaults[.spectrum], fillLevel: Defaults[.spectrumFillLevel], fillColor: Defaults[.spectrum])
 
     // Panadapter background color
     _panadapterView.clearColor = Defaults[.spectrumBackground].metalClearColor
@@ -616,7 +617,7 @@ final class PanadapterViewController        : NSViewController, NSGestureRecogni
   ///   - object:                       the object holding the properties
   ///   - change:                       the change
   ///
-  private func redrawFrequencyAndDbLegend(_ object: Any, _ change: Any) {
+  private func redrawLegends() {
     
     _frequencyLegendView.redraw()
     _dbLegendView.redraw()
@@ -627,20 +628,20 @@ final class PanadapterViewController        : NSViewController, NSGestureRecogni
   ///   - object:                       the object holding the properties
   ///   - change:                       the change
   ///
-  private func redrawFrequencyLegend(_ object: Any, _ change: Any) {
-    
-    _frequencyLegendView.redraw()
-  }
+//  private func redrawFrequencyLegend() {
+//
+//    _frequencyLegendView.redraw()
+//  }
   /// Respond to observations requiring a redraw of the dbLegend view
   ///
   /// - Parameters:
   ///   - object:                       the object holding the properties
   ///   - change:                       the change
   ///
-  private func redrawDbLegend(_ object: Any, _ change: Any) {
-    
-    _dbLegendView.redraw()
-  }
+//  private func redrawDbLegend() {
+//
+//    _dbLegendView.redraw()
+//  }
 
   // ----------------------------------------------------------------------------
   // MARK: - Notification Methods
@@ -707,7 +708,7 @@ final class PanadapterViewController        : NSViewController, NSGestureRecogni
     if let panadapter = _panadapter, slice.panadapterId == panadapter.id {
       
       // YES, log the event
-      _log.msg("Slice added: Id = \(slice.id), pan = \(panadapter.id.hex), freq = \(slice.frequency)", level: .info, function: #function, file: #file, line: #line)
+      _log.msg("Slice added: Object Id = \(slice.id), Panadapter Stream Id = \(panadapter.id.hex), Frequency = \(slice.frequency.hzToMhz)", level: .info, function: #function, file: #file, line: #line)
 
       // observe removal of this Slice
       NC.makeObserver(self, with: #selector(sliceWillBeRemoved(_:)), of: .sliceWillBeRemoved, object: slice)
@@ -754,7 +755,7 @@ final class PanadapterViewController        : NSViewController, NSGestureRecogni
     let tnf = note.object as! Tnf
     
     // YES, log the event
-    _log.msg("Tnf added: Id = \(tnf.id)", level: .info, function: #function, file: #file, line: #line)
+    _log.msg("Tnf added: Object Id = \(tnf.id), frequency - \(tnf.frequency.hzToMhz)", level: .info, function: #function, file: #file, line: #line)
 
     // add observations for this Tnf
     addTnfObservations(&_tnfObservations, tnf: tnf)

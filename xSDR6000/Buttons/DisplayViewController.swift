@@ -39,6 +39,7 @@ final class DisplayViewController                     : NSViewController, NSPopo
   private var _waterfall                              : Waterfall?
   
   private var _observations                           = [NSKeyValueObservation]()
+  private var _observationsDefaults                   : DefaultsDisposable?
   private var _isDetached                             = false
 
   // ----------------------------------------------------------------------------
@@ -163,7 +164,7 @@ final class DisplayViewController                     : NSViewController, NSPopo
         self?.changeHandler(object, change) },
       
       Defaults.observe(\.spectrumFillLevel, options: [.initial, .new]) { [weak self] (object, change) in
-        self?.defaultsHandler(object, change) }
+        self?.defaultsHandler() }
     ]
   }
   /// Process observations
@@ -211,7 +212,7 @@ final class DisplayViewController                     : NSViewController, NSPopo
   ///   - slice:                    the object being observed
   ///   - change:                   the change
   ///
-  private func defaultsHandler(_ object: Any, _ change: Any) {
+  private func defaultsHandler() {
     
     DispatchQueue.main.async { [weak self] in
       

@@ -374,7 +374,7 @@ final class FlagViewController       : NSViewController, NSTextFieldDelegate, NS
 
     if sender.boolState {
       // Create a split
-      _radio?.createSlice(panadapter: _panadapter!, frequency: slice!.frequency + Defaults[.splitDistance], callback: splitCreated)
+      _radio?.requestSlice(panadapter: _panadapter!, frequency: slice!.frequency + Defaults[.splitDistance], callback: splitCreated)
     
     } else {
       // Remove the Split
@@ -481,7 +481,7 @@ final class FlagViewController       : NSViewController, NSTextFieldDelegate, NS
     if let item = Api.sharedInstance.radio!.meters.first(where: {
       $0.value.source == "slc" &&
         $0.value.group.objectId == slice.id &&
-      $0.value.name == Api.MeterShortName.signalPassband.rawValue} ) {
+      $0.value.name == Meter.ShortName.signalPassband.rawValue} ) {
       
       addMeterObservation( item.value)
     }
@@ -701,7 +701,7 @@ final class FlagViewController       : NSViewController, NSTextFieldDelegate, NS
       switch meter.name {
       
       // S-Meter
-      case Api.MeterShortName.signalPassband.rawValue:
+      case Meter.ShortName.signalPassband.rawValue:
         
         addMeterObservation( meter )
       

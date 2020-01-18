@@ -24,12 +24,12 @@ protocol LANRadioPickerDelegate: class {
   /// Open the specified Radio
   ///
   /// - Parameters:
-  ///   - radio:          a DiscoveredRadio struct
+  ///   - radio:          a DiscoveryStruct struct
   ///   - remote:         remote / local
   ///   - handle:         remote handle
   /// - Returns:          success / failure
   ///
-  func openRadio(_ radio: DiscoveredRadio?, remote: Bool, handle: String ) -> Bool
+  func openRadio(_ radio: DiscoveryStruct?, remote: Bool, handle: String ) -> Bool
   
   /// Close the active Radio
   ///
@@ -61,9 +61,9 @@ final class LANRadioPickerViewController    : NSViewController, NSTableViewDeleg
   @IBOutlet private var _defaultButton      : NSButton!                   // Set as default
   
   private var _api                          = Api.sharedInstance
-  private var _radios                       : [DiscoveredRadio] { return Discovery.sharedInstance.discoveredRadios }
+  private var _radios                       : [DiscoveryStruct] { return Discovery.sharedInstance.discoveredRadios }
   private let _log                          = (NSApp.delegate as! AppDelegate)
-  private var _selectedRadio                : DiscoveredRadio?            // Radio in selected row
+  private var _selectedRadio                : DiscoveryStruct?            // Radio in selected row
   private weak var _parentVc                : NSViewController!
   
   private weak var _delegate                : RadioPickerDelegate? {
@@ -117,8 +117,8 @@ final class LANRadioPickerViewController    : NSViewController, NSTableViewDeleg
     
     _parentVc.dismiss(sender)
     
-    // perform an orderly shutdown of all the components
-    _api.shutdown(reason: .normal)
+    // perform an orderly disconnect of all the components
+    _api.disconnect(reason: .normal)
     
     _log.msg("Application closed by user", level: .info, function: #function, file: #file, line: #line)
     DispatchQueue.main.async {
@@ -222,7 +222,7 @@ final class LANRadioPickerViewController    : NSViewController, NSTableViewDeleg
   }
   /// Open a Radio & close the Picker
   ///
-  private func openRadio(_ radio: DiscoveredRadio?) {
+  private func openRadio(_ radio: DiscoveryStruct?) {
     
     // RadioPicker sheet will close & Radio will be opened
     
@@ -242,13 +242,13 @@ final class LANRadioPickerViewController    : NSViewController, NSTableViewDeleg
   private func addNotifications() {
     
     // Available Radios changed
-    NC.makeObserver(self, with: #selector(discoveredRadios(_:)), of: .discoveredRadios)
+    NC.makeObserver(self, with: #selector(Discovered(_:)), of: .discoveredRadios)
   }
-  /// Process .discoveredRadios Notification
+  /// Process .DiscoveryStructs Notification
   ///
   /// - Parameter note: a Notification instance
   ///
-  @objc private func discoveredRadios(_ note: Notification) {
+  @objc private func Discovered(_ note: Notification) {
     
     DispatchQueue.main.async { [weak self] in
       

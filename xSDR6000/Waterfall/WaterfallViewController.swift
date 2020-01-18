@@ -49,13 +49,13 @@ final class WaterfallViewController               : NSViewController, NSGestureR
   
   private var _waterfallRenderer            : WaterfallRenderer!
 
-  private weak var _waterfall               : Waterfall? { return radio!.waterfalls[panadapter!.waterfallId] }
+  private weak var _waterfall               : Waterfall? { radio!.waterfalls[panadapter!.waterfallId] }
   private let _log                          = NSApp.delegate as! AppDelegate
-  private var _center                       : Int { return panadapter!.center }
-  private var _bandwidth                    : Int { return panadapter!.bandwidth }
-  private var _start                        : Int { return _center - (_bandwidth/2) }
-  private var _end                          : Int  { return _center + (_bandwidth/2) }
-  private var _hzPerUnit                    : CGFloat { return CGFloat(_end - _start) / panadapter!.xPixels }
+  private var _center                       : Hz  { panadapter!.center }
+  private var _bandwidth                    : Hz  { panadapter!.bandwidth }
+  private var _start                        : Hz  { _center - (_bandwidth/2) }
+  private var _end                          : Hz  { _center + (_bandwidth/2) }
+  private var _hzPerUnit                    : CGFloat { CGFloat(_end - _start) / panadapter!.xPixels }
   
   // constants
   private let _filter                       = CIFilter(name: "CIDifferenceBlendMode")
@@ -249,7 +249,7 @@ final class WaterfallViewController               : NSViewController, NSGestureR
         self?.waterfallObserverGradient(object, change) },
 
       Defaults.observe(\.spectrumBackground, options: [.initial, .new]) { [weak self] (object, change) in
-        self?.defaultsObserver(object, change) },
+        self?.defaultsObserver(object, change) }
     ]
   }
   /// Invalidate observations (optionally remove)
@@ -321,7 +321,7 @@ final class WaterfallViewController               : NSViewController, NSGestureR
   private func defaultsObserver(_ defaults: UserDefaults, _ change: Any) {
     
     // reset the spectrum background color
-    let color = defaults[.spectrumBackground]
+    let color = Defaults[.spectrumBackground]
     _waterfallView.clearColor = MTLClearColor(red: Double(color.redComponent),
                                               green: Double(color.greenComponent),
                                               blue: Double(color.blueComponent),

@@ -55,10 +55,10 @@ public final class WaterfallRenderer: NSObject, MTKViewDelegate {
   private weak var _panadapter              : Panadapter?
   private weak var _waterfall               : Waterfall? { return _radio!.waterfalls[_panadapter!.waterfallId] }
 
-  private var _center                       : Int {return _panadapter!.center }
-  private var _bandwidth                    : Int { return _panadapter!.bandwidth }
-  private var _start                        : Int { return _center - (_bandwidth/2) }
-  private var _end                          : Int  { return _center + (_bandwidth/2) }
+  private var _center                       : Hz {return _panadapter!.center }
+  private var _bandwidth                    : Hz { return _panadapter!.bandwidth }
+  private var _start                        : Hz { return _center - (_bandwidth/2) }
+  private var _end                          : Hz  { return _center + (_bandwidth/2) }
   
   private var _metalView                    : MTKView!
   private var _commandQueue                 : MTLCommandQueue!              // Metal queue

@@ -29,7 +29,6 @@ final class RadioPrefsViewController: NSViewController {
   @IBOutlet private weak var _nicknameRadioButton         : NSButton!
   
   private var _radio                        : Radio? { return Api.sharedInstance.radio }
-  private var _observations                 = [NSKeyValueObservation]()
 
   // ----------------------------------------------------------------------------
   // MARK: - Overridden  methods
@@ -42,9 +41,12 @@ final class RadioPrefsViewController: NSViewController {
     #endif
     
     view.translatesAutoresizingMaskIntoConstraints = false
+  }
+  
+  override func viewWillAppear() {
+    super.viewWillAppear()
     
-    // begin observing properties
-    addObservations()
+    loadFields()
   }
   #if XDEBUG
   deinit {
@@ -98,65 +100,22 @@ final class RadioPrefsViewController: NSViewController {
   }
   
   // ----------------------------------------------------------------------------
-  // MARK: - Observation methods
+  // MARK: - Private  methods
   
-  /// Add observations of various properties used by the view
+  /// Load the screen's fields
   ///
-  private func addObservations() {
+  private func loadFields() {
     
-    _observations = [
-      _radio!.observe(\.serialNumber, options: [.initial, .new]) { [weak self] (radio, change) in
-        self?._serialNumberTextField.stringValue = radio.serialNumber },
-      
-      _radio!.observe(\.version, options: [.initial, .new]) { [weak self] (radio, change) in
-        self?._hwVersionTextField.stringValue = radio.version },
-      
-      _radio!.observe(\.radioOptions, options: [.initial, .new]) { [weak self] (radio, change) in
-        self?._optionsTextField.stringValue = radio.radioOptions },
-      
-      _radio!.observe(\.radioModel, options: [.initial, .new]) { [weak self] (radio, change) in
-        self?._modelTextField.stringValue = radio.radioModel },
-      
-      _radio!.observe(\.callsign, options: [.initial, .new]) { [weak self] (radio, change) in
-        self?._callsignTextField.stringValue = radio.callsign },
-      
-      _radio!.observe(\.nickname, options: [.initial, .new]) { [weak self] (radio, change) in
-        self?._nicknameTextField.stringValue = radio.nickname },
-      
-      _radio!.observe(\.remoteOnEnabled, options: [.initial, .new]) { [weak self] (radio, change) in
-        self?._remoteOnEnabledCheckbox.boolState = radio.remoteOnEnabled},
-      
-//      _radio!.observe(\.flexControlEnabled, options: [.initial, .new]) { [weak self] (interlock, change) in
-//      self?._accTxCheckbox.boolState = interlock.accTxEnabled },
-
-      _radio!.observe(\.radioScreenSaver, options: [.initial, .new]) { [weak self] (radio, change) in
-        self?._modelRadioButton.boolState = (radio.radioScreenSaver == "model")
-        self?._callsignRadioButton.boolState = (radio.radioScreenSaver == "callsign")
-        self?._nicknameRadioButton.boolState = (radio.radioScreenSaver == "nickname") }
-    ]
+    _serialNumberTextField.stringValue = _radio!.serialNumber
+    _hwVersionTextField.stringValue = _radio!.version.string
+    _optionsTextField.stringValue = _radio!.radioOptions
+    _modelTextField.stringValue = _radio!.radioModel
+    _callsignTextField.stringValue = _radio!.callsign
+    _nicknameTextField.stringValue = _radio!.nickname
+    _remoteOnEnabledCheckbox.boolState = _radio!.remoteOnEnabled
+    //      _accTxCheckbox.boolState = interlock.accTxEnabled
+    _modelRadioButton.boolState = _radio!.radioScreenSaver == "model"
+    _callsignRadioButton.boolState = _radio!.radioScreenSaver == "callsign"
+    _nicknameRadioButton.boolState = _radio!.radioScreenSaver == "nickname"
   }
-  /// Process observations
-  ///
-  /// - Parameters:
-  ///   - profile:                  the Radio being observed
-  ///   - change:                   the change
-  ///
-//  private func radioHandler(_ radio: Radio, _ change: Any) {
-//
-//    DispatchQueue.main.async { [weak self] in
-//      self?._serialNumberTextField.stringValue = radio.serialNumber
-//      self?._hwVersionTextField.stringValue = radio.version
-//      self?._optionsTextField.stringValue = radio.radioOptions
-//      self?._modelTextField.stringValue = radio.radioModel
-//      self?._callsignTextField.stringValue = radio.callsign
-//      self?._nicknameTextField.stringValue = radio.nickname
-//
-//      self?._remoteOnEnabledCheckbox.boolState = radio.remoteOnEnabled
-////      self._flexControlEnabledCheckbox = radio.flexControlEnabled
-//
-//      self?._modelRadioButton.boolState = (radio.radioScreenSaver == "model")
-//      self?._callsignRadioButton.boolState = (radio.radioScreenSaver == "callsign")
-//      self?._nicknameRadioButton.boolState = (radio.radioScreenSaver == "nickname")
-//    }
-//  }
 }

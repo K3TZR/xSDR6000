@@ -168,7 +168,7 @@ final class PanafallViewController          : NSSplitViewController, NSGestureRe
     }
     
     // is the Frequency inside a Tnf?
-    let tnf = Api.sharedInstance.radio!.findTnf(at: UInt(mouseFrequency), width: UInt( CGFloat(_bandwidth) * kTnfFindWidth ))
+    let tnf = Api.sharedInstance.radio!.findTnf(at: Hz(mouseFrequency), minWidth: Hz( CGFloat(_bandwidth) * kTnfFindWidth ))
     if let tnf = tnf {
       // YES, mouse is in a TNF
       index += 1
@@ -238,14 +238,14 @@ final class PanafallViewController          : NSSplitViewController, NSGestureRe
       
     case kCreateSlice:        // tell the Radio to create a new Slice
       let freq = (sender.representedObject! as! NSNumber).intValue
-      _radio?.createSlice(panadapter: _panadapter!, frequency: freq)
+      _radio?.requestSlice(panadapter: _panadapter!, frequency: freq)
       
     case kRemoveSlice:        // tell the Radio to remove the Slice
      (sender.representedObject as! xLib6000.Slice).remove()
       
     case kCreateTnf:          // tell the Radio to create a new Tnf
-      let freq = (sender.representedObject! as! NSNumber).intValue
-      _radio?.createTnf(frequency: freq.hzToMhz)
+      let frequency = (sender.representedObject! as! NSNumber).intValue
+      _radio?.requestTnf(at: frequency)
       
     case kRemoveTnf:          // tell the Radio to remove the Tnf
       let tnf = sender.representedObject as! Tnf
@@ -298,7 +298,7 @@ final class PanafallViewController          : NSSplitViewController, NSGestureRe
         // moving lower, adjust the slice frequency
         normalizedFreq.round(.towardZero)
       }
-      slice.frequency = Int(normalizedFreq * Double(incr))
+      slice.frequency = Hz(normalizedFreq * Double(incr))
     }
     // decide whether to move the panadapter center
     let center = ((slice.frequency + slice.filterHigh) + (slice.frequency + slice.filterLow))/2
