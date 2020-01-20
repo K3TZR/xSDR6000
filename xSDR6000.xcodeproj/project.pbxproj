@@ -10,6 +10,7 @@
 		917AAA7A23D53FD90082FAEB /* ObjcExceptionBridging in Frameworks */ = {isa = PBXBuildFile; productRef = 917AAA7923D53FD90082FAEB /* ObjcExceptionBridging */; };
 		917AAA7C23D53FD90082FAEB /* XCGLogger in Frameworks */ = {isa = PBXBuildFile; productRef = 917AAA7B23D53FD90082FAEB /* XCGLogger */; };
 		917AAA7F23D53FF80082FAEB /* xLib6000 in Frameworks */ = {isa = PBXBuildFile; productRef = 917AAA7E23D53FF80082FAEB /* xLib6000 */; };
+		918725A323D64402009B63A3 /* ChangeLog.txt in Resources */ = {isa = PBXBuildFile; fileRef = 918725A223D64402009B63A3 /* ChangeLog.txt */; };
 		919614F723D28F8F0069AE94 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 919614F623D28F8F0069AE94 /* README.md */; };
 		91E4788A23B666EE004DA6A7 /* AudioHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91E4780923B666EE004DA6A7 /* AudioHelper.swift */; };
 		91E4788B23B666EE004DA6A7 /* TPCircularBuffer+AudioBufferList.c in Sources */ = {isa = PBXBuildFile; fileRef = 91E4780D23B666EE004DA6A7 /* TPCircularBuffer+AudioBufferList.c */; };
@@ -97,7 +98,6 @@
 		91E4791823B68C7D004DA6A7 /* CARingBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 91E4791423B68C7D004DA6A7 /* CARingBuffer.cpp */; };
 		91E4791A23B691B0004DA6A7 /* OpusOSX.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 91E4780523B666ED004DA6A7 /* OpusOSX.framework */; };
 		91E4791B23B691B0004DA6A7 /* OpusOSX.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 91E4780523B666ED004DA6A7 /* OpusOSX.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		91E4791E23B69232004DA6A7 /* ChangeLog.txt in Resources */ = {isa = PBXBuildFile; fileRef = 91E4780423B666ED004DA6A7 /* ChangeLog.txt */; };
 		91E4792E23B69A2A004DA6A7 /* Preferences.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 91E4792023B69A2A004DA6A7 /* Preferences.storyboard */; };
 		91E4792F23B69A2A004DA6A7 /* Panafall.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 91E4792223B69A2A004DA6A7 /* Panafall.storyboard */; };
 		91E4793023B69A2A004DA6A7 /* Side.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 91E4792423B69A2A004DA6A7 /* Side.storyboard */; };
@@ -122,11 +122,11 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		918725A223D64402009B63A3 /* ChangeLog.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ChangeLog.txt; sourceTree = "<group>"; };
 		919614F423D28DB50069AE94 /* xSDR6000-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "xSDR6000-Bridging-Header.h"; sourceTree = "<group>"; };
 		919614F523D28DB50069AE94 /* xSDR6000.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = xSDR6000.entitlements; sourceTree = "<group>"; };
 		919614F623D28F8F0069AE94 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		91E477F123B66661004DA6A7 /* xSDR6000.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = xSDR6000.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		91E4780423B666ED004DA6A7 /* ChangeLog.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ChangeLog.txt; sourceTree = "<group>"; };
 		91E4780523B666ED004DA6A7 /* OpusOSX.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = OpusOSX.framework; sourceTree = "<group>"; };
 		91E4780923B666EE004DA6A7 /* AudioHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AudioHelper.swift; sourceTree = "<group>"; };
 		91E4780C23B666EE004DA6A7 /* TPCircularBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TPCircularBuffer.h; sourceTree = "<group>"; };
@@ -247,6 +247,7 @@
 		91E477E823B66661004DA6A7 = {
 			isa = PBXGroup;
 			children = (
+				918725A223D64402009B63A3 /* ChangeLog.txt */,
 				919614F623D28F8F0069AE94 /* README.md */,
 				91E4780523B666ED004DA6A7 /* OpusOSX.framework */,
 				91E4780723B666EE004DA6A7 /* xSDR6000 */,
@@ -271,7 +272,6 @@
 				91E4784623B666EE004DA6A7 /* Assets.xcassets */,
 				91E4791F23B69A2A004DA6A7 /* Base.lproj */,
 				91E4787423B666EE004DA6A7 /* Info.plist */,
-				91E4780423B666ED004DA6A7 /* ChangeLog.txt */,
 				91E4786F23B666EE004DA6A7 /* AppDelegate.swift */,
 				91E4787223B666EE004DA6A7 /* AppExtensions.swift */,
 				91E4783223B666EE004DA6A7 /* Radio */,
@@ -617,7 +617,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				91E4793223B69A2A004DA6A7 /* Main.storyboard in Resources */,
-				91E4791E23B69232004DA6A7 /* ChangeLog.txt in Resources */,
 				91E4793123B69A2A004DA6A7 /* RadioPicker.storyboard in Resources */,
 				91E4793323B69A2A004DA6A7 /* Flag.storyboard in Resources */,
 				91E4789723B666EE004DA6A7 /* Filters.plist in Resources */,
@@ -625,6 +624,7 @@
 				91E4789B23B666EE004DA6A7 /* xSDR6000.pdf in Resources */,
 				91E4793023B69A2A004DA6A7 /* Side.storyboard in Resources */,
 				919614F723D28F8F0069AE94 /* README.md in Resources */,
+				918725A323D64402009B63A3 /* ChangeLog.txt in Resources */,
 				91E478B323B666EE004DA6A7 /* Purple.tex in Resources */,
 				91E478B023B666EE004DA6A7 /* Deuteranopia.tex in Resources */,
 				91E4792E23B69A2A004DA6A7 /* Preferences.storyboard in Resources */,
