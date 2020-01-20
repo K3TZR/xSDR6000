@@ -30,7 +30,7 @@
       },
       {
         "package": "XCGLogger",
-        "repositoryURL": "git@github.com:DaveWoodCom/XCGLogger.git",
+        "repositoryURL": "https://github.com/DaveWoodCom/XCGLogger.git",
         "state": {
           "branch": null,
           "revision": "f0daefd2a472f0c8d3d12a4b0d45594195a6c74d",
@@ -39,11 +39,11 @@
       },
       {
         "package": "xLib6000",
-        "repositoryURL": "git@github.com:K3TZR/xLib6000.git",
+        "repositoryURL": "https://github.com/K3TZR/xLib6000.git",
         "state": {
           "branch": null,
-          "revision": "5a9111fccbe611d96205c960a6a0529e78372357",
-          "version": "1.0.9"
+          "revision": "859d7e00be7f679024c055bdee54b9ffcc4a55b3",
+          "version": "1.0.58"
         }
       }
     ]
