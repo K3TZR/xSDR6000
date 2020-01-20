@@ -1,8 +1,8 @@
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://en.wikipedia.org/wiki/MIT_License)
+
 # xSDR6000
 ## Mac Client for the FlexRadio (TM) 6000 series software defined radios.
 ###      (currently supports Radios with Version 2.4.9 or lower, see Evolution below)
-
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://en.wikipedia.org/wiki/MIT_License)
 
 ### Built on:
 
