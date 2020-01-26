@@ -62,7 +62,7 @@ final class LANRadioPickerViewController    : NSViewController, NSTableViewDeleg
   
   private var _api                          = Api.sharedInstance
   private var _radios                       : [DiscoveryStruct] { return Discovery.sharedInstance.discoveredRadios }
-  private let _log                          = (NSApp.delegate as! AppDelegate)
+  private let _log                          = (NSApp.delegate as! AppDelegate).msg
   private var _selectedRadio                : DiscoveryStruct?            // Radio in selected row
   private weak var _parentVc                : NSViewController!
   
@@ -120,7 +120,7 @@ final class LANRadioPickerViewController    : NSViewController, NSTableViewDeleg
     // perform an orderly disconnect of all the components
     _api.disconnect(reason: .normal)
     
-    _log.msg("Application closed by user", level: .info, function: #function, file: #file, line: #line)
+    _log("Application closed by user", .info, #function, #file, #line)
     DispatchQueue.main.async {
 
       NSApp.terminate(self)
@@ -297,7 +297,7 @@ final class LANRadioPickerViewController    : NSViewController, NSTableViewDeleg
     case "nickname":  cellView.textField!.stringValue = _radios[row].nickname
     case "status":    cellView.textField!.stringValue = _radios[row].status
     case "publicIp":  cellView.textField!.stringValue = _radios[row].publicIp
-    default:          _log.msg("Unknown table column: \(tableColumn!.identifier.rawValue)", level: .error, function: #function, file: #file, line: #line)
+    default:          _log("Unknown table column: \(tableColumn!.identifier.rawValue)", .error, #function, #file, #line)
     }
 
     // color the default row

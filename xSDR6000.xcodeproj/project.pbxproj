@@ -7,9 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		9164EE5523DDDA6500086338 /* xLib6000 in Frameworks */ = {isa = PBXBuildFile; productRef = 9164EE5423DDDA6500086338 /* xLib6000 */; };
 		917AAA7A23D53FD90082FAEB /* ObjcExceptionBridging in Frameworks */ = {isa = PBXBuildFile; productRef = 917AAA7923D53FD90082FAEB /* ObjcExceptionBridging */; };
 		917AAA7C23D53FD90082FAEB /* XCGLogger in Frameworks */ = {isa = PBXBuildFile; productRef = 917AAA7B23D53FD90082FAEB /* XCGLogger */; };
-		917AAA7F23D53FF80082FAEB /* xLib6000 in Frameworks */ = {isa = PBXBuildFile; productRef = 917AAA7E23D53FF80082FAEB /* xLib6000 */; };
 		918725A323D64402009B63A3 /* ChangeLog.txt in Resources */ = {isa = PBXBuildFile; fileRef = 918725A223D64402009B63A3 /* ChangeLog.txt */; };
 		919614F723D28F8F0069AE94 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 919614F623D28F8F0069AE94 /* README.md */; };
 		91E4788A23B666EE004DA6A7 /* AudioHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91E4780923B666EE004DA6A7 /* AudioHelper.swift */; };
@@ -237,7 +237,7 @@
 				91E4790323B667BE004DA6A7 /* SwiftyUserDefaults in Frameworks */,
 				917AAA7A23D53FD90082FAEB /* ObjcExceptionBridging in Frameworks */,
 				917AAA7C23D53FD90082FAEB /* XCGLogger in Frameworks */,
-				917AAA7F23D53FF80082FAEB /* xLib6000 in Frameworks */,
+				9164EE5523DDDA6500086338 /* xLib6000 in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -567,7 +567,7 @@
 				91E4790223B667BE004DA6A7 /* SwiftyUserDefaults */,
 				917AAA7923D53FD90082FAEB /* ObjcExceptionBridging */,
 				917AAA7B23D53FD90082FAEB /* XCGLogger */,
-				917AAA7E23D53FF80082FAEB /* xLib6000 */,
+				9164EE5423DDDA6500086338 /* xLib6000 */,
 			);
 			productName = xSDR6000;
 			productReference = 91E477F123B66661004DA6A7 /* xSDR6000.app */;
@@ -600,7 +600,7 @@
 			packageReferences = (
 				91E4790123B667BE004DA6A7 /* XCRemoteSwiftPackageReference "SwiftyUserDefaults" */,
 				917AAA7823D53FD90082FAEB /* XCRemoteSwiftPackageReference "XCGLogger" */,
-				917AAA7D23D53FF80082FAEB /* XCRemoteSwiftPackageReference "xLib6000" */,
+				9164EE5323DDDA6500086338 /* XCRemoteSwiftPackageReference "xLib6000" */,
 			);
 			productRefGroup = 91E477F223B66661004DA6A7 /* Products */;
 			projectDirPath = "";
@@ -974,20 +974,20 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		9164EE5323DDDA6500086338 /* XCRemoteSwiftPackageReference "xLib6000" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/K3TZR/xLib6000.git";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
 		917AAA7823D53FD90082FAEB /* XCRemoteSwiftPackageReference "XCGLogger" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/DaveWoodCom/XCGLogger.git";
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 7.0.0;
-			};
-		};
-		917AAA7D23D53FF80082FAEB /* XCRemoteSwiftPackageReference "xLib6000" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/K3TZR/xLib6000.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.0.0;
 			};
 		};
 		91E4790123B667BE004DA6A7 /* XCRemoteSwiftPackageReference "SwiftyUserDefaults" */ = {
@@ -1001,6 +1001,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		9164EE5423DDDA6500086338 /* xLib6000 */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 9164EE5323DDDA6500086338 /* XCRemoteSwiftPackageReference "xLib6000" */;
+			productName = xLib6000;
+		};
 		917AAA7923D53FD90082FAEB /* ObjcExceptionBridging */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 917AAA7823D53FD90082FAEB /* XCRemoteSwiftPackageReference "XCGLogger" */;
@@ -1010,11 +1015,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 917AAA7823D53FD90082FAEB /* XCRemoteSwiftPackageReference "XCGLogger" */;
 			productName = XCGLogger;
-		};
-		917AAA7E23D53FF80082FAEB /* xLib6000 */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 917AAA7D23D53FF80082FAEB /* XCRemoteSwiftPackageReference "xLib6000" */;
-			productName = xLib6000;
 		};
 		91E4790223B667BE004DA6A7 /* SwiftyUserDefaults */ = {
 			isa = XCSwiftPackageProductDependency;

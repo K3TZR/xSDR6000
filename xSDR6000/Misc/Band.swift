@@ -62,7 +62,7 @@ final public class Band {
   // MARK: - Private Properties
   
   //    private var _previousBandDict: [NSObject:AnyObject]?
-  private let _log                        = NSApp.delegate as! AppDelegate
+  private let _log                        = (NSApp.delegate as! AppDelegate).msg
 
   // constants
   private let kSoundLeavingBand           = "Basso"
@@ -291,7 +291,7 @@ final public class Band {
         try fileManager.createDirectory( at: appFolder, withIntermediateDirectories: false, attributes: nil)
       
       } catch let error as NSError {
-        _log.msg("Error creating App Support folder: \(error.localizedDescription)", level: .warning, function: #function, file: #file, line: #line)
+        _log("Error creating App Support folder: \(error.localizedDescription)", .warning, #function, #file, #line)
       }
     }
     return appFolder

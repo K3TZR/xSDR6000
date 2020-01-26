@@ -65,7 +65,7 @@ public final class OpusPlayer                       : NSObject, StreamHandler {
   // ----------------------------------------------------------------------------
   // MARK: - Private properties
   
-  private let _log                                  = NSApp.delegate as! AppDelegate
+  private let _log                                  = (NSApp.delegate as! AppDelegate).msg
   private var _outputUnit                           : AudioUnit?
   private var _ringBuffer                           = TPCircularBuffer()
   private var _q                                    = DispatchQueue(label: AppDelegate.kName + "OpusPlayerObjectQ", qos: .userInteractive, attributes: [.concurrent])
@@ -112,7 +112,7 @@ public final class OpusPlayer                       : NSObject, StreamHandler {
     TPCircularBufferClear(&_ringBuffer)
     
     let availableFrames = TPCircularBufferGetAvailableSpace(&_ringBuffer, &OpusPlayer.decoderOutputASBD)
-    _log.msg("\(availableFrames) Ring buffer frames available at start", level: .debug, function: #function, file: #file, line: #line)
+    _log("\(availableFrames) Ring buffer frames available at start", .debug, #function, #file, #line)
     
     // register render callback
     var input: AURenderCallbackStruct = AURenderCallbackStruct(inputProc: RenderProc, inputProcRefCon: Unmanaged.passUnretained(self).toOpaque())
@@ -138,7 +138,7 @@ public final class OpusPlayer                       : NSObject, StreamHandler {
     AudioOutputUnitStop(outputUnit)
     
     let availableFrames = TPCircularBufferGetAvailableSpace(&_ringBuffer, &OpusPlayer.decoderOutputASBD)
-    _log.msg("\(availableFrames) Ring buffer frames available at stop", level: .debug, function: #function, file: #file, line: #line)
+    _log("\(availableFrames) Ring buffer frames available at stop", .debug, #function, #file, #line)
   }
 
   // ----------------------------------------------------------------------------
@@ -280,7 +280,7 @@ public final class OpusPlayer                       : NSObject, StreamHandler {
 
       // check for decode errors
       if error != nil {
-        _log.msg("Opus conversion error: \(error!)", level: .error, function: #function, file: #file, line: #line)
+        _log("Opus conversion error: \(error!)", .error, #function, #file, #line)
       }
       // copy the frame's buffer to the Ring buffer & make it available
       TPCircularBufferCopyAudioBufferList(&_ringBuffer, &_outputBuffer.mutableAudioBufferList.pointee, nil, UInt32(RemoteRxAudioStream.frameCount), &OpusPlayer.decoderOutputASBD)
@@ -299,7 +299,7 @@ public final class OpusPlayer                       : NSObject, StreamHandler {
   
       // check for decode errors
       if numberOfFramesDecoded < 0 {
-        _log.msg("\(String(cString: opus_strerror(numberOfFramesDecoded)))", level: .error, function: #function, file: #file, line: #line)
+        _log("\(String(cString: opus_strerror(numberOfFramesDecoded)))", .error, #function, #file, #line)
       }
   
       // copy the frame's buffer to the Ring buffer & make it available

@@ -32,7 +32,7 @@ public final class OpusEncode               : NSObject {
   // ----------------------------------------------------------------------------
   // MARK: - Private properties
   
-  private let _log                          = (NSApp.delegate as! AppDelegate)
+  private let _log                          = (NSApp.delegate as! AppDelegate).msg
   private var _engine                       : AVAudioEngine?
   private var _mixer                        : AVAudioMixerNode?
   private var _remoteTxAudioStream          : RemoteTxAudioStream!
@@ -314,14 +314,14 @@ public final class OpusEncode               : NSObject {
 //      // try to set it as the input device for the engine
 //      if setInputDevice(device.id) {
 //
-//        _log.msg("RemoteTxAudioStream started: Stream Id = \(RemoteTxAudioStream.streamId.hex), Device = \(device.name!)", level: .info, function: #function, file: #file, line: #line)
+//        _log("RemoteTxAudioStream started: Stream Id = \(RemoteTxAudioStream.streamId.hex), Device = \(device.name!)", .info, #function, #file, #line)
 //
 //        // start capture using this input device
 //        startInput(device)
 //
 //      } else {
 //
-//        _log.msg("RemoteTxAudioStream FAILED: Device = \(device.name!)", level: .warning, function: #function, file: #file, line: #line)
+//        _log("RemoteTxAudioStream FAILED: Device = \(device.name!)", .warning, #function, #file, #line)
 //
 //        _engine?.stop()
 //        _engine = nil
@@ -329,7 +329,7 @@ public final class OpusEncode               : NSObject {
 //
 //    } else if !_remoteTxAudioStream.txEnabled && _engine != nil {
 //
-//      _log.msg("RemoteTxAudioStream stopped", level: .info, function: #function, file: #file, line: #line)
+//      _log("RemoteTxAudioStream stopped", .info, #function, #file, #line)
 //
 //      // stop Opus Tx Audio
 //      _engine?.inputNode.removeTap(onBus: kTapBus)

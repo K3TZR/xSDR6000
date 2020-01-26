@@ -50,7 +50,7 @@ final class PanadapterViewController        : NSViewController, NSGestureRecogni
   private weak var _panadapter              : Panadapter?
   private var _flags                        = [SliceId:FlagViewController]()
   private var _panadapterRenderer           : PanadapterRenderer!
-  private let _log                          = NSApp.delegate as! AppDelegate
+  private let _log                          = (NSApp.delegate as! AppDelegate).msg
 
   private var _center                       : Int {return _panadapter!.center }
   private var _bandwidth                    : Int { return _panadapter!.bandwidth }
@@ -690,7 +690,7 @@ final class PanadapterViewController        : NSViewController, NSGestureRecogni
     panadapter.delegate = nil
     
     // YES, log the event
-    _log.msg("Panadapter will be removed: Stream Id = \(panadapter.id.hex)", level: .info, function: #function, file: #file, line: #line)
+    _log("Panadapter will be removed: Stream Id = \(panadapter.id.hex)", .info, #function, #file, #line)
 
     // invalidate Base property observations
     invalidateObservations(&_baseObservations)
@@ -708,7 +708,7 @@ final class PanadapterViewController        : NSViewController, NSGestureRecogni
     if let panadapter = _panadapter, slice.panadapterId == panadapter.id {
       
       // YES, log the event
-      _log.msg("Slice added: Object Id = \(slice.id), Panadapter Stream Id = \(panadapter.id.hex), Frequency = \(slice.frequency.hzToMhz)", level: .info, function: #function, file: #file, line: #line)
+      _log("Slice added: Id = \(slice.id), Panadapter Id = \(panadapter.id.hex), Frequency = \(slice.frequency.hzToMhz)", .info, #function, #file, #line)
 
       // observe removal of this Slice
       NC.makeObserver(self, with: #selector(sliceWillBeRemoved(_:)), of: .sliceWillBeRemoved, object: slice)
@@ -736,7 +736,7 @@ final class PanadapterViewController        : NSViewController, NSGestureRecogni
     if let panadapter = _panadapter, slice.panadapterId == panadapter.id  {
       
       // YES, log the event
-      _log.msg("Slice will be removed: Id = \(slice.id), pan =  \(panadapter.id.hex), freq = \(slice.frequency)", level: .info, function: #function, file: #file, line: #line)
+      _log("Slice will be removed: Id = \(slice.id), pan =  \(panadapter.id.hex), freq = \(slice.frequency)", .info, #function, #file, #line)
 
       // remove the Flag & Observations of this Slice
       removeFlag(for: slice)
@@ -755,7 +755,7 @@ final class PanadapterViewController        : NSViewController, NSGestureRecogni
     let tnf = note.object as! Tnf
     
     // YES, log the event
-    _log.msg("Tnf added: Object Id = \(tnf.id), frequency - \(tnf.frequency.hzToMhz)", level: .info, function: #function, file: #file, line: #line)
+    _log("Tnf added: Object Id = \(tnf.id), frequency - \(tnf.frequency.hzToMhz)", .info, #function, #file, #line)
 
     // add observations for this Tnf
     addTnfObservations(&_tnfObservations, tnf: tnf)
@@ -773,7 +773,7 @@ final class PanadapterViewController        : NSViewController, NSGestureRecogni
     let tnfToRemove = note.object as! Tnf
     
     // YES, log the event
-    _log.msg("Tnf will be removed: Id = \(tnfToRemove.id)", level: .info, function: #function, file: #file, line: #line)
+    _log("Tnf will be removed: Id = \(tnfToRemove.id)", .info, #function, #file, #line)
 
     // invalidate & remove all of the Tnf observations
     invalidateObservations(&_tnfObservations)

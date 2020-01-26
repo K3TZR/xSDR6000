@@ -18,7 +18,7 @@ final class PreferencesTabViewController    : NSTabViewController {
   // MARK: - Private properties
   
   private let _autosaveName                 = "PreferencesWindow"
-  private let _log                          = NSApp.delegate as! AppDelegate
+  private let _log                          = (NSApp.delegate as! AppDelegate).msg
 
   // ----------------------------------------------------------------------------
   // MARK: - Overridden methods
@@ -35,7 +35,7 @@ final class PreferencesTabViewController    : NSTabViewController {
     // select the previously selelcted tab
     tabView.selectTabViewItem(withIdentifier: NSUserInterfaceItemIdentifier(Defaults[.preferencesTabId]) )
 
-    _log.msg("Preferences window opened", level: .info, function: #function, file: #file, line: #line)
+    _log("Preferences window opened", .info, #function, #file, #line)
   }
 
   override func viewWillAppear() {
@@ -70,7 +70,7 @@ final class PreferencesTabViewController    : NSTabViewController {
     }
   }
   deinit {
-    _log.msg("Preferences window closed", level: .info, function: #function, file: #file, line: #line)
+    _log("Preferences window closed", .info, #function, #file, #line)
     #if XDEBUG
     Swift.print("\(#function) - \(URL(fileURLWithPath: #file).lastPathComponent.dropLast(6))")
     #endif
@@ -91,7 +91,7 @@ final class PreferencesTabViewController    : NSTabViewController {
 //    Api.sharedInstance.shutdown(reason: .normal)
 //
 //    DispatchQueue.main.async {
-//      _log.msg("Application closed by user", level: .info, function: #function, file: #file, line: #line)
+//      _log("Application closed by user", .info, #function, #file, #line)
 //
 //      NSApp.terminate(self)
 //    }

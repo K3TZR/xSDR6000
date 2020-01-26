@@ -15,7 +15,7 @@ final class PanafallsViewController         : NSSplitViewController {
   // MARK: - Private properties
   
   private weak var _radio                   = Api.sharedInstance.radio
-  private let _log                          = NSApp.delegate as! AppDelegate
+  private let _log                          = (NSApp.delegate as! AppDelegate).msg
   private var _sb                           : NSStoryboard?
   private var _api                          = Api.sharedInstance
   
@@ -79,7 +79,7 @@ final class PanafallsViewController         : NSSplitViewController {
     // In V3, check is it for this Client
     if (_api.radioVersion.isV3 && panadapter.clientHandle == _api.connectionHandle) || _api.radioVersion.isV3 == false {
       // log the event
-      _log.msg("Panadapter added: Stream Id = \(panadapter.id.hex)", level: .info, function: #function, file: #file, line: #line)
+      _log("Panadapter added: Id = \(panadapter.id.hex)", .info, #function, #file, #line)
     }
   }
   /// Process .waterfallHasBeenAdded Notification
@@ -95,7 +95,7 @@ final class PanafallsViewController         : NSSplitViewController {
     // In V3, check is it for this Client
     if (_api.radioVersion.isV3 && waterfall.clientHandle == _api.connectionHandle) || _api.radioVersion.isV3 == false {
       // log the event
-      _log.msg("Waterfall added: Stream Id = \(waterfall.id.hex)", level: .info, function: #function, file: #file, line: #line)
+      _log("Waterfall added: Id = \(waterfall.id.hex)", .info, #function, #file, #line)
       
       let panadapter = _api.radio!.panadapters[waterfall.panadapterId]
       

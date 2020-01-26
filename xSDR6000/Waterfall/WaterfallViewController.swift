@@ -50,7 +50,7 @@ final class WaterfallViewController               : NSViewController, NSGestureR
   private var _waterfallRenderer            : WaterfallRenderer!
 
   private weak var _waterfall               : Waterfall? { radio!.waterfalls[panadapter!.waterfallId] }
-  private let _log                          = NSApp.delegate as! AppDelegate
+  private let _log                          = (NSApp.delegate as! AppDelegate).msg
   private var _center                       : Hz  { panadapter!.center }
   private var _bandwidth                    : Hz  { panadapter!.bandwidth }
   private var _start                        : Hz  { _center - (_bandwidth/2) }
@@ -349,7 +349,7 @@ final class WaterfallViewController               : NSViewController, NSGestureR
     let waterfall = note.object as! Waterfall
     
     // YES, log the event
-    _log.msg("Waterfall will be removed, Stream Id = \(waterfall.id.hex)", level: .info, function: #function, file: #file, line: #line)
+    _log("Waterfall will be removed, Stream Id = \(waterfall.id.hex)", .info, #function, #file, #line)
 
     // stop processing waterfall data
     waterfall.delegate = nil
