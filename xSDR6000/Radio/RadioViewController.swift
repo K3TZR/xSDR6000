@@ -562,8 +562,7 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
     if let radio = radio {
       
       // format and set the window title
-      title = "v\(radio.version.string)     \(radio.nickname) (\(_api.isWan ? "SmartLink" : "Local"))"
-    
+      title = "\(radio.nickname) (v\(radio.version.string) \(_api.isWan ? "SmartLink" : "Local"))       xLib6000 (v\(Api.kVersion.string))"
     }
     DispatchQueue.main.async { [weak self] in
       // Title
@@ -679,6 +678,9 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
     NC.makeObserver(self, with: #selector(radioUpgrade(_:)), of: .radioUpgrade)
     
     NC.makeObserver(self, with: #selector(tcpPingFirstResponse(_:)), of: .tcpPingFirstResponse)
+
+    NC.makeObserver(self, with: #selector(xvtrHasBeenAdded(_:)), of: .xvtrHasBeenAdded)
+    NC.makeObserver(self, with: #selector(xvtrWillBeRemoved(_:)), of: .xvtrWillBeRemoved)
   }
   /// Process guiClientHasBeenAdded Notification
   ///
@@ -786,7 +788,7 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
     if let remoteRxAudioStream = note.object as? RemoteRxAudioStream {
       _remoteRxAudioStream = remoteRxAudioStream
     
-      _log("RemoteRxAudioStream added: StreamId = \(remoteRxAudioStream.id.hex)", .info, #function, #file, #line)
+      _log("RemoteRxAudioStream added: Id = \(remoteRxAudioStream.id.hex)", .info, #function, #file, #line)
 
       _opusPlayer = OpusPlayer()
       remoteRxAudioStream.delegate = _opusPlayer
@@ -802,7 +804,7 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
     // the RemoteRxAudioStream is being removed
     if let remoteRxAudioStream = note.object as? RemoteRxAudioStream {
       
-      _log("RemoteRxAudioStream will be removed: StreamId = \(remoteRxAudioStream.id.hex)", .info,  #function, #file, #line)
+      _log("RemoteRxAudioStream will be removed: Id = \(remoteRxAudioStream.id.hex)", .info,  #function, #file, #line)
 
       _opusPlayer?.stop()
       remoteRxAudioStream.delegate = nil
@@ -920,6 +922,28 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
       // show/hide the Side view
       self?.sideView( Defaults[.sideViewOpen] ? .open : .close)
     }
+  }
+  /// Process xvtrHasBeenAdded Notification
+  ///
+  /// - Parameter note:         a Notification instance
+  ///
+  @objc private func xvtrHasBeenAdded(_ note: Notification) {
+    
+    // the Radio class has been initialized
+    let xvtr = note.object as! Xvtr
+    
+    _log("Xvtr added: Id = \(xvtr.id), Name = \(xvtr.name), Rf Frequency = \(xvtr.rfFrequency.hzToMhz)", .info, #function, #file, #line)
+  }
+  /// Process xvtrHasBeenRemoved Notification
+  ///
+  /// - Parameter note:         a Notification instance
+  ///
+  @objc private func xvtrWillBeRemoved(_ note: Notification) {
+    
+    // the Radio class has been initialized
+    let xvtr = note.object as! Xvtr
+    
+    _log("Xvtr will be removed: Id = \(xvtr.id)", .info, #function, #file, #line)
   }
 
   // ----------------------------------------------------------------------------

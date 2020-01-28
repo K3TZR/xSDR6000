@@ -14,7 +14,7 @@ final class PanafallsViewController         : NSSplitViewController {
   // ----------------------------------------------------------------------------
   // MARK: - Private properties
   
-  private weak var _radio                   = Api.sharedInstance.radio
+  private weak var _radio                   : Radio? { Api.sharedInstance.radio }
   private let _log                          = (NSApp.delegate as! AppDelegate).msg
   private var _sb                           : NSStoryboard?
   private var _api                          = Api.sharedInstance
@@ -77,7 +77,7 @@ final class PanafallsViewController         : NSSplitViewController {
     let panadapter = note.object as! Panadapter
     
     // In V3, check is it for this Client
-    if (_api.radioVersion.isV3 && panadapter.clientHandle == _api.connectionHandle) || _api.radioVersion.isV3 == false {
+    if (_radio!.version.isV3 && panadapter.clientHandle == _api.connectionHandle) || _radio!.version.isV3 == false {
       // log the event
       _log("Panadapter added: Id = \(panadapter.id.hex)", .info, #function, #file, #line)
     }
@@ -93,7 +93,7 @@ final class PanafallsViewController         : NSSplitViewController {
     let waterfall = note.object as! Waterfall
     
     // In V3, check is it for this Client
-    if (_api.radioVersion.isV3 && waterfall.clientHandle == _api.connectionHandle) || _api.radioVersion.isV3 == false {
+    if (_radio!.version.isV3 && waterfall.clientHandle == _api.connectionHandle) || _radio!.version.isV3 == false {
       // log the event
       _log("Waterfall added: Id = \(waterfall.id.hex)", .info, #function, #file, #line)
       
