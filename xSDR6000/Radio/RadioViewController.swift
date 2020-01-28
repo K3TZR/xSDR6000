@@ -562,7 +562,7 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
     if let radio = radio {
       
       // format and set the window title
-      title = "\(radio.nickname) (v\(radio.version.string) \(_api.isWan ? "SmartLink" : "Local"))       xLib6000 (v\(Api.kVersion.string))"
+      title = "\(radio.nickname) (v\(radio.version.string) \(_api.isWan ? "SmartLink" : "Local"))       xSDR6000 (v\(AppDelegate.kVersion.string))       xLib6000 (v\(Api.kVersion.string))"
     }
     DispatchQueue.main.async { [weak self] in
       // Title
