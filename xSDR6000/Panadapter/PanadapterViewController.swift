@@ -690,7 +690,7 @@ final class PanadapterViewController        : NSViewController, NSGestureRecogni
     panadapter.delegate = nil
     
     // YES, log the event
-    _log("Panadapter will be removed: Stream Id = \(panadapter.id.hex)", .info, #function, #file, #line)
+    _log("Panadapter will be removed: Id = \(panadapter.id.hex)", .info, #function, #file, #line)
 
     // invalidate Base property observations
     invalidateObservations(&_baseObservations)
