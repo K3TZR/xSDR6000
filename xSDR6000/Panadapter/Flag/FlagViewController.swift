@@ -85,7 +85,7 @@ final class FlagViewController       : NSViewController, NSTextFieldDelegate, NS
   private var _beginEditing                 = false
   private var _darkMode                     = false
 
-  private let _log                          = (NSApp.delegate as! AppDelegate).msg
+  private let _log                          = (NSApp.delegate as! AppDelegate)
 
   private let kFlagPixelOffset              : CGFloat = 15.0/2.0
 
@@ -559,7 +559,7 @@ final class FlagViewController       : NSViewController, NSTextFieldDelegate, NS
   func addMeterObservation(_ meter: Meter) {
     
     // YES, log the event
-    _log("Slice Meter found: slice \(meter.group ), Id \(meter.id), \"\(meter.desc)\"", .debug, #function, #file, #line)
+    _log.logMessage("Slice Meter found: slice \(meter.group ), Id \(meter.id), \"\(meter.desc)\"", .debug, #function, #file, #line)
 
     // add the observation
     _observations.append( meter.observe(\.value, options: [.initial, .new]) { [weak self] (meter, change) in

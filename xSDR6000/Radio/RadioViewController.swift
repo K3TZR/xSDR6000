@@ -44,7 +44,7 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
   // ----------------------------------------------------------------------------
   // MARK: - Private properties
   
-  private let _log                          = (NSApp.delegate as! AppDelegate).msg
+  private let _log                          = (NSApp.delegate as! AppDelegate)
   private var _radios                       : [DiscoveryStruct] {
     return Discovery.sharedInstance.discoveredRadios }
   private var _api                          = Api.sharedInstance
@@ -124,7 +124,7 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
     _activity = ProcessInfo().beginActivity(options: [.latencyCritical, .idleSystemSleepDisabled], reason: "Good Reason")
 
     // log versions (before connected)
-    _log( "\(AppDelegate.kName) v\(AppDelegate.kVersion.string), \(Api.kName) v\(Api.kVersion.string)", .info, #function, #file, #line)
+    _log.logMessage("\(AppDelegate.kName) v\(AppDelegate.kVersion.string), \(Api.kName) v\(Api.kVersion.string)", .info, #function, #file, #line)
 
     // get/create a Client Id
     _clientId = clientId()
@@ -150,7 +150,7 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
       // YES, open the default radio
       radio = openRadio(defaultRadio)
       if radio == nil {
-        _log("Error opening default radio, \(defaultRadio.nickname)", .warning,  #function, #file, #line)
+        _log.logMessage("Error opening default radio, \(defaultRadio.nickname)", .warning,  #function, #file, #line)
 
         // open the Radio Picker
         openRadioPicker( self)
@@ -185,7 +185,7 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
     // perform an orderly disconnect of all the components
     _api.disconnect(reason: .normal)
     
-    _log("Application closed by user", .info,  #function, #file, #line)
+    _log.logMessage("Application closed by user", .info,  #function, #file, #line)
     DispatchQueue.main.async {
 
       // close the app
@@ -503,7 +503,7 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
         // NO, get an instance of the Side view
         _sideViewController = _sideStoryboard!.instantiateController(withIdentifier: kSideIdentifier) as? SideViewController
         
-        _log("Side view opened", .info,  #function, #file, #line)
+        _log.logMessage("Side view opened", .info,  #function, #file, #line)
         DispatchQueue.main.async { [weak self] in
           // add it to the split view
           self?.addChild(self!._sideViewController!)
@@ -522,7 +522,7 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
           self?.removeChild(at: 1)
           self?._sideViewController = nil
 
-          self?._log("Side view closed", .info,  #function, #file, #line)
+          self?._log.logMessage("Side view closed", .info,  #function, #file, #line)
         }
       }
     }
@@ -544,7 +544,7 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
 //        let parameters = $0[InfoPrefsViewController.kParameters] as! String
         
         // schedule the launch
-        _log("\(appName) launched with delay of \(delay)", .info,  #function, #file, #line)
+        _log.logMessage("\(appName) launched with delay of \(delay)", .info,  #function, #file, #line)
         DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + .seconds( delay )) {
           
           // TODO: Add Parameters
@@ -553,21 +553,36 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
       }
     })
   }
-  /// Set the Window's title. toolbar & side view
+  /// Set the Window's title.
   ///
   func updateWindowTitle(_ radio: Radio? = nil) {
     var title = ""
-    
-    // is there e Radio?
-    if let radio = radio {
-      
-      // format and set the window title
-      title = "\(radio.nickname) (v\(radio.version.string) \(_api.isWan ? "SmartLink" : "Local"))       xSDR6000 (v\(AppDelegate.kVersion.string))       xLib6000 (v\(Api.kVersion.string))"
+    // are we connected?
+    if let radio = _api.radio {
+      // YES, format and set the window title
+      title = "\(radio.discoveryPacket.nickname) @ \(radio.discoveryPacket.publicIp) \(_api.isWan ? "SmartLink" : "Local") (v\(radio.version.string))       xSDR6000 (v\(AppDelegate.kVersion.string))       xLib6000 (v\(Api.kVersion.string))"
+
+    } else {
+      // NO, show App & Api only
+      title = "\(AppDelegate.kName) v\(AppDelegate.kVersion.string)     \(Api.kName) v\(Api.kVersion.string)"
     }
-    DispatchQueue.main.async { [weak self] in
-      // Title
-      self?.view.window?.title = title
+    // set the title bar
+    DispatchQueue.main.async {
+      self.view.window?.title = title
     }
+
+//    var title = ""
+//
+//    // is there e Radio?
+//    if let radio = radio {
+//
+//      // format and set the window title
+//      title = "\(radio.nickname) (v\(radio.version.string) \(_api.isWan ? "SmartLink" : "Local"))       xSDR6000 (v\(AppDelegate.kVersion.string))       xLib6000 (v\(Api.kVersion.string))"
+//    }
+//    DispatchQueue.main.async { [weak self] in
+//      // Title
+//      self?.view.window?.title = title
+//    }
   }
   /// Set the toolbar controls
   ///
@@ -646,7 +661,7 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
         // YES, Save it in case something changed
         Defaults[.defaultRadioSerialNumber] = defaultSerialNumber
 
-        _log("Default radio found, \(radio.nickname) @ \(radio.publicIp), serial \(radio.serialNumber)", .info,  #function, #file, #line)
+        _log.logMessage("Default radio found, \(radio.nickname) @ \(radio.publicIp), serial \(radio.serialNumber)", .info,  #function, #file, #line)
 
         defaultRadio = radio
       }
@@ -694,7 +709,7 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
       if guiClient.handle == _api.connectionHandle {
         //YES, persist it
         Defaults[.clientId] = guiClient.clientId
-        _log("Gui ClientId persisted:   Id = \(guiClient.clientId ?? "")", .info,  #function, #file, #line)
+        _log.logMessage("Gui ClientId persisted:   Id = \(guiClient.clientId ?? "")", .info,  #function, #file, #line)
       }
     }
   }
@@ -736,7 +751,7 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
     // the Radio class has been initialized
     let radio = note.object as! Radio
     
-    _log("Radio initialized: \(radio.nickname)", .info,  #function, #file, #line)
+    _log.logMessage("Radio initialized: \(radio.nickname)", .info,  #function, #file, #line)
 
     Defaults[.versionRadio] = radio.discoveryPacket.firmwareVersion
     Defaults[.radioModel] = radio.discoveryPacket.model
@@ -753,7 +768,7 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
     // the Radio class is being removed
     if let radio = note.object as? Radio {
       
-      _log("Radio will be removed: \(radio.nickname)", .info,  #function, #file, #line)
+      _log.logMessage("Radio will be removed: \(radio.nickname)", .info,  #function, #file, #line)
       
       Defaults[.versionRadio] = ""
       
@@ -773,7 +788,7 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
   @objc private func radioHasBeenRemoved(_ note: Notification) {
     
     // the Radio class has been removed
-    _log("Radio has been removed", .info, #function, #file, #line)
+    _log.logMessage(AppDelegate.kName + ":Radio has been removed", .info, #function, #file, #line)
 
     // update the window title
     updateWindowTitle()
@@ -788,7 +803,7 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
     if let remoteRxAudioStream = note.object as? RemoteRxAudioStream {
       _remoteRxAudioStream = remoteRxAudioStream
     
-      _log("RemoteRxAudioStream added: Id = \(remoteRxAudioStream.id.hex)", .info, #function, #file, #line)
+      _log.logMessage("RemoteRxAudioStream added: Id = \(remoteRxAudioStream.id.hex)", .info, #function, #file, #line)
 
       _opusPlayer = OpusPlayer()
       remoteRxAudioStream.delegate = _opusPlayer
@@ -804,7 +819,7 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
     // the RemoteRxAudioStream is being removed
     if let remoteRxAudioStream = note.object as? RemoteRxAudioStream {
       
-      _log("RemoteRxAudioStream will be removed: Id = \(remoteRxAudioStream.id.hex)", .info,  #function, #file, #line)
+      _log.logMessage("RemoteRxAudioStream will be removed: Id = \(remoteRxAudioStream.id.hex)", .info,  #function, #file, #line)
 
       _opusPlayer?.stop()
       remoteRxAudioStream.delegate = nil
@@ -932,7 +947,7 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
     // the Radio class has been initialized
     let xvtr = note.object as! Xvtr
     
-    _log("Xvtr added: Id = \(xvtr.id), Name = \(xvtr.name), Rf Frequency = \(xvtr.rfFrequency.hzToMhz)", .info, #function, #file, #line)
+    _log.logMessage("Xvtr added: Id = \(xvtr.id), Name = \(xvtr.name), Rf Frequency = \(xvtr.rfFrequency.hzToMhz)", .info, #function, #file, #line)
   }
   /// Process xvtrHasBeenRemoved Notification
   ///
@@ -943,7 +958,7 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
     // the Radio class has been initialized
     let xvtr = note.object as! Xvtr
     
-    _log("Xvtr will be removed: Id = \(xvtr.id)", .info, #function, #file, #line)
+    _log.logMessage("Xvtr will be removed: Id = \(xvtr.id)", .info, #function, #file, #line)
   }
 
   // ----------------------------------------------------------------------------

@@ -84,7 +84,7 @@ public final class PanadapterRenderer       : NSObject {
     set { _panQ.sync( flags: .barrier){ __numberOfBins = newValue } } }
   
   // constants
-  private let _log                          = (NSApp.delegate as! AppDelegate).msg
+  private let _log                          = (NSApp.delegate as! AppDelegate)
   private let kPanadapterVertex             = "panadapter_vertex"
   private let kPanadapterFragment           = "panadapter_fragment"
   private let kSpectrumBufferIndex          = 0

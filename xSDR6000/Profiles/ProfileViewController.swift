@@ -24,7 +24,7 @@ final class ProfileViewController: NSViewController, NSTableViewDelegate, NSTabl
   private var _observations                     = [NSKeyValueObservation]()
 
   private let _autosaveName                     = "ProfilesWindow"
-  private let _log                              = (NSApp.delegate as! AppDelegate).msg
+  private let _log                              = (NSApp.delegate as! AppDelegate)
 
   // ----------------------------------------------------------------------------
   // MARK: - Overridden methods
@@ -47,7 +47,7 @@ final class ProfileViewController: NSViewController, NSTableViewDelegate, NSTabl
     // start observations
     addObservations()
     
-    _log("Profiles window opened", .info, #function, #file, #line)
+    _log.logMessage("Profiles window opened", .info, #function, #file, #line)
   }
   
   override func viewWillAppear() {
@@ -66,7 +66,7 @@ final class ProfileViewController: NSViewController, NSTableViewDelegate, NSTabl
     view.window!.saveFrame(usingName: _autosaveName)
   }
   deinit {
-    _log("Profiles window closed", .info, #function, #file, #line)
+    _log.logMessage("Profiles window closed", .info, #function, #file, #line)
 
     #if XDEBUG
     Swift.print("\(#function) - \(URL(fileURLWithPath: #file).lastPathComponent.dropLast(6))")
@@ -146,7 +146,7 @@ final class ProfileViewController: NSViewController, NSTableViewDelegate, NSTabl
     case Profile.Group.mic.rawValue:
       tag = 2
     default:
-      _log("Unknown profile group: \(id)", .error, #function, #file, #line)
+      _log.logMessage("Unknown profile group: \(id)", .error, #function, #file, #line)
     }
     // select the desired segment
     _segmentedControl.selectSegment(withTag: tag)
@@ -167,7 +167,7 @@ final class ProfileViewController: NSViewController, NSTableViewDelegate, NSTabl
     case 2:
       _id = Profile.Group.mic.rawValue
     default:
-      _log("Unknown profile tag: \(tag)", .error, #function, #file, #line)
+      _log.logMessage("Unknown profile tag: \(tag)", .error, #function, #file, #line)
     }
     setupProfile(_id)
   }
