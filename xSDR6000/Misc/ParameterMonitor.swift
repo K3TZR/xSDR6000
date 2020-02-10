@@ -28,8 +28,15 @@ class ParameterMonitor: NSToolbarItem {
 
   private weak var _radio                   : Radio?
   private var _id                           : NSToolbarItem.Identifier
-  private var _shortNames                   = [Meter.ShortName]()
-  private var _units                        = [String]()
+  
+  private var _q                            = DispatchQueue(label: "objectQ", attributes: [.concurrent])
+
+  var _shortNames : [Meter.ShortName] {
+    get { _q.sync { __shortNames } }
+    set { _q.sync(flags: .barrier) {__shortNames = newValue }}}
+  var _units : [String] {
+    get { _q.sync { __units } }
+    set { _q.sync(flags: .barrier) {__units = newValue }}}
   private var _observations                 = [NSKeyValueObservation]()
   
   private let kTopValue                     = 0
@@ -153,4 +160,10 @@ class ParameterMonitor: NSToolbarItem {
     // remove the tokens
     _observations.removeAll()
   }
+  
+  // ----------------------------------------------------------------------------
+  // *** Hidden properties (Do NOT use) ***
+  
+  private var __shortNames  = [Meter.ShortName]()
+  private var __units       = [String]()
 }
