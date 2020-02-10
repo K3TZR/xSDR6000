@@ -522,7 +522,7 @@ final class PanadapterViewController        : NSViewController, NSGestureRecogni
       _radio!.observe(\Radio.tnfsEnabled, options: [.initial, .new]) { [weak self] (object, change) in
         self?.redrawLegends() },
 
-      Defaults.observe(\UserDefaults.dbLegend, options: [.initial, .new]) { [weak self] (object, change) in
+      Defaults.observe(\.dbLegend, options: [.initial, .new]) { [weak self] (object, change) in
         self?.redrawLegends() },
       
       Defaults.observe(\.marker, options: [.initial, .new]) { [weak self] (object, change) in
@@ -653,7 +653,7 @@ final class PanadapterViewController        : NSViewController, NSGestureRecogni
     
     NC.makeObserver(self, with: #selector(frameDidChange(_:)), of: NSView.frameDidChangeNotification.rawValue, object: view)
 
-    NC.makeObserver(self, with: #selector(panadapterWillBeRemoved(_:)), of: .panadapterWillBeRemoved, object: _panadapter!)
+    NC.makeObserver(self, with: #selector(panadapterWillBeRemoved(_:)), of: .panadapterWillBeRemoved, object: _panadapter)
     
     NC.makeObserver(self, with: #selector(tnfHasBeenAdded(_:)), of: .tnfHasBeenAdded)
     
@@ -684,16 +684,17 @@ final class PanadapterViewController        : NSViewController, NSGestureRecogni
   @objc private func panadapterWillBeRemoved(_ note: Notification) {
     
     // does the Notification contain a Panadapter object?
-    let panadapter = note.object as! Panadapter
-    
-    // stop processing Panadapter streams
-    panadapter.delegate = nil
-    
-    // YES, log the event
-    _log.logMessage("Panadapter will be removed: Id = \(panadapter.id.hex)", .info, #function, #file, #line)
-
-    // invalidate Base property observations
-    invalidateObservations(&_baseObservations)
+    if let panadapter = note.object as? Panadapter {
+      
+      // stop processing Panadapter streams
+      panadapter.delegate = nil
+      
+      // YES, log the event
+      _log.logMessage("Panadapter will be removed: Id = \(panadapter.id.hex)", .info, #function, #file, #line)
+      
+      // invalidate Base property observations
+      invalidateObservations(&_baseObservations)
+    }
   }
   /// Process .sliceHasBeenAdded Notification
   ///
