@@ -26,7 +26,7 @@ protocol RadioPickerDelegate: class {
   ///   - handle:         remote handle
   /// - Returns:          success / failure
   ///
-  func openRadio(_ radio: DiscoveryStruct?, isWan: Bool, wanHandle: String) -> Radio?
+  func openRadio(_ radio: DiscoveryStruct?, isWan: Bool, wanHandle: String) -> Bool
   
   /// Close the active Radio
   ///
@@ -39,14 +39,10 @@ protocol RadioPickerDelegate: class {
 
 final class RadioViewController             : NSSplitViewController, RadioPickerDelegate, NSWindowDelegate {
 
-  @objc dynamic var radio                   = Api.sharedInstance.radio
-  
   // ----------------------------------------------------------------------------
   // MARK: - Private properties
   
   private let _log                          = (NSApp.delegate as! AppDelegate)
-  private var _radios                       : [DiscoveryStruct] {
-    return Discovery.sharedInstance.discoveredRadios }
   private var _api                          = Api.sharedInstance
   private var _mainWindowController         : MainWindowController?
   private var _preferencesStoryboard        : NSStoryboard?
@@ -61,7 +57,7 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
   private var _profilesWindowController     : NSWindowController?
   private var _preferencesWindowController  : NSWindowController?
   private var _tcpPingFirstResponseReceived = false
-  private var _clientId                     : UUID!
+  private var _clientId                     : String?
 
   private var _activity                     : NSObjectProtocol?
 
@@ -119,12 +115,14 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
 
     // give the Api access to our logger
     Log.sharedInstance.delegate = NSApp.delegate as! AppDelegate
+    
+    let _ = Discovery.sharedInstance
 
     // FIXME: Is this necessary???
     _activity = ProcessInfo().beginActivity(options: [.latencyCritical, .idleSystemSleepDisabled], reason: "Good Reason")
 
     // log versions (before connected)
-    _log.logMessage("\(AppDelegate.kName) v\(AppDelegate.kVersion.string), \(Api.kName) v\(Api.kVersion.string)", .info, #function, #file, #line)
+    _log.logMessage("\(AppDelegate.kName) v\(AppDelegate.kVersion.longString), \(Api.kName) v\(Api.kVersion.longString)", .info, #function, #file, #line)
 
     // get/create a Client Id
     _clientId = clientId()
@@ -145,12 +143,11 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
     NSColorPanel.setPickerMask(NSColorPanel.Options.wheelModeMask)
 
     // is the default Radio available?
-    if let defaultRadio = defaultRadioFound() {
+    if let discoveryPacket = defaultRadioFound() {
       
       // YES, open the default radio
-      radio = openRadio(defaultRadio)
-      if radio == nil {
-        _log.logMessage("Error opening default radio, \(defaultRadio.nickname)", .warning,  #function, #file, #line)
+      if !openRadio(discoveryPacket) {
+        _log.logMessage("Error opening default radio, \(discoveryPacket.nickname)", .warning,  #function, #file, #line)
 
         // open the Radio Picker
         openRadioPicker( self)
@@ -207,7 +204,7 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
     // create / remove the RemoteRxAudioStream
     if sender.boolState {
       // create the Stream
-      let _ = radio?.requestRxAudioStream(compression: RemoteRxAudioStream.kOpus)
+      let _ = _api.radio?.requestRxAudioStream(compression: RemoteRxAudioStream.kOpus)
     } else {
       // remove the Stream (if any)
       let _ = _remoteRxAudioStream?.remove()
@@ -252,7 +249,7 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
   @IBAction func panButton(_ sender: AnyObject) {
     
     // dimensions are dummy values; when created, will be resized to fit its view
-    radio?.requestPanadapter(CGSize(width: 50, height: 50))
+    _api.radio?.requestPanadapter(CGSize(width: 50, height: 50))
   }
   /// Respond to the Side button
   ///
@@ -265,6 +262,8 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
     
     // Open / Close the side view
     sideView(sender.boolState ? .open : .close)
+    
+    _log.logMessage("Side view \(Defaults[.sideViewOpen] ? "Open" : "Closed")", .debug, #function, #file, #line)
   }
   /// Respond to the Cwx button
   ///
@@ -277,6 +276,8 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
     // FIXME: Implement the Cwx view
     
     Defaults[.cwxViewOpen] = sender.boolState
+    
+    _log.logMessage("CWX \(Defaults[.cwxViewOpen] ? "Open" : "Closed")", .debug, #function, #file, #line)
   }
   /// Respond to the Markers button
   ///
@@ -291,6 +292,8 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
     } else if let _ = sender as? NSMenuItem {
       Defaults[.markersEnabled].toggle()
     }
+
+    _log.logMessage("Markers \(Defaults[.markersEnabled] ? "enabled" : "disabled")", .debug, #function, #file, #line)
   }
   /// Respond to the Tnf button
   ///
@@ -306,6 +309,8 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
        _api.radio?.tnfsEnabled.toggle()
     }
     Defaults[.tnfsEnabled] = _api.radio!.tnfsEnabled
+    
+    _log.logMessage("Tnf's \(Defaults[.tnfsEnabled] ? "enabled" : "disabled")", .debug, #function, #file, #line)
   }
   /// Respond to the Full Duplex button
   ///
@@ -393,19 +398,13 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
   ///
   /// - Returns:                a UUID
   ///
-  private func clientId() -> UUID {
-    var uuid : UUID
-    if let string = Defaults[.clientId] {
-      // use the stored string to create a UUID (if possible) else create a new UUID
-      uuid = UUID(uuidString: string) ?? UUID()
-    } else {
+  private func clientId() -> String {
+    
+    if Defaults[.clientId] == nil {
       // none stored, create a new UUID
-      uuid = UUID()
-      Defaults[.clientId] = uuid.uuidString
+      Defaults[.clientId] = UUID().uuidString
     }
-    // store the string for later use
-    Defaults[.clientId] = uuid.uuidString
-    return uuid
+    return Defaults[.clientId]!
   }
   /// Open or Close the Preferences window
   ///
@@ -560,29 +559,16 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
     // are we connected?
     if let radio = _api.radio {
       // YES, format and set the window title
-      title = "\(radio.discoveryPacket.nickname) @ \(radio.discoveryPacket.publicIp) \(_api.isWan ? "SmartLink" : "Local") (v\(radio.version.string))       xSDR6000 (v\(AppDelegate.kVersion.string))       xLib6000 (v\(Api.kVersion.string))"
+      title = "\(radio.discoveryPacket.nickname) v\(radio.version.longString) @ \(radio.discoveryPacket.publicIp) \(_api.isWan ? "SmartLink" : "Local")        xSDR6000 v\(AppDelegate.kVersion.longString)       xLib6000 v\(Api.kVersion.longString)"
 
     } else {
       // NO, show App & Api only
-      title = "\(AppDelegate.kName) v\(AppDelegate.kVersion.string)     \(Api.kName) v\(Api.kVersion.string)"
+      title = "\(AppDelegate.kName) v\(AppDelegate.kVersion.longString)     \(Api.kName) v\(Api.kVersion.longString)"
     }
     // set the title bar
     DispatchQueue.main.async {
       self.view.window?.title = title
     }
-
-//    var title = ""
-//
-//    // is there e Radio?
-//    if let radio = radio {
-//
-//      // format and set the window title
-//      title = "\(radio.nickname) (v\(radio.version.string) \(_api.isWan ? "SmartLink" : "Local"))       xSDR6000 (v\(AppDelegate.kVersion.string))       xLib6000 (v\(Api.kVersion.string))"
-//    }
-//    DispatchQueue.main.async { [weak self] in
-//      // Title
-//      self?.view.window?.title = title
-//    }
   }
   /// Set the toolbar controls
   ///
@@ -646,27 +632,18 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
   /// - Returns:        a DiscoveryStruct struct or nil
   ///
   private func defaultRadioFound() -> DiscoveryStruct? {
-    var defaultRadio: DiscoveryStruct?
     
-    // see if there is a valid default Radio
-    let defaultSerialNumber = Defaults[.defaultRadioSerialNumber]
-    if defaultSerialNumber != "" {
+    // allow time to hear the UDP broadcasts
+    usleep(2_000_000)
+    
+    // has the default Radio been found?
+    if let packet = Discovery.sharedInstance.discoveredRadios.first(where: { $0.serialNumber == Defaults[.defaultRadioSerialNumber]} ) {
       
-      // allow time to hear the UDP broadcasts
-      usleep(2_000_000)
+      _log.logMessage("Default radio found, \(packet.nickname) @ \(packet.publicIp), serial \(packet.serialNumber)", .info,  #function, #file, #line)
       
-      // has the default Radio been found?
-      if let radio = _radios.first(where: { $0.serialNumber == defaultSerialNumber} ) {
-        
-        // YES, Save it in case something changed
-        Defaults[.defaultRadioSerialNumber] = defaultSerialNumber
-
-        _log.logMessage("Default radio found, \(radio.nickname) @ \(radio.publicIp), serial \(radio.serialNumber)", .info,  #function, #file, #line)
-
-        defaultRadio = radio
-      }
+      return packet
     }
-    return defaultRadio
+    return nil
   }
   
   // ----------------------------------------------------------------------------
@@ -709,7 +686,7 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
       if guiClient.handle == _api.connectionHandle {
         //YES, persist it
         Defaults[.clientId] = guiClient.clientId
-        _log.logMessage("Gui ClientId persisted:   Id = \(guiClient.clientId ?? "")", .info,  #function, #file, #line)
+        _log.logMessage("Gui ClientId persisted: Id = \(guiClient.clientId ?? "")", .info,  #function, #file, #line)
       }
     }
   }
@@ -974,21 +951,21 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
   ///   - wanHandle:            Wan handle (if any)
   /// - Returns:                success / failure
   ///
-  func openRadio(_ radio: DiscoveryStruct?, isWan: Bool = false, wanHandle: String = "") -> Radio? {
+  func openRadio(_ discoveryPacket: DiscoveryStruct?, isWan: Bool = false, wanHandle: String = "") -> Bool {
     
     if let _ = _radioPickerTabViewController {
       self._radioPickerTabViewController = nil
     }
 
     // exit if no Radio selected
-    guard let selectedRadio = radio else { return nil }
+    guard let radioPacket = discoveryPacket else { return false }
     
 //    _api.isWan = isWan
 //    _api.wanConnectionHandle = wanHandle
 
     // attempt to connect to it
     let station = (Host.current().localizedName ?? "Mac").replacingSpaces(with: "_")
-    return _api.connect(selectedRadio,
+    return _api.connect(radioPacket,
                         clientStation: station,
                         programName: AppDelegate.kName,
                         clientId: _clientId,
