@@ -61,14 +61,12 @@ final class LANRadioPickerViewController    : NSViewController, NSTableViewDeleg
   @IBOutlet private var _defaultButton      : NSButton!                   // Set as default
   
   private var _api                          = Api.sharedInstance
-  private var _radios                       : [DiscoveryStruct] { return Discovery.sharedInstance.discoveredRadios }
+  private var _discoveryPacket              : DiscoveryStruct?
+  private var _discoveryPackets             = Discovery.sharedInstance.discoveredRadios
   private let _log                          = (NSApp.delegate as! AppDelegate)
-  private var _selectedRadio                : DiscoveryStruct?            // Radio in selected row
+
   private weak var _parentVc                : NSViewController!
-  
-  private weak var _delegate                : RadioPickerDelegate? {
-    return representedObject as? RadioPickerDelegate
-  }
+  private weak var _delegate                : RadioPickerDelegate? { representedObject as? RadioPickerDelegate }
 
   // constants
   private let kColumnIdentifierDefaultRadio = "defaultRadio"
@@ -142,7 +140,7 @@ final class LANRadioPickerViewController    : NSViewController, NSTableViewDeleg
       
     } else {
       
-      Defaults[.defaultRadioSerialNumber] = _radios[selectedRow].serialNumber
+      Defaults[.defaultRadioSerialNumber] = _discoveryPackets[selectedRow].serialNumber
     }
     
     // to display the Default status
@@ -187,12 +185,12 @@ final class LANRadioPickerViewController    : NSViewController, NSTableViewDeleg
   ///
   private func openClose() {
     
-    guard let selectedRadio = _selectedRadio else { return }
+    guard let discoveryPacket = _discoveryPacket else { return }
     
     if _selectButton.title == kConnectTitle {
       
       // is the selected radio in use?
-      if selectedRadio.status == "In_Use" && _api.radio == nil {
+      if discoveryPacket.status == "In_Use" && _api.radio == nil {
 
         // YES, ask the user to confirm closing it
         let alert = NSAlert()
@@ -205,11 +203,11 @@ final class LANRadioPickerViewController    : NSViewController, NSTableViewDeleg
         // ignore if not confirmed by the user
         alert.beginSheetModal(for: view.window!, completionHandler: { (response) in
           // close the connected Radio if the YES button pressed
-          if response == NSApplication.ModalResponse.alertFirstButtonReturn { self.openRadio(selectedRadio) }
+          if response == NSApplication.ModalResponse.alertFirstButtonReturn { self.openRadio(discoveryPacket) }
         })
       } else {
         // NO, just open it
-        openRadio(selectedRadio)
+        openRadio(discoveryPacket)
       }
 
     } else {
@@ -222,15 +220,18 @@ final class LANRadioPickerViewController    : NSViewController, NSTableViewDeleg
   }
   /// Open a Radio & close the Picker
   ///
-  private func openRadio(_ radio: DiscoveryStruct?) {
+  private func openRadio(_ discoveryPacket: DiscoveryStruct?) {
     
     // RadioPicker sheet will close & Radio will be opened
     
     // tell the delegate to connect to the selected Radio
-    let _ = _delegate?.openRadio(radio, isWan: false, wanHandle: "")
-    
-    DispatchQueue.main.async { [unowned self] in
-      self.closeButton(self)
+    guard _delegate != nil else { return }
+      
+    if _delegate!.openRadio(discoveryPacket, isWan: false, wanHandle: "") {
+      // close the picker
+      DispatchQueue.main.async { [unowned self] in
+        self.closeButton(self)
+      }
     }
   }
   
@@ -267,7 +268,7 @@ final class LANRadioPickerViewController    : NSViewController, NSTableViewDeleg
   func numberOfRows(in aTableView: NSTableView) -> Int {
 
     // get the number of rows
-    return _radios.count
+    return _discoveryPackets.count
   }
   
   // ----------------------------------------------------------------------------
@@ -285,18 +286,18 @@ final class LANRadioPickerViewController    : NSViewController, NSTableViewDeleg
     
     // get a view for the cell
     let cellView = tableView.makeView(withIdentifier: tableColumn!.identifier, owner:self) as! NSTableCellView
-    cellView.toolTip = _radios[row].description
+    cellView.toolTip = _discoveryPackets[row].description
 
     // is this the default row?
-    let isDefaultRow = Defaults[.defaultRadioSerialNumber]  == _radios[row].serialNumber
+    let isDefaultRow = Defaults[.defaultRadioSerialNumber]  == _discoveryPackets[row].serialNumber
     
     // set the stringValue of the cell's text field to the appropriate field
     switch tableColumn!.identifier.rawValue {
       
-    case "model":     cellView.textField!.stringValue = _radios[row].model
-    case "nickname":  cellView.textField!.stringValue = _radios[row].nickname
-    case "status":    cellView.textField!.stringValue = _radios[row].status
-    case "publicIp":  cellView.textField!.stringValue = _radios[row].publicIp
+    case "model":     cellView.textField!.stringValue = _discoveryPackets[row].model
+    case "nickname":  cellView.textField!.stringValue = _discoveryPackets[row].nickname
+    case "status":    cellView.textField!.stringValue = _discoveryPackets[row].status
+    case "publicIp":  cellView.textField!.stringValue = _discoveryPackets[row].publicIp
     default:          _log.logMessage("Unknown table column: \(tableColumn!.identifier.rawValue)", .error, #function, #file, #line)
     }
 
@@ -321,15 +322,15 @@ final class LANRadioPickerViewController    : NSViewController, NSTableViewDeleg
     
     if _radioTableView.selectedRow >= 0 {
       // a row is selected
-      _selectedRadio = _radios[_radioTableView.selectedRow]
+      _discoveryPacket = _discoveryPackets[_radioTableView.selectedRow]
       
       // set the "select button" title appropriately
       var isActive = false
       if let radio = Api.sharedInstance.radio {
-        isActive = ( radio.discoveryPacket == _radios[_radioTableView.selectedRow] )
+        isActive = ( radio.discoveryPacket == _discoveryPackets[_radioTableView.selectedRow] )
       }
       // set "default button" title appropriately
-      _defaultButton.title = (Defaults[.defaultRadioSerialNumber] == _radios[_radioTableView.selectedRow].serialNumber ? kClearDefault : kSetAsDefault)
+      _defaultButton.title = (Defaults[.defaultRadioSerialNumber] == _discoveryPackets[_radioTableView.selectedRow].serialNumber ? kClearDefault : kSetAsDefault)
       _selectButton.title = (isActive ? kDisconnectTitle : kConnectTitle)
       
     } else {

@@ -46,13 +46,13 @@ final class WANRadioPickerViewController    : NSViewController, NSTableViewDeleg
   @IBOutlet private weak var _testButton    : NSButton!
   
   private var _api                          = Api.sharedInstance
-  private var _radios                       = [DiscoveryStruct]()           // Radios discovered
+  private var _discoveredRadios             = [DiscoveryStruct]()           // Radios discovered
   private let _log                          = (NSApp.delegate as! AppDelegate)
   private var _auth0ViewController          : Auth0ViewController?
   private weak var _delegate                : RadioPickerDelegate? {
     return representedObject as? RadioPickerDelegate
   }
-  private var _selectedRadio                : DiscoveryStruct?              // Radio in selected row
+  private var _selectedDiscoveryPacket      : DiscoveryStruct?
   private var _wanServer                    : WanServer?
   private var _parentVc                     : NSViewController!
 
@@ -127,7 +127,7 @@ final class WANRadioPickerViewController    : NSViewController, NSTableViewDeleg
       if let refreshToken = Keychain.get(kService, account: Defaults[.smartLinkAuth0Email]) {
         
         // can we get an Id Token from the Refresh Token?
-        if let refreshedIdToken = getIdTokenFromRefreshToken(refreshToken) {
+        if let refreshedIdToken = getIdToken(from: refreshToken) {
           
           // YES, now we are logged into SmartLink, use the saved token
           loggedIn = true
@@ -227,11 +227,11 @@ final class WANRadioPickerViewController    : NSViewController, NSTableViewDeleg
   
   @IBAction func testButton(_ sender: NSButton) {
 
-    _log.logMessage("SmartLInk Test initiated", .info, #function, #file, #line)
+    _log.logMessage("SmartLink Test initiated", .info, #function, #file, #line)
 
     _testIndicator.boolState = false
 
-    _wanServer?.sendTestConnection(radioSerial: _selectedRadio!.serialNumber)
+    _wanServer?.sendTestConnection(radioSerial: _selectedDiscoveryPacket!.serialNumber)
   }
   
   // ----------------------------------------------------------------------------
@@ -249,7 +249,7 @@ final class WANRadioPickerViewController    : NSViewController, NSTableViewDeleg
       // CONNECT, RadioPicker sheet will close & Radio will be opened
       
       // is the selected radio in use, but not by this app?
-      if _selectedRadio!.status == "In_Use" && _api.radio == nil {
+      if _selectedDiscoveryPacket!.status == "In_Use" && _api.radio == nil {
         
         // YES, ask the user to confirm closing it
         let alert = NSAlert()
@@ -283,9 +283,9 @@ final class WANRadioPickerViewController    : NSViewController, NSTableViewDeleg
   /// Open a Radio & close the Picker
   ///
   private func openRadio(lowBW: Bool) {
-    _selectedRadio?.lowBandwidthConnect = lowBW
+    _selectedDiscoveryPacket?.lowBandwidthConnect = lowBW
     
-    getAuthentificationForRadio(_selectedRadio)
+    getAuthentification(for: _selectedDiscoveryPacket)
     
     DispatchQueue.main.async { [unowned self] in
       self.closeButton(self)
@@ -295,22 +295,22 @@ final class WANRadioPickerViewController    : NSViewController, NSTableViewDeleg
   ///
   /// - Parameter radio: Radio to connect to
   ///
-  private func getAuthentificationForRadio(_ radio: DiscoveryStruct?) {
+  private func getAuthentification(for discoveryPacket: DiscoveryStruct?) {
     
     // FIXME: Is this correct
     
-    if let radio = radio {
+    if let packet = discoveryPacket {
       
       // is a "Hole Punch" required?
-      if radio.requiresHolePunch {
+      if packet.requiresHolePunch {
         
         // YES
-        _wanServer?.sendConnectMessageForRadio(radioSerial: radio.serialNumber, holePunchPort: radio.negotiatedHolePunchPort)
+        _wanServer?.sendConnectMessageForRadio(radioSerial: packet.serialNumber, holePunchPort: packet.negotiatedHolePunchPort)
 
       } else {
         
         // NO
-        _wanServer?.sendConnectMessageForRadio(radioSerial: radio.serialNumber)
+        _wanServer?.sendConnectMessageForRadio(radioSerial: packet.serialNumber)
       }
     }
   }
@@ -343,7 +343,7 @@ final class WANRadioPickerViewController    : NSViewController, NSTableViewDeleg
       }
       
       // clear tableview
-      _radios.removeAll()
+      _discoveredRadios.removeAll()
       reload()
       
       // disconnect with Smartlink server
@@ -387,7 +387,7 @@ final class WANRadioPickerViewController    : NSViewController, NSTableViewDeleg
   /// - Parameter refreshToken:         a Refresh Token
   /// - Returns:                        a Token (if any)
   ///
-  private func getIdTokenFromRefreshToken(_ refreshToken: String) -> String? {
+  private func getIdToken(from refreshToken: String) -> String? {
     
     // guard that the token isn't empty
     guard refreshToken != "" else { return nil }
@@ -546,7 +546,7 @@ final class WANRadioPickerViewController    : NSViewController, NSTableViewDeleg
   func wanRadioListReceived(wanRadioList: [DiscoveryStruct]) {
     
     // relaod to display the updated list
-    _radios = wanRadioList
+    _discoveredRadios = wanRadioList
     reload()
   }
   /// Received user settings from server
@@ -571,23 +571,19 @@ final class WANRadioPickerViewController    : NSViewController, NSTableViewDeleg
     
     DispatchQueue.main.async { [unowned self] in
       
-      // FIXME: ???
+      guard self._selectedDiscoveryPacket?.serialNumber == serial, self._delegate != nil else { return }
+        
+        // tell the delegate to connect to the selected Radio
+        if !(self._delegate!.openRadio(self._selectedDiscoveryPacket, isWan: true, wanHandle: handle) ) {
 
-      // does the Serial Number match?
-      if self._selectedRadio?.serialNumber == serial {
-
-//        // YES, tell the delegate to connect to the selected Radio
-//        if !(self._delegate?.openRadio(self._selectedRadio, isWan: true, wanHandle: handle) ?? false ) {
+          // log the event
+          self._log.logMessage("Open remote radio FAILED: \(self._selectedDiscoveryPacket!.nickname) @ \(self._selectedDiscoveryPacket!.publicIp)", .error, #function, #file, #line)
+        }
+//        else {
 //
-//          // log the event
-//          self._log("Open remote radio FAILED: \(self._selectedRadio!.nickname) @ \(self._selectedRadio!.publicIp)", .error, #function, #file, #line)
-//        }
-        
-      } else {
-        
-        // log the error
-        self._log.logMessage("Unexpected serial number mismatch in wanRadioConnectReady(), \(self._selectedRadio!.serialNumber) vs \(serial)", .error, #function, #file, #line)
-      }
+//        // log the error
+//        self._log.logMessage("Unexpected serial number mismatch in wanRadioConnectReady(), \(self._selectedDiscoveryPacket!.serialNumber) vs \(serial)", .error, #function, #file, #line)
+//      }
     }
   }
   
@@ -723,7 +719,7 @@ final class WANRadioPickerViewController    : NSViewController, NSTableViewDeleg
   func numberOfRows(in aTableView: NSTableView) -> Int {
     
     // get the number of rows
-    return _radios.count
+    return _discoveredRadios.count
   }
   
   // ----------------------------------------------------------------------------
@@ -745,13 +741,13 @@ final class WANRadioPickerViewController    : NSViewController, NSTableViewDeleg
     // set the stringValue of the cell's text field to the appropriate field
     switch tableColumn!.identifier.rawValue {
     case "model":
-      cellView.textField!.stringValue = _radios[row].model
+      cellView.textField!.stringValue = _discoveredRadios[row].model
     case "nickname":
-      cellView.textField!.stringValue = _radios[row].nickname
+      cellView.textField!.stringValue = _discoveredRadios[row].nickname
     case "status":
-      cellView.textField!.stringValue = _radios[row].status
+      cellView.textField!.stringValue = _discoveredRadios[row].status
     case "publicIp":
-      cellView.textField!.stringValue = _radios[row].publicIp
+      cellView.textField!.stringValue = _discoveredRadios[row].publicIp
     default:
       break
     }
@@ -771,12 +767,12 @@ final class WANRadioPickerViewController    : NSViewController, NSTableViewDeleg
       _testButton.isEnabled = true
 
       // YES, a row is selected
-      _selectedRadio = _radios[_radioTableView.selectedRow]
+      _selectedDiscoveryPacket = _discoveredRadios[_radioTableView.selectedRow]
       
       // set the "select button" title appropriately
       var isActive = false
       if let radio = Api.sharedInstance.radio {
-        isActive = ( radio.discoveryPacket == _radios[_radioTableView.selectedRow] )
+        isActive = ( radio.discoveryPacket == _discoveredRadios[_radioTableView.selectedRow] )
       }
       _selectButton.title = (isActive ? kDisconnectTitle : kConnectTitle)
     
