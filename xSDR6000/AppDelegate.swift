@@ -19,7 +19,7 @@ final class AppDelegate                     : NSObject, NSApplicationDelegate , 
   
   // App parameters
   static let kName                          = "xSDR6000"
-  static let kVersion                       = Version()
+//  static let kVersion                       = Version()
   
   // Log parameters
   static let kLoggerName                    = AppDelegate.kName
@@ -29,7 +29,8 @@ final class AppDelegate                     : NSObject, NSApplicationDelegate , 
   
   // ----------------------------------------------------------------------------
   // MARK: - Internal properties
-  
+
+  var version  : Version!
   var logLevel : XCGLogger.Level {
     // first parameter is complete executable path, second parameter is the logDebug flag (if present)
     if CommandLine.arguments.count >= 2 {
