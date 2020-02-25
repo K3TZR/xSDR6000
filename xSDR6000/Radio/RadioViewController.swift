@@ -51,7 +51,6 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
   private var _sideStoryboard               : NSStoryboard?
   private var _voltageMeterAvailable        = false
   private var _temperatureMeterAvailable    = false
-  private var _versions                     : (api: String, app: String)?
   private var _sideViewController           : SideViewController?
   private var _radioPickerTabViewController : NSTabViewController?
   private var _profilesWindowController     : NSWindowController?
@@ -86,8 +85,6 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
 
   private let kConnectFailed                = "Initial Connection failed"   // Error messages
   private let kUdpBindFailed                = "Initial UDP bind failed"
-  private let kVersionKey                   = "CFBundleShortVersionString"  // CF constants
-  private let kBuildKey                     = "CFBundleVersion"
 
   private let kLocalTab                     = 0
   private let kRemoteTab                    = 1
@@ -116,13 +113,17 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
     // give the Api access to our logger
     Log.sharedInstance.delegate = NSApp.delegate as! AppDelegate
     
+    // start Discovery
     let _ = Discovery.sharedInstance
 
     // FIXME: Is this necessary???
     _activity = ProcessInfo().beginActivity(options: [.latencyCritical, .idleSystemSleepDisabled], reason: "Good Reason")
 
+    // get my version
+    (NSApp.delegate as! AppDelegate).version = Version()
+    
     // log versions (before connected)
-    _log.logMessage("\(AppDelegate.kName) v\(AppDelegate.kVersion.longString), \(Api.kName) v\(Api.kVersion.longString)", .info, #function, #file, #line)
+    _log.logMessage("\(AppDelegate.kName) v\((NSApp.delegate as! AppDelegate).version.longString), \(Api.kName) v\(Api.kVersion.longString)", .info, #function, #file, #line)
 
     // get/create a Client Id
     _clientId = clientId()
@@ -200,15 +201,9 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
     
     // update the default value
     Defaults[.macAudioEnabled] = sender.boolState
-
-    // create / remove the RemoteRxAudioStream
-    if sender.boolState {
-      // create the Stream
-      let _ = _api.radio?.requestRxAudioStream(compression: RemoteRxAudioStream.kOpus)
-    } else {
-      // remove the Stream (if any)
-      let _ = _remoteRxAudioStream?.remove()
-    }
+    
+    // enable / disable the  Opus Stream
+    _api.radio?.setOpusRx(state: sender.boolState)
   }
   /// Respond to the Headphone Gain slider
   ///
@@ -555,19 +550,22 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
   /// Set the Window's title.
   ///
   func updateWindowTitle(_ radio: Radio? = nil) {
-    var title = ""
-    // are we connected?
-    if let radio = _api.radio {
-      // YES, format and set the window title
-      title = "\(radio.discoveryPacket.nickname) v\(radio.version.longString) @ \(radio.discoveryPacket.publicIp) \(_api.isWan ? "SmartLink" : "Local")        xSDR6000 v\(AppDelegate.kVersion.longString)       xLib6000 v\(Api.kVersion.longString)"
+    
+    let mode = _api.isWan ? "SmartLink" : "Local"
 
-    } else {
-      // NO, show App & Api only
-      title = "\(AppDelegate.kName) v\(AppDelegate.kVersion.longString)     \(Api.kName) v\(Api.kVersion.longString)"
-    }
     // set the title bar
-    DispatchQueue.main.async {
-      self.view.window?.title = title
+    DispatchQueue.main.async { [weak self] in
+      var title = ""
+      // are we connected?
+      if radio != nil {
+        // YES, format and set the window title
+        title = "\(radio!.discoveryPacket.nickname) v\(radio!.version.longString) @ \(radio!.discoveryPacket.publicIp) \(mode)        xSDR6000 v\((NSApp.delegate as! AppDelegate).version.longString)       xLib6000 v\(Api.kVersion.longString)"
+
+      } else {
+        // NO, show App & Api only
+        title = "\(AppDelegate.kName) v\((NSApp.delegate as! AppDelegate).version.longString)     \(Api.kName) v\(Api.kVersion.longString)"
+      }
+      self?.view.window?.title = title
     }
   }
   /// Set the toolbar controls
