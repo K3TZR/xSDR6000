@@ -107,7 +107,7 @@ final class RadioPrefsViewController: NSViewController {
   private func loadFields() {
     
     _serialNumberTextField.stringValue = _radio!.serialNumber
-    _hwVersionTextField.stringValue = _radio!.version.string
+    _hwVersionTextField.stringValue = _radio!.version.longString
     _optionsTextField.stringValue = _radio!.radioOptions
     _modelTextField.stringValue = _radio!.radioModel
     _callsignTextField.stringValue = _radio!.callsign
