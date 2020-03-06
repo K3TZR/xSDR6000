@@ -85,7 +85,7 @@ final class FlagViewController       : NSViewController, NSTextFieldDelegate, NS
   private var _beginEditing                 = false
   private var _darkMode                     = false
 
-  private let _log                          = (NSApp.delegate as! AppDelegate)
+  private let _log                          = Logger.sharedInstance
 
   private let kFlagPixelOffset              : CGFloat = 15.0/2.0
 

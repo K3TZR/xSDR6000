@@ -15,7 +15,7 @@ final class PanafallsViewController         : NSSplitViewController {
   // MARK: - Private properties
   
   private weak var _radio                   : Radio? { Api.sharedInstance.radio }
-  private let _log                          = (NSApp.delegate as! AppDelegate)
+  private let _log                          = Logger.sharedInstance
   private var _sb                           : NSStoryboard?
   private var _api                          = Api.sharedInstance
   

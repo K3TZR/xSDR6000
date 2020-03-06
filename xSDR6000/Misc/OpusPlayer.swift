@@ -65,10 +65,10 @@ public final class OpusPlayer                       : NSObject, StreamHandler {
   // ----------------------------------------------------------------------------
   // MARK: - Private properties
   
-  private let _log                                  = (NSApp.delegate as! AppDelegate)
+  private let _log                                  = Logger.sharedInstance
   private var _outputUnit                           : AudioUnit?
   private var _ringBuffer                           = TPCircularBuffer()
-  private var _q                                    = DispatchQueue(label: AppDelegate.kName + "OpusPlayerObjectQ", qos: .userInteractive, attributes: [.concurrent])
+  private var _q                                    = DispatchQueue(label: Logger.kName + "OpusPlayerObjectQ", qos: .userInteractive, attributes: [.concurrent])
 
   private var __outputActive                        = false
   private var _outputActive                         : Bool {
@@ -112,7 +112,7 @@ public final class OpusPlayer                       : NSObject, StreamHandler {
     TPCircularBufferClear(&_ringBuffer)
     
     let availableFrames = TPCircularBufferGetAvailableSpace(&_ringBuffer, &OpusPlayer.decoderOutputASBD)
-    _log.logMessage(AppDelegate.kName + " :\(availableFrames) Ring buffer frames available at start", .debug, #function, #file, #line)
+    _log.logMessage("Ring buffer frames available when started = \(availableFrames)", .debug, #function, #file, #line)
     
     // register render callback
     var input: AURenderCallbackStruct = AURenderCallbackStruct(inputProc: RenderProc, inputProcRefCon: Unmanaged.passUnretained(self).toOpaque())
@@ -138,7 +138,7 @@ public final class OpusPlayer                       : NSObject, StreamHandler {
     AudioOutputUnitStop(outputUnit)
     
     let availableFrames = TPCircularBufferGetAvailableSpace(&_ringBuffer, &OpusPlayer.decoderOutputASBD)
-    _log.logMessage("\(availableFrames) Ring buffer frames available at stop", .debug, #function, #file, #line)
+    _log.logMessage("Ring buffer frames available when stopped = \(availableFrames) ", .debug, #function, #file, #line)
   }
 
   // ----------------------------------------------------------------------------

@@ -50,7 +50,7 @@ final class WaterfallViewController               : NSViewController, NSGestureR
   private var _waterfallRenderer            : WaterfallRenderer!
 
   private weak var _waterfall               : Waterfall? { radio!.waterfalls[panadapter!.waterfallId] }
-  private let _log                          = (NSApp.delegate as! AppDelegate)
+  private let _log                          = Logger.sharedInstance
   private var _center                       : Hz  { panadapter!.center }
   private var _bandwidth                    : Hz  { panadapter!.bandwidth }
   private var _start                        : Hz  { _center - (_bandwidth/2) }

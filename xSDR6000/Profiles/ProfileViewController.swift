@@ -24,7 +24,7 @@ final class ProfileViewController: NSViewController, NSTableViewDelegate, NSTabl
   private var _observations                     = [NSKeyValueObservation]()
 
   private let _autosaveName                     = "ProfilesWindow"
-  private let _log                              = (NSApp.delegate as! AppDelegate)
+  private let _log                              = Logger.sharedInstance
 
   // ----------------------------------------------------------------------------
   // MARK: - Overridden methods

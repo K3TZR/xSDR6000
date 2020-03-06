@@ -32,7 +32,7 @@ public final class OpusEncode               : NSObject {
   // ----------------------------------------------------------------------------
   // MARK: - Private properties
   
-  private let _log                          = NSApp.delegate as! AppDelegate
+  private let _log                          = Logger.sharedInstance
   private var _engine                       : AVAudioEngine?
   private var _mixer                        : AVAudioMixerNode?
   private var _remoteTxAudioStream          : RemoteTxAudioStream!

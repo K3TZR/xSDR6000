@@ -62,7 +62,7 @@ final public class Band {
   // MARK: - Private Properties
   
   //    private var _previousBandDict: [NSObject:AnyObject]?
-  private let _log                        = (NSApp.delegate as! AppDelegate)
+  private let _log                        = Logger.sharedInstance
 
   // constants
   private let kSoundLeavingBand           = "Basso"

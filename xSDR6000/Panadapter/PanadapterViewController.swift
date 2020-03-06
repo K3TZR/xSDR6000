@@ -50,7 +50,7 @@ final class PanadapterViewController        : NSViewController, NSGestureRecogni
   private weak var _panadapter              : Panadapter?
   private var _flags                        = [SliceId:FlagViewController]()
   private var _panadapterRenderer           : PanadapterRenderer!
-  private let _log                          = (NSApp.delegate as! AppDelegate)
+  private let _log                          = Logger.sharedInstance
 
   private var _center                       : Int {return _panadapter!.center }
   private var _bandwidth                    : Int { return _panadapter!.bandwidth }

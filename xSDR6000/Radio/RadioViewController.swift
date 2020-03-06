@@ -42,7 +42,7 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
   // ----------------------------------------------------------------------------
   // MARK: - Private properties
   
-  private let _log                          = (NSApp.delegate as! AppDelegate)
+  private let _log                          = Logger.sharedInstance
   private var _api                          = Api.sharedInstance
   private var _mainWindowController         : MainWindowController?
   private var _preferencesStoryboard        : NSStoryboard?
@@ -60,6 +60,7 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
 
   private var _activity                     : NSObjectProtocol?
 
+  private var _opusAudioStream              : OpusAudioStream?
   private var _remoteRxAudioStream          : RemoteRxAudioStream?
   private var _opusPlayer                   : OpusPlayer?
   private var _opusEncode                   : OpusEncode?
@@ -111,7 +112,7 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
     defaults(from: "Defaults.plist")
 
     // give the Api access to our logger
-    Log.sharedInstance.delegate = NSApp.delegate as! AppDelegate
+    Log.sharedInstance.delegate = Logger.sharedInstance
     
     // start Discovery
     let _ = Discovery.sharedInstance
@@ -120,10 +121,10 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
     _activity = ProcessInfo().beginActivity(options: [.latencyCritical, .idleSystemSleepDisabled], reason: "Good Reason")
 
     // get my version
-    (NSApp.delegate as! AppDelegate).version = Version()
+    _log.version = Version()
     
     // log versions (before connected)
-    _log.logMessage("\(AppDelegate.kName) v\((NSApp.delegate as! AppDelegate).version.longString), \(Api.kName) v\(Api.kVersion.longString)", .info, #function, #file, #line)
+    _log.logMessage("\(Logger.kName) v\(_log.version.longString), \(Api.kName) v\(Api.kVersion.longString)", .info, #function, #file, #line)
 
     // get/create a Client Id
     _clientId = clientId()
@@ -203,7 +204,9 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
     Defaults[.macAudioEnabled] = sender.boolState
     
     // enable / disable the  Opus Stream
-    _api.radio?.setOpusRx(state: sender.boolState)
+    _api.radio?.requestOpusRxAudioStream(state: sender.boolState)
+    
+    opusRxAudioStreamState( sender.boolState == true ? .start : .stop)
   }
   /// Respond to the Headphone Gain slider
   ///
@@ -554,18 +557,18 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
     let mode = _api.isWan ? "SmartLink" : "Local"
 
     // set the title bar
-    DispatchQueue.main.async { [weak self] in
+    DispatchQueue.main.async { [unowned self] in
       var title = ""
       // are we connected?
       if radio != nil {
         // YES, format and set the window title
-        title = "\(radio!.discoveryPacket.nickname) v\(radio!.version.longString) @ \(radio!.discoveryPacket.publicIp) \(mode)        xSDR6000 v\((NSApp.delegate as! AppDelegate).version.longString)       xLib6000 v\(Api.kVersion.longString)"
+        title = "\(radio!.discoveryPacket.nickname) v\(radio!.version.longString) @ \(radio!.discoveryPacket.publicIp) \(mode)        xSDR6000 v\(Logger.sharedInstance.version.longString)       xLib6000 v\(Api.kVersion.longString)"
 
       } else {
         // NO, show App & Api only
-        title = "\(AppDelegate.kName) v\((NSApp.delegate as! AppDelegate).version.longString)     \(Api.kName) v\(Api.kVersion.longString)"
+        title = "\(Logger.kName) v\(Logger.sharedInstance.version.longString)     \(Api.kName) v\(Api.kVersion.longString)"
       }
-      self?.view.window?.title = title
+      self.view.window?.title = title
     }
   }
   /// Set the toolbar controls
@@ -642,6 +645,27 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
       return packet
     }
     return nil
+  }
+  
+  private func opusRxAudioStreamState(_ state: OpusAudioStream.RxState) {
+    
+    if let opusAudioStream = _api.radio!.opusAudioStreams.first?.value {
+      _opusAudioStream = opusAudioStream
+      
+      if state == .start {
+        _log.logMessage("OpusRxAudioStream started: Id = \(opusAudioStream.id.hex)", .info, #function, #file, #line)
+        
+        _opusPlayer = OpusPlayer()
+        opusAudioStream.delegate = _opusPlayer
+        _opusPlayer?.start()
+      
+      } else {
+        _log.logMessage("OpusRxAudioStream stopped: Id = \(opusAudioStream.id.hex)", .info, #function, #file, #line)
+        
+        _opusPlayer?.stop()
+        opusAudioStream.delegate = nil
+      }
+    }
   }
   
   // ----------------------------------------------------------------------------
@@ -750,8 +774,8 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
       // update the toolbar items
       enableToolbarItems(false)
       
-      if Defaults[.macAudioEnabled] { self._opusPlayer?.stop() }
-      
+      opusRxAudioStreamState(.stop)
+
       // remove all objects on Radio
       radio.removeAll()
     }
@@ -763,10 +787,39 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
   @objc private func radioHasBeenRemoved(_ note: Notification) {
     
     // the Radio class has been removed
-    _log.logMessage(AppDelegate.kName + ":Radio has been removed", .info, #function, #file, #line)
+    _log.logMessage(Logger.kName + ":Radio has been removed", .info, #function, #file, #line)
 
     // update the window title
     updateWindowTitle()
+  }
+  /// Process .opusAudioStreamHasBeenAdded Notification
+  ///
+  /// - Parameter note:         a Notification instance
+  ///
+  @objc private func opusAudioStreamHasBeenAdded(_ note: Notification) {
+
+    // the OpusAudioStream has been added
+    if let opusAudioStream = note.object as? OpusAudioStream {
+      _opusAudioStream = opusAudioStream
+
+      _log.logMessage("OpusRxAudioStream added: Id = \(opusAudioStream.id.hex)", .info, #function, #file, #line)
+
+      opusRxAudioStreamState(Defaults[.macAudioEnabled] == true ? .start : .stop)
+    }
+  }
+  /// Process .opusAudioStreamWillBeRemoved Notification
+  ///
+  /// - Parameter note:         a Notification instance
+  ///
+  @objc private func opusAudioStreamWillBeRemoved(_ note: Notification) {
+    
+    // the OpusAudioStream is being removed
+    if let opusAudioStream = note.object as? OpusAudioStream {
+      
+      _log.logMessage("OpusRxAudioStream will be stopped: Id = \(opusAudioStream.id.hex)", .info,  #function, #file, #line)
+
+      opusRxAudioStreamState(Defaults[.macAudioEnabled] == true ? .start : .stop)
+    }
   }
   /// Process .remoteRxAudioStreamHasBeenAdded Notification
   ///
@@ -844,14 +897,14 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
     DispatchQueue.main.async {
       let alert = NSAlert()
       alert.alertStyle = .warning
-      alert.messageText = "The Radio's version may not be supported by this version of \(AppDelegate.kName)."
+      alert.messageText = "The Radio's version may not be supported by this version of \(Logger.kName)."
       alert.informativeText = """
       Radio:\t\tv\(versions[1].longString)
       xLib6000:\tv\(versions[0].string)
       
       You can use SmartSDR to DOWNGRADE the Radio
       \t\t\tOR
-      Install a newer version of \(AppDelegate.kName)
+      Install a newer version of \(Logger.kName)
       """
       alert.addButton(withTitle: "Close")
       alert.addButton(withTitle: "Continue")
@@ -874,14 +927,14 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
     DispatchQueue.main.async {
       let alert = NSAlert()
       alert.alertStyle = .warning
-      alert.messageText = "The Radio's version may not be supported by this version of \(AppDelegate.kName)."
+      alert.messageText = "The Radio's version may not be supported by this version of \(Logger.kName)."
       alert.informativeText = """
       Radio:\t\tv\(versions[1].longString)
       xLib6000:\tv\(versions[0].string)
       
       You can use SmartSDR to UPGRADE the Radio
       \t\t\tOR
-      Install an older version of \(AppDelegate.kName)
+      Install an older version of \(Logger.kName)
       """
       alert.addButton(withTitle: "Close")
       alert.addButton(withTitle: "Continue")
@@ -965,7 +1018,7 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
     let station = (Host.current().localizedName ?? "Mac").replacingSpaces(with: "_")
     return _api.connect(radioPacket,
                         clientStation: station,
-                        programName: AppDelegate.kName,
+                        programName: Logger.kName,
                         clientId: _clientId,
                         isGui: true,
                         isWan: isWan,

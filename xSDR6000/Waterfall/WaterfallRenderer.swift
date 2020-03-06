@@ -74,8 +74,8 @@ public final class WaterfallRenderer: NSObject, MTKViewDelegate {
   private var _lineBuffer                   : MTLBuffer!
   private var _activeLines                  : UInt16 = 0
   
-  private let _waterQ                       = DispatchQueue(label: AppDelegate.kName + ".waterQ", attributes: [.concurrent])
-  private var _waterDrawQ                   = DispatchQueue(label: AppDelegate.kName + ".waterDrawQ")
+  private let _waterQ                       = DispatchQueue(label: Logger.kName + ".waterQ", attributes: [.concurrent])
+  private var _waterDrawQ                   = DispatchQueue(label: Logger.kName + ".waterDrawQ")
 
   private var _autoBlackLevel               : UInt32 = 0
   

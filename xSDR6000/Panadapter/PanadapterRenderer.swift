@@ -60,8 +60,8 @@ public final class PanadapterRenderer       : NSObject {
   
   private var _fillLevel                    = 1
   
-  private let _panQ                         = DispatchQueue(label: AppDelegate.kName + ".panQ", attributes: [.concurrent])
-  private let _panDrawQ                     = DispatchQueue(label: AppDelegate.kName + ".panDrawQ")
+  private let _panQ                         = DispatchQueue(label: Logger.kName + ".panQ", attributes: [.concurrent])
+  private let _panDrawQ                     = DispatchQueue(label: Logger.kName + ".panDrawQ")
 
   // ----- Backing properties - SHOULD NOT BE ACCESSED DIRECTLY -----------------------------------
   //
@@ -84,7 +84,7 @@ public final class PanadapterRenderer       : NSObject {
     set { _panQ.sync( flags: .barrier){ __numberOfBins = newValue } } }
   
   // constants
-  private let _log                          = (NSApp.delegate as! AppDelegate)
+  private let _log                          = Logger.sharedInstance
   private let kPanadapterVertex             = "panadapter_vertex"
   private let kPanadapterFragment           = "panadapter_fragment"
   private let kSpectrumBufferIndex          = 0
