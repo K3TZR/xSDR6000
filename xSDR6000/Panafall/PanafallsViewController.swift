@@ -76,11 +76,11 @@ final class PanafallsViewController         : NSSplitViewController {
     // does the Notification contain a Panadapter?
     let panadapter = note.object as! Panadapter
     
-//    // In V3, check is it for this Client
-//    if (_radio!.version.isV3 && panadapter.clientHandle == _api.connectionHandle) || _radio!.version.isV3 == false {
+    // In V3, check is it for this Client
+    if _radio!.version.isOldApi || _radio!.version.isNewApi && panadapter.clientHandle == _api.connectionHandle {
       // log the event
       _log.logMessage("Panadapter added: Id = \(panadapter.id.hex)", .info, #function, #file, #line)
-//    }
+    }
   }
   /// Process .waterfallHasBeenAdded Notification
   ///
@@ -92,8 +92,8 @@ final class PanafallsViewController         : NSSplitViewController {
     // does the Notification contain a Panadapter?
     let waterfall = note.object as! Waterfall
     
-//    // In V3, check is it for this Client
-//    if (_radio!.version.isV3 && waterfall.clientHandle == _api.connectionHandle) || _radio!.version.isV3 == false {
+    // In V3, check is it for this Client
+    if  _radio!.version.isOldApi || _radio!.version.isNewApi && waterfall.clientHandle == _api.connectionHandle {
       // log the event
       _log.logMessage("Waterfall added: Id = \(waterfall.id.hex)", .info, #function, #file, #line)
       
@@ -110,6 +110,6 @@ final class PanafallsViewController         : NSSplitViewController {
         
         self?.addSplitViewItem(NSSplitViewItem(viewController: panafallButtonVc))
       }
-//    }
+    }
   }
 }
