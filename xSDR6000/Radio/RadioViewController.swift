@@ -124,7 +124,7 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
     _log.version = Version()
     
     // log versions (before connected)
-    _log.logMessage("\(Logger.kName) v\(_log.version.longString), \(Api.kName) v\(Api.kVersion.longString)", .info, #function, #file, #line)
+    _log.logMessage("\(Logger.kAppName) v\(_log.version.longString), \(Api.kName) v\(Api.kVersion.longString)", .info, #function, #file, #line)
 
     // get/create a Client Id
     _clientId = clientId()
@@ -204,9 +204,26 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
     Defaults[.macAudioEnabled] = sender.boolState
     
     // enable / disable the  Opus Stream
-    _api.radio?.requestOpusRxAudioStream(state: sender.boolState)
+    // what API version?
+    if _api.radio!.version.isNewApi {
+      // NEW
+      if sender.boolState {
+        // add a stream
+        _api.radio?.requestRemoteRxAudioStream()
+      
+      } else {
+        // remove a stream
+        for (_, stream) in _api.radio!.remoteRxAudioStreams where stream.clientHandle == _api.connectionHandle {
+          stream.remove()
+        }
+      }
     
-    opusRxAudioStreamState( sender.boolState == true ? .start : .stop)
+    } else {
+      // OLD
+      _api.radio?.startStopOpusRxAudioStream(state: sender.boolState)
+      
+      if sender.boolState == true { usleep(50_000) ; _opusPlayer?.start() } else { _opusPlayer?.stop() }
+    }
   }
   /// Respond to the Headphone Gain slider
   ///
@@ -260,8 +277,6 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
     
     // Open / Close the side view
     sideView(sender.boolState ? .open : .close)
-    
-    _log.logMessage("Side view \(Defaults[.sideViewOpen] ? "Open" : "Closed")", .debug, #function, #file, #line)
   }
   /// Respond to the Cwx button
   ///
@@ -560,13 +575,13 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
     DispatchQueue.main.async { [unowned self] in
       var title = ""
       // are we connected?
-      if radio != nil {
+      if let radio = radio {
         // YES, format and set the window title
-        title = "\(radio!.discoveryPacket.nickname) v\(radio!.version.longString) @ \(radio!.discoveryPacket.publicIp) \(mode)        xSDR6000 v\(Logger.sharedInstance.version.longString)       xLib6000 v\(Api.kVersion.longString)"
+        title = "\(radio.discoveryPacket.nickname) v\(radio.version.longString) @ \(radio.discoveryPacket.publicIp) \(mode)        \(Logger.kAppName) v\(Logger.sharedInstance.version.longString)       xLib6000 v\(Api.kVersion.longString)"
 
       } else {
         // NO, show App & Api only
-        title = "\(Logger.kName) v\(Logger.sharedInstance.version.longString)     \(Api.kName) v\(Api.kVersion.longString)"
+        title = "\(Logger.kAppName) v\(Logger.sharedInstance.version.longString)     \(Api.kName) v\(Api.kVersion.longString)"
       }
       self.view.window?.title = title
     }
@@ -647,27 +662,48 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
     return nil
   }
   
-  private func opusRxAudioStreamState(_ state: OpusAudioStream.RxState) {
-    
-    if let opusAudioStream = _api.radio!.opusAudioStreams.first?.value {
-      _opusAudioStream = opusAudioStream
-      
-      if state == .start {
-        _log.logMessage("OpusRxAudioStream started: Id = \(opusAudioStream.id.hex)", .info, #function, #file, #line)
-        
-        _opusPlayer = OpusPlayer()
-        opusAudioStream.delegate = _opusPlayer
-        _opusPlayer?.start()
-      
-      } else {
-        _log.logMessage("OpusRxAudioStream stopped: Id = \(opusAudioStream.id.hex)", .info, #function, #file, #line)
-        
-        _opusPlayer?.stop()
-        opusAudioStream.delegate = nil
-      }
-    }
-  }
-  
+//  private func opusAudioStreamState(_ state: OpusAudioStream.RxState) {
+//
+//    if let opusAudioStream = _api.radio!.opusAudioStreams.first?.value {
+//      _opusAudioStream = opusAudioStream
+//
+//      if state == .start {
+//        _log.logMessage("OpusRxAudioStream started: id = \(opusAudioStream.id.hex)", .info, #function, #file, #line)
+//
+//        _opusPlayer = OpusPlayer()
+//        opusAudioStream.delegate = _opusPlayer
+//        _opusPlayer?.start()
+//
+//      } else {
+//        _log.logMessage("OpusRxAudioStream stopped: id = \(opusAudioStream.id.hex)", .info, #function, #file, #line)
+//
+//        _opusPlayer?.stop()
+//        opusAudioStream.delegate = nil
+//      }
+//    }
+//  }
+//
+//  private func remoteRxAudioStreamState(_ state: OpusAudioStream.RxState) {
+//
+//    if let remoteRxAudioStream = _api.radio!.remoteRxAudioStreams.first?.value {
+//      _remoteRxAudioStream = remoteRxAudioStream
+//
+//      if state == .start {
+//        _log.logMessage("RemoteRxAudioStream started: id = \remoteRxAudioStream.id.hex)", .info, #function, #file, #line)
+//
+//        _opusPlayer = OpusPlayer()
+//        remoteRxAudioStream.delegate = _opusPlayer
+//        _opusPlayer?.start()
+//
+//      } else {
+//        _log.logMessage("RemoteRxAudioStream stopped: id = \(remoteRxAudioStream.id.hex)", .info, #function, #file, #line)
+//
+//        _opusPlayer?.stop()
+//        remoteRxAudioStream.delegate = nil
+//      }
+//    }
+//  }
+
   // ----------------------------------------------------------------------------
   // MARK: - Notification Methods
   
@@ -683,6 +719,9 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
     NC.makeObserver(self, with: #selector(radioWillBeRemoved(_:)), of: .radioWillBeRemoved)
     NC.makeObserver(self, with: #selector(radioHasBeenRemoved(_:)), of: .radioHasBeenRemoved)
     
+    NC.makeObserver(self, with: #selector(opusAudioStreamHasBeenAdded(_:)), of: .opusAudioStreamHasBeenAdded)
+    NC.makeObserver(self, with: #selector(opusAudioStreamWillBeRemoved(_:)), of: .opusAudioStreamWillBeRemoved)
+
     NC.makeObserver(self, with: #selector(remoteRxAudioStreamHasBeenAdded(_:)), of: .remoteRxAudioStreamHasBeenAdded)
     NC.makeObserver(self, with: #selector(remoteRxAudioStreamWillBeRemoved(_:)), of: .remoteRxAudioStreamWillBeRemoved)
 
@@ -773,8 +812,6 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
       
       // update the toolbar items
       enableToolbarItems(false)
-      
-      opusRxAudioStreamState(.stop)
 
       // remove all objects on Radio
       radio.removeAll()
@@ -787,7 +824,7 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
   @objc private func radioHasBeenRemoved(_ note: Notification) {
     
     // the Radio class has been removed
-    _log.logMessage(Logger.kName + ":Radio has been removed", .info, #function, #file, #line)
+    _log.logMessage("Radio has been removed", .info, #function, #file, #line)
 
     // update the window title
     updateWindowTitle()
@@ -802,9 +839,11 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
     if let opusAudioStream = note.object as? OpusAudioStream {
       _opusAudioStream = opusAudioStream
 
-      _log.logMessage("OpusRxAudioStream added: Id = \(opusAudioStream.id.hex)", .info, #function, #file, #line)
+      _log.logMessage("OpusAudioStream added: id = \(opusAudioStream.id.hex)", .info, #function, #file, #line)
 
-      opusRxAudioStreamState(Defaults[.macAudioEnabled] == true ? .start : .stop)
+      _opusPlayer = OpusPlayer()
+      opusAudioStream.delegate = _opusPlayer
+      if Defaults[.macAudioEnabled] { _opusPlayer!.start() }
     }
   }
   /// Process .opusAudioStreamWillBeRemoved Notification
@@ -816,9 +855,10 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
     // the OpusAudioStream is being removed
     if let opusAudioStream = note.object as? OpusAudioStream {
       
-      _log.logMessage("OpusRxAudioStream will be stopped: Id = \(opusAudioStream.id.hex)", .info,  #function, #file, #line)
+      _log.logMessage("OpusAudioStream will be removed: id = \(opusAudioStream.id.hex)", .info,  #function, #file, #line)
 
-      opusRxAudioStreamState(Defaults[.macAudioEnabled] == true ? .start : .stop)
+      _opusPlayer?.stop()
+      _opusAudioStream?.delegate = nil
     }
   }
   /// Process .remoteRxAudioStreamHasBeenAdded Notification
@@ -831,7 +871,7 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
     if let remoteRxAudioStream = note.object as? RemoteRxAudioStream {
       _remoteRxAudioStream = remoteRxAudioStream
     
-      _log.logMessage("RemoteRxAudioStream added: Id = \(remoteRxAudioStream.id.hex)", .info, #function, #file, #line)
+      _log.logMessage("RemoteRxAudioStream added: id = \(remoteRxAudioStream.id.hex)", .info, #function, #file, #line)
 
       _opusPlayer = OpusPlayer()
       remoteRxAudioStream.delegate = _opusPlayer
@@ -847,7 +887,7 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
     // the RemoteRxAudioStream is being removed
     if let remoteRxAudioStream = note.object as? RemoteRxAudioStream {
       
-      _log.logMessage("RemoteRxAudioStream will be removed: Id = \(remoteRxAudioStream.id.hex)", .info,  #function, #file, #line)
+      _log.logMessage("RemoteRxAudioStream will be removed: id = \(remoteRxAudioStream.id.hex)", .info,  #function, #file, #line)
 
       _opusPlayer?.stop()
       remoteRxAudioStream.delegate = nil
@@ -897,14 +937,14 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
     DispatchQueue.main.async {
       let alert = NSAlert()
       alert.alertStyle = .warning
-      alert.messageText = "The Radio's version may not be supported by this version of \(Logger.kName)."
+      alert.messageText = "The Radio's version may not be supported by this version of \(Logger.kAppName)."
       alert.informativeText = """
       Radio:\t\tv\(versions[1].longString)
       xLib6000:\tv\(versions[0].string)
       
       You can use SmartSDR to DOWNGRADE the Radio
       \t\t\tOR
-      Install a newer version of \(Logger.kName)
+      Install a newer version of \(Logger.kAppName)
       """
       alert.addButton(withTitle: "Close")
       alert.addButton(withTitle: "Continue")
@@ -927,14 +967,14 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
     DispatchQueue.main.async {
       let alert = NSAlert()
       alert.alertStyle = .warning
-      alert.messageText = "The Radio's version may not be supported by this version of \(Logger.kName)."
+      alert.messageText = "The Radio's version may not be supported by this version of \(Logger.kAppName)."
       alert.informativeText = """
       Radio:\t\tv\(versions[1].longString)
       xLib6000:\tv\(versions[0].string)
       
       You can use SmartSDR to UPGRADE the Radio
       \t\t\tOR
-      Install an older version of \(Logger.kName)
+      Install an older version of \(Logger.kAppName)
       """
       alert.addButton(withTitle: "Close")
       alert.addButton(withTitle: "Continue")
@@ -975,7 +1015,7 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
     // the Radio class has been initialized
     let xvtr = note.object as! Xvtr
     
-    _log.logMessage("Xvtr added: Id = \(xvtr.id), Name = \(xvtr.name), Rf Frequency = \(xvtr.rfFrequency.hzToMhz)", .info, #function, #file, #line)
+    _log.logMessage("Xvtr added: id = \(xvtr.id), Name = \(xvtr.name), Rf Frequency = \(xvtr.rfFrequency.hzToMhz)", .info, #function, #file, #line)
   }
   /// Process xvtrHasBeenRemoved Notification
   ///
@@ -986,7 +1026,7 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
     // the Radio class has been initialized
     let xvtr = note.object as! Xvtr
     
-    _log.logMessage("Xvtr will be removed: Id = \(xvtr.id)", .info, #function, #file, #line)
+    _log.logMessage("Xvtr will be removed: id = \(xvtr.id)", .info, #function, #file, #line)
   }
 
   // ----------------------------------------------------------------------------
@@ -1018,7 +1058,7 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
     let station = (Host.current().localizedName ?? "Mac").replacingSpaces(with: "_")
     return _api.connect(radioPacket,
                         clientStation: station,
-                        programName: Logger.kName,
+                        programName: Logger.kAppName,
                         clientId: _clientId,
                         isGui: true,
                         isWan: isWan,
