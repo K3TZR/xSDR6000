@@ -12,6 +12,7 @@
 		917AAA7C23D53FD90082FAEB /* XCGLogger in Frameworks */ = {isa = PBXBuildFile; productRef = 917AAA7B23D53FD90082FAEB /* XCGLogger */; };
 		918725A323D64402009B63A3 /* ChangeLog.txt in Resources */ = {isa = PBXBuildFile; fileRef = 918725A223D64402009B63A3 /* ChangeLog.txt */; };
 		919614F723D28F8F0069AE94 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 919614F623D28F8F0069AE94 /* README.md */; };
+		919F57DC24109324001956B0 /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 919F57DB24109324001956B0 /* Logger.swift */; };
 		91E4788A23B666EE004DA6A7 /* AudioHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91E4780923B666EE004DA6A7 /* AudioHelper.swift */; };
 		91E4788B23B666EE004DA6A7 /* TPCircularBuffer+AudioBufferList.c in Sources */ = {isa = PBXBuildFile; fileRef = 91E4780D23B666EE004DA6A7 /* TPCircularBuffer+AudioBufferList.c */; };
 		91E4788C23B666EE004DA6A7 /* README.markdown in Resources */ = {isa = PBXBuildFile; fileRef = 91E4780F23B666EE004DA6A7 /* README.markdown */; };
@@ -126,6 +127,7 @@
 		919614F423D28DB50069AE94 /* xSDR6000-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "xSDR6000-Bridging-Header.h"; sourceTree = "<group>"; };
 		919614F523D28DB50069AE94 /* xSDR6000.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = xSDR6000.entitlements; sourceTree = "<group>"; };
 		919614F623D28F8F0069AE94 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		919F57DB24109324001956B0 /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
 		91A4BEAE23E74DBF00608D20 /* xLib6000 */ = {isa = PBXFileReference; lastKnownFileType = folder; name = xLib6000; path = ../xLib6000; sourceTree = "<group>"; };
 		91E477F123B66661004DA6A7 /* xSDR6000.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = xSDR6000.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		91E4780523B666ED004DA6A7 /* OpusOSX.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = OpusOSX.framework; sourceTree = "<group>"; };
@@ -306,6 +308,7 @@
 				91E4781F23B666EE004DA6A7 /* Filters.plist */,
 				91E4782023B666EE004DA6A7 /* OpusPlayer.swift */,
 				91E4782123B666EE004DA6A7 /* ParameterMonitor.swift */,
+				919F57DB24109324001956B0 /* Logger.swift */,
 			);
 			path = Misc;
 			sourceTree = "<group>";
@@ -697,6 +700,7 @@
 				91E478CD23B666EE004DA6A7 /* PanadapterViewController.swift in Sources */,
 				91E478C623B666EE004DA6A7 /* FlagViewController.swift in Sources */,
 				91E478BC23B666EE004DA6A7 /* TxViewController.swift in Sources */,
+				919F57DC24109324001956B0 /* Logger.swift in Sources */,
 				91E478DF23B666EE004DA6A7 /* StringExtensions.swift in Sources */,
 				91E478B923B666EE004DA6A7 /* CWViewController.swift in Sources */,
 				91E478A923B666EE004DA6A7 /* BandButtonViewController.swift in Sources */,
