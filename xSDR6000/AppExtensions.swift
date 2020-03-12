@@ -12,14 +12,6 @@ import simd
 
 typealias NC = NotificationCenter
 
-//extension UserDefaults {
-  
-//  subscript(key: DefaultsKey<NSColor>) -> NSColor {
-//    get { return unarchive(key)! }
-//    set { archive(key, newValue) }
-//  }
-//}
-
 extension NSColor : DefaultsSerializable {}
 
 extension DefaultsKeys {
@@ -536,26 +528,6 @@ func notImplemented(_ featureName: String) -> NSAlert {
   alert.informativeText = "Later versions may incorporate this feature"
   return alert
 }
-
-/// Find versions for this app and the specified framework
-///
-//func versionInfo(framework: String) -> (String, String) {
-//  let kVersionKey             = "CFBundleShortVersionString"  // CF constants
-//  let kBuildKey               = "CFBundleVersion"
-//  
-//  // get the version of the framework
-//  let frameworkBundle = Bundle(identifier: framework)!
-//  var version = frameworkBundle.object(forInfoDictionaryKey: kVersionKey)!
-//  var build = frameworkBundle.object(forInfoDictionaryKey: kBuildKey)!
-//  let apiVersion = "\(version).\(build)"
-//  
-//  // get the version of this app
-//  version = Bundle.main.object(forInfoDictionaryKey: kVersionKey)!
-//  build = Bundle.main.object(forInfoDictionaryKey: kBuildKey)!
-//  let appVersion = "\(version).\(build)"
-//  
-//  return (apiVersion, appVersion)
-//}
 
 /// Setup & Register User Defaults from a file
 ///
