@@ -79,7 +79,7 @@ final class PanafallsViewController         : NSSplitViewController {
     // In V3, check is it for this Client
     if _radio!.version.isOldApi || _radio!.version.isNewApi && panadapter.clientHandle == _api.connectionHandle {
       // log the event
-      _log.logMessage("Panadapter added: Id = \(panadapter.id.hex)", .info, #function, #file, #line)
+      _log.logMessage("Panadapter added: id = \(panadapter.id.hex)", .info, #function, #file, #line)
     }
   }
   /// Process .waterfallHasBeenAdded Notification
@@ -95,7 +95,7 @@ final class PanafallsViewController         : NSSplitViewController {
     // In V3, check is it for this Client
     if  _radio!.version.isOldApi || _radio!.version.isNewApi && waterfall.clientHandle == _api.connectionHandle {
       // log the event
-      _log.logMessage("Waterfall added: Id = \(waterfall.id.hex)", .info, #function, #file, #line)
+      _log.logMessage("Waterfall added: id = \(waterfall.id.hex)", .info, #function, #file, #line)
       
       let panadapter = _api.radio!.panadapters[waterfall.panadapterId]
       

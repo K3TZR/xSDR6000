@@ -60,8 +60,8 @@ public final class PanadapterRenderer       : NSObject {
   
   private var _fillLevel                    = 1
   
-  private let _panQ                         = DispatchQueue(label: Logger.kName + ".panQ", attributes: [.concurrent])
-  private let _panDrawQ                     = DispatchQueue(label: Logger.kName + ".panDrawQ")
+  private let _panQ                         = DispatchQueue(label: Logger.kAppName + ".panQ", attributes: [.concurrent])
+  private let _panDrawQ                     = DispatchQueue(label: Logger.kAppName + ".panDrawQ")
 
   // ----- Backing properties - SHOULD NOT BE ACCESSED DIRECTLY -----------------------------------
   //

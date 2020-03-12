@@ -314,7 +314,7 @@ public final class OpusEncode               : NSObject {
 //      // try to set it as the input device for the engine
 //      if setInputDevice(device.id) {
 //
-//        _log("RemoteTxAudioStream started: Stream Id = \(RemoteTxAudioStream.streamId.hex), Device = \(device.name!)", .info, #function, #file, #line)
+//        _log("RemoteTxAudioStream started: Stream id = \(RemoteTxAudioStream.streamId.hex), Device = \(device.name!)", .info, #function, #file, #line)
 //
 //        // start capture using this input device
 //        startInput(device)

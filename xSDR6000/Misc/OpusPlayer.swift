@@ -68,7 +68,7 @@ public final class OpusPlayer                       : NSObject, StreamHandler {
   private let _log                                  = Logger.sharedInstance
   private var _outputUnit                           : AudioUnit?
   private var _ringBuffer                           = TPCircularBuffer()
-  private var _q                                    = DispatchQueue(label: Logger.kName + "OpusPlayerObjectQ", qos: .userInteractive, attributes: [.concurrent])
+  private var _q                                    = DispatchQueue(label: Logger.kAppName + "OpusPlayerObjectQ", qos: .userInteractive, attributes: [.concurrent])
 
   private var __outputActive                        = false
   private var _outputActive                         : Bool {
@@ -112,7 +112,7 @@ public final class OpusPlayer                       : NSObject, StreamHandler {
     TPCircularBufferClear(&_ringBuffer)
     
     let availableFrames = TPCircularBufferGetAvailableSpace(&_ringBuffer, &OpusPlayer.decoderOutputASBD)
-    _log.logMessage("Ring buffer frames available when started = \(availableFrames)", .debug, #function, #file, #line)
+    _log.logMessage("Ring buffer frames @ start = \(availableFrames)", .debug, #function, #file, #line)
     
     // register render callback
     var input: AURenderCallbackStruct = AURenderCallbackStruct(inputProc: RenderProc, inputProcRefCon: Unmanaged.passUnretained(self).toOpaque())
@@ -138,7 +138,7 @@ public final class OpusPlayer                       : NSObject, StreamHandler {
     AudioOutputUnitStop(outputUnit)
     
     let availableFrames = TPCircularBufferGetAvailableSpace(&_ringBuffer, &OpusPlayer.decoderOutputASBD)
-    _log.logMessage("Ring buffer frames available when stopped = \(availableFrames) ", .debug, #function, #file, #line)
+    _log.logMessage("Ring buffer frames @ stop = \(availableFrames) ", .debug, #function, #file, #line)
   }
 
   // ----------------------------------------------------------------------------
@@ -188,7 +188,6 @@ public final class OpusPlayer                       : NSObject, StreamHandler {
     // create the player's output unit
     guard AudioComponentInstanceNew(audioComponent, &_outputUnit) == noErr else { fatalError("Output unit not created") }
     guard let outputUnit = _outputUnit else { fatalError("Output unit is null") }
-    
     
     // set the output unit's Input sample rate
     var inputSampleRate = RemoteRxAudioStream.sampleRate
