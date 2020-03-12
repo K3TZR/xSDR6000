@@ -12,10 +12,10 @@ import xLib6000
 
 public class Logger : LogHandler {
   
-  public static let kName                   = "xSDR6000"
+  public static let kAppName                = "xSDR6000"
   
   // Log parameters
-  static let kLoggerName                    = kName
+  static let kLoggerName                    = kAppName
   static let kLogFile                       = kLoggerName + ".log"
   static let kMaxLogFiles                   : UInt8 = 5
   static let kMaxFileSize                   : UInt64 = 1_048_576                     // 2^20
@@ -125,28 +125,28 @@ public class Logger : LogHandler {
   ///   - file:       the name of the file containing the function
   ///   - line:       the line number creating the msg
   ///
-  public func logMessage(_ msg: String, _ level: MessageLevel, _ function: StaticString, _ file: StaticString, _ line: Int, _ source: String = Logger.kName ) -> Void {
+  public func logMessage(_ msg: String, _ level: MessageLevel, _ function: StaticString, _ file: StaticString, _ line: Int) -> Void {
     
     // Log Handler to support XCGLogger
     
     switch level {
     case .verbose:
-      log.verbose(source.prefix(4) + ": " + msg, functionName: function, fileName: file, lineNumber: line )
+      log.verbose(msg, functionName: function, fileName: file, lineNumber: line )
       
     case .debug:
-      log.debug(source.prefix(4) + ": " + msg, functionName: function, fileName: file, lineNumber: line)
-      
+      log.debug(msg, functionName: function, fileName: file, lineNumber: line)
+
     case .info:
-      log.info(source.prefix(4) + ": " +  msg, functionName: function, fileName: file, lineNumber: line)
+      log.info(msg, functionName: function, fileName: file, lineNumber: line)
       
     case .warning:
-      log.warning(source.prefix(4) + ": " + msg, functionName: function, fileName: file, lineNumber: line)
+      log.warning(msg, functionName: function, fileName: file, lineNumber: line)
       
     case .error:
-      log.error(source.prefix(4) + ": " +  msg, functionName: function, fileName: file, lineNumber: line)
+      log.error(msg, functionName: function, fileName: file, lineNumber: line)
       
     case .severe:
-      log.severe(source.prefix(4) + ": " + msg, functionName: function, fileName: file, lineNumber: line)
+      log.severe(msg, functionName: function, fileName: file, lineNumber: line)
     }
   }
 }
