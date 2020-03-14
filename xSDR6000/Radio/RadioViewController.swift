@@ -126,6 +126,8 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
     // log versions (before connected)
     _log.logMessage("\(Logger.kAppName) v\(_log.version.longString), \(Api.kName) v\(Api.kVersion.longString)", .info, #function, #file, #line)
 
+    updateWindowTitle()
+    
     // get/create a Client Id
     _clientId = clientId()
     
