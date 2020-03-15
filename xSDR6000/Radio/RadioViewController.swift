@@ -166,7 +166,10 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
 
   override func validateUserInterfaceItem(_ item: NSValidatedUserInterfaceItem) -> Bool {
     
-    // activate the menu selections
+    // Radio Selection || Quit are enabled
+    if item.tag == 2 || item.tag == 7 { return true } // Radio Selection || Quit
+    
+    // all others, after connection established
     return _tcpPingFirstResponseReceived
   }
 
@@ -597,49 +600,27 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
       // enable / disable the toolbar items
       if let toolbar = self.view.window!.toolbar {
         for item in toolbar.items {
-          
+                    
           switch item.itemIdentifier.rawValue {
-          case "tnfsEnabled":
-            item.isEnabled = isEnabled
-            if isEnabled { (item.view as! NSButton).boolState = Defaults[.tnfsEnabled] }
-          case "markersEnabled":
-            item.isEnabled = isEnabled
-            if isEnabled { (item.view as! NSButton).boolState = Defaults[.markersEnabled] }
-          case "lineoutGain":
-            item.isEnabled = isEnabled
-            if isEnabled { (item.view as! NSSlider).integerValue = self._api.radio!.lineoutGain }
-          case "headphoneGain":
-            item.isEnabled = isEnabled
-            if isEnabled { (item.view as! NSSlider).integerValue = self._api.radio!.headphoneGain }
-          case "macAudioEnabled":
-            item.isEnabled = isEnabled
-            if isEnabled { (item.view as! NSButton).boolState = Defaults[.macAudioEnabled] }
-          case "lineoutMute":
-            item.isEnabled = isEnabled
-            if isEnabled { (item.view as! NSButton).boolState = self._api.radio!.lineoutMute }
-          case "headphoneMute":
-            item.isEnabled = isEnabled
-            if isEnabled { (item.view as! NSButton).boolState = self._api.radio!.headphoneMute }
-          case "fdxEnabled":
-            item.isEnabled = isEnabled
-            if isEnabled { (item.view as! NSButton).boolState = Defaults[.fullDuplexEnabled] }
-          case "cwxEnabled":
+            
+          case "tnfsEnabled":     item.isEnabled = isEnabled ; if isEnabled { (item.view as! NSButton).boolState = Defaults[.tnfsEnabled] }
+          case "markersEnabled":  item.isEnabled = isEnabled ; if isEnabled { (item.view as! NSButton).boolState = Defaults[.markersEnabled] }
+          case "lineoutGain":     item.isEnabled = isEnabled ; if isEnabled { (item.view as! NSSlider).integerValue = self._api.radio!.lineoutGain }
+          case "headphoneGain":   item.isEnabled = isEnabled ; if isEnabled { (item.view as! NSSlider).integerValue = self._api.radio!.headphoneGain }
+          case "macAudioEnabled": item.isEnabled = isEnabled ; if isEnabled { (item.view as! NSButton).boolState = Defaults[.macAudioEnabled] }
+          case "lineoutMute":     item.isEnabled = isEnabled ; if isEnabled { (item.view as! NSButton).boolState = self._api.radio!.lineoutMute }
+          case "headphoneMute":   item.isEnabled = isEnabled ; if isEnabled { (item.view as! NSButton).boolState = self._api.radio!.headphoneMute }
+          case "fdxEnabled":      item.isEnabled = isEnabled ; if isEnabled { (item.view as! NSButton).boolState = Defaults[.fullDuplexEnabled] }
+          case "cwxEnabled":      break
             // TODO: CWX ?
             
             //          item.isEnabled = enabled
             //          if enabled { (item.view as! NSButton).boolState = Defaults[.cwxEnabled] }
-            break
-          case "sideEnabled" :
-            item.isEnabled = isEnabled
-            if isEnabled { (item.view as! NSButton).boolState = Defaults[.sideViewOpen] }
+          case "sideEnabled" :    item.isEnabled = isEnabled ; if isEnabled { (item.view as! NSButton).boolState = Defaults[.sideViewOpen] }
             
-          case "addPan", "VoltageTemp" :
-            break
-          case "NSToolbarFlexibleSpaceItem", "NSToolbarSpaceItem":
-            break
-          default:
-            Swift.print("\(item.itemIdentifier.rawValue)")
-            fatalError()
+          case "addPan", "VoltageTemp" : break
+          case "NSToolbarFlexibleSpaceItem", "NSToolbarSpaceItem": break
+          default: Swift.print("Unknown Item identifier = \(item.itemIdentifier.rawValue)") ; fatalError()
           }
         }
       }
