@@ -213,7 +213,7 @@ final class XritViewController: NSViewController {
     if let slice = object as? xLib6000.Slice {
       value = slice.step
 
-    } else if let defaults = object as? UserDefaults {
+    } else if let _ = object as? UserDefaults {
       value = Defaults[.splitDistance]
     }
     DispatchQueue.main.async { [weak self] in
