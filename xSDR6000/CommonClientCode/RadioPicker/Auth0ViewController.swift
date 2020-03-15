@@ -48,7 +48,7 @@ final class Auth0ViewController             : NSViewController, WKNavigationDele
   &response_type=\(kResponseType)\
   &scope=\(kScope)\
   &state=\(kState)\
-  &device=\(Logger.kName)
+  &device=\(Logger.kAppName)
   """
 
   // ----------------------------------------------------------------------------

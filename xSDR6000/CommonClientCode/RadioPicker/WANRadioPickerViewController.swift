@@ -79,7 +79,7 @@ final class WANRadioPickerViewController    : NSViewController, NSTableViewDeleg
   private let kLogoutTitle                  = "Log Out"
   private let kPlatform                     = "macOS"
   private let kScope                        = "openid email given_name family_name picture"
-  private let kService                      = Logger.kName + kServiceName
+  private let kService                      = Logger.kAppName + kServiceName
   private let kUpnpIdentifier               = "upnpSupported"
   
   // ----------------------------------------------------------------------------
@@ -376,7 +376,7 @@ final class WANRadioPickerViewController    : NSViewController, NSTableViewDeleg
 
     // connect with pinger to avoid the SmartLink server to disconnect if we take too long (>30s)
     // to select and connect to a radio
-    if !_wanServer!.connect(appName: Logger.kName, platform: kPlatform, token: token, ping: true) {
+    if !_wanServer!.connect(appName: Logger.kAppName, platform: kPlatform, token: token, ping: true) {
       
       // log the error
       _log.logMessage("Error connecting to SmartLink Server", .warning, #function, #file, #line)
@@ -740,16 +740,11 @@ final class WANRadioPickerViewController    : NSViewController, NSTableViewDeleg
     
     // set the stringValue of the cell's text field to the appropriate field
     switch tableColumn!.identifier.rawValue {
-    case "model":
-      cellView.textField!.stringValue = _discoveredRadios[row].model
-    case "nickname":
-      cellView.textField!.stringValue = _discoveredRadios[row].nickname
-    case "status":
-      cellView.textField!.stringValue = _discoveredRadios[row].status
-    case "publicIp":
-      cellView.textField!.stringValue = _discoveredRadios[row].publicIp
-    default:
-      break
+    case "model":     cellView.textField!.stringValue = _discoveredRadios[row].model
+    case "nickname":  cellView.textField!.stringValue = _discoveredRadios[row].nickname
+    case "status":    cellView.textField!.stringValue = _discoveredRadios[row].status
+    case "publicIp":  cellView.textField!.stringValue = _discoveredRadios[row].publicIp
+    default:          break
     }
     return cellView
   }
