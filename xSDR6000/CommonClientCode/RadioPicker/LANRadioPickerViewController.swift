@@ -62,7 +62,7 @@ final class LANRadioPickerViewController    : NSViewController, NSTableViewDeleg
   
   private var _api                          = Api.sharedInstance
   private var _discoveryPacket              : DiscoveryStruct?
-  private var _discoveryPackets             = Discovery.sharedInstance.discoveredRadios
+  private var _discoveryPackets             : [DiscoveryStruct] { Discovery.sharedInstance.discoveredRadios }
   private let _log                          = Logger.sharedInstance
 
   private weak var _parentVc                : NSViewController!
