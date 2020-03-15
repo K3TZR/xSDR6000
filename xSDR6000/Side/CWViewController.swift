@@ -29,7 +29,7 @@ final class CWViewController                          : NSViewController {
   @IBOutlet private weak var _speedSlider             : NSSlider!
   @IBOutlet private weak var _speedTextfield          : NSTextField!
 
-  private var _radio               : Radio? { return Api.sharedInstance.radio }
+  private var _radio               : Radio? { Api.sharedInstance.radio }
   private var _observations        = [NSKeyValueObservation]()
 
   private let kAlcLevel            = Meter.ShortName.voltageHwAlc.rawValue

@@ -38,10 +38,10 @@ final class TXPrefsViewController                 : NSViewController {
   @IBOutlet private weak var _hardWareAlcCheckbox       : NSButton!
   @IBOutlet private weak var _showTxInWaterfallCheckbox : NSButton!
   
-  private var _radio                        : Radio? { return Api.sharedInstance.radio }
-  private var _interlock                    : Interlock? { return _radio!.interlock }
-  private var _transmit                     : Transmit? { return _radio!.transmit }
-  private var _txProfile                    : Profile? { return _radio!.profiles[Profile.Group.tx.rawValue] }
+  private var _radio                        : Radio? { Api.sharedInstance.radio }
+  private var _interlock                    : Interlock? { _radio!.interlock }
+  private var _transmit                     : Transmit? { _radio!.transmit }
+  private var _txProfile                    : Profile? { _radio!.profiles[Profile.Group.tx.rawValue] }
   private var _observations                 = [NSKeyValueObservation]()
 
   // ----------------------------------------------------------------------------

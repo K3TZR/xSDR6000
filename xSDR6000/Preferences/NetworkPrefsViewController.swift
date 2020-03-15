@@ -28,7 +28,7 @@ final class NetworkPrefsViewController: NSViewController {
 
   @IBOutlet private weak var _applyButton               : NSButton!
   
-  private var _radio                            : Radio? { return Api.sharedInstance.radio }
+  private var _radio                            : Radio? { Api.sharedInstance.radio }
   private var _observations                     = [NSKeyValueObservation]()
 
   // ----------------------------------------------------------------------------

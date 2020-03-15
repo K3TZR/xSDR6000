@@ -27,7 +27,7 @@ final class TxViewController                      : NSViewController {
   @IBOutlet private weak var _rfPowerIndicator  : LevelIndicator!
   @IBOutlet private weak var _swrIndicator      : LevelIndicator!
   
-  private var _radio                        : Radio? { return Api.sharedInstance.radio }
+  private var _radio                        : Radio? { Api.sharedInstance.radio }
   private var _observations                 = [NSKeyValueObservation]()
   private var _profileObservations          = [NSKeyValueObservation]()
   private var _meterObservations            = [NSKeyValueObservation]()

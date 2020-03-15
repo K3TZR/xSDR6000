@@ -18,8 +18,7 @@ final class AntennaViewController           : NSViewController, NSPopoverDelegat
   @IBOutlet private weak var _loopAButton   : NSButton!
   @IBOutlet private weak var _rfGainSlider  : NSSlider!
 
-  private var _panadapter                   : Panadapter {
-    return representedObject as! Panadapter }
+  private var _panadapter                   : Panadapter { representedObject as! Panadapter }
   
   private var _observations                 = [NSKeyValueObservation]()
   private var _isDetached                   = false

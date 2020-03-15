@@ -52,11 +52,11 @@ final class PanadapterViewController        : NSViewController, NSGestureRecogni
   private var _panadapterRenderer           : PanadapterRenderer!
   private let _log                          = Logger.sharedInstance
 
-  private var _center                       : Int {return _panadapter!.center }
-  private var _bandwidth                    : Int { return _panadapter!.bandwidth }
-  private var _start                        : Int { return _center - (_bandwidth/2) }
-  private var _end                          : Int  { return _center + (_bandwidth/2) }
-  private var _hzPerUnit                    : CGFloat { return CGFloat(_end - _start) / _panadapter!.xPixels }
+  private var _center                       : Int { _panadapter!.center }
+  private var _bandwidth                    : Int { _panadapter!.bandwidth }
+  private var _start                        : Int { _center - (_bandwidth/2) }
+  private var _end                          : Int  { _center + (_bandwidth/2) }
+  private var _hzPerUnit                    : CGFloat { CGFloat(_end - _start) / _panadapter!.xPixels }
   
   // gesture recognizer related
   private var _clickLeft                    : NSClickGestureRecognizer!

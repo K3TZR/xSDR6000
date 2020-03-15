@@ -31,7 +31,7 @@ final class EqViewController                : NSViewController {
   @IBOutlet private weak var slider6        : NSSlider!
   @IBOutlet private weak var slider7        : NSSlider!
   
-  private var _radio                        : Radio? { return Api.sharedInstance.radio }
+  private var _radio                        : Radio? { Api.sharedInstance.radio }
   
   private var _equalizerRx                  : Equalizer!                    // Rx Equalizer
   private var _equalizerTx                  : Equalizer!                    // Tx Equalizer

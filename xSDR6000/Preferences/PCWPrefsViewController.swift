@@ -26,8 +26,8 @@ final class PCWPrefsViewController                : NSViewController {
   @IBOutlet private weak var _iambicBRadioButton    : NSButton!
   @IBOutlet private weak var _rttyMarkTextField     : NSTextField!
   
-  private var _radio                        : Radio? { return Api.sharedInstance.radio }
-  private var _transmit                     : Transmit? { return _radio!.transmit }
+  private var _radio                        : Radio? { Api.sharedInstance.radio }
+  private var _transmit                     : Transmit? { _radio!.transmit }
   private var _observations                 = [NSKeyValueObservation]()
   
   // ----------------------------------------------------------------------------

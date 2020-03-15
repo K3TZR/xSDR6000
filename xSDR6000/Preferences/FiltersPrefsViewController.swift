@@ -21,7 +21,7 @@ final class FiltersPrefsViewController: NSViewController {
   @IBOutlet private weak var _cwAutoCheckbox      : NSButton!
   @IBOutlet private weak var _digitalAutoCheckbox : NSButton!
   
-  private weak var _radio                         : Radio? { return Api.sharedInstance.radio }
+  private weak var _radio                         : Radio? { Api.sharedInstance.radio }
   private var _observations                  = [NSKeyValueObservation]()
   
   // ----------------------------------------------------------------------------

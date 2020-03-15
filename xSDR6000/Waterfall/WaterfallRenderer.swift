@@ -53,12 +53,12 @@ public final class WaterfallRenderer: NSObject, MTKViewDelegate {
 
   private weak var _radio                   : Radio?
   private weak var _panadapter              : Panadapter?
-  private weak var _waterfall               : Waterfall? { return _radio!.waterfalls[_panadapter!.waterfallId] }
+  private weak var _waterfall               : Waterfall? { _radio!.waterfalls[_panadapter!.waterfallId] }
 
-  private var _center                       : Hz {return _panadapter!.center }
-  private var _bandwidth                    : Hz { return _panadapter!.bandwidth }
-  private var _start                        : Hz { return _center - (_bandwidth/2) }
-  private var _end                          : Hz  { return _center + (_bandwidth/2) }
+  private var _center                       : Hz { _panadapter!.center }
+  private var _bandwidth                    : Hz { _panadapter!.bandwidth }
+  private var _start                        : Hz { _center - (_bandwidth/2) }
+  private var _end                          : Hz  { _center + (_bandwidth/2) }
   
   private var _metalView                    : MTKView!
   private var _commandQueue                 : MTLCommandQueue!              // Metal queue
@@ -105,7 +105,7 @@ public final class WaterfallRenderer: NSObject, MTKViewDelegate {
   
   private var __constant                    = Constant()
   private var _constant                     : Constant {
-    get { return _waterQ.sync { __constant } }
+    get { _waterQ.sync { __constant } }
     set { _waterQ.sync(flags: .barrier) { __constant = newValue } } }
 
   // ----------------------------------------------------------------------------

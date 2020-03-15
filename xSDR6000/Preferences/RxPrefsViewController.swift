@@ -23,7 +23,7 @@ final class RxPrefsViewController: NSViewController {
   @IBOutlet private weak var _muteLocalAudioCheckbox  : NSButton!
   @IBOutlet private weak var _binauralAudioCheckbox   : NSButton!
   
-  private var _radio                        : Radio? { return Api.sharedInstance.radio }
+  private var _radio                        : Radio? { Api.sharedInstance.radio }
   private var _observations                 = [NSKeyValueObservation]()
   
   // ----------------------------------------------------------------------------

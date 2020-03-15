@@ -28,7 +28,7 @@ final class RadioPrefsViewController: NSViewController {
   @IBOutlet private weak var _callsignRadioButton         : NSButton!
   @IBOutlet private weak var _nicknameRadioButton         : NSButton!
   
-  private var _radio                        : Radio? { return Api.sharedInstance.radio }
+  private var _radio                        : Radio? { Api.sharedInstance.radio }
 
   // ----------------------------------------------------------------------------
   // MARK: - Overridden  methods

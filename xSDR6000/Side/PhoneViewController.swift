@@ -30,7 +30,7 @@ final class PhoneViewController                   : NSViewController {
   @IBOutlet private weak var _txFilterHigh        : NSTextField!
   @IBOutlet private weak var _txFilterHighStepper : NSStepper!
   
-  private var _radio                        : Radio? { return Api.sharedInstance.radio }
+  private var _radio                        : Radio? { Api.sharedInstance.radio }
   private var _observations                 = [NSKeyValueObservation]()
   
   // ----------------------------------------------------------------------------

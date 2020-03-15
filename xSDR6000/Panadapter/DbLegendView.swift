@@ -41,8 +41,8 @@ public final class DbLegendView             : NSView {
   // ----------------------------------------------------------------------------
   // MARK: - Private properties
   
-  private var _minDbm                       : CGFloat {return _panadapter!.minDbm }
-  private var _maxDbm                       : CGFloat {return _panadapter!.maxDbm }
+  private var _minDbm                       : CGFloat { _panadapter!.minDbm }
+  private var _maxDbm                       : CGFloat { _panadapter!.maxDbm }
   private var _spacings                     = Defaults[.dbLegendSpacings]
   private var _path                         = NSBezierPath()  
   private var _attributes                   = [NSAttributedString.Key:AnyObject]() // Font & Size for the db Legend

@@ -27,7 +27,7 @@ final class PCWViewController                     : NSViewController {
   @IBOutlet private weak var _monLevel                : NSSlider!
   @IBOutlet private weak var _saveButton              : NSButton!
   
-  private var _radio                        : Radio? { return Api.sharedInstance.radio }
+  private var _radio                        : Radio? { Api.sharedInstance.radio }
   private var _observations                 = [NSKeyValueObservation]()
   
   private let kMicrophoneAverage            = Meter.ShortName.microphoneAverage.rawValue
