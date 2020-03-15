@@ -17,7 +17,7 @@ final class ProfileViewController: NSViewController, NSTableViewDelegate, NSTabl
   @IBOutlet private weak var _loadButton        : NSButton!
   @IBOutlet private weak var _deleteButton      : NSButton!
   
-  private var _radio                            : Radio? { return Api.sharedInstance.radio }
+  private var _radio                            : Radio? { Api.sharedInstance.radio }
   private var _id                               : String!
   private var _currentSelection                 : String!
   private var _array                            = [String]()
