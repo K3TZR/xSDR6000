@@ -562,6 +562,109 @@ func defaults(from file: String) {
   }
 }
 
+/// Return the version of the named Package
+/// - Parameter packageName:    the name of a package
+///
+func versionOf(_ packageName: String) -> String {
+
+  /* Assumes a file with a structure like this
+   {
+     "object": {
+       "pins": [
+         {
+           "package": "Nimble",
+           "repositoryURL": "https://github.com/Quick/Nimble.git",
+           "state": {
+             "branch": null,
+             "revision": "e9d769113660769a4d9dd3afb855562c0b7ae7b0",
+             "version": "7.3.4"
+           }
+         },
+         {
+           "package": "Quick",
+           "repositoryURL": "https://github.com/Quick/Quick.git",
+           "state": {
+             "branch": null,
+             "revision": "f2b5a06440ea87eba1a167cab37bf6496646c52e",
+             "version": "1.3.4"
+           }
+         },
+         {
+           "package": "SwiftyUserDefaults",
+           "repositoryURL": "https://github.com/sunshinejr/SwiftyUserDefaults.git",
+           "state": {
+             "branch": null,
+             "revision": "566ace16ee91242b61e2e9da6cdbe7dfdadd926c",
+             "version": "4.0.0"
+           }
+         },
+         {
+           "package": "XCGLogger",
+           "repositoryURL": "https://github.com/DaveWoodCom/XCGLogger.git",
+           "state": {
+             "branch": null,
+             "revision": "a9c4667b247928a29bdd41be2ec2c8d304215a54",
+             "version": "7.0.1"
+           }
+         },
+         {
+           "package": "xLib6000",
+           "repositoryURL": "https://github.com/K3TZR/xLib6000.git",
+           "state": {
+             "branch": null,
+             "revision": "43f637fbf0475574618d0aa105478d0a4c41df92",
+             "version": "1.2.6"
+           }
+         }
+       ]
+     },
+     "version": 1
+   }
+
+   */
+  
+  struct State: Codable {
+    var branch    : String?
+    var revision  : String
+    var version   : String?
+  }
+  
+  struct Pin: Codable {
+    var package       : String
+    var repositoryURL : String
+    var state         : State
+  }
+  
+  struct Pins: Codable {
+    var pins  : [Pin]
+  }
+  
+  struct Object: Codable {
+    var object    : Pins
+    var version   : Int
+  }
+  
+  let decoder = JSONDecoder()
+
+  // get the Package.resolved file
+  if let url = Bundle.main.url(forResource: "Package", withExtension: "resolved") {
+    // decode it
+    if let json = try? Data(contentsOf: url), let container = try? decoder.decode(Object.self, from: json) {
+      // find the desired entry
+      for pin in container.object.pins where pin.package == packageName {
+        // return either the version or the branch
+        return pin.state.version != nil ? "v" + pin.state.version! : pin.state.branch ?? "empty branch"
+      }
+      // packageName not present in Package.resolved
+      return "Unknown package: " + packageName
+    }
+    // decode failure
+    return "Package.resolved file decode failed"
+  }
+  // file not found
+  return "Package.resolved file NOT found"
+}
+
 // ----------------------------------------------------------------------------
 // MARK: - DEBUG FUNCTIONS
 
