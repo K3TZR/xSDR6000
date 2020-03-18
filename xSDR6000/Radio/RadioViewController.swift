@@ -124,7 +124,7 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
     _log.version = Version()
     
     // log versions (before connected)
-    _log.logMessage("\(Logger.kAppName) v\(_log.version.longString), \(Api.kName) v\(Api.kVersion.longString)", .info, #function, #file, #line)
+    _log.logMessage("\(Logger.kAppName) v\(_log.version.string), \(Api.kName) " + versionOf("xLib6000"), .info, #function, #file, #line)
 
     updateWindowTitle()
     
@@ -582,11 +582,11 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
       // are we connected?
       if let radio = radio {
         // YES, format and set the window title
-        title = "\(radio.discoveryPacket.nickname) v\(radio.version.longString) @ \(radio.discoveryPacket.publicIp) \(mode)        \(Logger.kAppName) v\(Logger.sharedInstance.version.longString)       xLib6000 v\(Api.kVersion.longString)"
+        title = "\(radio.discoveryPacket.nickname) v\(radio.version.longString) @ \(radio.discoveryPacket.publicIp) \(mode)        \(Logger.kAppName) v\(Logger.sharedInstance.version.string)       xLib6000 " + versionOf("xLib6000")
 
       } else {
         // NO, show App & Api only
-        title = "\(Logger.kAppName) v\(Logger.sharedInstance.version.longString)     \(Api.kName) v\(Api.kVersion.longString)"
+        title = "\(Logger.kAppName) v\(Logger.sharedInstance.version.string)     \(Api.kName) " + versionOf("xLib6000")
       }
       self.view.window?.title = title
     }
