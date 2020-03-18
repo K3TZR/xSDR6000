@@ -13,6 +13,7 @@
 		918725A323D64402009B63A3 /* ChangeLog.txt in Resources */ = {isa = PBXBuildFile; fileRef = 918725A223D64402009B63A3 /* ChangeLog.txt */; };
 		919614F723D28F8F0069AE94 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 919614F623D28F8F0069AE94 /* README.md */; };
 		919F57DC24109324001956B0 /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 919F57DB24109324001956B0 /* Logger.swift */; };
+		91B1D250241FCFB700A7B5E4 /* Package.resolved in Resources */ = {isa = PBXBuildFile; fileRef = 91B1D24F241FCFB700A7B5E4 /* Package.resolved */; };
 		91E4788A23B666EE004DA6A7 /* AudioHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91E4780923B666EE004DA6A7 /* AudioHelper.swift */; };
 		91E4788B23B666EE004DA6A7 /* TPCircularBuffer+AudioBufferList.c in Sources */ = {isa = PBXBuildFile; fileRef = 91E4780D23B666EE004DA6A7 /* TPCircularBuffer+AudioBufferList.c */; };
 		91E4788C23B666EE004DA6A7 /* README.markdown in Resources */ = {isa = PBXBuildFile; fileRef = 91E4780F23B666EE004DA6A7 /* README.markdown */; };
@@ -128,7 +129,8 @@
 		919614F523D28DB50069AE94 /* xSDR6000.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = xSDR6000.entitlements; sourceTree = "<group>"; };
 		919614F623D28F8F0069AE94 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		919F57DB24109324001956B0 /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
-		91A4BEAE23E74DBF00608D20 /* xLib6000 */ = {isa = PBXFileReference; lastKnownFileType = folder; name = xLib6000; path = ../xLib6000; sourceTree = "<group>"; };
+		91B1D24B241FC4DD00A7B5E4 /* project.xcworkspace */ = {isa = PBXFileReference; lastKnownFileType = wrapper.workspace; name = project.xcworkspace; path = xSDR6000.xcodeproj/project.xcworkspace; sourceTree = "<group>"; };
+		91B1D24F241FCFB700A7B5E4 /* Package.resolved */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Package.resolved; sourceTree = "<group>"; };
 		91E477F123B66661004DA6A7 /* xSDR6000.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = xSDR6000.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		91E4780523B666ED004DA6A7 /* OpusOSX.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = OpusOSX.framework; sourceTree = "<group>"; };
 		91E4780923B666EE004DA6A7 /* AudioHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AudioHelper.swift; sourceTree = "<group>"; };
@@ -250,7 +252,8 @@
 		91E477E823B66661004DA6A7 = {
 			isa = PBXGroup;
 			children = (
-				91A4BEAE23E74DBF00608D20 /* xLib6000 */,
+				91B1D24F241FCFB700A7B5E4 /* Package.resolved */,
+				91B1D24B241FC4DD00A7B5E4 /* project.xcworkspace */,
 				918725A223D64402009B63A3 /* ChangeLog.txt */,
 				919614F623D28F8F0069AE94 /* README.md */,
 				91E4780523B666ED004DA6A7 /* OpusOSX.framework */,
@@ -560,6 +563,7 @@
 			buildPhases = (
 				91E477ED23B66661004DA6A7 /* Sources */,
 				91E477EE23B66661004DA6A7 /* Frameworks */,
+				91B1D24E241FC72000A7B5E4 /* ShellScript */,
 				91E477EF23B66661004DA6A7 /* Resources */,
 				91E4791C23B691B0004DA6A7 /* Embed Frameworks */,
 				910DBC6723F10FE700052637 /* ShellScript */,
@@ -644,6 +648,7 @@
 				91E478AF23B666EE004DA6A7 /* Dark.tex in Resources */,
 				91E4792F23B69A2A004DA6A7 /* Panafall.storyboard in Resources */,
 				91E478B723B666EE004DA6A7 /* Assets.xcassets in Resources */,
+				91B1D250241FCFB700A7B5E4 /* Package.resolved in Resources */,
 				91E4789123B666EE004DA6A7 /* Filters.xml in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -667,6 +672,23 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "#!/bin/sh\n\n# To make executable, use: chmod u+x Build-Versioning-Scripts/Increment_Build_Number.sh\n# to locate your target's info.plist use\n# ${PRODUCT_SETTINGS_PATH}\n\necho \"----\"\necho \"Info.plist for target: ${PRODUCT_SETTINGS_PATH}\"\n\nbuildNum=$(/usr/libexec/Plistbuddy -c \"Print CFBundleVersion\" \"${PRODUCT_SETTINGS_PATH}\")\necho \"Current build #: $buildNum\"\n\nif [ -z \"$buildNum\" ]; then\necho \"No build number found in $PRODUCT_SETTINGS_PATH\"\nexit 2\nfi\n\nbuildNum=$(expr $buildNum + 1)\necho \"Build # incremented to: $buildNum\"\n/usr/libexec/PlistBuddy -c \"Set :CFBundleVersion $buildNum\" \"$PRODUCT_SETTINGS_PATH\"\necho \"----\"\nexit 0\n";
+		};
+		91B1D24E241FC72000A7B5E4 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "echo \"Source: ${PROJECT_DIR}/xSDR6000.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved\"\necho \"Destination: ${PROJECT_DIR}/Package.resolved\"\ncp \"${PROJECT_DIR}/xSDR6000.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved\" \"${PROJECT_DIR}/Package.resolved\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -930,6 +952,7 @@
 				CODE_SIGN_ENTITLEMENTS = xSDR6000/xSDR6000.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = EE5B8TYXGA;
 				ENABLE_HARDENED_RUNTIME = YES;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -943,7 +966,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
-				MARKETING_VERSION = 1.0.0;
+				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = net.k3tzr.xSDR6000;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "xSDR6000/xSDR6000-Bridging-Header.h";
@@ -958,6 +981,7 @@
 				CODE_SIGN_ENTITLEMENTS = xSDR6000/xSDR6000.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = EE5B8TYXGA;
 				ENABLE_HARDENED_RUNTIME = YES;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -971,7 +995,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
-				MARKETING_VERSION = 1.0.0;
+				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = net.k3tzr.xSDR6000;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "xSDR6000/xSDR6000-Bridging-Header.h";
@@ -1007,8 +1031,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/K3TZR/xLib6000.git";
 			requirement = {
-				branch = master;
-				kind = branch;
+				kind = exactVersion;
+				version = 1.2.7;
 			};
 		};
 		917AAA7823D53FD90082FAEB /* XCRemoteSwiftPackageReference "XCGLogger" */ = {
