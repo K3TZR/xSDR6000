@@ -505,9 +505,20 @@ final class WANRadioPickerViewController    : NSViewController, NSTableViewDeleg
   private func setLogOnImage(from url: URL) {
     
     // get the image
-    let image = NSImage(contentsOf: url)
+//    let image = NSImage(contentsOf: url)
+    let image = getImage(fromURL: url)
     _gravatarView.image = image
   }
+
+
+  func getImage(fromURL url: URL) -> NSImage? {
+      guard let data = try? Data(contentsOf: url) else { return nil }
+      guard let image = NSImage(data: data) else { return nil }
+      return image
+  }
+
+
+
   /// check if a JWT token is valid
   ///
   /// - Parameter jwt:                  a JWT token
