@@ -7,13 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		9113A699242663C100D3C63C /* Package.resolved in Resources */ = {isa = PBXBuildFile; fileRef = 91B1D24F241FCFB700A7B5E4 /* Package.resolved */; };
 		9164EE5523DDDA6500086338 /* xLib6000 in Frameworks */ = {isa = PBXBuildFile; productRef = 9164EE5423DDDA6500086338 /* xLib6000 */; };
 		917AAA7A23D53FD90082FAEB /* ObjcExceptionBridging in Frameworks */ = {isa = PBXBuildFile; productRef = 917AAA7923D53FD90082FAEB /* ObjcExceptionBridging */; };
 		917AAA7C23D53FD90082FAEB /* XCGLogger in Frameworks */ = {isa = PBXBuildFile; productRef = 917AAA7B23D53FD90082FAEB /* XCGLogger */; };
 		918725A323D64402009B63A3 /* ChangeLog.txt in Resources */ = {isa = PBXBuildFile; fileRef = 918725A223D64402009B63A3 /* ChangeLog.txt */; };
 		919614F723D28F8F0069AE94 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 919614F623D28F8F0069AE94 /* README.md */; };
 		919F57DC24109324001956B0 /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 919F57DB24109324001956B0 /* Logger.swift */; };
-		91B1D250241FCFB700A7B5E4 /* Package.resolved in Resources */ = {isa = PBXBuildFile; fileRef = 91B1D24F241FCFB700A7B5E4 /* Package.resolved */; };
 		91E4788A23B666EE004DA6A7 /* AudioHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91E4780923B666EE004DA6A7 /* AudioHelper.swift */; };
 		91E4788B23B666EE004DA6A7 /* TPCircularBuffer+AudioBufferList.c in Sources */ = {isa = PBXBuildFile; fileRef = 91E4780D23B666EE004DA6A7 /* TPCircularBuffer+AudioBufferList.c */; };
 		91E4788C23B666EE004DA6A7 /* README.markdown in Resources */ = {isa = PBXBuildFile; fileRef = 91E4780F23B666EE004DA6A7 /* README.markdown */; };
@@ -626,6 +626,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9113A699242663C100D3C63C /* Package.resolved in Resources */,
 				91E4793223B69A2A004DA6A7 /* Main.storyboard in Resources */,
 				91E4793123B69A2A004DA6A7 /* RadioPicker.storyboard in Resources */,
 				91E4793323B69A2A004DA6A7 /* Flag.storyboard in Resources */,
@@ -648,7 +649,6 @@
 				91E478AF23B666EE004DA6A7 /* Dark.tex in Resources */,
 				91E4792F23B69A2A004DA6A7 /* Panafall.storyboard in Resources */,
 				91E478B723B666EE004DA6A7 /* Assets.xcassets in Resources */,
-				91B1D250241FCFB700A7B5E4 /* Package.resolved in Resources */,
 				91E4789123B666EE004DA6A7 /* Filters.xml in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -688,7 +688,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "echo \"Source: ${PROJECT_DIR}/xSDR6000.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved\"\necho \"Destination: ${PROJECT_DIR}/Package.resolved\"\ncp \"${PROJECT_DIR}/xSDR6000.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved\" \"${PROJECT_DIR}/Package.resolved\"\n";
+			shellScript = "echo \\\"Source: ${PROJECT_DIR}/xSDR6000.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved\"\necho \\\"Destination: ${PROJECT_DIR}/Package.resolved\\\"\ncp \"${PROJECT_DIR}/xSDR6000.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved\\\" \\\"${PROJECT_DIR}/Package.resolved\\\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -966,7 +966,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
-				MARKETING_VERSION = 1.1;
+				MARKETING_VERSION = 1.1.2;
 				PRODUCT_BUNDLE_IDENTIFIER = net.k3tzr.xSDR6000;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "xSDR6000/xSDR6000-Bridging-Header.h";
@@ -995,7 +995,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
-				MARKETING_VERSION = 1.1;
+				MARKETING_VERSION = 1.1.2;
 				PRODUCT_BUNDLE_IDENTIFIER = net.k3tzr.xSDR6000;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "xSDR6000/xSDR6000-Bridging-Header.h";
@@ -1031,8 +1031,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/K3TZR/xLib6000.git";
 			requirement = {
-				kind = exactVersion;
-				version = 1.2.7;
+				branch = master;
+				kind = branch;
 			};
 		};
 		917AAA7823D53FD90082FAEB /* XCRemoteSwiftPackageReference "XCGLogger" */ = {
