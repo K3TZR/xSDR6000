@@ -653,7 +653,7 @@ func versionOf(_ packageName: String) -> String {
       // find the desired entry
       for pin in container.object.pins where pin.package == packageName {
         // return either the version or the branch
-        return pin.state.version != nil ? "v" + pin.state.version! : pin.state.branch ?? "empty branch"
+        return pin.state.version != nil ? pin.state.version! : pin.state.branch ?? "empty branch"
       }
       // packageName not present in Package.resolved
       return "Unknown package: " + packageName
