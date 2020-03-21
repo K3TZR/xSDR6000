@@ -123,8 +123,7 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
     // get my version
     _log.version = Version()
     
-    // log versions (before connected)
-    _log.logMessage("\(Logger.kAppName) v\(_log.version.string), \(Api.kName) " + versionOf("xLib6000"), .info, #function, #file, #line)
+    _log.logMessage("\(Api.kName) Version: " + versionOf("xLib6000"), .info, #function, #file, #line)
 
     updateWindowTitle()
     
@@ -573,22 +572,19 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
   /// Set the Window's title.
   ///
   func updateWindowTitle(_ radio: Radio? = nil) {
+    var titleString = ""
     
     let mode = _api.isWan ? "SmartLink" : "Local"
 
+    if let radio = radio {
+      titleString = "\(radio.discoveryPacket.nickname) v\(radio.version.longString) @ \(radio.discoveryPacket.publicIp) \(mode)        \(Logger.kAppName) v\(Logger.sharedInstance.version.longString)       xLib6000 " + versionOf("xLib6000")
+    } else {
+      titleString = "\(Logger.kAppName) v\(Logger.sharedInstance.version.longString)     \(Api.kName) v" + versionOf("xLib6000")
+    }
+
     // set the title bar
     DispatchQueue.main.async { [unowned self] in
-      var title = ""
-      // are we connected?
-      if let radio = radio {
-        // YES, format and set the window title
-        title = "\(radio.discoveryPacket.nickname) v\(radio.version.longString) @ \(radio.discoveryPacket.publicIp) \(mode)        \(Logger.kAppName) v\(Logger.sharedInstance.version.string)       xLib6000 " + versionOf("xLib6000")
-
-      } else {
-        // NO, show App & Api only
-        title = "\(Logger.kAppName) v\(Logger.sharedInstance.version.string)     \(Api.kName) " + versionOf("xLib6000")
-      }
-      self.view.window?.title = title
+      self.view.window?.title = titleString
     }
   }
   /// Set the toolbar controls
