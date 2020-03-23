@@ -141,8 +141,6 @@ public final class WaterfallRenderer: NSObject, MTKViewDelegate {
     // TODO:
     setConstants(size: view.frame.size)
     
-    Swift.print("size = \(size.height), \(size.width)")
-    
     _changingSize = false
   }
   /// Draw lines colored by the Gradient texture
