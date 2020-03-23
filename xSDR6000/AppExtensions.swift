@@ -517,6 +517,14 @@ extension URL {
   }
 }
 
+extension Int {  
+  var intHzToDoubleMhz : Double { Double(self) / 1_000_000 }
+}
+
+extension Double {
+  var doubleMhzToIntHz : Int { Int( self * 1_000_000 ) }
+}
+
 // ----------------------------------------------------------------------------
 // MARK: - TOP-LEVEL FUNCTIONS
 
