@@ -726,7 +726,7 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
       if guiClient.handle == _api.connectionHandle {
         //YES, persist it
         Defaults[.clientId] = guiClient.clientId
-        _log.logMessage("Gui ClientId persisted: Id = \(guiClient.clientId ?? "")", .info,  #function, #file, #line)
+        _log.logMessage("Gui ClientId persisted: id = \(guiClient.clientId ?? "")", .info,  #function, #file, #line)
       }
     }
   }
