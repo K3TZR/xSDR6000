@@ -234,7 +234,7 @@ final class FlagViewController       : NSViewController, NSTextFieldDelegate, NS
     
     if let field = note.object as? NSTextField, field == _frequencyField, _beginEditing {
 
-      repositionPanadapter(center: _center, frequency: _previousFrequency, newFrequency: _frequencyField.integerValue)
+      repositionPanadapter(center: _center, frequency: _previousFrequency, newFrequency: slice!.frequency)
       _beginEditing = false
     }
   }
@@ -788,70 +788,105 @@ final class FlagViewController       : NSViewController, NSTextFieldDelegate, NS
 // MARK: - Frequency Formatter class implementation
 // --------------------------------------------------------------------------------
 
-class FrequencyFormatter: NumberFormatter {
-  
-  private let _maxFrequency = 54_000_000
-  private let _minFrequency = 100_000
-  
+class FrequencyFormatter : NumberFormatter {
+  let maxValue : NSNumber = 54.000_000
+  let minValue : NSNumber = 0.100_000
+
+  // assumes that the formatter was added in IB
   override init() {
-    super.init()
-    groupingSeparator = "."
+    fatalError("Init can not be used")
   }
   
-  required init?(coder aDecoder: NSCoder) {
-    super.init(coder: aDecoder)
+  required init?(coder: NSCoder) {
+    super.init(coder: coder)
+    
+    // set the parameters
+    roundingMode = .ceiling
+    allowsFloats = true
+    minimum = minValue
+    maximum = maxValue
+  }
+  
+  override func string(for obj: Any?) -> String? {
+
+    // super may provide some functionality
+    super.string(for: obj)
+
+    // guard that it's a Double
+    guard let value = obj as? Double else { return nil }
+
+    // make a String version, format xx.xxxxxx
+    var stringValue = String(format: "%.6f", value)
+
+    if stringValue.hasPrefix("0.") { stringValue = String(stringValue.dropFirst(2)) }
+
+    // insert the second ".", format xx.xxx.xxx
+    stringValue.insert(".", at: stringValue.index(stringValue.endIndex, offsetBy: -3))
+      
+    return stringValue
   }
   
   override func getObjectValue(_ obj: AutoreleasingUnsafeMutablePointer<AnyObject?>?, for string: String, range rangep: UnsafeMutablePointer<NSRange>?) throws {
     
-    // remove any non-numeric characters
-    let number = string.numbers
+    // return the string to an acceptable Double format (i.e. ##.######)
+    let adjustedString = adjustPeriods(string)
     
-    if number.lengthOfBytes(using: .utf8) > 0 {
-      // convert to an Int
-      let intValue = Int(string.numbers)!
-      
-      // return the value as an NSNumber
-      obj?.pointee = NSNumber(value: intValue)
-    }
+    // super may provide some functionality
+    try super.getObjectValue(obj, for: adjustedString, range: rangep)
+    
+    // return a Double
+    obj?.pointee = (Double(adjustedString) ?? 0.0) as AnyObject
   }
-  
-  override func string(for obj: Any?) -> String? {
-    // guard that it's an Int
-    guard let intValue = obj as? Int else { return nil }
+
+  /// Accept a  String in Frequency field format & convert to Double format
+  /// - Parameter string:   the String in the Frequency field
+  /// Returns:                                    a String in Double / Float format
+  ///
+  func adjustPeriods(_ string: String) -> String {
+    var adjustedString = String(string)
     
-    // make a String version, get its length
-    var stringValue = String(intValue)
-    let stringLen = stringValue.lengthOfBytes(using: .utf8)
+    // find the first & last periods
+    //    Note: there will always be at least one period
+    let firstIndex = adjustedString.firstIndex(of: ".")
+    let lastIndex = adjustedString.lastIndex(of: ".")
+    let startIndex = adjustedString.startIndex
     
-    switch stringLen {
+    // if both are found
+    if let first = firstIndex, let last = lastIndex {
       
-    case 9...:
-      stringValue = String(stringValue.dropLast(stringLen - 8))
-      fallthrough
+      // format is xx.xxx.xxx, remove 2nd period
+      if first < last { adjustedString.remove(at: last) }
       
-    case 7...8:
-      let endIndex = stringValue.endIndex
-      stringValue.insert(".", at: stringValue.index(endIndex, offsetBy: -3))
-      stringValue.insert(".", at: stringValue.index(endIndex, offsetBy: -6))
-      
-    case 6:
-      stringValue += "0"
-      let endIndex = stringValue.endIndex
-      stringValue.insert(".", at: stringValue.index(endIndex, offsetBy: -3))
-      stringValue.insert(".", at: stringValue.index(endIndex, offsetBy: -6))
-      
-    case 4...5:
-      stringValue += ".000"
-      let endIndex = stringValue.endIndex
-      stringValue.insert(".", at: stringValue.index(endIndex, offsetBy: -6))
-      
-    default:
-      return nil
+      // decide if adjustment required
+      if first == last {
+        // short-circuited action prevents index out of range issue
+        if first == adjustedString.startIndex || first == adjustedString.index(startIndex, offsetBy: 1) || first == adjustedString.index(startIndex, offsetBy: 2) {
+          // format is .x  OR x.  OR  xx., do nothing
+          
+        } else {
+          // format is xxx.xxx, adjust
+          adjustedString.remove(at: last)
+          adjustedString = "." + adjustedString
+        }
+      }
     }
-    return stringValue
+    return adjustedString
   }
 }
-
+class FrequencyTransformer : ValueTransformer {
+  
+  override class func allowsReverseTransformation() -> Bool {
+    return true
+  }
+  override class func transformedValueClass() -> AnyClass {
+    return Int.self as! AnyClass
+  }
+  override func transformedValue(_ value: Any?) -> Any? {
+    return ((value as? Int) ?? 0).intHzToDoubleMhz
+  }
+  override func reverseTransformedValue(_ value: Any?) -> Any? {
+    return ((value as? Double) ?? 0).doubleMhzToIntHz
+  }
+}
 
 
