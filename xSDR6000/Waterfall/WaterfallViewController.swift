@@ -39,7 +39,7 @@ final class WaterfallViewController               : NSViewController, NSGestureR
   
   @objc dynamic weak var panadapter         : Panadapter?
 
-  var radio: Radio?                         = Api.sharedInstance.radio
+  weak var radio                            = Api.sharedInstance.radio
   
   // ----------------------------------------------------------------------------
   // MARK: - Private properties

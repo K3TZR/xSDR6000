@@ -108,6 +108,11 @@ public final class WaterfallRenderer: NSObject, MTKViewDelegate {
     get { _waterQ.sync { __constant } }
     set { _waterQ.sync(flags: .barrier) { __constant = newValue } } }
 
+  private var __changingSize                = false
+  private var _changingSize                 : Bool {
+  get { _waterQ.sync { __changingSize } }
+  set { _waterQ.sync(flags: .barrier) { __changingSize = newValue } } }
+
   // ----------------------------------------------------------------------------
   // MARK: - Initialization
   
@@ -130,8 +135,15 @@ public final class WaterfallRenderer: NSObject, MTKViewDelegate {
   ///   - size:         its new size
   ///
   public func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {
+   
+    _changingSize = true
+    
     // TODO:
     setConstants(size: view.frame.size)
+    
+    Swift.print("size = \(size.height), \(size.width)")
+    
+    _changingSize = false
   }
   /// Draw lines colored by the Gradient texture
   ///
@@ -316,6 +328,8 @@ extension WaterfallRenderer                 : StreamHandler {
   public func streamHandler<T>(_ streamFrame: T) {
     
     guard let streamFrame = streamFrame as? WaterfallFrame else { return }
+    
+    guard _changingSize == false else { return }
     
     _activeLines = _activeLines < _constant.numberOfLines ? _activeLines + 1 : _constant.numberOfLines
     

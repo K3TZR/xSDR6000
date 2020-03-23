@@ -35,7 +35,7 @@ public final class FrequencyLegendView      : NSView {
   // ----------------------------------------------------------------------------
   // MARK: - Internal properties
   
-  var radio: Radio?                         = Api.sharedInstance.radio
+  weak var radio                            = Api.sharedInstance.radio
   
   var legendHeight                          : CGFloat = 20                  // height of legend area
   var font                                  = NSFont(name: "Monaco", size: 12.0)

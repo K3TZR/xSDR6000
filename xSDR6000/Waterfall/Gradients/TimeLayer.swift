@@ -15,7 +15,7 @@ public final class TimeLayer                : CALayer, CALayerDelegate {
   // ----------------------------------------------------------------------------
   // MARK: - Internal properties
   
-  var radio: Radio?                         = Api.sharedInstance.radio
+  weak var radio                            = Api.sharedInstance.radio
   weak var panadapter                       : Panadapter?
   
   var font                                  = NSFont(name: "Monaco", size: 12.0)
