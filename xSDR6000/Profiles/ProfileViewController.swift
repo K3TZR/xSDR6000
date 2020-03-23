@@ -17,8 +17,7 @@ final class ProfileViewController: NSViewController, NSTableViewDelegate, NSTabl
   @IBOutlet private weak var _loadButton        : NSButton!
   @IBOutlet private weak var _deleteButton      : NSButton!
   
-  private var _radio                            : Radio? { Api.sharedInstance.radio }
-  private var _id                               : String!
+  private weak var _radio                       = Api.sharedInstance.radio
   private var _currentSelection                 : String!
   private var _array                            = [String]()
   private var _observations                     = [NSKeyValueObservation]()
@@ -38,11 +37,11 @@ final class ProfileViewController: NSViewController, NSTableViewDelegate, NSTabl
     
     view.translatesAutoresizingMaskIntoConstraints = false
     
-//    // allow the User to double-click the desired Profile
-//    _tableView.doubleAction = #selector(  clickLoad )
+    // allow the User to double-click the desired Profile
+    _tableView.doubleAction = #selector(  clickLoad )
     
     // select the previously selected segment
-    loadProfile(id: Defaults[.profilesTabId])
+    setupProfile(Defaults[.profilesTabId])
     
     // start observations
     addObservations()
@@ -57,7 +56,7 @@ final class ProfileViewController: NSViewController, NSTableViewDelegate, NSTabl
     view.window!.level = .floating
 
     // select the previously selected segment
-    loadProfile(id: Defaults[.profilesTabId])
+    setupProfile(Defaults[.profilesTabId])
   }
 
   override func viewWillDisappear() {
@@ -81,8 +80,18 @@ final class ProfileViewController: NSViewController, NSTableViewDelegate, NSTabl
   /// - Parameter sender:             the control
   ///
   @IBAction func segmentedControl(_ sender: NSSegmentedControl) {
-  
-    loadProfile(tag: sender.selectedSegment)
+    
+    switch sender.selectedSegment {
+    case 0:
+      Defaults[.profilesTabId] = Profile.Group.global.rawValue
+    case 1:
+      Defaults[.profilesTabId] = Profile.Group.tx.rawValue
+    case 2:
+      Defaults[.profilesTabId] = Profile.Group.mic.rawValue
+    default:
+      Defaults[.profilesTabId] = Profile.Group.global.rawValue
+    }
+    setupProfile(Defaults[.profilesTabId])
   }
 
   /// Respond to a change in a Profile name textfield
@@ -115,7 +124,7 @@ final class ProfileViewController: NSViewController, NSTableViewDelegate, NSTabl
 
     case "Load":
       // change the selection
-      _radio?.profiles[_id]!.selection = _array[row]
+      _radio?.profiles[Defaults[.profilesTabId]]!.selection = _array[row]
       
     default:
       fatalError()
@@ -127,50 +136,29 @@ final class ProfileViewController: NSViewController, NSTableViewDelegate, NSTabl
   
   /// Support double-click of a Profile
   ///
-//  @objc private func clickLoad() {
-//    
-//    _loadButton.performClick(self)
+  @objc private func clickLoad() {
+    
+    _loadButton.performClick(self)
+  }
+//  /// Load a Profile by its Tag
+//  ///
+//  /// - Parameter tag:          the Tag of the Profile button
+//  ///
+//  private func loadProfile(tag: Int) {
+//
+//    switch tag {
+//    case 0:
+//      Defaults[.profilesTabId] = Profile.Group.global.rawValue
+//    case 1:
+//      Defaults[.profilesTabId] = Profile.Group.tx.rawValue
+//    case 2:
+//      Defaults[.profilesTabId] = Profile.Group.mic.rawValue
+//    default:
+//      _log.logMessage("Unknown profile tag: \(tag)", .error, #function, #file, #line)
+//      Defaults[.profilesTabId] = Profile.Group.global.rawValue
+//    }
+//    setupProfile(Defaults[.profilesTabId])
 //  }
-  /// Load a Profile by its Id
-  ///
-  /// - Parameter id:             the profile id
-  ///
-  private func loadProfile(id: String) {
-    var tag = 0
-        
-    switch id {
-    case Profile.Group.global.rawValue:
-      tag = 0
-    case Profile.Group.tx.rawValue:
-      tag = 1
-    case Profile.Group.mic.rawValue:
-      tag = 2
-    default:
-      _log.logMessage("Unknown profile group: \(id)", .error, #function, #file, #line)
-    }
-    // select the desired segment
-    _segmentedControl.selectSegment(withTag: tag)
-    
-    setupProfile(id)
-  }
-  /// Load a Profile by its Tag
-  ///
-  /// - Parameter tag:            the Tag
-  ///
-  private func loadProfile(tag: Int) {
-    
-    switch tag {
-    case 0:
-      _id = Profile.Group.global.rawValue
-    case 1:
-      _id = Profile.Group.tx.rawValue
-    case 2:
-      _id = Profile.Group.mic.rawValue
-    default:
-      _log.logMessage("Unknown profile tag: \(tag)", .error, #function, #file, #line)
-    }
-    setupProfile(_id)
-  }
   /// Load the Profile array
   ///
   /// - Parameter id:           a profile id
@@ -215,27 +203,13 @@ final class ProfileViewController: NSViewController, NSTableViewDelegate, NSTabl
   private func addObservations() {
     
     _observations = [
-      _radio!.profiles[_id]!.observe(\.list, options: [.initial, .new]) { [weak self] (profile, change) in
+      _radio!.profiles[Defaults[.profilesTabId]]!.observe(\.list, options: [.initial, .new]) { [weak self] (profile, change) in
         self?._array = profile.list },
       
-      _radio!.profiles[_id]!.observe(\.selection, options: [.initial, .new]) { [weak self] (profile, change) in
+      _radio!.profiles[Defaults[.profilesTabId]]!.observe(\.selection, options: [.initial, .new]) { [weak self] (profile, change) in
         self?._currentSelection = profile.selection }
     ]
   }
-  /// Process observations
-  ///
-  /// - Parameters:
-  ///   - profile:                  the Profile being observed
-  ///   - change:                   the change
-  ///
-//  private func profileChange(_ profile: Profile, _ change: Any) {
-//
-//    // populate the table
-//    _array = _radio!.profiles[_currentType]!.list
-//    _currentSelection = _radio!.profiles[_currentType]!.selection
-//
-//    reloadTable()
-//  }
   
   // ----------------------------------------------------------------------------
   // MARK: - NSTableView DataSource methods
