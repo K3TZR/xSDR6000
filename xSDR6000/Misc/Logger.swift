@@ -18,7 +18,7 @@ public class Logger : LogHandler {
   static let kLoggerName                    = kAppName
   static let kLogFile                       = kLoggerName + ".log"
   static let kMaxLogFiles                   : UInt8 = 5
-  static let kMaxFileSize                   : UInt64 = 1_048_576                     // 2^20
+  static let kMaxFileSize                   : UInt64 = 20_000_000
 
   public var version                        : Version!
   
