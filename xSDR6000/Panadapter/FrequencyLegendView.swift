@@ -31,7 +31,18 @@ import xLib6000
 public final class FrequencyLegendView      : NSView {
   
   typealias BandwidthParamTuple = (high: Int, low: Int, spacing: Int, format: String)
+
+  static let alpha : CGFloat = 0.3
+    
+  static let green    = NSColor(srgbRed: 0.0, green: 1.0, blue: 0.0, alpha: alpha)
+  static let yellow   = NSColor(srgbRed: 1.0, green: 1.0, blue: 0.0, alpha: alpha)
+  static let blue     = NSColor(srgbRed: 0.0, green: 0.0, blue: 1.0, alpha: alpha)
+  static let red      = NSColor(srgbRed: 1.0, green: 0.0, blue: 0.0, alpha: alpha)
+  static let gray     = NSColor(srgbRed: 1.0, green: 1.0, blue: 1.0, alpha: alpha)
+  static let brown    = NSColor(srgbRed: 0.0, green: 1.0, blue: 1.0, alpha: alpha)
+  static let purple   = NSColor(srgbRed: 1.0, green: 0.0, blue: 1.0, alpha: alpha)
   
+
   // ----------------------------------------------------------------------------
   // MARK: - Internal properties
   
@@ -78,7 +89,8 @@ public final class FrequencyLegendView      : NSView {
   ]
   private let _frequencyLineWidth           : CGFloat = 2.0
   private let _lineColor                    = NSColor(srgbRed: 1.0, green: 1.0, blue: 1.0, alpha: 0.2)
-  
+  private let _segmentColors                = [green, yellow, blue, red, gray, brown, purple]
+
   private let kMultiplier                   : CGFloat = 0.001
 
   // ----------------------------------------------------------------------------
@@ -365,9 +377,10 @@ public final class FrequencyLegendView      : NSView {
     
     // filter for segments that overlap the panadapter frequency range
     let segments = _segments.filter {
-      (($0.start >= _start || $0.end <= _end) ||    // start or end in panadapter
-        $0.start < _start && $0.end > _end) &&      // start -> end spans panadapter
-        $0.enabled && $0.useMarkers}                // segment is enabled & uses Markers
+      (($0.end >= _start && $0.start < _end) ||       // segment start before pan start with end in pan
+        ($0.start >= _start && $0.start < _end) ||    // segment start in pan with end outside of pan
+        ($0.start >= _start && $0.end <= _end)) &&    // segment is in panadapter
+        $0.enabled && $0.useMarkers}                  // segment is enabled & uses Markers
     
     // ***** Band edges *****
     Defaults[.markerEdge].set()  // set the color
@@ -394,6 +407,9 @@ public final class FrequencyLegendView      : NSView {
     }
     _path.strokeRemove()
     
+    
+    var colorIndex = 0
+    
     // ***** Inside segments *****
     Defaults[.markerSegment].set()        // set the color
     _path.lineWidth = 1         // set the width
@@ -418,16 +434,19 @@ public final class FrequencyLegendView      : NSView {
     _path.strokeRemove()
     
     // ***** Band Shading *****
-    Defaults[.marker].set()
+//    Defaults[.marker].set()
     segments.forEach {
+      _segmentColors[colorIndex].set()
 
       // calculate start & end of shading
       let start = ($0.start >= _start) ? $0.start : _start
       let end = (_end >= $0.end) ? $0.end : _end
       
       // draw a shaded rectangle for the Segment
-      let rect = NSRect(x: CGFloat(start - _start) / _hzPerUnit, y: shadingPosition, width: CGFloat(end - start) / _hzPerUnit, height: 20)
+      let rect = NSRect(x: CGFloat(start - _start) / _hzPerUnit, y: shadingPosition, width: CGFloat(end - start) / _hzPerUnit, height: 10)
       NSBezierPath.fill(rect)
+      
+      colorIndex += 1
     }
     _path.strokeRemove()
   }
