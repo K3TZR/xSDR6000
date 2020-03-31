@@ -338,9 +338,9 @@ extension WaterfallRenderer                 : StreamHandler {
       _topLine -= 1
     }
     // copy the Intensities into the Intensity buffer
-    let binsPtr = UnsafeRawPointer(streamFrame.bins).bindMemory(to: UInt8.self, capacity: streamFrame.totalBins * MemoryLayout<UInt16>.size)
-    memcpy(_intensityBuffer.contents().advanced(by: Int(_topLine) * MemoryLayout<Intensity>.stride * kMaxIntensities), binsPtr, streamFrame.numberOfBins * MemoryLayout<UInt16>.size)
-
+//    var binsPtr = UnsafeRawPointer(streamFrame.bins).bindMemory(to: UInt8.self, capacity: streamFrame.totalBins * MemoryLayout<UInt16>.size)
+    memcpy(_intensityBuffer.contents().advanced(by: Int(_topLine) * MemoryLayout<Intensity>.stride * kMaxIntensities), &streamFrame.bins, streamFrame.numberOfBins * MemoryLayout<UInt16>.size)
+    
     // update the constants
     _constant.startingFrequency = Float(_start)
     _constant.endingFrequency = Float(_end)

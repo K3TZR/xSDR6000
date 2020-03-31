@@ -26,7 +26,7 @@ protocol RadioPickerDelegate: class {
   ///   - handle:         remote handle
   /// - Returns:          success / failure
   ///
-  func openRadio(_ radio: DiscoveryStruct?, isWan: Bool, wanHandle: String) -> Bool
+  func openRadio(_ radio: DiscoveryStruct?, isWan: Bool, wanHandle: String, pendingDisconnect: Handle?) -> Bool
   
   /// Close the active Radio
   ///
@@ -1021,7 +1021,7 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
   ///   - wanHandle:            Wan handle (if any)
   /// - Returns:                success / failure
   ///
-  func openRadio(_ discoveryPacket: DiscoveryStruct?, isWan: Bool = false, wanHandle: String = "") -> Bool {
+  func openRadio(_ discoveryPacket: DiscoveryStruct?, isWan: Bool = false, wanHandle: String = "", pendingDisconnect: Handle? = nil) -> Bool {
     
     if let _ = _radioPickerTabViewController {
       self._radioPickerTabViewController = nil
@@ -1041,7 +1041,8 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
                         clientId: _clientId,
                         isGui: true,
                         isWan: isWan,
-                        wanHandle: wanHandle)
+                        wanHandle: wanHandle,
+                        pendingDisconnect: pendingDisconnect)
   }
   /// Stop the active Radio
   ///

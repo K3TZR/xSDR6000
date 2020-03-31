@@ -53,6 +53,8 @@ extension DefaultsKeys {
   static var spectrumIsFilled         : DefaultsKey<Bool>           { return .init("spectrumIsFilled", defaultValue: false)}
   static var versionRadio             : DefaultsKey<String>         { return .init("versionRadio", defaultValue: "")}
 
+  static var smartLinkWasLoggedIn     : DefaultsKey<Bool>           { return .init("smartLinkWasLoggedIn", defaultValue: false)}
+  
   // Colors common to all Panafalls
   static var dbLegend                 : DefaultsKey<NSColor>        { return .init("dbLegend", defaultValue: .red)}
   static var frequencyLegend          : DefaultsKey<NSColor>        { return .init("frequencyLegend", defaultValue: .red)}
@@ -481,6 +483,19 @@ extension String {
   var numbers: String {
     return String(describing: filter { String($0).rangeOfCharacter(from: CharacterSet(charactersIn: "0123456789")) != nil })
   }
+}
+
+extension String{
+   static func random(length:Int)->String{
+        let letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+        var randomString = ""
+
+        while randomString.utf8.count < length{
+            let randomLetter = letters.randomElement()
+            randomString += randomLetter?.description ?? ""
+        }
+        return randomString
+    }
 }
 
 extension Float {

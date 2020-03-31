@@ -8,6 +8,7 @@
 
 import Cocoa
 import WebKit
+import SwiftyUserDefaults
 import xLib6000
 
 //#if XSDR6000
@@ -40,16 +41,16 @@ final class Auth0ViewController             : NSViewController, WKNavigationDele
   static let kRedirect                      = "https://frtest.auth0.com/mobile"
   static let kResponseType                  = "token"
   static let kScope                         = "openid%20offline_access%20email%20given_name%20family_name%20picture"
-  static let kState                         = "ypfolhnqwpedrxdb"
+//  static let kState                         = "ypfolhnqwpedrxdb"
 
-  static let smartLinkURL = """
-  \(kAuth0Domain)authorize?client_id=\(kClientId)\
-  &redirect_uri=\(kRedirect)\
-  &response_type=\(kResponseType)\
-  &scope=\(kScope)\
-  &state=\(kState)\
-  &device=\(Logger.kAppName)
-  """
+//  static let smartLinkURL = """
+//  \(kAuth0Domain)authorize?client_id=\(kClientId)\
+//  &redirect_uri=\(kRedirect)\
+//  &response_type=\(kResponseType)\
+//  &scope=\(kScope)\
+//  &state=\(kState)\
+//  &device=\(Logger.kAppName)
+//  """
 
   // ----------------------------------------------------------------------------
   // MARK: - Private properties
@@ -59,7 +60,7 @@ final class Auth0ViewController             : NSViewController, WKNavigationDele
   private let _api                          = Api.sharedInstance
   private let _log                          = Logger.sharedInstance
   private var myWebView                     : WKWebView!
-  private let myURL                         = URL(string: smartLinkURL)!
+//  private let myURL                         = URL(string: smartLinkURL)!
   private let kAutosaveName                 = "AuthViewWindow"
   private var _delegate                     : Auth0ControllerDelegate {
     return representedObject as! Auth0ControllerDelegate }
@@ -67,6 +68,9 @@ final class Auth0ViewController             : NSViewController, WKNavigationDele
   private let kKeyIdToken                    = "id_token"
   private let kKeyRefreshToken               = "refresh_token"
 
+  
+  private var _smartLinkURL = ""
+  
   // ----------------------------------------------------------------------------
   // MARK: - Overridden methods
   
@@ -77,18 +81,31 @@ final class Auth0ViewController             : NSViewController, WKNavigationDele
     Swift.print("\(#function) - \(URL(fileURLWithPath: #file).lastPathComponent.dropLast(6))")
     #endif
 
-//    // clear all cookies to prevent falling back to earlier saved login credentials
-//    let storage = HTTPCookieStorage.shared
-//    if let cookies = storage.cookies {
-//      for index in 0..<cookies.count {
-//        let cookie = cookies[index]
-//        storage.deleteCookie(cookie)
-//      }
-//    }
+    if !Defaults[.smartLinkWasLoggedIn] {
+      // clear all cookies to prevent falling back to earlier saved login credentials
+      let storage = HTTPCookieStorage.shared
+      if let cookies = storage.cookies {
+        for index in 0..<cookies.count {
+          let cookie = cookies[index]
+          storage.deleteCookie(cookie)
+        }
+      }
+    }
 
-    // create a URLRequest for the SmartLink URL
-    let request = URLRequest(url: myURL)
+    let _state = String.random(length: 16)
+    _smartLinkURL =  """
+    \(Auth0ViewController.kAuth0Domain)authorize?client_id=\(Auth0ViewController.kClientId)\
+    &redirect_uri=\(Auth0ViewController.kRedirect)\
+    &response_type=\(Auth0ViewController.kResponseType)\
+    &scope=\(Auth0ViewController.kScope)\
+    &state=\(_state)\
+    &device=\(Logger.kAppName)
+    """
     
+    // create a URLRequest for the SmartLink URL
+//    let request = URLRequest(url: myURL)
+    let request = URLRequest(url: URL(string: _smartLinkURL)!)
+
     // configure a web view
     let configuration = WKWebViewConfiguration()
     myWebView = WKWebView(frame: .zero, configuration: configuration)
