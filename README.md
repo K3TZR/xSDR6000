@@ -62,6 +62,14 @@ OpusOSX, framework built from sources at:
 * https://opus-codec.org/downloads/
 
 
+## 1.1.2 Release Notes
+
+* Removed from Sandbox
+* Corrections to SmartLink log on/off
+* Frequency entry now allows any Mhz value
+* Profiles crash corrected
+* Multiflex offers choice to force a disconnect
+
 
 
 
