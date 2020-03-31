@@ -2,7 +2,7 @@
 
 # xSDR6000
 ## Mac Client for the FlexRadio (TM) 6000 series software defined radios.
-###      (currently supports Radios with Version 2.6.1 or lower, see Evolution below)
+###      (currently supports Radios with Version 3.1.8 or lower, see Evolution below)
 
 ### Built on:
 
@@ -41,7 +41,7 @@ Flex Radios can have one of four different version groups:
 *  v1.x.x, the v1 API
 *  v2.0.x thru v2.4.9, the v2 API <<-- CURRENTLY SUPPORTED
 *  v2.5.1 to less than v3.0.0, the v3 API without MultiFlex <<-- CURRENTLY SUPPORTED
-*  v3.x.x, the v3 API with MultiFlex <<-- COMING
+*  v3.x.x, the v3 API with MultiFlex <<-- CURRENTLY SUPPORTED
 
 ## Credits
 
