@@ -6,9 +6,9 @@
 
 ### Built on:
 
-*  macOS 10.14.6 (Deployment Target of macOS 10.11)
-*  Xcode 11.3.1 (11C504)
-*  Swift 5.1.3
+*  macOS 10.15.64(Deployment Target of macOS 10.11)
+*  Xcode 11.4 (11E146)
+*  Swift 5.2
 
 
 ## Usage
