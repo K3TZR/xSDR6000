@@ -3,13 +3,13 @@
 <plist version="1.0">
 <dict>
 	<key>BuildMachineOSBuild</key>
-	<string>18G84</string>
+	<string>19E266</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleExecutable</key>
 	<string>OpusOSX</string>
 	<key>CFBundleIdentifier</key>
-	<string>de.delete.OpusOSX</string>
+	<string>net.k3tzr.OpusOSX</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
@@ -29,16 +29,18 @@
 	<key>DTCompiler</key>
 	<string>com.apple.compilers.llvm.clang.1_0</string>
 	<key>DTPlatformBuild</key>
-	<string>10G8</string>
+	<string>11E146</string>
 	<key>DTPlatformVersion</key>
 	<string>GM</string>
 	<key>DTSDKBuild</key>
-	<string>18G74</string>
+	<string>19E258</string>
 	<key>DTSDKName</key>
-	<string>macosx10.14</string>
+	<string>macosx10.15</string>
 	<key>DTXcode</key>
-	<string>1030</string>
+	<string>1140</string>
 	<key>DTXcodeBuild</key>
-	<string>10G8</string>
+	<string>11E146</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>10.8</string>
 </dict>
 </plist>
