@@ -11,34 +11,13 @@ import SwiftyUserDefaults
 import xLib6000
 
 // --------------------------------------------------------------------------------
-// MARK: - RadioPicker Delegate definition
-// --------------------------------------------------------------------------------
-
-protocol RadioPickerDelegate: class {
-  
-  var token: Token? { get set }
-  
-  /// Open the specified Radio
-  ///
-  /// - Parameters:
-  ///   - radio:          a DiscoveryStruct struct
-  ///   - remote:         remote / local
-  ///   - handle:         remote handle
-  /// - Returns:          success / failure
-  ///
-  func openRadio(_ radio: DiscoveryStruct?, isWan: Bool, wanHandle: String, pendingDisconnect: Handle?) -> Bool
-  
-  /// Close the active Radio
-  ///
-  func closeRadio()  
-}
-
-// --------------------------------------------------------------------------------
 // MARK: - Radio View Controller class implementation
 // --------------------------------------------------------------------------------
 
 final class RadioViewController             : NSSplitViewController, RadioPickerDelegate, NSWindowDelegate {
 
+  @objc dynamic public var tnfsEnabled      : Bool { _api.radio?.tnfsEnabled ?? false }
+  
   // ----------------------------------------------------------------------------
   // MARK: - Private properties
   
@@ -49,21 +28,16 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
   private var _profilesStoryboard           : NSStoryboard?
   private var _radioPickerStoryboard        : NSStoryboard?
   private var _sideStoryboard               : NSStoryboard?
-  private var _voltageMeterAvailable        = false
-  private var _temperatureMeterAvailable    = false
+//  private var _voltageMeterAvailable        = false
+//  private var _temperatureMeterAvailable    = false
   private var _sideViewController           : SideViewController?
-  private var _radioPickerTabViewController : NSTabViewController?
+  private var _radioPickerViewController    : NSViewController?
   private var _profilesWindowController     : NSWindowController?
   private var _preferencesWindowController  : NSWindowController?
   private var _tcpPingFirstResponseReceived = false
   private var _clientId                     : String?
 
   private var _activity                     : NSObjectProtocol?
-
-  private var _opusAudioStream              : OpusAudioStream?
-  private var _remoteRxAudioStream          : RemoteRxAudioStream?
-  private var _opusPlayer                   : OpusPlayer?
-  private var _opusEncode                   : OpusEncode?
 
   private let kVoltageTemperature           = "VoltageTemp"                 // Identifier of toolbar VoltageTemperature toolbarItem
 
@@ -90,7 +64,19 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
   private let kLocalTab                     = 0
   private let kRemoteTab                    = 1
   private let kSideViewDelay                = 2   // seconds
-  
+
+  private let kClose                        = "Close "
+  private let kDisconnect                   = "Disconnect "
+  private let kCancel                       = "Cancel"
+  private let kInactive                     = "---"
+  private let kRemoteControl                = "Remote Control"
+  private let kMultiflexConnect             = "Multiflex Connect"
+  private let kMultipleConnections          = "Radio is connected to multiple Stations"
+  private let kSingleConnection             = "Radio is connected to one Station"
+
+  private let kAvailable                    = "available"
+  private let kInUse                        = "in_use"
+
   private enum WindowState {
     case open
     case close
@@ -125,8 +111,6 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
     
     _log.logMessage("\(Api.kName) Version: " + versionOf("xLib6000"), .info, #function, #file, #line)
 
-    updateWindowTitle()
-    
     // get/create a Client Id
     _clientId = clientId()
     
@@ -149,12 +133,7 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
     if let discoveryPacket = defaultRadioFound() {
       
       // YES, open the default radio
-      if !openRadio(discoveryPacket) {
-        _log.logMessage("Error opening default radio, \(discoveryPacket.nickname)", .warning,  #function, #file, #line)
-
-        // open the Radio Picker
-        openRadioPicker( self)
-      }
+      openRadio(discoveryPacket)
       
     } else {
       
@@ -198,69 +177,6 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
 
   // ----- TOOLBAR -----
   
-  /// Respond to the Mac Audio button
-  ///
-  /// - Parameter sender:         the Slider
-  ///
-  @IBAction func opusRxAudio(_ sender: NSButton) {
-    
-    // update the default value
-    Defaults[.macAudioEnabled] = sender.boolState
-    
-    // enable / disable the  Opus Stream
-    // what API version?
-    if _api.radio!.version.isNewApi {
-      // NEW
-      if sender.boolState {
-        // add a stream
-        _api.radio?.requestRemoteRxAudioStream()
-      
-      } else {
-        // remove a stream
-        for (_, stream) in _api.radio!.remoteRxAudioStreams where stream.clientHandle == _api.connectionHandle {
-          stream.remove()
-        }
-      }
-    
-    } else {
-      // OLD
-      _api.radio?.startStopOpusRxAudioStream(state: sender.boolState)
-      
-      if sender.boolState == true { usleep(50_000) ; _opusPlayer?.start() } else { _opusPlayer?.stop() }
-    }
-  }
-  /// Respond to the Headphone Gain slider
-  ///
-  /// - Parameter sender:         the Slider
-  ///
-  @IBAction func headphoneGain(_ sender: NSSlider) {
-    
-    _api.radio?.headphoneGain = sender.integerValue
-  }
-  /// Respond to the Lineout Gain slider
-  ///
-  /// - Parameter sender:         the Slider
-  ///
-  @IBAction func lineoutGain(_ sender: NSSlider) {
-    
-    _api.radio?.lineoutGain = sender.integerValue
-  }
-  /// Respond to the Headphone Mute button
-  ///
-  /// - Parameter sender:         the Button
-  ///
-  @IBAction func muteHeadphone(_ sender: NSButton) {
-    
-    _api.radio?.headphoneMute = sender.boolState
-  }
-  /// Respond to the Lineout Mute button
-  ///
-  /// - Parameter sender:         the Button
-  ///
-  @IBAction func muteLineout(_ sender: NSButton) {
-    
-    _api.radio?.lineoutMute = sender.boolState
-  }
   /// Respond to the Pan button
   ///
   /// - Parameter sender:         the Button
@@ -269,75 +185,6 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
     
     // dimensions are dummy values; when created, will be resized to fit its view
     _api.radio?.requestPanadapter(CGSize(width: 50, height: 50))
-  }
-  /// Respond to the Side button
-  ///
-  /// - Parameter sender:         the Button
-  ///
-  @IBAction func sideButton(_ sender: NSButton) {
-    
-    // update the default value
-    Defaults[.sideViewOpen] = sender.boolState
-    
-    // Open / Close the side view
-    sideView(sender.boolState ? .open : .close)
-  }
-  /// Respond to the Cwx button
-  ///
-  /// - Parameter sender:         the Button
-  ///
-  @IBAction func cwxButton(_ sender: NSButton) {
-    
-    // open / collapse the Cwx view
-    
-    // FIXME: Implement the Cwx view
-    
-    Defaults[.cwxViewOpen] = sender.boolState
-    
-    _log.logMessage("CWX \(Defaults[.cwxViewOpen] ? "Open" : "Closed")", .debug, #function, #file, #line)
-  }
-  /// Respond to the Markers button
-  ///
-  /// - Parameter sender:         the Button
-  ///
-  @IBAction func markerButton(_ sender: Any) {
-    
-    if let button = sender as? NSButton {
-      // enable / disable Markers
-      Defaults[.markersEnabled] = button.boolState
-    
-    } else if let _ = sender as? NSMenuItem {
-      Defaults[.markersEnabled].toggle()
-    }
-
-    _log.logMessage("Markers \(Defaults[.markersEnabled] ? "enabled" : "disabled")", .debug, #function, #file, #line)
-  }
-  /// Respond to the Tnf button
-  ///
-  /// - Parameter sender:         the Button
-  ///
-  @IBAction func tnfButton(_ sender: Any) {
-    
-    if let button = sender as? NSButton {
-      // enable / disable Tnf's
-      _api.radio!.tnfsEnabled = button.boolState
-    
-    } else if let _ = sender as? NSMenuItem {
-       _api.radio?.tnfsEnabled.toggle()
-    }
-    Defaults[.tnfsEnabled] = _api.radio!.tnfsEnabled
-    
-    _log.logMessage("Tnf's \(Defaults[.tnfsEnabled] ? "enabled" : "disabled")", .debug, #function, #file, #line)
-  }
-  /// Respond to the Full Duplex button
-  ///
-  /// - Parameter sender:         the Button
-  ///
-  @IBAction func fullDuplexButton(_ sender: NSButton) {
-    
-    // enable / disable Full Duplex
-    _api.radio?.fullDuplexEnabled = sender.boolState
-    Defaults[.fullDuplexEnabled] = sender.boolState
   }
 
   // ----- MENU -----
@@ -349,19 +196,15 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
   @IBAction func openRadioPicker(_ sender: AnyObject) {
     
     // get an instance of the RadioPicker
-    let radioPickerTabViewController = _radioPickerStoryboard!.instantiateController(withIdentifier: kRadioPickerIdentifier) as? NSTabViewController
+    let radioPickerViewController = _radioPickerStoryboard!.instantiateController(withIdentifier: kRadioPickerIdentifier) as? NSViewController
 
-    // make this View Controller the delegate of the RadioPickers
-    radioPickerTabViewController!.tabViewItems[kLocalTab].viewController!.representedObject = self
-    radioPickerTabViewController!.tabViewItems[kRemoteTab].viewController!.representedObject = self
-    
-    // select the last-used tab
-    radioPickerTabViewController!.selectedTabViewItemIndex = ( Defaults[.remoteViewOpen] == false ? kLocalTab : kRemoteTab )
+    // make this View Controller the delegate of the RadioPicker
+    radioPickerViewController!.representedObject = self
     
     DispatchQueue.main.async { [weak self] in
       
       // show the RadioPicker sheet
-      self?.presentAsSheet(radioPickerTabViewController!)
+      self?.presentAsSheet(radioPickerViewController!)
     }
   }
   /// Respond to the Preferences menu (Command-,)
@@ -569,64 +412,11 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
       }
     })
   }
-  /// Set the Window's title.
-  ///
-  func updateWindowTitle(_ radio: Radio? = nil) {
-    var titleString = ""
-    
-    let mode = _api.isWan ? "SmartLink" : "Local"
-
-    if let radio = radio {
-      titleString = "\(radio.discoveryPacket.nickname) v\(radio.version.longString) @ \(radio.discoveryPacket.publicIp) \(mode)        \(Logger.kAppName) v\(Logger.sharedInstance.version.longString)       xLib6000 " + versionOf("xLib6000")
-    } else {
-      titleString = "\(Logger.kAppName) v\(Logger.sharedInstance.version.longString)     \(Api.kName) v" + versionOf("xLib6000")
-    }
-
-    // set the title bar
-    DispatchQueue.main.async { [unowned self] in
-      self.view.window?.title = titleString
-    }
-  }
-  /// Set the toolbar controls
-  ///
-  func enableToolbarItems(_ isEnabled: Bool) {
-    
-    DispatchQueue.main.async { [unowned self] in
-      
-      // enable / disable the toolbar items
-      if let toolbar = self.view.window!.toolbar {
-        for item in toolbar.items {
-                    
-          switch item.itemIdentifier.rawValue {
-            
-          case "tnfsEnabled":     item.isEnabled = isEnabled ; if isEnabled { (item.view as! NSButton).boolState = Defaults[.tnfsEnabled] }
-          case "markersEnabled":  item.isEnabled = isEnabled ; if isEnabled { (item.view as! NSButton).boolState = Defaults[.markersEnabled] }
-          case "lineoutGain":     item.isEnabled = isEnabled ; if isEnabled { (item.view as! NSSlider).integerValue = self._api.radio!.lineoutGain }
-          case "headphoneGain":   item.isEnabled = isEnabled ; if isEnabled { (item.view as! NSSlider).integerValue = self._api.radio!.headphoneGain }
-          case "macAudioEnabled": item.isEnabled = isEnabled ; if isEnabled { (item.view as! NSButton).boolState = Defaults[.macAudioEnabled] }
-          case "lineoutMute":     item.isEnabled = isEnabled ; if isEnabled { (item.view as! NSButton).boolState = self._api.radio!.lineoutMute }
-          case "headphoneMute":   item.isEnabled = isEnabled ; if isEnabled { (item.view as! NSButton).boolState = self._api.radio!.headphoneMute }
-          case "fdxEnabled":      item.isEnabled = isEnabled ; if isEnabled { (item.view as! NSButton).boolState = Defaults[.fullDuplexEnabled] }
-          case "cwxEnabled":      break
-            // TODO: CWX ?
-            
-            //          item.isEnabled = enabled
-            //          if enabled { (item.view as! NSButton).boolState = Defaults[.cwxEnabled] }
-          case "sideEnabled" :    item.isEnabled = isEnabled ; if isEnabled { (item.view as! NSButton).boolState = Defaults[.sideViewOpen] }
-            
-          case "addPan", "VoltageTemp" : break
-          case "NSToolbarFlexibleSpaceItem", "NSToolbarSpaceItem": break
-          default: Swift.print("Unknown Item identifier = \(item.itemIdentifier.rawValue)") ; fatalError()
-          }
-        }
-      }
-    }
-  }
   /// Check if there is a Default Radio
   ///
   /// - Returns:        a DiscoveryStruct struct or nil
   ///
-  private func defaultRadioFound() -> DiscoveryStruct? {
+  private func defaultRadioFound() -> DiscoveryPacket? {
     
     // allow time to hear the UDP broadcasts
     usleep(2_000_000)
@@ -640,48 +430,6 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
     }
     return nil
   }
-  
-//  private func opusAudioStreamState(_ state: OpusAudioStream.RxState) {
-//
-//    if let opusAudioStream = _api.radio!.opusAudioStreams.first?.value {
-//      _opusAudioStream = opusAudioStream
-//
-//      if state == .start {
-//        _log.logMessage("OpusRxAudioStream started: id = \(opusAudioStream.id.hex)", .info, #function, #file, #line)
-//
-//        _opusPlayer = OpusPlayer()
-//        opusAudioStream.delegate = _opusPlayer
-//        _opusPlayer?.start()
-//
-//      } else {
-//        _log.logMessage("OpusRxAudioStream stopped: id = \(opusAudioStream.id.hex)", .info, #function, #file, #line)
-//
-//        _opusPlayer?.stop()
-//        opusAudioStream.delegate = nil
-//      }
-//    }
-//  }
-//
-//  private func remoteRxAudioStreamState(_ state: OpusAudioStream.RxState) {
-//
-//    if let remoteRxAudioStream = _api.radio!.remoteRxAudioStreams.first?.value {
-//      _remoteRxAudioStream = remoteRxAudioStream
-//
-//      if state == .start {
-//        _log.logMessage("RemoteRxAudioStream started: id = \remoteRxAudioStream.id.hex)", .info, #function, #file, #line)
-//
-//        _opusPlayer = OpusPlayer()
-//        remoteRxAudioStream.delegate = _opusPlayer
-//        _opusPlayer?.start()
-//
-//      } else {
-//        _log.logMessage("RemoteRxAudioStream stopped: id = \(remoteRxAudioStream.id.hex)", .info, #function, #file, #line)
-//
-//        _opusPlayer?.stop()
-//        remoteRxAudioStream.delegate = nil
-//      }
-//    }
-//  }
 
   // ----------------------------------------------------------------------------
   // MARK: - Notification Methods
@@ -690,188 +438,48 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
   ///
   private func addNotifications() {
     
-    NC.makeObserver(self, with: #selector(guiClientHasBeenAdded(_:)), of: .guiClientHasBeenAdded)
+//    NC.makeObserver(self, with: #selector(guiClientHasBeenAdded(_:)), of: .guiClientHasBeenAdded)
 
-    NC.makeObserver(self, with: #selector(meterHasBeenAdded(_:)), of: .meterHasBeenAdded)
+//    NC.makeObserver(self, with: #selector(meterHasBeenAdded(_:)), of: .meterHasBeenAdded)
     
-    NC.makeObserver(self, with: #selector(radioHasBeenAdded(_:)), of: .radioHasBeenAdded)
-    NC.makeObserver(self, with: #selector(radioWillBeRemoved(_:)), of: .radioWillBeRemoved)
-    NC.makeObserver(self, with: #selector(radioHasBeenRemoved(_:)), of: .radioHasBeenRemoved)
-    
-    NC.makeObserver(self, with: #selector(opusAudioStreamHasBeenAdded(_:)), of: .opusAudioStreamHasBeenAdded)
-    NC.makeObserver(self, with: #selector(opusAudioStreamWillBeRemoved(_:)), of: .opusAudioStreamWillBeRemoved)
-
-    NC.makeObserver(self, with: #selector(remoteRxAudioStreamHasBeenAdded(_:)), of: .remoteRxAudioStreamHasBeenAdded)
-    NC.makeObserver(self, with: #selector(remoteRxAudioStreamWillBeRemoved(_:)), of: .remoteRxAudioStreamWillBeRemoved)
-
     NC.makeObserver(self, with: #selector(tcpDidDisconnect(_:)), of: .tcpDidDisconnect)
 
     NC.makeObserver(self, with: #selector(radioDowngrade(_:)), of: .radioDowngrade)
-    NC.makeObserver(self, with: #selector(radioUpgrade(_:)), of: .radioUpgrade)
     
     NC.makeObserver(self, with: #selector(tcpPingFirstResponse(_:)), of: .tcpPingFirstResponse)
 
     NC.makeObserver(self, with: #selector(xvtrHasBeenAdded(_:)), of: .xvtrHasBeenAdded)
     NC.makeObserver(self, with: #selector(xvtrWillBeRemoved(_:)), of: .xvtrWillBeRemoved)
   }
-  /// Process guiClientHasBeenAdded Notification
-  ///
-  /// - Parameter note:       a Notification instance
-  ///
-  @objc private func guiClientHasBeenAdded(_ note: Notification) {
-    
-    if let guiClient = note.object as? GuiClient {
-      
-      // is it me?
-      if guiClient.handle == _api.connectionHandle {
-        //YES, persist it
-        Defaults[.clientId] = guiClient.clientId
-        _log.logMessage("Gui ClientId persisted: id = \(guiClient.clientId ?? "")", .info,  #function, #file, #line)
-      }
-    }
-  }
-  /// Process .meterHasBeenAdded Notification
-  ///
-  /// - Parameter note:         a Notification instance
-  ///
-  @objc private func meterHasBeenAdded(_ note: Notification) {
-    
-    let meter = note.object as! Meter
-    
-    // is it one we need to watch?
-    switch meter.name {
-    case Meter.ShortName.voltageAfterFuse.rawValue:
-      _voltageMeterAvailable = true
-      
-    case Meter.ShortName.temperaturePa.rawValue:
-      _temperatureMeterAvailable = true
-      
-    default:
-      break
-    }
-    guard _voltageMeterAvailable == true, _temperatureMeterAvailable == true else { return }
-    
-    DispatchQueue.main.async { [weak self] in
-      // start the Voltage/Temperature monitor
-      if let toolbar = self?.view.window?.toolbar {
-        let monitor = toolbar.items.findElement({  $0.itemIdentifier.rawValue == "VoltageTemp"} ) as! ParameterMonitor
-        monitor.activate(radio: self!._api.radio!, shortNames: [.voltageAfterFuse, .temperaturePa], units: ["v", "c"])
-      }
-    }
-  }
-  /// Process .radioHasBeenAdded Notification
-  ///
-  /// - Parameter note:         a Notification instance
-  ///
-  @objc private func radioHasBeenAdded(_ note: Notification) {
-    
-    // the Radio class has been initialized
-    let radio = note.object as! Radio
-    
-    _log.logMessage("Radio initialized: \(radio.nickname)", .info,  #function, #file, #line)
-
-    Defaults[.versionRadio] = radio.discoveryPacket.firmwareVersion
-    Defaults[.radioModel] = radio.discoveryPacket.model
-    
-    // update the title bar
-    updateWindowTitle(radio)
-  }
-  /// Process .radioWillBeRemoved Notification
-  ///
-  /// - Parameter note:         a Notification instance
-  ///
-  @objc private func radioWillBeRemoved(_ note: Notification) {
-    
-    // the Radio class is being removed
-    if let radio = note.object as? Radio {
-      
-      _log.logMessage("Radio will be removed: \(radio.nickname)", .info,  #function, #file, #line)
-      
-      Defaults[.versionRadio] = ""
-      
-      // update the toolbar items
-      enableToolbarItems(false)
-
-      // remove all objects on Radio
-      radio.removeAll()
-    }
-  }
-  /// Process .radioHasBeenRemoved Notification
-  ///
-  /// - Parameter note:         a Notification instance
-  ///
-  @objc private func radioHasBeenRemoved(_ note: Notification) {
-    
-    // the Radio class has been removed
-    _log.logMessage("Radio has been removed", .info, #function, #file, #line)
-
-    // update the window title
-    updateWindowTitle()
-  }
-  /// Process .opusAudioStreamHasBeenAdded Notification
-  ///
-  /// - Parameter note:         a Notification instance
-  ///
-  @objc private func opusAudioStreamHasBeenAdded(_ note: Notification) {
-
-    // the OpusAudioStream has been added
-    if let opusAudioStream = note.object as? OpusAudioStream {
-      _opusAudioStream = opusAudioStream
-
-      _log.logMessage("OpusAudioStream added: id = \(opusAudioStream.id.hex)", .info, #function, #file, #line)
-
-      _opusPlayer = OpusPlayer()
-      opusAudioStream.delegate = _opusPlayer
-      if Defaults[.macAudioEnabled] { _opusPlayer!.start() }
-    }
-  }
-  /// Process .opusAudioStreamWillBeRemoved Notification
-  ///
-  /// - Parameter note:         a Notification instance
-  ///
-  @objc private func opusAudioStreamWillBeRemoved(_ note: Notification) {
-    
-    // the OpusAudioStream is being removed
-    if let opusAudioStream = note.object as? OpusAudioStream {
-      
-      _log.logMessage("OpusAudioStream will be removed: id = \(opusAudioStream.id.hex)", .info,  #function, #file, #line)
-
-      _opusPlayer?.stop()
-      _opusAudioStream?.delegate = nil
-    }
-  }
-  /// Process .remoteRxAudioStreamHasBeenAdded Notification
-  ///
-  /// - Parameter note:         a Notification instance
-  ///
-  @objc private func remoteRxAudioStreamHasBeenAdded(_ note: Notification) {
-
-    // the RemoteRxAudioStream class has been initialized
-    if let remoteRxAudioStream = note.object as? RemoteRxAudioStream {
-      _remoteRxAudioStream = remoteRxAudioStream
-    
-      _log.logMessage("RemoteRxAudioStream added: id = \(remoteRxAudioStream.id.hex)", .info, #function, #file, #line)
-
-      _opusPlayer = OpusPlayer()
-      remoteRxAudioStream.delegate = _opusPlayer
-      _opusPlayer?.start()
-    }
-  }
-  /// Process .remoteRxAudioStreamWillBeRemoved Notification
-  ///
-  /// - Parameter note:         a Notification instance
-  ///
-  @objc private func remoteRxAudioStreamWillBeRemoved(_ note: Notification) {
-    
-    // the RemoteRxAudioStream is being removed
-    if let remoteRxAudioStream = note.object as? RemoteRxAudioStream {
-      
-      _log.logMessage("RemoteRxAudioStream will be removed: id = \(remoteRxAudioStream.id.hex)", .info,  #function, #file, #line)
-
-      _opusPlayer?.stop()
-      remoteRxAudioStream.delegate = nil
-    }
-  }
+//  /// Process .meterHasBeenAdded Notification
+//  ///
+//  /// - Parameter note:         a Notification instance
+//  ///
+//  @objc private func meterHasBeenAdded(_ note: Notification) {
+//    
+//    let meter = note.object as! Meter
+//    
+//    // is it one we need to watch?
+//    switch meter.name {
+//    case Meter.ShortName.voltageAfterFuse.rawValue:
+//      _voltageMeterAvailable = true
+//      
+//    case Meter.ShortName.temperaturePa.rawValue:
+//      _temperatureMeterAvailable = true
+//      
+//    default:
+//      break
+//    }
+//    guard _voltageMeterAvailable == true, _temperatureMeterAvailable == true else { return }
+//    
+//    DispatchQueue.main.async { [weak self] in
+//      // start the Voltage/Temperature monitor
+//      if let toolbar = self?.view.window?.toolbar {
+//        let monitor = toolbar.items.findElement({  $0.itemIdentifier.rawValue == "VoltageTemp"} ) as! ParameterMonitor
+//        monitor.activate(radio: self!._api.radio!, shortNames: [.voltageAfterFuse, .temperaturePa], units: ["v", "c"])
+//      }
+//    }
+//  }
   /// Process .tcpDidDisconnect Notification
   ///
   /// - Parameter note:         a Notification instance
@@ -886,7 +494,10 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
     switch reason {
       
     case .normal:
-      closeRadio()
+
+      // FIXME: ????
+      
+      //      closeRadio(_api.radio!.discoveryPacket)
       return
       
     case .error(let errorMessage):
@@ -900,7 +511,7 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
       alert.informativeText = explanation
       alert.addButton(withTitle: "Ok")
       alert.beginSheetModal(for: self.view.window!, completionHandler: { (response) in })
-      self.closeRadio()
+      self.closeRadio(_api.radio!.discoveryPacket)
     }
   }
   /// Process .radioDowngrade Notification
@@ -934,36 +545,6 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
       })
     }
   }
-  /// Process .radioUpgrade Notification
-  ///
-  /// - Parameter note:         a Notification instance
-  ///
-  @objc private func radioUpgrade(_ note: Notification) {
-    
-    let versions = note.object as! [Version]
-    
-    // the API version is later than the Radio version
-    DispatchQueue.main.async {
-      let alert = NSAlert()
-      alert.alertStyle = .warning
-      alert.messageText = "The Radio's version may not be supported by this version of \(Logger.kAppName)."
-      alert.informativeText = """
-      Radio:\t\tv\(versions[1].longString)
-      xLib6000:\tv\(versions[0].string)
-      
-      You can use SmartSDR to UPGRADE the Radio
-      \t\t\tOR
-      Install an older version of \(Logger.kAppName)
-      """
-      alert.addButton(withTitle: "Close")
-      alert.addButton(withTitle: "Continue")
-      alert.beginSheetModal(for: self.view.window!, completionHandler: { (response) in
-        if response == NSApplication.ModalResponse.alertFirstButtonReturn {
-          NSApp.terminate(self)
-        }
-      })
-    }
-  }
   /// Process .tcpPingFirstResponse Notification
   ///
   /// - Parameter note:         a Notification instance
@@ -973,9 +554,6 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
     // receipt of the first Ping response indicates the Radio is fully initialized
     _tcpPingFirstResponseReceived = true
     
-    // update the toolbar items
-    enableToolbarItems(true)
-
     // delay the opening of the side view (allows Slice(s) to be instantiated, if any)
     DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + .seconds( kSideViewDelay )) { [weak self] in
       
@@ -1007,46 +585,240 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
     
     _log.logMessage("Xvtr will be removed: id = \(xvtr.id)", .info, #function, #file, #line)
   }
+  /// Connect the selected Radio
+  ///
+  /// - Parameters:
+  ///   - radio:                the DiscoveryStruct
+  ///   - pendingDisconnect:    type, if any
+  ///
+  func connectRadio(_ discoveredRadio: DiscoveryPacket?, pendingDisconnect: Api.PendingDisconnect = .none) {
+    
+    if let _ = _radioPickerViewController {
+      self._radioPickerViewController = nil
+    }
+    
+    // exit if no Radio selected
+    guard let radio = discoveredRadio else { return }
+    
+    // connect to the radio
+    if _api.connect(radio,
+                    clientStation: Logger.kAppName,
+                    programName: Logger.kAppName,
+                    clientId: _clientId,
+                    isGui: true,
+                    isWan: radio.isWan,
+                    wanHandle: radio.wanHandle,
+                    pendingDisconnect: pendingDisconnect) {
+            
+      updateButtonStates()
+      
+      // WAN connect
+      if radio.isWan {
+        _api.isWan = true
+        _api.connectionHandleWan = radio.wanHandle
+      } else {
+        _api.isWan = false
+        _api.connectionHandleWan = ""
+      }
+      
+    } else {
+      updateButtonStates()
+    }
+  }
+  /// Enable / Disable various UI elements
+  ///
+  private func updateButtonStates() {
+    
+    DispatchQueue.main.async { [unowned self] in
+      if let _ = self._api.radio {
 
+      } else {
+
+      }
+    }
+  }
   // ----------------------------------------------------------------------------
   // MARK: - RadioPicker delegate methods
   
   var token: Token?
 
-  /// Connect the selected Radio
-  ///
-  /// - Parameters:
-  ///   - radio:                the DiscoveryStruct
-  ///   - isWan:                Local / Wan
-  ///   - wanHandle:            Wan handle (if any)
-  /// - Returns:                success / failure
-  ///
-  func openRadio(_ discoveryPacket: DiscoveryStruct?, isWan: Bool = false, wanHandle: String = "", pendingDisconnect: Handle? = nil) -> Bool {
+  func openRadio(_ discoveryPacket: DiscoveryPacket) {
     
-    if let _ = _radioPickerTabViewController {
-      self._radioPickerTabViewController = nil
+    let status = discoveryPacket.status.lowercased()
+    let guiCount = discoveryPacket.guiClients.count
+    let isNewApi = Version(discoveryPacket.firmwareVersion).isNewApi
+    
+    let handles = [Handle](discoveryPacket.guiClients.keys)
+    let clients = [GuiClient](discoveryPacket.guiClients.values)
+
+    // CONNECT, is the selected radio connected to another client?
+    switch (isNewApi, status, guiCount) {
+
+    case (false, kAvailable, _):          // oldApi, not connected to another client
+      connectRadio(discoveryPacket)
+      
+    case (false, kInUse, _):              // oldApi, connected to another client
+      let alert = NSAlert()
+      alert.alertStyle = .warning
+      alert.messageText = "Radio is connected to another Client"
+      alert.informativeText = kClose + "the Client?"
+      alert.addButton(withTitle: kClose + "current client")
+      alert.addButton(withTitle: kCancel)
+
+      // ignore if not confirmed by the user
+      alert.beginSheetModal(for: view.window!, completionHandler: { (response) in
+        // close the connected Radio if the YES button pressed
+
+        switch response {
+        case NSApplication.ModalResponse.alertFirstButtonReturn:
+          self.connectRadio(discoveryPacket, pendingDisconnect: .oldApi)
+          sleep(1)
+          self._api.disconnect()
+          sleep(1)
+          self.openRadioPicker(self)
+
+        default:  break
+        }
+        
+      })
+
+    case (true, kAvailable, 0):           // newApi, not connected to another client
+      connectRadio(discoveryPacket)
+
+    case (true, kAvailable, _):           // newApi, connected to another client
+      let alert = NSAlert()
+      alert.alertStyle = .warning
+      alert.messageText = "Radio is connected to Station: \(clients[0].station)"
+      alert.informativeText = kClose + "the Station . . Or . . Connect using Multiflex . . Or . . use " + kRemoteControl
+      alert.addButton(withTitle: kClose + "\(clients[0].station)")
+      alert.addButton(withTitle: kMultiflexConnect)
+      alert.addButton(withTitle: kRemoteControl)
+      alert.addButton(withTitle: kCancel)
+
+      // FIXME: Remote Control implementation needed
+      alert.buttons[2].isEnabled = false
+
+      // ignore if not confirmed by the user
+      alert.beginSheetModal(for: view.window!, completionHandler: { (response) in
+        // close the connected Radio if the YES button pressed
+
+        switch response {
+        case NSApplication.ModalResponse.alertFirstButtonReturn:  self.connectRadio(discoveryPacket, pendingDisconnect: .newApi(handle: handles[0]))
+        case NSApplication.ModalResponse.alertSecondButtonReturn: self.connectRadio(discoveryPacket)
+        default:  break
+        }
+      })
+
+    case (true, kInUse, 2):               // newApi, connected to 2 clients
+        let alert = NSAlert()
+        alert.alertStyle = .warning
+        alert.messageText = kMultipleConnections
+        alert.informativeText = kClose + "one of the Stations . . Or . . use " + kRemoteControl
+        alert.addButton(withTitle: kClose + "\(clients[0].station)")
+        alert.addButton(withTitle: kClose + "\(clients[1].station)")
+        alert.addButton(withTitle: kRemoteControl)
+        alert.addButton(withTitle: kCancel)
+
+        // FIXME: Remote Control implementation needed
+        alert.buttons[2].isEnabled = false
+
+        // ignore if not confirmed by the user
+        alert.beginSheetModal(for: view.window!, completionHandler: { (response) in
+
+          switch response {
+          case NSApplication.ModalResponse.alertFirstButtonReturn:  self.connectRadio(discoveryPacket, pendingDisconnect: .newApi(handle: handles[0]))
+          case NSApplication.ModalResponse.alertSecondButtonReturn: self.connectRadio(discoveryPacket, pendingDisconnect: .newApi(handle: handles[1]))
+          default:  break
+          }
+        })
+
+    default:
+      break
     }
-
-    // exit if no Radio selected
-    guard let radioPacket = discoveryPacket else { return false }
-    
-//    _api.isWan = isWan
-//    _api.wanConnectionHandle = wanHandle
-
-    // attempt to connect to it
-    let station = (Host.current().localizedName ?? "Mac").replacingSpaces(with: "_")
-    return _api.connect(radioPacket,
-                        clientStation: station,
-                        programName: Logger.kAppName,
-                        clientId: _clientId,
-                        isGui: true,
-                        isWan: isWan,
-                        wanHandle: wanHandle,
-                        pendingDisconnect: pendingDisconnect)
   }
-  /// Stop the active Radio
+  /// Close  a currently active connection
   ///
-  func closeRadio() {
+  func closeRadio(_ discoveryPacket: DiscoveryPacket) {
+    
+    let status = discoveryPacket.status.lowercased()
+    let guiCount = discoveryPacket.guiClients.count
+    let isNewApi = Version(discoveryPacket.firmwareVersion).isNewApi
+
+    let handles = [Handle](discoveryPacket.guiClients.keys)
+    let clients = [GuiClient](discoveryPacket.guiClients.values)
+
+    // CONNECT, is the selected radio connected to another client?
+    switch (isNewApi, status, guiCount) {
+      
+    case (false, _, _):                   // oldApi
+      self.disconnectXsdr()
+      
+    case (true, kAvailable, 1):           // newApi, 1 client
+      let alert = NSAlert()
+      alert.alertStyle = .informational
+      alert.messageText = kSingleConnection
+      alert.informativeText = kClose + "the Station . . Or . . " + kDisconnect + Logger.kAppName
+      if clients[0].station != Logger.kAppName {
+        alert.addButton(withTitle: kClose + "\(clients[0].station)")
+      } else {
+        alert.addButton(withTitle: kInactive)
+      }
+      alert.addButton(withTitle: kDisconnect + Logger.kAppName)
+      alert.addButton(withTitle: kCancel)
+      
+      alert.buttons[0].isEnabled = clients[0].station != Logger.kAppName
+
+      // ignore if not confirmed by the user
+      alert.beginSheetModal(for: view.window!, completionHandler: { (response) in
+        // close the connected Radio if the YES button pressed
+        
+        switch response {
+        case NSApplication.ModalResponse.alertFirstButtonReturn:  self._api.disconnectClient( packet: discoveryPacket, handle: handles[0])
+        case NSApplication.ModalResponse.alertSecondButtonReturn: self.disconnectXsdr()
+        default:  break
+        }
+      })
+      
+    case (true, kInUse, 2):           // newApi, 2 clients
+
+      let alert = NSAlert()
+      alert.alertStyle = .informational
+      alert.messageText = kMultipleConnections
+      alert.informativeText = kClose + "a Station . . Or . . " + kDisconnect + Logger.kAppName
+      if clients[0].station != Logger.kAppName {
+        alert.addButton(withTitle: kClose + "\(clients[0].station)")
+      } else {
+        alert.addButton(withTitle: kInactive)
+      }
+      if clients[1].station != Logger.kAppName {
+        alert.addButton(withTitle: kClose + "\(clients[1].station)")
+      } else {
+        alert.addButton(withTitle: kInactive)
+      }
+      alert.addButton(withTitle: kDisconnect + Logger.kAppName)
+      alert.addButton(withTitle: kCancel)
+      
+      alert.buttons[0].isEnabled = clients[0].station != Logger.kAppName
+      alert.buttons[1].isEnabled = clients[1].station != Logger.kAppName
+
+      // ignore if not confirmed by the user
+      alert.beginSheetModal(for: view.window!, completionHandler: { (response) in
+        
+        switch response {
+        case NSApplication.ModalResponse.alertFirstButtonReturn:  self._api.disconnectClient( packet: discoveryPacket, handle: handles[0])
+        case NSApplication.ModalResponse.alertSecondButtonReturn: self._api.disconnectClient( packet: discoveryPacket, handle: handles[1])
+        case NSApplication.ModalResponse.alertThirdButtonReturn:  self.disconnectXsdr()
+        default:  break
+        }
+      })
+
+    default:
+        self.disconnectXsdr()
+    }
+  }
+
+
+  func disconnectXsdr() {
     // close the Side view (if open)
     sideView(.close)
     

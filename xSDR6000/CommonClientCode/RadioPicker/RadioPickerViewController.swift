@@ -1,5 +1,5 @@
 //
-//  WANRadioPickerViewController.swift
+//  RadioPickerViewController.swift
 //  CommonCode
 //
 //  Created by Mario Illgen on 08.02.18.
@@ -21,18 +21,31 @@ public struct Token {
 }
 
 // --------------------------------------------------------------------------------
-// MARK: - WAN RadioPicker Delegate definition
+// MARK: - RadioPicker Delegate protocol
 // --------------------------------------------------------------------------------
 
-protocol WANRadioPickerDelegate             : LANRadioPickerDelegate {
+protocol RadioPickerDelegate             : class {
   
   var token: Token? {get set}
+
+  /// Open the specified Radio
+  ///
+  /// - Parameter radio: a Discovery packet
+  ///
+  func openRadio(_ radio: DiscoveryPacket)
+  
+  /// Close the active Radio
+  ///
+  /// - Parameter radio: a Discovery packet
+  ///
+  func closeRadio(_ radio: DiscoveryPacket)
 }
 
-final class WANRadioPickerViewController    : NSViewController, NSTableViewDelegate, NSTableViewDataSource, Auth0ControllerDelegate, WanServerDelegate {
+final class RadioPickerViewController    : NSViewController, NSTableViewDelegate, NSTableViewDataSource, Auth0ControllerDelegate, WanServerDelegate {
   
   static let kServiceName                   = ".oauth-token"
-  
+  static let testTimeout                    : TimeInterval = 0.1
+
   // ----------------------------------------------------------------------------
   // MARK: - Private properties
   
@@ -46,15 +59,15 @@ final class WANRadioPickerViewController    : NSViewController, NSTableViewDeleg
   @IBOutlet private weak var _testButton    : NSButton!
   
   private var _api                          = Api.sharedInstance
-  private var _discoveredRadios             = [DiscoveryStruct]()           // Radios discovered
+  private var _discoveredRadios             = [DiscoveryPacket]()           // Radios discovered
   private let _log                          = Logger.sharedInstance
   private var _auth0ViewController          : Auth0ViewController?
   private weak var _delegate                : RadioPickerDelegate? {
     return representedObject as? RadioPickerDelegate
   }
-  private var _discoveryPacket              : DiscoveryStruct?
+  private var _discoveryPacket              : DiscoveryPacket?
   private var _wanServer                    : WanServer?
-  private var _parentVc                     : NSViewController!
+//  private var _parentVc                     : NSViewController!
 
   // constants
   private let kApplicationJson              = "application/json"
@@ -98,7 +111,7 @@ final class WANRadioPickerViewController    : NSViewController, NSTableViewDeleg
     #endif
     
     // allow the User to double-click the desired Radio
-    _radioTableView.doubleAction = #selector(WANRadioPickerViewController.selectButton(_:))
+    _radioTableView.doubleAction = #selector(RadioPickerViewController.selectButton(_:))
     
     _selectButton.title = kConnectTitle
     _loginButton.title = kLoginTitle
@@ -106,20 +119,13 @@ final class WANRadioPickerViewController    : NSViewController, NSTableViewDeleg
     _callLabel.stringValue = ""
     _testIndicator.boolState = false
 
-    // get a reference to the Tab view controller (the "presented" vc)
-    _parentVc = parent!
-
     // TODO: put this on a background queue??
     // check if we were logged in into Auth0, try to get a token
 
     if Defaults[.smartLinkWasLoggedIn] {
       
-//      _log.logMessage("Previously Logged In: TRUE", .debug, #function, #file, #line)
-      
       // is there a saved Auth0 token which has not expired?
       if let previousIdToken = _delegate?.token, previousIdToken.isValidAtDate( Date()) {
-        
-//        _log.logMessage("Unexpired saved Auth0 token", .debug, #function, #file, #line)
         
         // YES, we can log into SmartLink, use the saved token
         canLogIn = true
@@ -127,25 +133,17 @@ final class WANRadioPickerViewController    : NSViewController, NSTableViewDeleg
       
       } else if Defaults[.smartLinkAuth0Email] != "" {
               
-//        _log.logMessage("Auth0 email in Defaults: FOUND", .debug, #function, #file, #line)
-        
         // there is a saved email, use it to obtain a refresh token from Keychain
         if let refreshToken = Keychain.get(kService, account: Defaults[.smartLinkAuth0Email]) {
           
-//          _log.logMessage("Refresh token in Keychain: FOUND", .debug, #function, #file, #line)
-          
           // can we get an Id Token from the Refresh Token?
           if let refreshedIdToken = getIdToken(from: refreshToken) {
-            
-//            _log.logMessage("Id token from Refresh token: FOUND", .debug, #function, #file, #line)
             
             // YES, we can use the saved token to Log in
             canLogIn = true
             idToken = refreshedIdToken
             
           } else {
-            
-//            _log.logMessage("Id token from Refresh token: NOT FOUND", .debug, #function, #file, #line)
             
             // NO, the refresh token and email are no longer valid, delete them
             Defaults[.smartLinkAuth0Email] = ""
@@ -156,24 +154,16 @@ final class WANRadioPickerViewController    : NSViewController, NSTableViewDeleg
           }
         } else {
           
-//          _log.logMessage("Refresh token in Keychain: NOT FOUND", .debug, #function, #file, #line)
-          
           // no refresh token in Keychain
           canLogIn = false
           idToken = ""
         }
       } else {
         
-//        _log.logMessage("Auth0 email in Defaults: NOT FOUND", .debug, #function, #file, #line)
-        
         // no saved email, user must log in
         canLogIn = false
         idToken = ""
       }
-    } else {
-      
-//      _log.logMessage("Previously Logged In: FALSE", .debug, #function, #file, #line)
-      
     }
     // exit if we don't have the needed token (User will need to press the Log In button)
     guard canLogIn else { return }
@@ -212,39 +202,19 @@ final class WANRadioPickerViewController    : NSViewController, NSTableViewDeleg
   // ----------------------------------------------------------------------------
   // MARK: - Action methods
   
-  /// Respond to the Quit menu item
-  ///
-  /// - Parameter sender:     the button
-  ///
-  @IBAction func quitRadio(_ sender: AnyObject) {
-    
-    _parentVc.dismiss(sender)
-    
-    // perform an orderly disconnect of all the components
-    _api.disconnect(reason: .normal)
-    
-    _log.logMessage("Application closed by user", .info, #function, #file, #line)
-    DispatchQueue.main.async {
-      
-      NSApp.terminate(self)
-    }
-  }
   /// Respond to the Close button
   ///
   /// - Parameter sender:         the button
   ///
-  @IBAction func closeButton(_ sender: AnyObject) {
+  @IBAction func closeButton(_ sender: NSButton) {
     
-//    // diconnect from WAN server
-//    _wanServer?.disconnect()
-    
-    _parentVc.dismiss(sender)
+    dismiss(sender)
   }
   /// Respond to the Select button
   ///
   /// - Parameter:                the button
   ///
-  @IBAction func selectButton( _: AnyObject ) {
+  @IBAction func selectButton( _: NSButton ) {
     
     // attempt to Connect / Disconnect the selected Radio
     connectDisconnect()
@@ -260,164 +230,65 @@ final class WANRadioPickerViewController    : NSViewController, NSTableViewDeleg
   }
   
   @IBAction func testButton(_ sender: NSButton) {
-
-    _log.logMessage("SmartLink Test initiated", .info, #function, #file, #line)
-
     _testIndicator.boolState = false
 
-    _wanServer?.sendTestConnection(radioSerial: _discoveryPacket!.serialNumber)
+    _wanServer?.sendTestConnection(for: _discoveryPacket!)
   }
   
   // ----------------------------------------------------------------------------
   // MARK: - Private methods
-  
-    /// Connect / Disconnect a Radio
-    ///
-    private func connectDisconnect() {
-      
-      guard let discoveryPacket = _discoveryPacket else { return }
-      guard let delegate = _delegate else { return }
+    
+  /// Connect / Disconnect a Radio
+  ///
+  private func connectDisconnect() {
+    
+    guard let packet = _discoveryPacket else { return }
+    guard let delegate = _delegate else { return }
 
-      // Connect / Disconnect
-      if _selectButton.title == kConnectTitle {
-        
-        // CONNECT
-        openRadio()
-        
-        // close the picker
-        DispatchQueue.main.async { [unowned self] in
-          self.closeButton(self)
-        }
-        
-      } else {
-        // DISCONNECT, RadioPicker remains open
-        delegate.closeRadio()
-      }
+    // Connect / Disconnect
+    if _selectButton.title == kConnectTitle {
+      
+      // CONNECT
+      if packet.isWan { openRadio(packet) } else { _delegate?.openRadio(packet) }
+      
+      // close the picker
+      dismiss(self)
+      
+    } else {
+      // DISCONNECT, RadioPicker remains open
+      delegate.closeRadio(packet)
     }
-//    private func openClose() {
-//      
-//      guard let discoveryPacket = _discoveryPacket else { return }
-//      
-//      _discoveryPacket!.lowBandwidthConnect = Defaults[.lowBandwidthEnabled]
-//      
-//      // Connect / Disconnect
-//      if _selectButton.title == kConnectTitle {
-//        
-//        // CONNECT, is the selected radio connected to another client?
-//        switch (discoveryPacket.status, discoveryPacket.guiClients.count) {
-//          
-//        case ("Available", 0):    // not connected to another client
-//          openRadio()
-//          
-//        case ("Available", _):    // connected to another client, should the client be closed?
-//          let alert = NSAlert()
-//          alert.alertStyle = .warning
-//          alert.messageText = "Radio is connected to Station: \(discoveryPacket.guiClients[0].station)"
-//  //        alert.informativeText = "Station: \(discoveryPacket.guiClients[0].station)?"
-//          alert.addButton(withTitle: "Disconnect \(discoveryPacket.guiClients[0].station)")
-//          alert.addButton(withTitle: "Connect using Multiflex")
-//          alert.addButton(withTitle: "Cancel")
-//
-//          // ignore if not confirmed by the user
-//          alert.beginSheetModal(for: view.window!, completionHandler: { (response) in
-//            // close the connected Radio if the YES button pressed
-//            
-//            switch response {
-////            case NSApplication.ModalResponse.alertFirstButtonReturn:  self.openRadio(discoveryPacket, pendingDisconnect: discoveryPacket.guiClients[0].handle)
-//            case NSApplication.ModalResponse.alertFirstButtonReturn:  break
-//            case NSApplication.ModalResponse.alertSecondButtonReturn: self.openRadio()
-//            default:  return
-//            }
-//          })
-//
-//        default:
-//          Swift.print("????")
-//        }
-//      
-//      } else {  // DISCONNECT, RadioPicker remains open
-//        _delegate?.closeRadio()
-//        _selectButton.title = kConnectTitle
-//      }
-//    }
-  /// Open or Close the selected Radio
-  ///
-  /// - Parameter lowBW: open the remote radio with low bandwith settings
-  ///
-//  private func openClose() {
-//    
-//    // Connect or Disconnect?
-//    if _selectButton.title == kConnectTitle {
-//      
-//      // CONNECT, RadioPicker sheet will close & Radio will be opened
-//      
-//      // is the selected radio in use, but not by this app?
-//      if _discoveryPacket!.status == "In_Use" && _api.radio == nil {
-//        
-//        // YES, ask the user to confirm closing it
-//        let alert = NSAlert()
-//        alert.alertStyle = .warning
-//        alert.messageText = "Disconnect Radio?"
-//        alert.informativeText = "Are you sure you want to disconnect the current radio session?"
-//        alert.addButton(withTitle: "Yes")
-//        alert.addButton(withTitle: "No")
-//        
-//        // ignore if not confirmed by the user
-//        alert.beginSheetModal(for: view.window!, completionHandler: { (response) in
-//          // close the connected Radio if the YES button pressed
-//          if response == NSApplication.ModalResponse.alertFirstButtonReturn { self.openRadio(lowBW: lowBW) }
-//        })
-//      } else {
-//      // NO, just open it
-//        openRadio(lowBW: lowBW)
-//      }
-//
-//    } else {
-//      
-//      // DISCONNECT, RadioPicker sheet will remain open & Radio will be disconnected
-//      
-//      // tell the delegate to disconnect
-//      _delegate?.closeRadio()
-//      
-//      // toggle the button title
-//      _selectButton.title = kConnectTitle
-//    }
-//  }
+  }
+
   /// Open a Radio & close the Picker
   ///
-  private func openRadio() {
+  private func openRadio(_ packet: DiscoveryPacket) {
     
-    getAuthentification(for: _discoveryPacket)
+    getAuthentification(for: packet)
     
-    DispatchQueue.main.async { [unowned self] in
-      self.closeButton(self)
+    DispatchQueue.main.async { [weak self] in
+      self?.dismiss(self)
     }
   }
   /// Start the process to get Authentifictaion for radio connection
   ///
   /// - Parameter radio: Radio to connect to
   ///
-  private func getAuthentification(for discoveryPacket: DiscoveryStruct?) {
+  private func getAuthentification(for packet: DiscoveryPacket) {
     
-    // FIXME: Is this correct
-    
-    if let packet = discoveryPacket {
+    // is a "Hole Punch" required?
+    if packet.requiresHolePunch {
       
-      // is a "Hole Punch" required?
-      if packet.requiresHolePunch {
-        
-        // YES
-        _wanServer?.sendConnectMessageForRadio(radioSerial: packet.serialNumber, holePunchPort: packet.negotiatedHolePunchPort)
-
-      } else {
-        
-        // NO
-        _wanServer?.sendConnectMessageForRadio(radioSerial: packet.serialNumber)
-      }
+      // YES
+      _wanServer?.sendConnectMessage(for: packet)
+      
+    } else {
+      
+      // NO
+      _wanServer?.sendConnectMessage(for: packet)
     }
   }
   /// Login or Logout to Auth0
-  ///
-  /// - Parameter open: Open/Close
   ///
   private func logInOut() {
     
@@ -426,7 +297,7 @@ final class WANRadioPickerViewController    : NSViewController, NSTableViewDeleg
       // Login to auth0
       // get an instance of Auth0 controller
       _auth0ViewController = storyboard!.instantiateController(withIdentifier: "Auth0Login") as? Auth0ViewController
-
+      
       // make this View Controller the delegate of the Auth0 controller
       _auth0ViewController!.representedObject = self
       
@@ -475,9 +346,6 @@ final class WANRadioPickerViewController    : NSViewController, NSTableViewDeleg
     // instantiate a WanServer instance
     _wanServer = WanServer(delegate: self)
     
-//    // clear the reply table
-//    _delegate?.clearTable()
-
     // connect with pinger to avoid the SmartLink server to disconnect if we take too long (>30s)
     // to select and connect to a radio
     if _wanServer!.connect(appName: Logger.kAppName, platform: kPlatform, token: token, ping: true) {
@@ -663,10 +531,19 @@ final class WANRadioPickerViewController    : NSViewController, NSTableViewDeleg
   
   /// Received radio list from server
   ///
-  func wanRadioListReceived(wanRadioList: [DiscoveryStruct]) {
+  func wanRadioListReceived(wanRadioList: [DiscoveryPacket]) {
     
     // relaod to display the updated list
     _discoveredRadios = wanRadioList
+   
+    for (i, _) in wanRadioList.enumerated() {
+      
+      wanRadioList[i].isWan = true
+      Discovery.sharedInstance.processPacket(wanRadioList[i])
+      
+//      Swift.print("WanServer packet = \(wanRadioList[i].nickname), isWan = \(wanRadioList[i].lastSeen)")
+    }
+    
     reload()
   }
   /// Received user settings from server
@@ -692,12 +569,12 @@ final class WANRadioPickerViewController    : NSViewController, NSTableViewDeleg
     DispatchQueue.main.async { [unowned self] in
       
       guard self._discoveryPacket?.serialNumber == serial, self._delegate != nil else { return }
-        
+      self._discoveryPacket!.wanHandle = handle
       // tell the delegate to connect to the selected Radio
-      self._delegate!.openRadio(self._discoveryPacket!, isWan: true, wanHandle: handle)
+      self._delegate!.openRadio(self._discoveryPacket!)
     }
   }
-
+  
   /// Received Wan test results
   ///
   /// - Parameter results:            test results
@@ -830,7 +707,8 @@ final class WANRadioPickerViewController    : NSViewController, NSTableViewDeleg
   func numberOfRows(in aTableView: NSTableView) -> Int {
     
     // get the number of rows
-    return _discoveredRadios.count
+//    return _discoveredRadios.count
+   return  Discovery.sharedInstance.discoveredRadios.count
   }
   
   // ----------------------------------------------------------------------------
@@ -846,15 +724,27 @@ final class WANRadioPickerViewController    : NSViewController, NSTableViewDeleg
   ///
   func tableView( _ tableView: NSTableView, viewFor tableColumn: NSTableColumn?, row: Int) -> NSView? {
     
+//    let version = Version(_discoveredRadios[row].firmwareVersion)
+    let version = Version(Discovery.sharedInstance.discoveredRadios[row].firmwareVersion)
+
+    let type = (Discovery.sharedInstance.discoveredRadios[row].isWan ? "SMARTLINK" : "LOCAL")
+    
     // get a view for the cell
     let cellView = tableView.makeView(withIdentifier: tableColumn!.identifier, owner:self) as! NSTableCellView
     
     // set the stringValue of the cell's text field to the appropriate field
     switch tableColumn!.identifier.rawValue {
-    case "model":     cellView.textField!.stringValue = _discoveredRadios[row].model
-    case "nickname":  cellView.textField!.stringValue = _discoveredRadios[row].nickname
-    case "status":    cellView.textField!.stringValue = _discoveredRadios[row].status
-    case "publicIp":  cellView.textField!.stringValue = _discoveredRadios[row].publicIp
+//    case "model":     cellView.textField!.stringValue = _discoveredRadios[row].model
+//    case "nickname":  cellView.textField!.stringValue = _discoveredRadios[row].nickname
+//    case "status":    cellView.textField!.stringValue = _discoveredRadios[row].status
+//    case "stations":  cellView.textField!.stringValue = (version.isNewApi ? _discoveredRadios[row].guiClientStations : "n/a")
+//    case "publicIp":  cellView.textField!.stringValue = _discoveredRadios[row].publicIp
+//    case "model":     cellView.textField!.stringValue = Discovery.sharedInstance.discoveredRadios[row].model
+    case "model":     cellView.textField!.stringValue = type
+    case "nickname":  cellView.textField!.stringValue = Discovery.sharedInstance.discoveredRadios[row].nickname
+    case "status":    cellView.textField!.stringValue = Discovery.sharedInstance.discoveredRadios[row].status
+    case "stations":  cellView.textField!.stringValue = (version.isNewApi ? Discovery.sharedInstance.discoveredRadios[row].guiClientStations : "n/a")
+    case "publicIp":  cellView.textField!.stringValue = Discovery.sharedInstance.discoveredRadios[row].publicIp
     default:          break
     }
     return cellView
@@ -870,15 +760,17 @@ final class WANRadioPickerViewController    : NSViewController, NSTableViewDeleg
     
     // is a row is selected?
     if _radioTableView.selectedRow >= 0 {
-      _testButton.isEnabled = true
 
       // YES, a row is selected
-      _discoveryPacket = _discoveredRadios[_radioTableView.selectedRow]
+      _discoveryPacket = Discovery.sharedInstance.discoveredRadios[_radioTableView.selectedRow]
       
+      _testIndicator.boolState = false
+      _testButton.isEnabled = Discovery.sharedInstance.discoveredRadios[_radioTableView.selectedRow].isWan
+
       // set the "select button" title appropriately
       var isActive = false
       if let radio = Api.sharedInstance.radio {
-        isActive = ( radio.discoveryPacket == _discoveredRadios[_radioTableView.selectedRow] )
+        isActive = ( radio.discoveryPacket == Discovery.sharedInstance.discoveredRadios[_radioTableView.selectedRow] )
       }
       _selectButton.title = (isActive ? kDisconnectTitle : kConnectTitle)
     

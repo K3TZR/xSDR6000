@@ -89,7 +89,7 @@ final class PanafallsViewController         : NSSplitViewController {
   @objc private func waterfallHasBeenAdded(_ note: Notification) {
     // a Waterfall model has been added to the Waterfalls collection and Initialized
     
-    // does the Notification contain a Panadapter?
+    // does the Notification contain a Waterfall?
     let waterfall = note.object as! Waterfall
     
     // In V3, check is it for this Client
@@ -97,7 +97,7 @@ final class PanafallsViewController         : NSSplitViewController {
       // log the event
       _log.logMessage("Waterfall added: id = \(waterfall.id.hex)", .info, #function, #file, #line)
       
-      let panadapter = _api.radio!.panadapters[waterfall.panadapterId]
+      let panadapter = _api.radio!.panadapters[waterfall.panadapterId]!
       
       // interact with the UI
       DispatchQueue.main.sync { [weak self] in

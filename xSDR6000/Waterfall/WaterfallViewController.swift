@@ -49,7 +49,8 @@ final class WaterfallViewController               : NSViewController, NSGestureR
   
   private var _waterfallRenderer            : WaterfallRenderer!
 
-  private weak var _waterfall               : Waterfall? { radio!.waterfalls[panadapter!.waterfallId] }
+  private weak var _waterfall               : Waterfall?
+  // { radio!.waterfalls[panadapter!.waterfallId] }
   private let _log                          = Logger.sharedInstance
   private var _center                       : Hz  { panadapter!.center }
   private var _bandwidth                    : Hz  { panadapter!.bandwidth }
@@ -124,8 +125,9 @@ final class WaterfallViewController               : NSViewController, NSGestureR
   ///
   /// - Parameter panadapter:               a Panadapter reference
   ///
-  func configure(panadapter: Panadapter?) {
+  func configure(panadapter: Panadapter, waterfall: Waterfall) {
     self.panadapter = panadapter
+    self._waterfall = waterfall
   }
   /// Load the gradient at the specified index
   ///
@@ -345,7 +347,7 @@ final class WaterfallViewController               : NSViewController, NSGestureR
   ///
   @objc private func waterfallWillBeRemoved(_ note: Notification) {
 
-    // does the Notification contain a Panadapter object?
+    // does the Notification contain a Waterfall object?
     let waterfall = note.object as! Waterfall
     
     // YES, log the event

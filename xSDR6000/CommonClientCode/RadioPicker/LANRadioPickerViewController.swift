@@ -165,7 +165,7 @@ final class LANRadioPickerViewController    : NSViewController, NSTableViewDeleg
   ///
   @IBAction func selectButton( _: AnyObject ) {
     
-    openClose()
+    connectDisconnect()
   }
   /// Respond to a double-clicked Table row
   ///
@@ -173,72 +173,33 @@ final class LANRadioPickerViewController    : NSViewController, NSTableViewDeleg
   ///
   func doubleClick(_: AnyObject) {
     
-    openClose()
+    connectDisconnect()
   }
   
   // ----------------------------------------------------------------------------
   // MARK: - Private methods
   
-  /// Open or Close the selected Radio
+  /// Connect / Disconnect a Radio
   ///
-  /// - Parameter open: Open/Close
-  ///
-  private func openClose() {
+  private func connectDisconnect() {
     
     guard let discoveryPacket = _discoveryPacket else { return }
-    
+    guard let delegate = _delegate else { return }
+
     // Connect / Disconnect
     if _selectButton.title == kConnectTitle {
       
-      // CONNECT, is the selected radio connected to another client?
-      switch (discoveryPacket.status, discoveryPacket.guiClients.count) {
-        
-      case ("Available", 0):    // not connected to another client
-        openRadio(discoveryPacket)
-        
-      case ("Available", _):    // connected to another client, should the client be closed?
-        let alert = NSAlert()
-        alert.alertStyle = .warning
-        alert.messageText = "Radio is connected to Station: \(discoveryPacket.guiClients[0].station)"
-//        alert.informativeText = "Station: \(discoveryPacket.guiClients[0].station)?"
-        alert.addButton(withTitle: "Disconnect \(discoveryPacket.guiClients[0].station)")
-        alert.addButton(withTitle: "Connect using Multiflex")
-        alert.addButton(withTitle: "Cancel")
-
-        // ignore if not confirmed by the user
-        alert.beginSheetModal(for: view.window!, completionHandler: { (response) in
-          // close the connected Radio if the YES button pressed
-          
-          switch response {
-          case NSApplication.ModalResponse.alertFirstButtonReturn:  self.openRadio(discoveryPacket, pendingDisconnect: discoveryPacket.guiClients[0].handle)
-          case NSApplication.ModalResponse.alertSecondButtonReturn: self.openRadio(discoveryPacket)
-          default:  return
-          }
-        })
-
-      default:
-        Swift.print("????")
-      }
-    
-    } else {  // DISCONNECT, RadioPicker remains open
-      _delegate?.closeRadio()
-      _selectButton.title = kConnectTitle
-    }
-  }
-  /// Open a Radio & close the Picker
-  ///
-  private func openRadio(_ discoveryPacket: DiscoveryStruct?, pendingDisconnect: Handle? = nil) {
-    
-    // RadioPicker sheet will close & Radio will be opened
-    
-    // tell the delegate to connect to the selected Radio
-    guard _delegate != nil else { return }
+      // CONNECT, tell the delegate to connect to the selected Radio
+      _delegate?.openRadio(discoveryPacket, isWan: false, wanHandle: "")
       
-    if _delegate!.openRadio(discoveryPacket, isWan: false, wanHandle: "", pendingDisconnect: pendingDisconnect) {
       // close the picker
       DispatchQueue.main.async { [unowned self] in
         self.closeButton(self)
       }
+      
+    } else {
+      // DISCONNECT, RadioPicker remains open
+      delegate.closeRadio()
     }
   }
   

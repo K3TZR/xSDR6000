@@ -33,8 +33,8 @@
         "repositoryURL": "https://github.com/DaveWoodCom/XCGLogger.git",
         "state": {
           "branch": null,
-          "revision": "f0daefd2a472f0c8d3d12a4b0d45594195a6c74d",
-          "version": "7.0.0"
+          "revision": "a9c4667b247928a29bdd41be2ec2c8d304215a54",
+          "version": "7.0.1"
         }
       },
       {
@@ -42,8 +42,8 @@
         "repositoryURL": "https://github.com/K3TZR/xLib6000.git",
         "state": {
           "branch": null,
-          "revision": "859d7e00be7f679024c055bdee54b9ffcc4a55b3",
-          "version": "1.0.58"
+          "revision": "e6268ebd3ecb6906dbc73c2dd8364de24e3204e7",
+          "version": "1.2.11"
         }
       }
     ]

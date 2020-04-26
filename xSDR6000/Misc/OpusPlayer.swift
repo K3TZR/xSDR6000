@@ -112,7 +112,7 @@ public final class OpusPlayer                       : NSObject, StreamHandler {
     TPCircularBufferClear(&_ringBuffer)
     
     let availableFrames = TPCircularBufferGetAvailableSpace(&_ringBuffer, &OpusPlayer.decoderOutputASBD)
-    _log.logMessage("Ring buffer frames @ start = \(availableFrames)", .debug, #function, #file, #line)
+    _log.logMessage("OpusPlayer start: frames = \(availableFrames)", .debug, #function, #file, #line)
     
     // register render callback
     var input: AURenderCallbackStruct = AURenderCallbackStruct(inputProc: RenderProc, inputProcRefCon: Unmanaged.passUnretained(self).toOpaque())
@@ -138,7 +138,7 @@ public final class OpusPlayer                       : NSObject, StreamHandler {
     AudioOutputUnitStop(outputUnit)
     
     let availableFrames = TPCircularBufferGetAvailableSpace(&_ringBuffer, &OpusPlayer.decoderOutputASBD)
-    _log.logMessage("Ring buffer frames @ stop = \(availableFrames) ", .debug, #function, #file, #line)
+    _log.logMessage("OpusPlayer stop: frames = \(availableFrames) ", .debug, #function, #file, #line)
   }
 
   // ----------------------------------------------------------------------------

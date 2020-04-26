@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="15705" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="16096" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="15705"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="16096"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -102,7 +102,7 @@
                                         </menuItem>
                                         <menuItem title="Markers On/Off" keyEquivalent="m" id="KhT-uR-jSV">
                                             <connections>
-                                                <action selector="markerButton:" target="Ady-hI-5gd" id="6vI-Ca-LRG"/>
+                                                <action selector="markersButton:" target="Ady-hI-5gd" id="6vI-Ca-LRG"/>
                                             </connections>
                                         </menuItem>
                                         <menuItem title="Side View On/Off" keyEquivalent="s" id="bFA-Pe-XRv">
@@ -195,7 +195,7 @@
                         <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
                         <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
                         <rect key="contentRect" x="30" y="240" width="945" height="300"/>
-                        <rect key="screenRect" x="0.0" y="0.0" width="1680" height="1027"/>
+                        <rect key="screenRect" x="0.0" y="0.0" width="2560" height="1440"/>
                         <toolbar key="toolbar" implicitIdentifier="A44065CE-0360-4C00-A5E5-D3890B0E4516" explicitIdentifier="toolbar" displayMode="iconAndLabel" sizeMode="regular" id="C1P-Np-CDr">
                             <allowedToolbarItems>
                                 <toolbarItem implicitItemIdentifier="E9ACE623-0962-48CD-82CD-F785533B6DE6" explicitItemIdentifier="addPan" label="Add Pan" paletteLabel="Add Pan" toolTip="Add a Panadapter" id="SRQ-Qz-auw">
@@ -204,7 +204,7 @@
                                     <button key="view" verticalHuggingPriority="750" id="nXv-bQ-NeI">
                                         <rect key="frame" x="0.0" y="14" width="62" height="28"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                        <buttonCell key="cell" type="roundTextured" title="Pan" bezelStyle="texturedRounded" alignment="center" lineBreakMode="truncatingTail" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="HD6-PD-Pou">
+                                        <buttonCell key="cell" type="roundTextured" title="Pan" bezelStyle="texturedRounded" alignment="center" lineBreakMode="truncatingTail" enabled="NO" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="HD6-PD-Pou">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="system"/>
                                             <string key="keyEquivalent">p</string>
@@ -221,14 +221,14 @@
                                     <button key="view" verticalHuggingPriority="750" tag="1" id="588-fP-5FQ">
                                         <rect key="frame" x="1" y="14" width="62" height="25"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                        <buttonCell key="cell" type="roundTextured" title="Tnf" bezelStyle="texturedRounded" alignment="center" lineBreakMode="truncatingTail" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Jeg-wc-uw3">
+                                        <buttonCell key="cell" type="roundTextured" title="Tnf" bezelStyle="texturedRounded" alignment="center" lineBreakMode="truncatingTail" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Jeg-wc-uw3">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
                                             <font key="font" metaFont="system"/>
                                             <string key="keyEquivalent">t</string>
                                             <modifierMask key="keyEquivalentModifierMask" command="YES"/>
                                         </buttonCell>
                                         <connections>
-                                            <action selector="tnfButton:" target="Oky-zY-oP4" id="Ahw-9e-kv0"/>
+                                            <action selector="tnfButton:" target="B8D-0N-5wS" id="Oqn-8M-vWr"/>
                                         </connections>
                                     </button>
                                 </toolbarItem>
@@ -238,14 +238,14 @@
                                     <button key="view" verticalHuggingPriority="750" tag="2" id="svQ-GW-lJt">
                                         <rect key="frame" x="13" y="14" width="62" height="25"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                        <buttonCell key="cell" type="roundTextured" title="Mark" bezelStyle="texturedRounded" alignment="center" lineBreakMode="truncatingTail" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="NQM-xK-XcC">
+                                        <buttonCell key="cell" type="roundTextured" title="Mark" bezelStyle="texturedRounded" alignment="center" lineBreakMode="truncatingTail" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="NQM-xK-XcC">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
                                             <font key="font" metaFont="system"/>
                                             <string key="keyEquivalent">m</string>
                                             <modifierMask key="keyEquivalentModifierMask" command="YES"/>
                                         </buttonCell>
                                         <connections>
-                                            <action selector="markerButton:" target="Oky-zY-oP4" id="eqf-iQ-Oej"/>
+                                            <action selector="markersButton:" target="B8D-0N-5wS" id="6zT-ch-zpP"/>
                                         </connections>
                                     </button>
                                 </toolbarItem>
@@ -255,9 +255,9 @@
                                     <slider key="view" verticalHuggingPriority="750" tag="4" id="hjS-Bh-5By">
                                         <rect key="frame" x="0.0" y="14" width="96" height="21"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                        <sliderCell key="cell" continuous="YES" state="on" alignment="left" maxValue="100" doubleValue="50" tickMarkPosition="above" sliderType="linear" id="xYg-2C-oMt"/>
+                                        <sliderCell key="cell" continuous="YES" enabled="NO" state="on" alignment="left" maxValue="100" doubleValue="50" tickMarkPosition="above" sliderType="linear" id="xYg-2C-oMt"/>
                                         <connections>
-                                            <action selector="lineoutGain:" target="Oky-zY-oP4" id="GxM-OJ-kc3"/>
+                                            <action selector="lineoutGainSlider:" target="B8D-0N-5wS" id="ZJr-Ez-6hu"/>
                                         </connections>
                                     </slider>
                                 </toolbarItem>
@@ -267,9 +267,9 @@
                                     <slider key="view" verticalHuggingPriority="750" tag="6" id="l0h-rt-Rcg">
                                         <rect key="frame" x="0.0" y="14" width="96" height="21"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                        <sliderCell key="cell" continuous="YES" state="on" alignment="left" maxValue="100" doubleValue="50" tickMarkPosition="above" sliderType="linear" id="ZiO-iG-BDi"/>
+                                        <sliderCell key="cell" continuous="YES" enabled="NO" state="on" alignment="left" maxValue="100" doubleValue="50" tickMarkPosition="above" sliderType="linear" id="ZiO-iG-BDi"/>
                                         <connections>
-                                            <action selector="headphoneGain:" target="Oky-zY-oP4" id="ZtJ-YS-Qoc"/>
+                                            <action selector="headphoneGainSlider:" target="B8D-0N-5wS" id="RtZ-xu-H7a"/>
                                         </connections>
                                     </slider>
                                 </toolbarItem>
@@ -279,14 +279,14 @@
                                     <button key="view" verticalHuggingPriority="750" tag="7" id="q5v-Kd-Um5">
                                         <rect key="frame" x="4" y="14" width="62" height="25"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                        <buttonCell key="cell" type="roundTextured" title="Side" bezelStyle="texturedRounded" alignment="center" lineBreakMode="truncatingTail" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="RAZ-57-8JZ">
+                                        <buttonCell key="cell" type="roundTextured" title="Side" bezelStyle="texturedRounded" alignment="center" lineBreakMode="truncatingTail" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="RAZ-57-8JZ">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
                                             <font key="font" metaFont="system"/>
                                             <string key="keyEquivalent">s</string>
                                             <modifierMask key="keyEquivalentModifierMask" command="YES"/>
                                         </buttonCell>
                                         <connections>
-                                            <action selector="sideButton:" target="Oky-zY-oP4" id="vC1-Gu-M6J"/>
+                                            <action selector="sideButton:" target="B8D-0N-5wS" id="Fk8-yg-JbS"/>
                                         </connections>
                                     </button>
                                     <connections>
@@ -302,14 +302,14 @@
                                     <button key="view" toolTip="Rx Audio to Mac" verticalHuggingPriority="750" tag="8" id="Jch-IC-yYb">
                                         <rect key="frame" x="0.0" y="14" width="80" height="28"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                        <buttonCell key="cell" type="roundTextured" title="Mac Audio" bezelStyle="texturedRounded" alignment="center" lineBreakMode="truncatingTail" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="MyA-4v-4Q1">
+                                        <buttonCell key="cell" type="roundTextured" title="Mac Audio" bezelStyle="texturedRounded" alignment="center" lineBreakMode="truncatingTail" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="MyA-4v-4Q1">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
                                             <font key="font" metaFont="system"/>
                                             <string key="keyEquivalent">a</string>
                                             <modifierMask key="keyEquivalentModifierMask" command="YES"/>
                                         </buttonCell>
                                         <connections>
-                                            <action selector="opusRxAudio:" target="Oky-zY-oP4" id="99e-s5-h1Q"/>
+                                            <action selector="macAudioButton:" target="B8D-0N-5wS" id="BVw-Gm-bxj"/>
                                         </connections>
                                     </button>
                                 </toolbarItem>
@@ -358,7 +358,7 @@
                                             <font key="font" metaFont="system"/>
                                         </buttonCell>
                                         <connections>
-                                            <action selector="muteLineout:" target="Oky-zY-oP4" id="5B2-Dr-ECV"/>
+                                            <action selector="muteLineoutButton:" target="B8D-0N-5wS" id="pW1-ni-yPy"/>
                                         </connections>
                                     </button>
                                 </toolbarItem>
@@ -374,7 +374,7 @@
                                             <font key="font" metaFont="system"/>
                                         </buttonCell>
                                         <connections>
-                                            <action selector="muteHeadphone:" target="Oky-zY-oP4" id="Y1R-hN-HAa"/>
+                                            <action selector="muteHeadphoneButton:" target="B8D-0N-5wS" id="y4S-t4-sUX"/>
                                         </connections>
                                     </button>
                                 </toolbarItem>
@@ -384,14 +384,14 @@
                                     <button key="view" verticalHuggingPriority="750" tag="2" id="lSI-pj-GOM">
                                         <rect key="frame" x="3" y="14" width="62" height="25"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                        <buttonCell key="cell" type="roundTextured" title="FDX" bezelStyle="texturedRounded" alignment="center" lineBreakMode="truncatingTail" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="XzU-Mb-mUg">
+                                        <buttonCell key="cell" type="roundTextured" title="FDX" bezelStyle="texturedRounded" alignment="center" lineBreakMode="truncatingTail" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="XzU-Mb-mUg">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
                                             <font key="font" metaFont="system"/>
                                             <string key="keyEquivalent">m</string>
                                             <modifierMask key="keyEquivalentModifierMask" command="YES"/>
                                         </buttonCell>
                                         <connections>
-                                            <action selector="fullDuplexButton:" target="Oky-zY-oP4" id="SbG-Pa-s21"/>
+                                            <action selector="fdxButton:" target="B8D-0N-5wS" id="d6L-z1-zbZ"/>
                                         </connections>
                                     </button>
                                 </toolbarItem>
@@ -401,14 +401,14 @@
                                     <button key="view" verticalHuggingPriority="750" tag="2" id="Yu1-bq-afA">
                                         <rect key="frame" x="5" y="14" width="62" height="25"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                        <buttonCell key="cell" type="roundTextured" title="CWX" bezelStyle="texturedRounded" alignment="center" lineBreakMode="truncatingTail" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="d4z-xR-ZpC">
+                                        <buttonCell key="cell" type="roundTextured" title="CWX" bezelStyle="texturedRounded" alignment="center" lineBreakMode="truncatingTail" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="d4z-xR-ZpC">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
                                             <font key="font" metaFont="system"/>
                                             <string key="keyEquivalent">m</string>
                                             <modifierMask key="keyEquivalentModifierMask" command="YES"/>
                                         </buttonCell>
                                         <connections>
-                                            <action selector="cwxButton:" target="Oky-zY-oP4" id="Tmq-IY-MFC"/>
+                                            <action selector="cwxButton:" target="B8D-0N-5wS" id="MF0-6K-VOg"/>
                                         </connections>
                                     </button>
                                 </toolbarItem>
@@ -433,6 +433,16 @@
                         </connections>
                     </window>
                     <connections>
+                        <outlet property="_cwxButton" destination="Yu1-bq-afA" id="OvS-XD-rEH"/>
+                        <outlet property="_fdxButton" destination="lSI-pj-GOM" id="yGb-lf-yDc"/>
+                        <outlet property="_headphoneGainSlider" destination="l0h-rt-Rcg" id="l9U-xb-P6o"/>
+                        <outlet property="_lineoutGainSlider" destination="hjS-Bh-5By" id="3g3-jh-30y"/>
+                        <outlet property="_macAudioButton" destination="Jch-IC-yYb" id="EJa-IL-cCR"/>
+                        <outlet property="_markersButton" destination="svQ-GW-lJt" id="AYq-hu-81O"/>
+                        <outlet property="_muteHeadphoneButton" destination="UGS-Cq-w2K" id="Pyu-cr-Lc9"/>
+                        <outlet property="_muteLineoutButton" destination="Bvj-ys-C6i" id="T1q-kH-Dkn"/>
+                        <outlet property="_sideButton" destination="q5v-Kd-Um5" id="lae-mD-vxj"/>
+                        <outlet property="_tnfButton" destination="588-fP-5FQ" id="wmT-dR-r9C"/>
                         <segue destination="2ro-LE-ZBU" kind="relationship" relationship="window.shadowedContentViewController" id="94i-bM-0aG"/>
                     </connections>
                 </windowController>

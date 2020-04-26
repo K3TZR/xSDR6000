@@ -77,7 +77,7 @@ final class PanafallButtonViewController    : NSViewController {
       
       // pass needed parameters
       panadapterViewController!.configure(panadapter: _panadapter)
-      waterfallViewController!.configure(panadapter: _panadapter)
+      waterfallViewController!.configure(panadapter: _panadapter!, waterfall: _waterfall!)
       
     case kDisplayPopoverIdentifier:
       
@@ -106,7 +106,7 @@ final class PanafallButtonViewController    : NSViewController {
   ///
   /// - Parameter panadapter:               a Panadapter reference
   ///
-  func configure(radio: Radio, panadapter: Panadapter?, waterfall: Waterfall?) {
+  func configure(radio: Radio, panadapter: Panadapter, waterfall: Waterfall) {
     
     _radio = radio
     _panadapter = panadapter
