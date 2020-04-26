@@ -116,11 +116,11 @@ final class MainWindowController                  : NSWindowController {
       // are we connected?
       if let radio = Api.sharedInstance.radio {
         // YES, format and set the window title
-        title = "\(radio.discoveryPacket.nickname) v\(radio.version.longString)         \(Logger.kAppName) v\(Logger.sharedInstance.version.string)       xLib6000 " + versionOf("xLib6000")
+        title = "\(radio.discoveryPacket.nickname) v\(radio.version.longString)         \(Logger.kAppName) v\(Logger.sharedInstance.version.string)"
 
       } else {
         // NO, show App & Api only
-        title = "\(Logger.kAppName) v\(Logger.sharedInstance.version.string)     \(Api.kName) " + versionOf("xLib6000")
+        title = "\(Logger.kAppName) v\(Logger.sharedInstance.version.string)"
       }
       self.window?.title = title
     }

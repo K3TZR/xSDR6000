@@ -588,8 +588,8 @@ func defaults(from file: String) {
 /// Return the version of the named Package
 /// - Parameter packageName:    the name of a package
 ///
-func versionOf(_ packageName: String) -> String {
-
+//func versionOf(_ packageName: String) -> String {
+//
   /* Assumes a file with a structure like this
    {
      "object": {
@@ -645,48 +645,48 @@ func versionOf(_ packageName: String) -> String {
    }
 
    */
-  
-  struct State: Codable {
-    var branch    : String?
-    var revision  : String
-    var version   : String?
-  }
-  
-  struct Pin: Codable {
-    var package       : String
-    var repositoryURL : String
-    var state         : State
-  }
-  
-  struct Pins: Codable {
-    var pins  : [Pin]
-  }
-  
-  struct Object: Codable {
-    var object    : Pins
-    var version   : Int
-  }
-  
-  let decoder = JSONDecoder()
-
-  // get the Package.resolved file
-  if let url = Bundle.main.url(forResource: "Package", withExtension: "resolved") {
-    // decode it
-    if let json = try? Data(contentsOf: url), let container = try? decoder.decode(Object.self, from: json) {
-      // find the desired entry
-      for pin in container.object.pins where pin.package == packageName {
-        // return either the version or the branch
-        return pin.state.version != nil ? pin.state.version! : pin.state.branch ?? "empty branch"
-      }
-      // packageName not present in Package.resolved
-      return "Unknown package: " + packageName
-    }
-    // decode failure
-    return "Package.resolved file decode failed"
-  }
-  // file not found
-  return "Package.resolved file NOT found"
-}
+//
+//  struct State: Codable {
+//    var branch    : String?
+//    var revision  : String
+//    var version   : String?
+//  }
+//
+//  struct Pin: Codable {
+//    var package       : String
+//    var repositoryURL : String
+//    var state         : State
+//  }
+//
+//  struct Pins: Codable {
+//    var pins  : [Pin]
+//  }
+//
+//  struct Object: Codable {
+//    var object    : Pins
+//    var version   : Int
+//  }
+//
+//  let decoder = JSONDecoder()
+//
+//  // get the Package.resolved file
+//  if let url = Bundle.main.url(forResource: "Package", withExtension: "resolved") {
+//    // decode it
+//    if let json = try? Data(contentsOf: url), let container = try? decoder.decode(Object.self, from: json) {
+//      // find the desired entry
+//      for pin in container.object.pins where pin.package == packageName {
+//        // return either the version or the branch
+//        return pin.state.version != nil ? pin.state.version! : pin.state.branch ?? "empty branch"
+//      }
+//      // packageName not present in Package.resolved
+//      return "Unknown package: " + packageName
+//    }
+//    // decode failure
+//    return "Package.resolved file decode failed"
+//  }
+//  // file not found
+//  return "Package.resolved file NOT found"
+//}
 
 // ----------------------------------------------------------------------------
 // MARK: - DEBUG FUNCTIONS

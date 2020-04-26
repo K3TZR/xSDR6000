@@ -108,8 +108,6 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
 
     // get my version
     _log.version = Version()
-    
-    _log.logMessage("\(Api.kName) Version: " + versionOf("xLib6000"), .info, #function, #file, #line)
 
     // get/create a Client Id
     _clientId = clientId()

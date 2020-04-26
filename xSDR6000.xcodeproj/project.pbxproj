@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		9113A699242663C100D3C63C /* Package.resolved in Resources */ = {isa = PBXBuildFile; fileRef = 91B1D24F241FCFB700A7B5E4 /* Package.resolved */; };
 		91534CB2244C9A3000F9895F /* RadioPickerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91534CB1244C9A3000F9895F /* RadioPickerViewController.swift */; };
 		9164EE5523DDDA6500086338 /* xLib6000 in Frameworks */ = {isa = PBXBuildFile; productRef = 9164EE5423DDDA6500086338 /* xLib6000 */; };
 		917AAA7A23D53FD90082FAEB /* ObjcExceptionBridging in Frameworks */ = {isa = PBXBuildFile; productRef = 917AAA7923D53FD90082FAEB /* ObjcExceptionBridging */; };
@@ -128,7 +127,6 @@
 		919614F623D28F8F0069AE94 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		919F57DB24109324001956B0 /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
 		91B1D24B241FC4DD00A7B5E4 /* project.xcworkspace */ = {isa = PBXFileReference; lastKnownFileType = wrapper.workspace; name = project.xcworkspace; path = xSDR6000.xcodeproj/project.xcworkspace; sourceTree = "<group>"; };
-		91B1D24F241FCFB700A7B5E4 /* Package.resolved */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Package.resolved; sourceTree = "<group>"; };
 		91E477F123B66661004DA6A7 /* xSDR6000.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = xSDR6000.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		91E4780523B666ED004DA6A7 /* OpusOSX.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = OpusOSX.framework; sourceTree = "<group>"; };
 		91E4780923B666EE004DA6A7 /* AudioHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AudioHelper.swift; sourceTree = "<group>"; };
@@ -248,7 +246,6 @@
 		91E477E823B66661004DA6A7 = {
 			isa = PBXGroup;
 			children = (
-				91B1D24F241FCFB700A7B5E4 /* Package.resolved */,
 				91B1D24B241FC4DD00A7B5E4 /* project.xcworkspace */,
 				919614F623D28F8F0069AE94 /* README.md */,
 				91E4780523B666ED004DA6A7 /* OpusOSX.framework */,
@@ -557,7 +554,6 @@
 			buildPhases = (
 				91E477ED23B66661004DA6A7 /* Sources */,
 				91E477EE23B66661004DA6A7 /* Frameworks */,
-				91B1D24E241FC72000A7B5E4 /* Copy Package.resolved */,
 				91E477EF23B66661004DA6A7 /* Resources */,
 				91E4791C23B691B0004DA6A7 /* Embed Frameworks */,
 				910DBC6723F10FE700052637 /* Increment Build Number */,
@@ -620,7 +616,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9113A699242663C100D3C63C /* Package.resolved in Resources */,
 				91E4793223B69A2A004DA6A7 /* Main.storyboard in Resources */,
 				91E4793123B69A2A004DA6A7 /* RadioPicker.storyboard in Resources */,
 				91E4793323B69A2A004DA6A7 /* Flag.storyboard in Resources */,
@@ -666,24 +661,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "#!/bin/sh\n\n# To make executable, use: chmod u+x Build-Versioning-Scripts/Increment_Build_Number.sh\n# to locate your target's info.plist use\n# ${PROJECT_DIR}/${INFOPLIST_FILE}\n\necho \"----\"\nbuildNumber=${CURRENT_PROJECT_VERSION}\necho \"Current Build #: $buildNumber\"\n\nbuildNumber=$(($buildNumber + 1))\necho \"Build # incremented to: $buildNumber\"\n\n/usr/libexec/PlistBuddy -c \"Set :CFBundleVersion $buildNumber\" \"${PROJECT_DIR}/${INFOPLIST_FILE}\"\necho \"----\"\nexit 0\n";
-		};
-		91B1D24E241FC72000A7B5E4 /* Copy Package.resolved */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = "Copy Package.resolved";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "echo \\\"Source: ${PROJECT_DIR}/xSDR6000.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved\"\necho \\\"Destination: ${PROJECT_DIR}/Package.resolved\\\"\ncp \"${PROJECT_DIR}/xSDR6000.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved\\\" \\\"${PROJECT_DIR}/Package.resolved\\\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -961,7 +938,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
-				MARKETING_VERSION = 1.1.4;
+				MARKETING_VERSION = 1.1.5;
 				PRODUCT_BUNDLE_IDENTIFIER = net.k3tzr.xSDR6000;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "xSDR6000/xSDR6000-Bridging-Header.h";
@@ -991,7 +968,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
-				MARKETING_VERSION = 1.1.4;
+				MARKETING_VERSION = 1.1.5;
 				PRODUCT_BUNDLE_IDENTIFIER = net.k3tzr.xSDR6000;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "xSDR6000/xSDR6000-Bridging-Header.h";
