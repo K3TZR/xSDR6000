@@ -557,10 +557,10 @@
 			buildPhases = (
 				91E477ED23B66661004DA6A7 /* Sources */,
 				91E477EE23B66661004DA6A7 /* Frameworks */,
-				91B1D24E241FC72000A7B5E4 /* ShellScript */,
+				91B1D24E241FC72000A7B5E4 /* Copy Package.resolved */,
 				91E477EF23B66661004DA6A7 /* Resources */,
 				91E4791C23B691B0004DA6A7 /* Embed Frameworks */,
-				910DBC6723F10FE700052637 /* ShellScript */,
+				910DBC6723F10FE700052637 /* Increment Build Number */,
 			);
 			buildRules = (
 			);
@@ -649,7 +649,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		910DBC6723F10FE700052637 /* ShellScript */ = {
+		910DBC6723F10FE700052637 /* Increment Build Number */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -658,15 +658,16 @@
 			);
 			inputPaths = (
 			);
+			name = "Increment Build Number";
 			outputFileListPaths = (
 			);
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "#!/bin/sh\n\n# To make executable, use: chmod u+x Build-Versioning-Scripts/Increment_Build_Number.sh\n# to locate your target's info.plist use\n# ${PRODUCT_SETTINGS_PATH}\n\necho \"----\"\necho \"Info.plist for target: ${PRODUCT_SETTINGS_PATH}\"\n\nbuildNum=$(/usr/libexec/Plistbuddy -c \"Print CFBundleVersion\" \"${PRODUCT_SETTINGS_PATH}\")\necho \"Current build #: $buildNum\"\n\nif [ -z \"$buildNum\" ]; then\necho \"No build number found in $PRODUCT_SETTINGS_PATH\"\nexit 2\nfi\n\nbuildNum=$(expr $buildNum + 1)\necho \"Build # incremented to: $buildNum\"\n/usr/libexec/PlistBuddy -c \"Set :CFBundleVersion $buildNum\" \"$PRODUCT_SETTINGS_PATH\"\necho \"----\"\nexit 0\n";
+			shellScript = "#!/bin/sh\n\n# To make executable, use: chmod u+x Build-Versioning-Scripts/Increment_Build_Number.sh\n# to locate your target's info.plist use\n# ${PROJECT_DIR}/${INFOPLIST_FILE}\n\necho \"----\"\nbuildNumber=${CURRENT_PROJECT_VERSION}\necho \"Current Build #: $buildNumber\"\n\nbuildNumber=$(($buildNumber + 1))\necho \"Build # incremented to: $buildNumber\"\n\n/usr/libexec/PlistBuddy -c \"Set :CFBundleVersion $buildNumber\" \"${PROJECT_DIR}/${INFOPLIST_FILE}\"\necho \"----\"\nexit 0\n";
 		};
-		91B1D24E241FC72000A7B5E4 /* ShellScript */ = {
+		91B1D24E241FC72000A7B5E4 /* Copy Package.resolved */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -675,6 +676,7 @@
 			);
 			inputPaths = (
 			);
+			name = "Copy Package.resolved";
 			outputFileListPaths = (
 			);
 			outputPaths = (
@@ -959,7 +961,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
-				MARKETING_VERSION = 1.1.3;
+				MARKETING_VERSION = 1.1.4;
 				PRODUCT_BUNDLE_IDENTIFIER = net.k3tzr.xSDR6000;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "xSDR6000/xSDR6000-Bridging-Header.h";
@@ -989,7 +991,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
-				MARKETING_VERSION = 1.1.3;
+				MARKETING_VERSION = 1.1.4;
 				PRODUCT_BUNDLE_IDENTIFIER = net.k3tzr.xSDR6000;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "xSDR6000/xSDR6000-Bridging-Header.h";
@@ -1026,7 +1028,7 @@
 			repositoryURL = "https://github.com/K3TZR/xLib6000.git";
 			requirement = {
 				kind = exactVersion;
-				version = 1.2.11;
+				version = 1.2.12;
 			};
 		};
 		917AAA7823D53FD90082FAEB /* XCRemoteSwiftPackageReference "XCGLogger" */ = {
