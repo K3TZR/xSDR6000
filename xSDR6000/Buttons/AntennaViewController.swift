@@ -33,6 +33,16 @@ final class AntennaViewController           : NSViewController, NSPopoverDelegat
     Swift.print("\(#function) - \(URL(fileURLWithPath: #file).lastPathComponent.dropLast(6))")
     #endif
     
+    switch Api.sharedInstance.radio!.discoveryPacket.model.lowercased() {
+      
+      case "flex-6300": _rfGainSlider.minValue = 0    ; _rfGainSlider.maxValue = 20 ; _rfGainSlider.numberOfTickMarks = 3
+      case "flex-6400": _rfGainSlider.minValue = -8   ; _rfGainSlider.maxValue = 32 ; _rfGainSlider.numberOfTickMarks = 9
+      case "flex-6500": _rfGainSlider.minValue = -10  ; _rfGainSlider.maxValue = 20 ; _rfGainSlider.numberOfTickMarks = 4
+      case "flex-6600": _rfGainSlider.minValue = -8   ; _rfGainSlider.maxValue = 32 ; _rfGainSlider.numberOfTickMarks = 9
+      case "flex-6700": _rfGainSlider.minValue = -10  ; _rfGainSlider.maxValue = 40 ; _rfGainSlider.numberOfTickMarks = 6
+      default:          _rfGainSlider.minValue = -10  ; _rfGainSlider.maxValue = 40 ; _rfGainSlider.numberOfTickMarks = 6
+    }
+    
     _rxAntPopUp.addItems(withTitles: _panadapter.antList)
     
     // start observing

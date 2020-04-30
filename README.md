@@ -65,6 +65,13 @@ OpusOSX, framework built from sources at:
 * https://opus-codec.org/downloads/
 
 
+## 1.1.7 Release Notes
+
+* Fixed crash when selecting FM mode
+* Corrected preamp slider (now different for different Flex models)
+* Corrected TX profile entry on TX Preferences dialog
+* various other corrections and stability improvements
+
 ## 1.1.3 Release Notes
 
 * Removed from Sandbox

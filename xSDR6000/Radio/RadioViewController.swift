@@ -24,34 +24,17 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
   private let _log                          = Logger.sharedInstance
   private var _api                          = Api.sharedInstance
   private var _mainWindowController         : MainWindowController?
-  private var _preferencesStoryboard        : NSStoryboard?
-  private var _profilesStoryboard           : NSStoryboard?
   private var _radioPickerStoryboard        : NSStoryboard?
-  private var _sideStoryboard               : NSStoryboard?
-//  private var _voltageMeterAvailable        = false
-//  private var _temperatureMeterAvailable    = false
-  private var _sideViewController           : SideViewController?
   private var _radioPickerViewController    : NSViewController?
-  private var _profilesWindowController     : NSWindowController?
-  private var _preferencesWindowController  : NSWindowController?
-  private var _tcpPingFirstResponseReceived = false
   private var _clientId                     : String?
 
   private var _activity                     : NSObjectProtocol?
 
   private let kVoltageTemperature           = "VoltageTemp"                 // Identifier of toolbar VoltageTemperature toolbarItem
 
-  private let kPreferencesStoryboardName    = "Preferences"
-  private let kPreferencesIdentifier        = "Preferences"
-
-  private let kProfilesStoryboardName       = "Profiles"
-  private let kProfilesIdentifier           = "Profiles"
 
   private let kRadioPickerStoryboardName    = "RadioPicker"
   private let kRadioPickerIdentifier        = "RadioPicker"
-
-  private let kSideStoryboardName           = "Side"
-  private let kSideIdentifier               = "Side"
 
   private let kPcwIdentifier                = "PCW"
   private let kPhoneIdentifier              = "Phone"
@@ -63,7 +46,6 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
 
   private let kLocalTab                     = 0
   private let kRemoteTab                    = 1
-  private let kSideViewDelay                = 2   // seconds
 
   private let kClose                        = "Close "
   private let kDisconnect                   = "Disconnect "
@@ -76,11 +58,6 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
 
   private let kAvailable                    = "available"
   private let kInUse                        = "in_use"
-
-  private enum WindowState {
-    case open
-    case close
-  }
 
   // ----------------------------------------------------------------------------
   // MARK: - Overriden methods
@@ -102,6 +79,7 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
     
     // start Discovery
     let _ = Discovery.sharedInstance
+    sleep(1)
 
     // FIXME: Is this necessary???
     _activity = ProcessInfo().beginActivity(options: [.latencyCritical, .idleSystemSleepDisabled], reason: "Good Reason")
@@ -116,10 +94,7 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
     scheduleSupportingApps()
     
     // get the Storyboards
-    _preferencesStoryboard = NSStoryboard(name: kPreferencesStoryboardName, bundle: nil)
-    _profilesStoryboard = NSStoryboard(name: kProfilesStoryboardName, bundle: nil)
     _radioPickerStoryboard = NSStoryboard(name: kRadioPickerStoryboardName, bundle: nil)
-    _sideStoryboard = NSStoryboard(name: kSideStoryboardName, bundle: nil)
 
     // add notification subscriptions
     addNotifications()
@@ -139,15 +114,15 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
       openRadioPicker( self)
     }
   }
-
-  override func validateUserInterfaceItem(_ item: NSValidatedUserInterfaceItem) -> Bool {
-    
-    // Radio Selection || Quit are enabled
-    if item.tag == 2 || item.tag == 7 { return true } // Radio Selection || Quit
-    
-    // all others, after connection established
-    return _tcpPingFirstResponseReceived
-  }
+//
+//  override func validateUserInterfaceItem(_ item: NSValidatedUserInterfaceItem) -> Bool {
+//    
+//    // Radio Selection || Quit are enabled
+//    if item.tag == 2 || item.tag == 7 { return true } // Radio Selection || Quit
+//    
+//    // all others, after connection established
+//    return _tcpPingFirstResponseReceived
+//  }
 
   #if XDEBUG
   deinit {
@@ -159,8 +134,6 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
   // MARK: - Action methods
   
   @IBAction func quitRadio(_ sender: Any) {
-    
-    _tcpPingFirstResponseReceived = false
     
     // perform an orderly disconnect of all the components
     _api.disconnect(reason: .normal)
@@ -175,15 +148,6 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
 
   // ----- TOOLBAR -----
   
-  /// Respond to the Pan button
-  ///
-  /// - Parameter sender:         the Button
-  ///
-  @IBAction func panButton(_ sender: AnyObject) {
-    
-    // dimensions are dummy values; when created, will be resized to fit its view
-    _api.radio?.requestPanadapter(CGSize(width: 50, height: 50))
-  }
 
   // ----- MENU -----
   
@@ -209,20 +173,6 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
   ///
   /// - Parameter sender:         the MenuItem
   ///
-  @IBAction func openPreferences(_ sender: NSMenuItem) {
-    
-    // open the Preferences window (if not already open)
-    preferencesWindow(.open)
-  }
-  /// Respond to the Profiles menu (Command-P)
-  ///
-  /// - Parameter sender:         the MenuItem
-  ///
-  @IBAction func openProfiles(_ sender: NSMenuItem) {
-  
-    // open the Profiles window (if not already open)
-    profilesWindow(.open)
-  }
   /// Respond to Radio->Next Slice (Option-Tab)
   ///
   /// - Parameter sender:         the Menu item
@@ -252,6 +202,39 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
   // ----------------------------------------------------------------------------
   // MARK: - Private methods
   
+  /// Connect the selected Radio
+  ///
+  /// - Parameters:
+  ///   - radio:                the DiscoveryStruct
+  ///   - pendingDisconnect:    type, if any
+  ///
+  private func connectRadio(_ discoveredRadio: DiscoveryPacket?, pendingDisconnect: Api.PendingDisconnect = .none) {
+    
+    if let _ = _radioPickerViewController { self._radioPickerViewController = nil }
+    
+    // exit if no Radio selected
+    guard let radio = discoveredRadio else { return }
+    
+    // connect to the radio
+    if _api.connect(radio,
+                    clientStation: Logger.kAppName,
+                    programName: Logger.kAppName,
+                    clientId: _clientId,
+                    isGui: true,
+                    isWan: radio.isWan,
+                    wanHandle: radio.wanHandle,
+                    pendingDisconnect: pendingDisconnect) {
+            
+      // WAN connect
+      if radio.isWan {
+        _api.isWan = true
+        _api.connectionHandleWan = radio.wanHandle
+      } else {
+        _api.isWan = false
+        _api.connectionHandleWan = ""
+      }
+    }
+  }
   /// Produce a Client Id (UUID)
   ///
   /// - Returns:                a UUID
@@ -263,126 +246,6 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
       Defaults[.clientId] = UUID().uuidString
     }
     return Defaults[.clientId]!
-  }
-  /// Open or Close the Preferences window
-  ///
-  /// - Parameter state:              the desired state
-  ///
-  private func preferencesWindow(_ state: WindowState) {
-    
-    if state == .open {
-      // OPENING, is there an existing instance?
-      if _preferencesWindowController == nil {
-        // NO, get one
-        _preferencesWindowController = _preferencesStoryboard!.instantiateController(withIdentifier: kPreferencesIdentifier) as? NSWindowController
-        _preferencesWindowController?.window?.delegate = self
-        
-        DispatchQueue.main.async { [weak self] in
-          // show the Preferences window
-          self?._preferencesWindowController?.showWindow(self!)
-        }
-      }
-      
-    } else {
-      // CLOSING, is there an instance?
-      if _preferencesWindowController != nil {
-        // YES, close it
-        DispatchQueue.main.async { [weak self] in
-          self?._preferencesWindowController?.window?.close()
-          self?._preferencesWindowController = nil
-        }
-      }
-    }
-  }
-  /// Open or Close the Profiles window
-  ///
-  /// - Parameter state:              the desired state
-  ///
-  private func profilesWindow(_ state: WindowState) {
-  
-    if state == .open {
-      // OPENING, is there an existing instance?
-      if _profilesWindowController == nil {
-        // NO, get an instance of the Profiles
-        _profilesWindowController = _profilesStoryboard!.instantiateController(withIdentifier: kProfilesIdentifier) as? NSWindowController
-        _profilesWindowController?.window?.delegate = self
-
-        DispatchQueue.main.async { [weak self] in
-          // show the Profiles window
-          self?._profilesWindowController?.showWindow(self!)
-        }
-      }
-    
-    } else {
-      // CLOSING, is there an instance?
-      if _profilesWindowController != nil {
-        // YES, close it
-        DispatchQueue.main.async { [weak self] in
-          self?._profilesWindowController?.close()
-          self?._profilesWindowController = nil
-        }
-      }
-    }
-  }
-  //
-  /// The Preferences or Profiles window is being closed
-  ///
-  ///   this is called as a result of clicking the window's close button
-  ///
-  /// - Parameter sender:             the window
-  /// - Returns:                      return true to allow
-  ///
-  func windowShouldClose(_ sender: NSWindow) -> Bool {
-    
-    // which window?
-    if _preferencesWindowController?.window == sender {
-      // Preferences
-      DispatchQueue.main.async { [weak self] in
-        self?._preferencesWindowController = nil
-      }
-    } else {
-      // Profiles
-      DispatchQueue.main.async { [weak self] in
-        self?._profilesWindowController = nil
-      }
-    }
-    return true
-  }
-  /// Open or Close the Side view
-  ///
-  /// - Parameter state:              the desired state
-  ///
-  private func sideView(_ state: WindowState) {
-        
-    if state == .open {
-      // OPENING, is there an existing instance?
-      if _sideViewController == nil {
-        // NO, get an instance of the Side view
-        _sideViewController = _sideStoryboard!.instantiateController(withIdentifier: kSideIdentifier) as? SideViewController
-        
-        _log.logMessage("Side view opened", .info,  #function, #file, #line)
-        DispatchQueue.main.async { [weak self] in
-          // add it to the split view
-          self?.addChild(self!._sideViewController!)
-        }
-      }
-    } else {
-      
-      DispatchQueue.main.async { [weak self] in
-        // CLOSING, is there an instance?
-        if self?._sideViewController != nil {
-          
-          // YES, collapse it first
-          self?.splitViewItems[1].isCollapsed = true
-          
-          // remove it from the split view
-          self?.removeChild(at: 1)
-          self?._sideViewController = nil
-
-          self?._log.logMessage("Side view closed", .info,  #function, #file, #line)
-        }
-      }
-    }
   }
   private func scheduleSupportingApps() {
     
@@ -415,20 +278,28 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
   /// - Returns:        a DiscoveryStruct struct or nil
   ///
   private func defaultRadioFound() -> DiscoveryPacket? {
+    // see if there is a valid default Radio
+    guard Defaults[.defaultRadioSerialNumber] != "" else { return nil }
+    
+    let components = Defaults[.defaultRadioSerialNumber].split(separator: ".")
+    guard components.count == 2 else { return nil }
+    
+    let isWan = (components[0] == "wan")
     
     // allow time to hear the UDP broadcasts
     usleep(2_000_000)
     
+    
     // has the default Radio been found?
-    if let packet = Discovery.sharedInstance.discoveredRadios.first(where: { $0.serialNumber == Defaults[.defaultRadioSerialNumber]} ) {
+    if let discoveryPacket = Discovery.sharedInstance.discoveredRadios.first(where: { $0.serialNumber == components[1] && $0.isWan == isWan} ) {
       
-      _log.logMessage("Default radio found, \(packet.nickname) @ \(packet.publicIp), serial \(packet.serialNumber)", .info,  #function, #file, #line)
+      _log.logMessage("Default radio found, \(discoveryPacket.nickname) @ \(discoveryPacket.publicIp), serial \(discoveryPacket.serialNumber), isWan = \(isWan)", .info, #function, #file, #line)
       
-      return packet
+      return discoveryPacket
     }
     return nil
   }
-
+  
   // ----------------------------------------------------------------------------
   // MARK: - Notification Methods
   
@@ -438,46 +309,11 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
     
 //    NC.makeObserver(self, with: #selector(guiClientHasBeenAdded(_:)), of: .guiClientHasBeenAdded)
 
-//    NC.makeObserver(self, with: #selector(meterHasBeenAdded(_:)), of: .meterHasBeenAdded)
-    
     NC.makeObserver(self, with: #selector(tcpDidDisconnect(_:)), of: .tcpDidDisconnect)
-
     NC.makeObserver(self, with: #selector(radioDowngrade(_:)), of: .radioDowngrade)
-    
-    NC.makeObserver(self, with: #selector(tcpPingFirstResponse(_:)), of: .tcpPingFirstResponse)
-
     NC.makeObserver(self, with: #selector(xvtrHasBeenAdded(_:)), of: .xvtrHasBeenAdded)
     NC.makeObserver(self, with: #selector(xvtrWillBeRemoved(_:)), of: .xvtrWillBeRemoved)
   }
-//  /// Process .meterHasBeenAdded Notification
-//  ///
-//  /// - Parameter note:         a Notification instance
-//  ///
-//  @objc private func meterHasBeenAdded(_ note: Notification) {
-//    
-//    let meter = note.object as! Meter
-//    
-//    // is it one we need to watch?
-//    switch meter.name {
-//    case Meter.ShortName.voltageAfterFuse.rawValue:
-//      _voltageMeterAvailable = true
-//      
-//    case Meter.ShortName.temperaturePa.rawValue:
-//      _temperatureMeterAvailable = true
-//      
-//    default:
-//      break
-//    }
-//    guard _voltageMeterAvailable == true, _temperatureMeterAvailable == true else { return }
-//    
-//    DispatchQueue.main.async { [weak self] in
-//      // start the Voltage/Temperature monitor
-//      if let toolbar = self?.view.window?.toolbar {
-//        let monitor = toolbar.items.findElement({  $0.itemIdentifier.rawValue == "VoltageTemp"} ) as! ParameterMonitor
-//        monitor.activate(radio: self!._api.radio!, shortNames: [.voltageAfterFuse, .temperaturePa], units: ["v", "c"])
-//      }
-//    }
-//  }
   /// Process .tcpDidDisconnect Notification
   ///
   /// - Parameter note:         a Notification instance
@@ -543,24 +379,6 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
       })
     }
   }
-  /// Process .tcpPingFirstResponse Notification
-  ///
-  /// - Parameter note:         a Notification instance
-  ///
-  @objc private func tcpPingFirstResponse(_ note: Notification) {
-    
-    // receipt of the first Ping response indicates the Radio is fully initialized
-    _tcpPingFirstResponseReceived = true
-    
-    // delay the opening of the side view (allows Slice(s) to be instantiated, if any)
-    DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + .seconds( kSideViewDelay )) { [weak self] in
-      
-      // FIXME: Is this a hack?
-
-      // show/hide the Side view
-      self?.sideView( Defaults[.sideViewOpen] ? .open : .close)
-    }
-  }
   /// Process xvtrHasBeenAdded Notification
   ///
   /// - Parameter note:         a Notification instance
@@ -583,58 +401,7 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
     
     _log.logMessage("Xvtr will be removed: id = \(xvtr.id)", .info, #function, #file, #line)
   }
-  /// Connect the selected Radio
-  ///
-  /// - Parameters:
-  ///   - radio:                the DiscoveryStruct
-  ///   - pendingDisconnect:    type, if any
-  ///
-  func connectRadio(_ discoveredRadio: DiscoveryPacket?, pendingDisconnect: Api.PendingDisconnect = .none) {
-    
-    if let _ = _radioPickerViewController {
-      self._radioPickerViewController = nil
-    }
-    
-    // exit if no Radio selected
-    guard let radio = discoveredRadio else { return }
-    
-    // connect to the radio
-    if _api.connect(radio,
-                    clientStation: Logger.kAppName,
-                    programName: Logger.kAppName,
-                    clientId: _clientId,
-                    isGui: true,
-                    isWan: radio.isWan,
-                    wanHandle: radio.wanHandle,
-                    pendingDisconnect: pendingDisconnect) {
-            
-      updateButtonStates()
-      
-      // WAN connect
-      if radio.isWan {
-        _api.isWan = true
-        _api.connectionHandleWan = radio.wanHandle
-      } else {
-        _api.isWan = false
-        _api.connectionHandleWan = ""
-      }
-      
-    } else {
-      updateButtonStates()
-    }
-  }
-  /// Enable / Disable various UI elements
-  ///
-  private func updateButtonStates() {
-    
-    DispatchQueue.main.async { [unowned self] in
-      if let _ = self._api.radio {
 
-      } else {
-
-      }
-    }
-  }
   // ----------------------------------------------------------------------------
   // MARK: - RadioPicker delegate methods
   
@@ -814,17 +581,9 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
         self.disconnectXsdr()
     }
   }
-
-
+  /// Disconect
+  ///
   func disconnectXsdr() {
-    // close the Side view (if open)
-    sideView(.close)
-    
-    // close the Profiles window (if open)
-    profilesWindow(.close)
-    
-    // close the Preferences window (if open)
-    preferencesWindow(.close)
     
     // turn off the Parameter Monitor
     DispatchQueue.main.async { [weak self] in

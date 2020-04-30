@@ -33,10 +33,10 @@ public class Logger : LogHandler {
       case "-loginfo":    return .info
       case "-logwarning": return .warning
       case "-logerror":   return .error
-      default:            return .debug
+      default:            return .info
       }
     } else {
-      return .debug
+      return .info
     }
   }
   

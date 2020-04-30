@@ -67,7 +67,7 @@ final class RadioPickerViewController    : NSViewController, NSTableViewDelegate
   }
   private var _discoveryPacket              : DiscoveryPacket?
   private var _wanServer                    : WanServer?
-//  private var _parentVc                     : NSViewController!
+  private var _rightClick                   : NSClickGestureRecognizer!
 
   // constants
   private let kApplicationJson              = "application/json"
@@ -110,6 +110,12 @@ final class RadioPickerViewController    : NSViewController, NSTableViewDelegate
     Swift.print("\(#function) - \(URL(fileURLWithPath: #file).lastPathComponent.dropLast(6))")
     #endif
     
+    // setup Right Single Click recognizer
+    _rightClick = NSClickGestureRecognizer(target: self, action: #selector(rightClick(_:)))
+    _rightClick.buttonMask = 0x02
+    _rightClick.numberOfClicksRequired = 1
+    _radioTableView.addGestureRecognizer(_rightClick)
+
     // allow the User to double-click the desired Radio
     _radioTableView.doubleAction = #selector(RadioPickerViewController.selectButton(_:))
     
@@ -238,6 +244,50 @@ final class RadioPickerViewController    : NSViewController, NSTableViewDelegate
   // ----------------------------------------------------------------------------
   // MARK: - Private methods
     
+  /// Respond to a Right Click gesture
+  ///
+  /// - Parameter gr: the GestureRecognizer
+  ///
+  @objc private func rightClick(_ gr: NSClickGestureRecognizer) {
+    
+    // get the "click" coordinates and convert to this View
+    let mouseLocation = gr.location(in: _radioTableView)
+
+    // Calculate the clicked row
+    let row = _radioTableView.row(at: mouseLocation)
+
+    // If the click occurred outside of a row (i.e. empty space), don't show the menu
+    guard row != -1 else { return }
+
+    // Select the clicked row, implicitly clearing the previous selection
+    _radioTableView.selectRowIndexes(IndexSet(integer: row), byExtendingSelection: false)
+
+    
+    // create the popup menu
+    let menu = NSMenu()
+    if isDefaultRadio(Discovery.sharedInstance.discoveredRadios[row]) {
+      menu.addItem(withTitle: "Clear  Default", action: #selector(contextMenu(_:)), keyEquivalent: "")
+    } else {
+      menu.addItem(withTitle: "Set as Default", action: #selector(contextMenu(_:)), keyEquivalent: "")
+    }
+    // display the popup
+    menu.popUp(positioning: menu.item(at: 0), at: mouseLocation, in: _radioTableView)
+  }
+  /// Perform the appropriate action
+  ///
+  /// - Parameter sender: a MenuItem
+  ///
+  @objc private func contextMenu(_ sender: NSMenuItem) {
+
+    let packet = Discovery.sharedInstance.discoveredRadios[_radioTableView.selectedRow]
+    
+    if sender.title == "Set as Default" {
+      Defaults[.defaultRadioSerialNumber] = (packet.isWan ? "wan" : "local") + "." + packet.serialNumber
+    } else {
+      Defaults[.defaultRadioSerialNumber] = ""
+    }
+    _radioTableView.reloadData()
+  }
   /// Connect / Disconnect a Radio
   ///
   private func connectDisconnect() {
@@ -707,8 +757,7 @@ final class RadioPickerViewController    : NSViewController, NSTableViewDelegate
   func numberOfRows(in aTableView: NSTableView) -> Int {
     
     // get the number of rows
-//    return _discoveredRadios.count
-   return  Discovery.sharedInstance.discoveredRadios.count
+    return  Discovery.sharedInstance.discoveredRadios.count
   }
   
   // ----------------------------------------------------------------------------
@@ -724,27 +773,27 @@ final class RadioPickerViewController    : NSViewController, NSTableViewDelegate
   ///
   func tableView( _ tableView: NSTableView, viewFor tableColumn: NSTableColumn?, row: Int) -> NSView? {
     
-//    let version = Version(_discoveredRadios[row].firmwareVersion)
-    let version = Version(Discovery.sharedInstance.discoveredRadios[row].firmwareVersion)
-
-    let type = (Discovery.sharedInstance.discoveredRadios[row].isWan ? "SMARTLINK" : "LOCAL")
+    let packet = Discovery.sharedInstance.discoveredRadios[row]
+    let version = Version(packet.firmwareVersion)
+    let type = (packet.isWan ? "SMARTLINK" : "LOCAL")
     
     // get a view for the cell
     let cellView = tableView.makeView(withIdentifier: tableColumn!.identifier, owner:self) as! NSTableCellView
+    cellView.toolTip = "Right-click to Set Default"
+    
+    if isDefaultRadio(packet) {
+      cellView.textField!.textColor = NSColor.systemRed
+    } else {
+      cellView.textField!.textColor = NSColor.labelColor
+    }
     
     // set the stringValue of the cell's text field to the appropriate field
     switch tableColumn!.identifier.rawValue {
-//    case "model":     cellView.textField!.stringValue = _discoveredRadios[row].model
-//    case "nickname":  cellView.textField!.stringValue = _discoveredRadios[row].nickname
-//    case "status":    cellView.textField!.stringValue = _discoveredRadios[row].status
-//    case "stations":  cellView.textField!.stringValue = (version.isNewApi ? _discoveredRadios[row].guiClientStations : "n/a")
-//    case "publicIp":  cellView.textField!.stringValue = _discoveredRadios[row].publicIp
-//    case "model":     cellView.textField!.stringValue = Discovery.sharedInstance.discoveredRadios[row].model
     case "model":     cellView.textField!.stringValue = type
-    case "nickname":  cellView.textField!.stringValue = Discovery.sharedInstance.discoveredRadios[row].nickname
-    case "status":    cellView.textField!.stringValue = Discovery.sharedInstance.discoveredRadios[row].status
-    case "stations":  cellView.textField!.stringValue = (version.isNewApi ? Discovery.sharedInstance.discoveredRadios[row].guiClientStations : "n/a")
-    case "publicIp":  cellView.textField!.stringValue = Discovery.sharedInstance.discoveredRadios[row].publicIp
+    case "nickname":  cellView.textField!.stringValue = packet.nickname
+    case "status":    cellView.textField!.stringValue = packet.status
+    case "stations":  cellView.textField!.stringValue = (version.isNewApi ? packet.guiClientStations : "n/a")
+    case "publicIp":  cellView.textField!.stringValue = packet.publicIp
     default:          break
     }
     return cellView
@@ -781,5 +830,16 @@ final class RadioPickerViewController    : NSViewController, NSTableViewDelegate
       _selectButton.title = kConnectTitle
       _testIndicator.boolState = false
     }
+  }
+
+  private func isDefaultRadio(_ packet: DiscoveryPacket) -> Bool {
+
+    // see if there is a valid default Radio
+    guard Defaults[.defaultRadioSerialNumber] != "" else { return false }
+    // separate the parts (<type>.<serial number>
+    let components = Defaults[.defaultRadioSerialNumber].split(separator: ".")
+    guard components.count == 2 else { return false }
+    // serial & Wan must match
+    return packet.serialNumber == components[1] && packet.isWan == (components[0] == "wan")
   }
 }

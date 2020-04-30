@@ -112,78 +112,77 @@ final class NetworkPrefsViewController: NSViewController {
   private func addObservations() {
     
     _observations = [
+      // ----- Radio Strings -----
       _radio!.observe(\.ipAddress, options: [.initial, .new]) { [weak self] (radio, change) in
-        self?._ipAddressTextField.stringValue = radio.ipAddress },
-      
+        self?.updateRadioStringValues(radio, \.ipAddress) },
       _radio!.observe(\.macAddress, options: [.initial, .new]) { [weak self] (radio, change) in
-        self?._macAddressTextField.stringValue = radio.macAddress },
-      
+        self?.updateRadioStringValues(radio, \.macAddress) },
       _radio!.observe(\.netmask, options: [.initial, .new]) { [weak self] (radio, change) in
-        self?._netMaskTextField.stringValue = radio.netmask },
-      
-      _radio!.observe(\.enforcePrivateIpEnabled, options: [.initial, .new]) { [weak self] (radio, change) in
-        self?._enforcePrivateIpCheckbox.boolState = radio.enforcePrivateIpEnabled },
-      
-
+        self?.updateRadioStringValues(radio, \.netmask) },
       _radio!.observe(\.staticIp, options: [.initial, .new]) { [weak self] (radio, change) in
-        self?._staticIpAddressTextField.stringValue = radio.staticIp
-        if radio.staticIp == "" && radio.staticNetmask == "" && radio.staticGateway == "" {
-          self?._dhcpRadioButton.boolState = true
-        } else {
-          self?._staticRadioButton.boolState = true
-        }
-      },
-      
+        self?.updateRadioStringValues(radio, \.staticIp) },
       _radio!.observe(\.staticNetmask, options: [.initial, .new]) { [weak self] (radio, change) in
-        if radio.staticIp == "" && radio.staticNetmask == "" && radio.staticGateway == "" {
-          self?._dhcpRadioButton.boolState = true
-        } else {
-          self?._staticRadioButton.boolState = true
-        }
-        self?._staticMaskTextField.stringValue = radio.staticNetmask },
-      
+        self?.updateRadioStringValues(radio, \.staticNetmask) },
       _radio!.observe(\.staticGateway, options: [.initial, .new]) { [weak self] (radio, change) in
-        if radio.staticIp == "" && radio.staticNetmask == "" && radio.staticGateway == "" {
-          self?._dhcpRadioButton.boolState = true
-        } else {
-          self?._staticRadioButton.boolState = true
-        }
-        self?._staticGatewayTextField.stringValue = radio.staticGateway }
+        self?.updateRadioStringValues(radio, \.staticGateway) },
+      
+      // ----- Radio Bools -----
+      _radio!.observe(\.enforcePrivateIpEnabled, options: [.initial, .new]) { [weak self] (radio, change) in
+        self?.updateRadioBoolValues(radio, \.enforcePrivateIpEnabled)  }
     ]
   }
-  /// Remove observations
-  ///
-//  func removeObservations() {
-//
-//    // invalidate each observation
-//    _observations.forEach { $0.invalidate() }
-//
-//    // remove the tokens
-//    _observations.removeAll()
-//  }
-  /// Process observations
+  /// Respond to observations
   ///
   /// - Parameters:
-  ///   - profile:                  the Radio being observed
-  ///   - change:                   the change
+  ///   - rasio:                    the object holding the properties
+  ///   - keypath:                  the changed property
   ///
-//  private func radioHandler(_ radio: Radio, _ change: Any) {
-//    
-//    DispatchQueue.main.async { [weak self] in
-//      self?._ipAddressTextField.stringValue = radio.ipAddress
-//      self?._macAddressTextField.stringValue = radio.macAddress
-//      self?._netMaskTextField.stringValue = radio.netmask
-//      self?._staticIpAddressTextField.stringValue = radio.staticIp
-//      self?._staticMaskTextField.stringValue = radio.staticNetmask
-//      self?._staticGatewayTextField.stringValue = radio.staticGateway
-//
-//      self?._enforcePrivateIpCheckbox.boolState = radio.enforcePrivateIpEnabled
-//      
-//      if radio.staticIp == "" && radio.staticNetmask == "" && radio.staticGateway == "" {
-//        self?._dhcpRadioButton.boolState = true
-//      } else {
-//        self?._staticRadioButton.boolState = true
-//      }
-//    }
-//  }
+  private func updateRadioStringValues(_ radio: Radio, _ keypath: KeyPath<Radio, String>) {
+    
+    DispatchQueue.main.async { [weak self] in
+      switch keypath {
+      case \.ipAddress:                 self?._ipAddressTextField.stringValue     = radio[keyPath: keypath]
+      case \.macAddress:                self?._macAddressTextField.stringValue    = radio[keyPath: keypath]
+      case \.netmask:                   self?._netMaskTextField.stringValue       = radio[keyPath: keypath]
+      case \.staticIp:
+        if radio.staticIp == "" && radio.staticNetmask == "" && radio.staticGateway == "" {
+          self?._dhcpRadioButton.boolState = true
+        } else {
+          self?._staticRadioButton.boolState = true
+        }
+        self?._staticIpAddressTextField.stringValue = radio[keyPath: keypath]
+      case \.staticNetmask:
+        if radio.staticIp == "" && radio.staticNetmask == "" && radio.staticGateway == "" {
+          self?._dhcpRadioButton.boolState = true
+        } else {
+          self?._staticRadioButton.boolState = true
+        }
+        self?._staticMaskTextField.stringValue = radio[keyPath: keypath]
+      case \.staticGateway:
+        if radio.staticIp == "" && radio.staticNetmask == "" && radio.staticGateway == "" {
+          self?._dhcpRadioButton.boolState = true
+        } else {
+          self?._staticRadioButton.boolState = true
+        }
+        self?._staticGatewayTextField.stringValue = radio[keyPath: keypath]
+        
+      default:                          fatalError()
+      }
+    }
+  }
+  /// Respond to observations
+  ///
+  /// - Parameters:
+  ///   - radio:                    the object holding the properties
+  ///   - keypath:                  the changed property
+  ///
+  private func updateRadioBoolValues(_ radio: Radio, _ keypath: KeyPath<Radio, Bool>) {
+    
+    DispatchQueue.main.async { [weak self] in
+      switch keypath {
+      case \.enforcePrivateIpEnabled:   self?._enforcePrivateIpCheckbox.boolState = radio[keyPath: keypath]
+      default:                          fatalError()
+      }
+    }
+  }
 }

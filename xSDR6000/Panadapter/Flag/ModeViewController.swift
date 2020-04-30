@@ -217,19 +217,36 @@ final class ModeViewController       : NSViewController {
   ///
   private func sliceChange(_ slice: xLib6000.Slice, _ change: Any) {
 
-    let filterTitles = filterStrings(for: slice.mode)
-
-    DispatchQueue.main.async { [weak self] in
-      self?._filter0.title = filterTitles[0]
-      self?._filter1.title = filterTitles[1]
-      self?._filter2.title = filterTitles[2]
-      self?._filter3.title = filterTitles[3]
-      self?._filter4.title = filterTitles[4]
-      self?._filter5.title = filterTitles[5]
-      self?._filter6.title = filterTitles[6]
-      self?._filter7.title = filterTitles[7]
-      self?._filter8.title = filterTitles[8]
-      self?._filter9.title = filterTitles[9]
+    switch slice.mode {
+      
+    case "FM", "NFM":
+      DispatchQueue.main.async { [weak self] in
+        self?._filter0.title = ""
+        self?._filter1.title = ""
+        self?._filter2.title = ""
+        self?._filter3.title = ""
+        self?._filter4.title = ""
+        self?._filter5.title = ""
+        self?._filter6.title = ""
+        self?._filter7.title = ""
+        self?._filter8.title = ""
+        self?._filter9.title = ""
+      }
+    default:
+      let filterTitles = filterStrings(for: slice.mode)
+      
+      DispatchQueue.main.async { [weak self] in
+        self?._filter0.title = filterTitles[0]
+        self?._filter1.title = filterTitles[1]
+        self?._filter2.title = filterTitles[2]
+        self?._filter3.title = filterTitles[3]
+        self?._filter4.title = filterTitles[4]
+        self?._filter5.title = filterTitles[5]
+        self?._filter6.title = filterTitles[6]
+        self?._filter7.title = filterTitles[7]
+        self?._filter8.title = filterTitles[8]
+        self?._filter9.title = filterTitles[9]
+      }
     }
   }
 }

@@ -556,7 +556,6 @@
 				91E477EE23B66661004DA6A7 /* Frameworks */,
 				91E477EF23B66661004DA6A7 /* Resources */,
 				91E4791C23B691B0004DA6A7 /* Embed Frameworks */,
-				910DBC6723F10FE700052637 /* Increment Build Number */,
 			);
 			buildRules = (
 			);
@@ -642,27 +641,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
-
-/* Begin PBXShellScriptBuildPhase section */
-		910DBC6723F10FE700052637 /* Increment Build Number */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = "Increment Build Number";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "#!/bin/sh\n\n# To make executable, use: chmod u+x Build-Versioning-Scripts/Increment_Build_Number.sh\n# to locate your target's info.plist use\n# ${PROJECT_DIR}/${INFOPLIST_FILE}\n\necho \"----\"\nbuildNumber=${CURRENT_PROJECT_VERSION}\necho \"Current Build #: $buildNumber\"\n\nbuildNumber=$(($buildNumber + 1))\necho \"Build # incremented to: $buildNumber\"\n\n/usr/libexec/PlistBuddy -c \"Set :CFBundleVersion $buildNumber\" \"${PROJECT_DIR}/${INFOPLIST_FILE}\"\necho \"----\"\nexit 0\n";
-		};
-/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		91E477ED23B66661004DA6A7 /* Sources */ = {
@@ -938,7 +916,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
-				MARKETING_VERSION = 1.1.5;
+				MARKETING_VERSION = 1.1.7;
 				PRODUCT_BUNDLE_IDENTIFIER = net.k3tzr.xSDR6000;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "xSDR6000/xSDR6000-Bridging-Header.h";
@@ -968,7 +946,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
-				MARKETING_VERSION = 1.1.5;
+				MARKETING_VERSION = 1.1.7;
 				PRODUCT_BUNDLE_IDENTIFIER = net.k3tzr.xSDR6000;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "xSDR6000/xSDR6000-Bridging-Header.h";
@@ -1005,7 +983,7 @@
 			repositoryURL = "https://github.com/K3TZR/xLib6000.git";
 			requirement = {
 				kind = exactVersion;
-				version = 1.2.12;
+				version = 1.2.13;
 			};
 		};
 		917AAA7823D53FD90082FAEB /* XCRemoteSwiftPackageReference "XCGLogger" */ = {

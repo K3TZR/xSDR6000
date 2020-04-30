@@ -11,7 +11,7 @@ import xLib6000
 
 final class TXPrefsViewController                 : NSViewController {
 
-  @objc dynamic var txProfile               : Profile?
+  @objc dynamic var txProfile               : Profile? { _radio!.profiles[Profile.Group.tx.rawValue] }
   
   // ----------------------------------------------------------------------------
   // MARK: - Private  properties
@@ -41,7 +41,7 @@ final class TXPrefsViewController                 : NSViewController {
   private var _radio                        : Radio? { Api.sharedInstance.radio }
   private var _interlock                    : Interlock? { _radio!.interlock }
   private var _transmit                     : Transmit? { _radio!.transmit }
-  private var _txProfile                    : Profile? { _radio!.profiles[Profile.Group.tx.rawValue] }
+//  private var _txProfile                    : Profile? { _radio!.profiles[Profile.Group.tx.rawValue] }
   private var _observations                 = [NSKeyValueObservation]()
 
   // ----------------------------------------------------------------------------
@@ -134,7 +134,7 @@ final class TXPrefsViewController                 : NSViewController {
     switch sender.identifier!.rawValue {
     
     case "TxProfile":
-      _txProfile!.selection = sender.titleOfSelectedItem!
+      txProfile!.selection = sender.titleOfSelectedItem!
     
     case "RcaInterlocks":
       switch sender.selectedItem?.identifier?.rawValue {
@@ -177,135 +177,146 @@ final class TXPrefsViewController                 : NSViewController {
   private func addObservations() {
 
     _observations = [
-      _interlock!.observe(\.accTxEnabled, options: [.initial, .new]) { [weak self] (interlock, change) in
-        self?._accTxCheckbox.boolState = interlock.accTxEnabled },
+      // ----- Profile Strings -----
+      txProfile!.observe(\.selection, options: [.initial, .new]) { [weak self] (profile, change) in
+        self?.updateProfileStringValues(profile, \.selection) },
       
-      _interlock!.observe(\.accTxDelay, options: [.initial, .new]) { [weak self] (interlock, change) in
-        self?._accTxTextField.integerValue = interlock.accTxDelay },
-      
-      _interlock!.observe(\.timeout, options: [.initial, .new]) { [weak self] (interlock, change) in
-        self?._txTimeoutTextField.integerValue = interlock.timeout },
-      
-      _interlock!.observe(\.tx1Enabled, options: [.initial, .new]) { [weak self] (interlock, change) in
-        self?._rcaTx1Checkbox.boolState = interlock.tx1Enabled },
-      
-      _interlock!.observe(\.tx2Enabled, options: [.initial, .new]) { [weak self] (interlock, change) in
-        self?._rcaTx2Checkbox.boolState = interlock.tx2Enabled },
-
-      _interlock!.observe(\.tx3Enabled, options: [.initial, .new]) { [weak self] (interlock, change) in
-        self?._rcaTx3Checkbox.boolState = interlock.tx3Enabled },
-
-      _interlock!.observe(\.accTxDelay, options: [.initial, .new]) { [weak self] (interlock, change) in
-        self?._accTxTextField.integerValue = interlock.accTxDelay },
-
-      _interlock!.observe(\.tx1Delay, options: [.initial, .new]) { [weak self] (interlock, change) in
-        self?._rcaTx1TextField.integerValue = interlock.tx1Delay },
-
-      _interlock!.observe(\.tx2Delay, options: [.initial, .new]) { [weak self] (interlock, change) in
-        self?._rcaTx2TextField.integerValue = interlock.tx2Delay},
-
-      _interlock!.observe(\.tx3Delay, options: [.initial, .new]) { [weak self] (interlock, change) in
-        self?._rcaTx3TextField.integerValue = interlock.tx3Delay },
-      
+      // ----- Interlock Bools -----
       _interlock!.observe(\.rcaTxReqEnabled, options: [.initial, .new]) { [weak self] (interlock, change) in
+        self?.updateInterlockBoolValues(interlock, \.rcaTxReqEnabled)},
+      _interlock!.observe(\.accTxReqEnabled, options: [.initial, .new]) { [weak self] (interlock, change) in
+        self?.updateInterlockBoolValues(interlock, \.accTxReqEnabled)},
+      _interlock!.observe(\.accTxEnabled, options: [.initial, .new]) { [weak self] (interlock, change) in
+        self?.updateInterlockBoolValues(interlock, \.accTxEnabled) },
+      _interlock!.observe(\.tx1Enabled, options: [.initial, .new]) { [weak self] (interlock, change) in
+        self?.updateInterlockBoolValues(interlock, \.tx1Enabled )},
+      _interlock!.observe(\.tx2Enabled, options: [.initial, .new]) { [weak self] (interlock, change) in
+        self?.updateInterlockBoolValues(interlock, \.tx2Enabled )},
+      _interlock!.observe(\.tx3Enabled, options: [.initial, .new]) { [weak self] (interlock, change) in
+        self?.updateInterlockBoolValues(interlock, \.tx3Enabled )},
+            
+      // ----- Interlock Ints -----
+      _interlock!.observe(\.accTxDelay, options: [.initial, .new]) { [weak self] (interlock, change) in
+        self?.updateInterlockIntValues(interlock, \.accTxDelay)},
+      _interlock!.observe(\.timeout, options: [.initial, .new]) { [weak self] (interlock, change) in
+        self?.updateInterlockIntValues(interlock, \.timeout)},
+      _interlock!.observe(\.tx1Delay, options: [.initial, .new]) { [weak self] (interlock, change) in
+        self?.updateInterlockIntValues(interlock, \.tx1Delay)},
+      _interlock!.observe(\.tx2Delay, options: [.initial, .new]) { [weak self] (interlock, change) in
+        self?.updateInterlockIntValues(interlock, \.tx2Delay)},
+      _interlock!.observe(\.tx3Delay, options: [.initial, .new]) { [weak self] (interlock, change) in
+        self?.updateInterlockIntValues(interlock, \.tx3Delay)},
+            
+      // ----- Transmit Bools -----
+      _transmit!.observe(\.inhibit, options: [.initial, .new]) { [weak self] (transmit, change) in
+        self?.updateTransmitBoolValues(transmit, \.inhibit )},
+      _transmit!.observe(\.hwAlcEnabled, options: [.initial, .new]) { [weak self] (transmit, change) in
+        self?.updateTransmitBoolValues(transmit, \.hwAlcEnabled) },
+      _transmit!.observe(\.txInWaterfallEnabled, options: [.initial, .new]) { [weak self] (transmit, change) in
+        self?.updateTransmitBoolValues(transmit, \.txInWaterfallEnabled )},
+      
+      // ----- Transmit Ints -----
+      _transmit!.observe(\.maxPowerLevel, options: [.initial, .new]) { [weak self] (transmit, change) in
+        self?.updateTransmitIntValues(transmit, \.maxPowerLevel) }
+    ]
+  }
+  /// Respond to observations  /// Respond to observations
+  ///
+  /// - Parameters:
+  ///   - profile:                   the object holding the properties
+  ///   - keypath:                   the changed property
+  ///
+  private func updateProfileStringValues(_ profile: Profile, _ keypath: KeyPath<Profile, String>) {
+    
+    DispatchQueue.main.async { [weak self] in
+      switch keypath {
+      case \.selection:   self?._txProfilePopUp.selectItem(withTitle: profile[keyPath: keypath])
+      default:              fatalError()
+      }
+    }
+  }
+  ///
+  /// - Parameters:
+  ///   - interlock:                 the object holding the properties
+  ///   - keypath:                   the changed property
+  ///
+  private func updateInterlockBoolValues(_ interlock: Interlock, _ keypath: KeyPath<Interlock, Bool>) {
+    
+    DispatchQueue.main.async { [weak self] in
+      switch keypath {
+      case \.rcaTxReqEnabled:
         if interlock.rcaTxReqEnabled {
           let selection = interlock.rcaTxReqPolarity ? "Active High" : "Active Low"
           self?._rcaInterlockPopup.selectItem(withTitle: selection)
         } else {
           self?._rcaInterlockPopup.selectItem(withTitle: "Disabled")
         }
-      },
-      
-      _interlock!.observe(\.accTxReqEnabled, options: [.initial, .new]) { [weak self] (interlock, change) in
+      case \.accTxReqEnabled:
         if interlock.accTxReqEnabled {
           let selection = interlock.accTxReqPolarity ? "Active High" : "Active Low"
           self?._accInterlockPopup.selectItem(withTitle: selection)
         } else {
           self?._accInterlockPopup.selectItem(withTitle: "Disabled")
         }
-      },
-      
-      _transmit!.observe(\.inhibit, options: [.initial, .new]) { [weak self] (transmit, change) in
-        self?._txInhibitCheckbox.boolState = transmit.inhibit },
-      
-      _transmit!.observe(\.maxPowerLevel, options: [.initial, .new]) { [weak self] (transmit, change) in
-        self?._maxPowerSlider.integerValue = transmit.maxPowerLevel
-        self?._maxPowerTextField.integerValue = transmit.maxPowerLevel },
-      
-      _transmit!.observe(\.txInWaterfallEnabled, options: [.initial, .new]) { [weak self] (transmit, change) in
-        self?._showTxInWaterfallCheckbox.boolState = transmit.txInWaterfallEnabled },
-      
-      _transmit!.observe(\.hwAlcEnabled, options: [.initial, .new]) { [weak self] (transmit, change) in
-        self?._hardWareAlcCheckbox.boolState = transmit.hwAlcEnabled },
-
-      _txProfile!.observe(\.selection, options: [.initial, .new]) { [weak self] (profile, change) in
-        self?._txProfilePopUp.selectItem(withTitle: profile.selection) }
-    ]
+      case \.accTxEnabled:    self?._accTxCheckbox.boolState  = interlock[keyPath: keypath]
+      case \.tx1Enabled:      self?._rcaTx1Checkbox.boolState = interlock[keyPath: keypath]
+      case \.tx2Enabled:      self?._rcaTx2Checkbox.boolState = interlock[keyPath: keypath]
+      case \.tx3Enabled:      self?._rcaTx3Checkbox.boolState = interlock[keyPath: keypath]
+      default:              fatalError()
+      }
+    }
   }
-  /// Process observations
+  /// Respond to observations
   ///
   /// - Parameters:
-  ///   - profile:                  the Profile being observed
-  ///   - change:                   the change
+  ///   - interlock:                 the object holding the properties
+  ///   - keypath:                   the changed property
   ///
-//  private func profileHandler(_ profile: Profile, _ change: Any) {
-//
-//    DispatchQueue.main.async { [weak self] in
-//      self?._txProfilePopUp.selectItem(withTitle: profile.selection)
-//    }
-//  }
-  /// Process observations
-  ///
-  /// - Parameters:
-  ///   - interlock:                the Interlock being observed
-  ///   - change:                   the change
-  ///
-//  private func interlockHandler(_ interlock: Interlock, _ change: Any) {
-//
-//    DispatchQueue.main.async { [weak self] in
-//      self?._accTxCheckbox.boolState = interlock.accTxEnabled
-//      self?._rcaTx1Checkbox.boolState = interlock.tx1Enabled
-//      self?._rcaTx2Checkbox.boolState = interlock.tx2Enabled
-//      self?._rcaTx3Checkbox.boolState = interlock.tx3Enabled
-//
-//      self?._accTxTextField.integerValue = interlock.accTxDelay
-//      self?._txDelayTextField.integerValue = interlock.txDelay
-//      self?._rcaTx1TextField.integerValue = interlock.tx1Delay
-//      self?._rcaTx2TextField.integerValue = interlock.tx2Delay
-//      self?._rcaTx3TextField.integerValue = interlock.tx3Delay
-//      self?._txTimeoutTextField.integerValue = interlock.timeout
-//
-//      if interlock.rcaTxReqEnabled {
-//        let selection = interlock.rcaTxReqPolarity ? "Active High" : "Active Low"
-//        self?._rcaInterlockPopup.selectItem(withTitle: selection)
-//      } else {
-//        self?._rcaInterlockPopup.selectItem(withTitle: "Disabled")
-//      }
-//
-//      if interlock.accTxReqEnabled {
-//        let selection = interlock.accTxReqPolarity ? "Active High" : "Active Low"
-//        self?._accInterlockPopup.selectItem(withTitle: selection)
-//      } else {
-//        self?._accInterlockPopup.selectItem(withTitle: "Disabled")
-//      }
-//    }
-//  }
-  
-  /// Process observations
+  private func updateInterlockIntValues(_ interlock: Interlock, _ keypath: KeyPath<Interlock, Int>) {
+    
+    DispatchQueue.main.async { [weak self] in
+      switch keypath {
+      case \.accTxDelay:  self?._accTxTextField.integerValue    = interlock[keyPath: keypath]
+      case \.timeout:     self?._accTxTextField.integerValue    = interlock[keyPath: keypath]
+      case \.tx1Delay:    self?._rcaTx1TextField.integerValue   = interlock[keyPath: keypath]
+      case \.tx2Delay:    self?._rcaTx2TextField.integerValue   = interlock[keyPath: keypath]
+      case \.tx3Delay:    self?._rcaTx3TextField.integerValue   = interlock[keyPath: keypath]
+      default:                fatalError()
+      }
+    }
+  }
+  /// Respond to observations
   ///
   /// - Parameters:
-  ///   - transmit:                 the Transmit being observed
-  ///   - change:                   the change
+  ///   - transmit:                  the object holding the properties
+  ///   - keypath:                   the changed property
   ///
-//  private func transmitHandler(_ transmit: Transmit, _ change: Any) {
-//
-//    DispatchQueue.main.async { [weak self] in
-//      self?._txInhibitCheckbox.boolState = transmit.inhibit
-//      self?._showTxInWaterfallCheckbox.boolState = transmit.txInWaterfallEnabled
-//      self?._hardWareAlcCheckbox.boolState = transmit.hwAlcEnabled
-//
-//      self?._maxPowerSlider.integerValue = transmit.maxPowerLevel
-//      self?._maxPowerTextField.integerValue = transmit.maxPowerLevel
-//    }
-//  }
+  private func updateTransmitBoolValues(_ transmit: Transmit, _ keypath: KeyPath<Transmit, Bool>) {
+    
+    DispatchQueue.main.async { [weak self] in
+      switch keypath {
+      case \.txInWaterfallEnabled:  self?._showTxInWaterfallCheckbox.boolState  = transmit[keyPath: keypath]
+      case \.hwAlcEnabled:          self?._hardWareAlcCheckbox.boolState        = transmit[keyPath: keypath]
+      case \.inhibit:               self?._txInhibitCheckbox.boolState          = transmit[keyPath: keypath]
+      default:                fatalError()
+      }
+    }
+  }
+  /// Respond to observations
+  ///
+  /// - Parameters:
+  ///   - transmit:                  the object holding the properties
+  ///   - keypath:                   the changed property
+  ///
+  private func updateTransmitIntValues(_ transmit: Transmit, _ keypath: KeyPath<Transmit, Int>) {
+    
+    DispatchQueue.main.async { [weak self] in
+      switch keypath {
+      case \.maxPowerLevel:
+        self?._maxPowerSlider.integerValue    = transmit[keyPath: keypath]
+        self?._maxPowerTextField.integerValue = transmit[keyPath: keypath]        
+      default:                fatalError()
+      }
+    }
+  }
 }

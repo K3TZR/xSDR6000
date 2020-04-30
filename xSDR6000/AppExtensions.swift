@@ -22,7 +22,7 @@ extension DefaultsKeys {
   
   static var cwxViewOpen              : DefaultsKey<Bool>           { return .init("cwxViewOpen", defaultValue: false)}
   static var clientId                 : DefaultsKey<String?>        { return .init("clientId")}
-  static var defaultRadioSerialNumber : DefaultsKey<String?>        { return .init("defaultRadioSerialNumber")}
+  static var defaultRadioSerialNumber : DefaultsKey<String>         { return .init("defaultRadioSerialNumber", defaultValue: "")}
   static var eqRxSelected             : DefaultsKey<Bool>           { return .init("eqRxSelected", defaultValue: false)}
   static var flagBorderEnabled        : DefaultsKey<Bool>           { return .init("flagBorderEnabled", defaultValue: false)}
   static var fullDuplexEnabled        : DefaultsKey<Bool>           { return .init("fullDuplexEnabled", defaultValue: false)}
