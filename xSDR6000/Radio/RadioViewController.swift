@@ -354,7 +354,7 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
   ///
   @objc private func radioDowngrade(_ note: Notification) {
     
-    let versions = note.object as! [Version]
+    let versions = note.object as! (apiVersion: String, radioVersion: String)
     
     // the API & Radio versions are not compatible
     // alert if other than normal
@@ -363,12 +363,14 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
       alert.alertStyle = .warning
       alert.messageText = "The Radio's version may not be supported by this version of \(Logger.kAppName)."
       alert.informativeText = """
-      Radio:\t\tv\(versions[1].longString)
-      xLib6000:\tv\(versions[0].string)
+      Radio:\t\tv\(versions.radioVersion)
+      xLib6000:\\ttv\(versions.apiVersion)
       
       You can use SmartSDR to DOWNGRADE the Radio
       \t\t\tOR
       Install a newer version of \(Logger.kAppName)
+      \t\t\tOR
+      CONTINUE to ignore, CLOSE to abort
       """
       alert.addButton(withTitle: "Close")
       alert.addButton(withTitle: "Continue")
