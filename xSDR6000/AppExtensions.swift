@@ -26,6 +26,7 @@ extension DefaultsKeys {
   static var eqRxSelected             : DefaultsKey<Bool>           { return .init("eqRxSelected", defaultValue: false)}
   static var flagBorderEnabled        : DefaultsKey<Bool>           { return .init("flagBorderEnabled", defaultValue: false)}
   static var fullDuplexEnabled        : DefaultsKey<Bool>           { return .init("fullDuplexEnabled", defaultValue: false)}
+  static var logLevel                 : DefaultsKey<String>         { return .init("logLevel", defaultValue: "Debug")}
   static var lowBandwidthEnabled      : DefaultsKey<Bool>           { return .init("lowBandwidthEnabled", defaultValue: false)}
   static var macAudioEnabled          : DefaultsKey<Bool>           { return .init("macAudioEnabled", defaultValue: false)}
   static var markersEnabled           : DefaultsKey<Bool>           { return .init("markersEnabled", defaultValue: false)}
@@ -498,6 +499,11 @@ extension String{
     }
 }
 
+extension String {
+
+    var expandingTilde: String { NSString(string: self).expandingTildeInPath }
+}
+
 extension Float {
   
   // return the Power value of a Dbm (1 watt) value
@@ -511,8 +517,8 @@ extension URL {
   /// setup the Support folders
   ///
   static var appSupport : URL { return FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first! }
-  static var logs : URL { return createAsNeeded("Logs") }
-  static var macros : URL { return createAsNeeded("Macros") }
+  static var logs : URL { return createAsNeeded("net.k3tzr.xSDR6000/Logs") }
+  static var macros : URL { return createAsNeeded("net.k3tzr.xSDR6000/Macros") }
   
   static func createAsNeeded(_ folder: String) -> URL {
     let fileManager = FileManager.default

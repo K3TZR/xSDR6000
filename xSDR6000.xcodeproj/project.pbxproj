@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		91534CB2244C9A3000F9895F /* RadioPickerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91534CB1244C9A3000F9895F /* RadioPickerViewController.swift */; };
+		91537D8A245CEEDC000BE1C8 /* LogViewerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91537D89245CEEDC000BE1C8 /* LogViewerViewController.swift */; };
 		9164EE5523DDDA6500086338 /* xLib6000 in Frameworks */ = {isa = PBXBuildFile; productRef = 9164EE5423DDDA6500086338 /* xLib6000 */; };
 		917AAA7A23D53FD90082FAEB /* ObjcExceptionBridging in Frameworks */ = {isa = PBXBuildFile; productRef = 917AAA7923D53FD90082FAEB /* ObjcExceptionBridging */; };
 		917AAA7C23D53FD90082FAEB /* XCGLogger in Frameworks */ = {isa = PBXBuildFile; productRef = 917AAA7B23D53FD90082FAEB /* XCGLogger */; };
@@ -122,6 +123,7 @@
 
 /* Begin PBXFileReference section */
 		91534CB1244C9A3000F9895F /* RadioPickerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RadioPickerViewController.swift; sourceTree = "<group>"; };
+		91537D89245CEEDC000BE1C8 /* LogViewerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogViewerViewController.swift; sourceTree = "<group>"; };
 		919614F423D28DB50069AE94 /* xSDR6000-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "xSDR6000-Bridging-Header.h"; sourceTree = "<group>"; };
 		919614F523D28DB50069AE94 /* xSDR6000.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = xSDR6000.entitlements; sourceTree = "<group>"; };
 		919614F623D28F8F0069AE94 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
@@ -304,6 +306,7 @@
 				91E4782023B666EE004DA6A7 /* OpusPlayer.swift */,
 				91E4782123B666EE004DA6A7 /* ParameterMonitor.swift */,
 				919F57DB24109324001956B0 /* Logger.swift */,
+				91537D89245CEEDC000BE1C8 /* LogViewerViewController.swift */,
 			);
 			path = Misc;
 			sourceTree = "<group>";
@@ -712,6 +715,7 @@
 				91E478A123B666EE004DA6A7 /* FiltersPrefsViewController.swift in Sources */,
 				91E478AD23B666EE004DA6A7 /* WaterfallRenderer.swift in Sources */,
 				91E478C823B666EE004DA6A7 /* ControlsViewController.swift in Sources */,
+				91537D8A245CEEDC000BE1C8 /* LogViewerViewController.swift in Sources */,
 				91E4789323B666EE004DA6A7 /* LevelIndicator.swift in Sources */,
 				91E4789D23B666EE004DA6A7 /* GpsPrefsViewController.swift in Sources */,
 				91E478E423B666EE004DA6A7 /* HelpViewController.swift in Sources */,
@@ -916,7 +920,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
-				MARKETING_VERSION = 1.1.7;
+				MARKETING_VERSION = 1.1.8;
 				PRODUCT_BUNDLE_IDENTIFIER = net.k3tzr.xSDR6000;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "xSDR6000/xSDR6000-Bridging-Header.h";
@@ -946,7 +950,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
-				MARKETING_VERSION = 1.1.7;
+				MARKETING_VERSION = 1.1.8;
 				PRODUCT_BUNDLE_IDENTIFIER = net.k3tzr.xSDR6000;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "xSDR6000/xSDR6000-Bridging-Header.h";

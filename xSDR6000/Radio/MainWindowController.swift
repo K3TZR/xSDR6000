@@ -490,7 +490,7 @@ final class MainWindowController                  : NSWindowController, NSWindow
     // the Radio class has been initialized
     let radio = note.object as! Radio
     
-    _log.logMessage("Radio initialized: \(radio.nickname)", .info,  #function, #file, #line)
+    _log.logMessage("Radio initialized: \(radio.nickname), v\(radio.discoveryPacket.firmwareVersion)", .info,  #function, #file, #line)
 
     Defaults[.versionRadio] = radio.discoveryPacket.firmwareVersion
     Defaults[.radioModel] = radio.discoveryPacket.model

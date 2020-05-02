@@ -8,6 +8,7 @@
 
 import Foundation
 import XCGLogger
+import SwiftyUserDefaults
 import xLib6000
 
 public class Logger : LogHandler {
@@ -24,21 +25,8 @@ public class Logger : LogHandler {
   
   // ----------------------------------------------------------------------------
   // MARK: - Internal properties
-
-  var logLevel : XCGLogger.Level {
-    // first parameter is complete executable path, second parameter is the logDebug flag (if present)
-    if CommandLine.arguments.count >= 2 {
-      switch CommandLine.arguments[1].lowercased() {
-      case "-logdebug":   return .debug
-      case "-loginfo":    return .info
-      case "-logwarning": return .warning
-      case "-logerror":   return .error
-      default:            return .info
-      }
-    } else {
-      return .info
-    }
-  }
+  
+  private var logLevel : XCGLogger.Level = .debug
   
   // lazy setup of the XCGLogger
   lazy var log: XCGLogger = {

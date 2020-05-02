@@ -17,7 +17,123 @@
                 </viewController>
                 <customObject id="qFp-QP-0Vu" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="745" y="-299"/>
+            <point key="canvasLocation" x="746" y="-729"/>
+        </scene>
+        <!--Log Viewer-->
+        <scene sceneID="bSa-qH-5fP">
+            <objects>
+                <viewController title="Log Viewer" id="33F-G6-de8" customClass="LogViewerViewController" customModule="xSDR6000" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" id="oNZ-nH-T2I">
+                        <rect key="frame" x="0.0" y="0.0" width="840" height="300"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                        <subviews>
+                            <scrollView borderType="none" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" translatesAutoresizingMaskIntoConstraints="NO" id="LBv-sT-TlG">
+                                <rect key="frame" x="20" y="61" width="800" height="219"/>
+                                <clipView key="contentView" drawsBackground="NO" copiesOnScroll="NO" id="H0x-n3-ggE">
+                                    <rect key="frame" x="0.0" y="0.0" width="800" height="219"/>
+                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                    <subviews>
+                                        <textView importsGraphics="NO" richText="NO" verticallyResizable="YES" spellingCorrection="YES" smartInsertDelete="YES" id="lGC-Gb-Z9x">
+                                            <rect key="frame" x="0.0" y="0.0" width="800" height="219"/>
+                                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                            <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                            <size key="minSize" width="800" height="219"/>
+                                            <size key="maxSize" width="962" height="10000000"/>
+                                            <color key="insertionPointColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                                        </textView>
+                                    </subviews>
+                                </clipView>
+                                <constraints>
+                                    <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="600" id="51m-d0-5dg"/>
+                                </constraints>
+                                <scroller key="horizontalScroller" hidden="YES" wantsLayer="YES" verticalHuggingPriority="750" horizontal="YES" id="Kiu-P6-XOz">
+                                    <rect key="frame" x="-100" y="-100" width="240" height="16"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                </scroller>
+                                <scroller key="verticalScroller" wantsLayer="YES" verticalHuggingPriority="750" horizontal="NO" id="w9V-ZQ-Zlr">
+                                    <rect key="frame" x="784" y="0.0" width="16" height="219"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                </scroller>
+                            </scrollView>
+                            <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="mBJ-Dz-qdA">
+                                <rect key="frame" x="658" y="13" width="70" height="32"/>
+                                <buttonCell key="cell" type="push" title="Load" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="oEF-Fe-PQO">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="loadButton:" target="33F-G6-de8" id="EpG-FY-qUW"/>
+                                </connections>
+                            </button>
+                            <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="thX-O3-SVN">
+                                <rect key="frame" x="383" y="13" width="75" height="32"/>
+                                <buttonCell key="cell" type="push" title="Close" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="JFd-2p-Zqx">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="closeButton:" target="33F-G6-de8" id="2v1-E4-X2M"/>
+                                </connections>
+                            </button>
+                            <popUpButton verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="kSp-ja-Ebf" userLabel="Log Level">
+                                <rect key="frame" x="18" y="17" width="125" height="25"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="120" id="X68-NE-fMD"/>
+                                </constraints>
+                                <popUpButtonCell key="cell" type="push" title="Error" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="pml-3t-2GK" id="tgc-W8-zN1">
+                                    <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                    <menu key="menu" id="pJK-Db-tmv">
+                                        <items>
+                                            <menuItem title="Error" state="on" id="pml-3t-2GK"/>
+                                            <menuItem title="Warning" id="BSu-0k-zRq"/>
+                                            <menuItem title="Info" id="OFa-kP-9WM"/>
+                                            <menuItem title="Debug" id="IUs-nI-6gH" userLabel="Debug">
+                                                <modifierMask key="keyEquivalentModifierMask"/>
+                                            </menuItem>
+                                        </items>
+                                    </menu>
+                                </popUpButtonCell>
+                                <connections>
+                                    <action selector="logLevelPopUp:" target="33F-G6-de8" id="P5e-XD-JlX"/>
+                                </connections>
+                            </popUpButton>
+                            <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="cY6-Se-xPI">
+                                <rect key="frame" x="756" y="13" width="70" height="32"/>
+                                <buttonCell key="cell" type="push" title="Save" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="48K-aa-OQQ">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="saveButton:" target="33F-G6-de8" id="EyS-qC-oc0"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <constraints>
+                            <constraint firstAttribute="bottom" secondItem="kSp-ja-Ebf" secondAttribute="bottom" constant="20" id="292-aT-Q27"/>
+                            <constraint firstAttribute="bottom" secondItem="cY6-Se-xPI" secondAttribute="bottom" constant="20" id="2Oy-Tk-5H8"/>
+                            <constraint firstAttribute="trailing" secondItem="LBv-sT-TlG" secondAttribute="trailing" constant="20" symbolic="YES" id="3Nb-Ol-WYy"/>
+                            <constraint firstAttribute="trailing" secondItem="cY6-Se-xPI" secondAttribute="trailing" constant="20" id="R7v-dE-znj"/>
+                            <constraint firstItem="LBv-sT-TlG" firstAttribute="leading" secondItem="oNZ-nH-T2I" secondAttribute="leading" constant="20" symbolic="YES" id="REJ-LZ-Hbn"/>
+                            <constraint firstItem="cY6-Se-xPI" firstAttribute="top" secondItem="LBv-sT-TlG" secondAttribute="bottom" constant="20" id="UpR-wQ-4l5"/>
+                            <constraint firstItem="LBv-sT-TlG" firstAttribute="top" secondItem="oNZ-nH-T2I" secondAttribute="top" constant="20" symbolic="YES" id="Wtv-4k-CcF"/>
+                            <constraint firstItem="mBJ-Dz-qdA" firstAttribute="baseline" secondItem="cY6-Se-xPI" secondAttribute="baseline" id="aRH-m1-kTb"/>
+                            <constraint firstItem="cY6-Se-xPI" firstAttribute="leading" secondItem="mBJ-Dz-qdA" secondAttribute="trailing" constant="40" id="lpA-OH-1yJ"/>
+                            <constraint firstItem="thX-O3-SVN" firstAttribute="baseline" secondItem="cY6-Se-xPI" secondAttribute="baseline" id="qvG-cV-dsw"/>
+                            <constraint firstItem="thX-O3-SVN" firstAttribute="centerX" secondItem="LBv-sT-TlG" secondAttribute="centerX" id="tf7-vN-qyy"/>
+                            <constraint firstItem="kSp-ja-Ebf" firstAttribute="leading" secondItem="oNZ-nH-T2I" secondAttribute="leading" constant="20" id="xkH-tb-Wyv"/>
+                            <constraint firstAttribute="bottom" secondItem="mBJ-Dz-qdA" secondAttribute="bottom" constant="20" id="zUB-bb-bPQ"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="_logLevelPopUp" destination="kSp-ja-Ebf" id="hSE-p2-gZY"/>
+                        <outlet property="_textView" destination="lGC-Gb-Z9x" id="KHw-jV-37K"/>
+                    </connections>
+                </viewController>
+                <customObject id="vGD-4I-NHv" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1022" y="-241"/>
         </scene>
         <!--Main Menu-->
         <scene sceneID="JPo-4y-FX3">
@@ -51,6 +167,12 @@
                                             <modifierMask key="keyEquivalentModifierMask"/>
                                             <connections>
                                                 <action selector="profilesMenu:" target="Ady-hI-5gd" id="GCG-V5-l8N"/>
+                                            </connections>
+                                        </menuItem>
+                                        <menuItem title="Log Viewer" id="uMO-U5-Jxn">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <connections>
+                                                <segue destination="33F-G6-de8" kind="show" id="mVf-sS-PJD"/>
                                             </connections>
                                         </menuItem>
                                         <menuItem isSeparatorItem="YES" id="wFC-TO-SCJ"/>
@@ -206,7 +328,7 @@
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                         <buttonCell key="cell" type="roundTextured" title="Pan" bezelStyle="texturedRounded" alignment="center" lineBreakMode="truncatingTail" enabled="NO" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="HD6-PD-Pou">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                            <font key="font" metaFont="label" size="13"/>
+                                            <font key="font" metaFont="system"/>
                                             <string key="keyEquivalent">p</string>
                                             <modifierMask key="keyEquivalentModifierMask" command="YES"/>
                                         </buttonCell>
@@ -223,7 +345,7 @@
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                         <buttonCell key="cell" type="roundTextured" title="Tnf" bezelStyle="texturedRounded" alignment="center" lineBreakMode="truncatingTail" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Jeg-wc-uw3">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
-                                            <font key="font" metaFont="label" size="13"/>
+                                            <font key="font" metaFont="system"/>
                                             <string key="keyEquivalent">t</string>
                                             <modifierMask key="keyEquivalentModifierMask" command="YES"/>
                                         </buttonCell>
@@ -240,7 +362,7 @@
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                         <buttonCell key="cell" type="roundTextured" title="Mark" bezelStyle="texturedRounded" alignment="center" lineBreakMode="truncatingTail" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="NQM-xK-XcC">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
-                                            <font key="font" metaFont="label" size="13"/>
+                                            <font key="font" metaFont="system"/>
                                             <string key="keyEquivalent">m</string>
                                             <modifierMask key="keyEquivalentModifierMask" command="YES"/>
                                         </buttonCell>
@@ -281,7 +403,7 @@
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                         <buttonCell key="cell" type="roundTextured" title="Side" bezelStyle="texturedRounded" alignment="center" lineBreakMode="truncatingTail" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="RAZ-57-8JZ">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
-                                            <font key="font" metaFont="label" size="13"/>
+                                            <font key="font" metaFont="system"/>
                                             <string key="keyEquivalent">s</string>
                                             <modifierMask key="keyEquivalentModifierMask" command="YES"/>
                                         </buttonCell>
@@ -304,7 +426,7 @@
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                         <buttonCell key="cell" type="roundTextured" title="Mac Audio" bezelStyle="texturedRounded" alignment="center" lineBreakMode="truncatingTail" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="MyA-4v-4Q1">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
-                                            <font key="font" metaFont="label" size="13"/>
+                                            <font key="font" metaFont="system"/>
                                             <string key="keyEquivalent">a</string>
                                             <modifierMask key="keyEquivalentModifierMask" command="YES"/>
                                         </buttonCell>
@@ -325,7 +447,7 @@
                                                 <rect key="frame" x="0.0" y="1" width="52" height="20"/>
                                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" borderStyle="border" alignment="center" drawsBackground="YES" id="uEU-Zi-vP8">
-                                                    <font key="font" metaFont="label" size="13"/>
+                                                    <font key="font" metaFont="system"/>
                                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                                     <color key="backgroundColor" name="controlHighlightColor" catalog="System" colorSpace="catalog"/>
                                                 </textFieldCell>
@@ -334,7 +456,7 @@
                                                 <rect key="frame" x="50" y="1" width="54" height="20"/>
                                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" borderStyle="border" alignment="center" drawsBackground="YES" id="piH-Kq-rNe">
-                                                    <font key="font" metaFont="label" size="13"/>
+                                                    <font key="font" metaFont="system"/>
                                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                                     <color key="backgroundColor" name="controlHighlightColor" catalog="System" colorSpace="catalog"/>
                                                 </textFieldCell>
@@ -355,7 +477,7 @@
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                         <buttonCell key="cell" type="smallSquare" bezelStyle="smallSquare" image="NSStatusAvailable" imagePosition="overlaps" alignment="center" alternateImage="NSStatusUnavailable" lineBreakMode="truncatingTail" state="on" imageScaling="proportionallyDown" inset="2" id="66T-fb-IQ2">
                                             <behavior key="behavior" pushIn="YES" changeContents="YES" lightByContents="YES"/>
-                                            <font key="font" metaFont="label" size="13"/>
+                                            <font key="font" metaFont="system"/>
                                         </buttonCell>
                                         <connections>
                                             <action selector="muteLineoutButton:" target="B8D-0N-5wS" id="pW1-ni-yPy"/>
@@ -371,7 +493,7 @@
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                         <buttonCell key="cell" type="smallSquare" bezelStyle="smallSquare" image="NSStatusAvailable" imagePosition="overlaps" alignment="center" alternateImage="NSStatusUnavailable" lineBreakMode="truncatingTail" state="on" imageScaling="proportionallyDown" inset="2" id="QVM-6g-KBJ">
                                             <behavior key="behavior" pushIn="YES" changeContents="YES" lightByContents="YES"/>
-                                            <font key="font" metaFont="label" size="13"/>
+                                            <font key="font" metaFont="system"/>
                                         </buttonCell>
                                         <connections>
                                             <action selector="muteHeadphoneButton:" target="B8D-0N-5wS" id="y4S-t4-sUX"/>
@@ -386,7 +508,7 @@
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                         <buttonCell key="cell" type="roundTextured" title="FDX" bezelStyle="texturedRounded" alignment="center" lineBreakMode="truncatingTail" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="XzU-Mb-mUg">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
-                                            <font key="font" metaFont="label" size="13"/>
+                                            <font key="font" metaFont="system"/>
                                             <string key="keyEquivalent">m</string>
                                             <modifierMask key="keyEquivalentModifierMask" command="YES"/>
                                         </buttonCell>
@@ -403,7 +525,7 @@
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                         <buttonCell key="cell" type="roundTextured" title="CWX" bezelStyle="texturedRounded" alignment="center" lineBreakMode="truncatingTail" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="d4z-xR-ZpC">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
-                                            <font key="font" metaFont="label" size="13"/>
+                                            <font key="font" metaFont="system"/>
                                             <string key="keyEquivalent">m</string>
                                             <modifierMask key="keyEquivalentModifierMask" command="YES"/>
                                         </buttonCell>
