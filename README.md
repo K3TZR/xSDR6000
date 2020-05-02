@@ -65,6 +65,10 @@ OpusOSX, framework built from sources at:
 * https://opus-codec.org/downloads/
 
 
+## 1.1.9 Release Notes
+
+* Corrected crash when connecting to v3.1.11 radio
+
 ## 1.1.8 Release Notes
 
 * Location of logs changed to ~/Library/Application Support/net.k3tzr.xSDR6000/Logs
