@@ -65,6 +65,12 @@ OpusOSX, framework built from sources at:
 * https://opus-codec.org/downloads/
 
 
+## 1.1.8 Release Notes
+
+* Location of logs changed to ~/Library/Application Support/net.k3tzr.xSDR6000/Logs
+* Log Viewer added to xSDR6000 Menu
+* various other corrections and stability improvements
+
 ## 1.1.7 Release Notes
 
 * Fixed crash when selecting FM mode
