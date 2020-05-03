@@ -529,7 +529,7 @@ extension URL {
       
       // NO, create it
       do {
-        try fileManager.createDirectory( at: folderUrl, withIntermediateDirectories: false, attributes: nil)
+        try fileManager.createDirectory( at: folderUrl, withIntermediateDirectories: true, attributes: nil)
       } catch let error as NSError {
         fatalError("Error creating App Support folder: \(error.localizedDescription)")
       }

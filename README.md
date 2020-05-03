@@ -65,6 +65,10 @@ OpusOSX, framework built from sources at:
 * https://opus-codec.org/downloads/
 
 
+## 1.1.10 Release Notes
+
+* corrected crash due to appFolder Logs 
+
 ## 1.1.9 Release Notes
 
 * Corrected crash when connecting to v3.1.11 radio
