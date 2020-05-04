@@ -15,12 +15,15 @@ class LogViewerViewController: NSViewController {
   // ----------------------------------------------------------------------------
   // MARK: - Private properties
   
-  @IBOutlet private var _textView           : NSTextView!
-  @IBOutlet private weak var _logLevelPopUp : NSPopUpButton!
+  @IBOutlet private var _textView                 : NSTextView!
+  @IBOutlet private weak var _logLevelPopUp       : NSPopUpButton!
+  @IBOutlet private weak var _limitToPopUp        : NSPopUpButton!
+  @IBOutlet private weak var _limitValueTextField : NSTextField!
   
+  private let _log                = Logger.sharedInstance
   private var _openFileUrl        : URL?
   private var _logEntries         : String!
-  private var _filteredLogEntries = [String.SubSequence]()
+  private var _filteredLines      = [String.SubSequence]()
   private lazy var _lines         = _textView.string.split(separator: "\n")
   
   // ----------------------------------------------------------------------------
@@ -29,13 +32,15 @@ class LogViewerViewController: NSViewController {
   override func viewDidLoad() {
         super.viewDidLoad()
 
+    _log.logMessage("Log Viewer opened", .debug,  #function, #file, #line)
+
     _textView.isSelectable = false
     _textView.isEditable = false
     
     loadDefaultLog()
     
     _logLevelPopUp.selectItem(withTitle: Defaults[.logLevel])
-    filterLog(level: Defaults[.logLevel])
+    filterLog(level: Defaults[.logLevel], limit: _limitToPopUp.titleOfSelectedItem! ?? "None")
   }
   
   // ----------------------------------------------------------------------------
@@ -46,9 +51,19 @@ class LogViewerViewController: NSViewController {
   ///
   @IBAction func logLevelPopUp(_ sender: NSPopUpButton) {
     let level = sender.titleOfSelectedItem ?? "Debug"
-    filterLog(level: level)
+    filterLog(level: level, limit: _limitToPopUp.titleOfSelectedItem! ?? "None")
     Defaults[.logLevel] = level
+
+    _log.logMessage("Log level changed to: \(level)", .debug,  #function, #file, #line)
   }
+  
+  @IBAction func limitPopUp(_ sender: NSPopUpButton) {
+  let limit = sender.titleOfSelectedItem ?? "None"
+    filterLog(level: _logLevelPopUp.titleOfSelectedItem ?? "Debug", limit: limit)
+
+  _log.logMessage("Log limit changed to: \(limit)", .debug,  #function, #file, #line)
+  }
+  
   /// Load the selected Log file
   /// - Parameter sender:         unused
   ///
@@ -57,6 +72,8 @@ class LogViewerViewController: NSViewController {
     // allow the user to select a Log file
     let openPanel = NSOpenPanel()
     openPanel.canChooseFiles = true
+    openPanel.canChooseDirectories = false
+    openPanel.allowsMultipleSelection = false
     openPanel.allowedFileTypes = ["log"]
     openPanel.directoryURL = URL(fileURLWithPath: FileManager.appFolder.path + "/Logs")
     
@@ -70,9 +87,17 @@ class LogViewerViewController: NSViewController {
           
           self?._textView.string = logString
           self?._openFileUrl = openPanel.url!
-          
+
+          self?._log.logMessage("Log loaded: \(openPanel.url!)", .debug,  #function, #file, #line)
+
         } catch {
-          fatalError("Unable to open the Log file")
+          let alert = NSAlert()
+          alert.messageText = "Unable to load file"
+          alert.informativeText = "File\n\n\(openPanel.url!)\n\nNOT loaded"
+          alert.alertStyle = .critical
+          alert.addButton(withTitle: "Ok")
+          
+          let _ = alert.runModal()
         }
       }
     }
@@ -81,6 +106,8 @@ class LogViewerViewController: NSViewController {
   /// - Parameter sender:       unused
   ///
   @IBAction func closeButton(_ sender: Any) {
+    
+    _log.logMessage("Log Viewer closed", .debug,  #function, #file, #line)
     view.window?.performClose(nil)
   }
   /// Save the currently open Log to a file
@@ -104,8 +131,17 @@ class LogViewerViewController: NSViewController {
         // write it to the File
         do {
           try self?._textView.string.write(to: savePanel.url!, atomically: true, encoding: .ascii)
+
+          self?._log.logMessage("Log \(self?._openFileUrl) saved to: \(savePanel.url!)", .debug,  #function, #file, #line)
+
         } catch {
-          fatalError("Unable to save the Log file")
+          let alert = NSAlert()
+          alert.messageText = "Unable to save Log"
+          alert.informativeText = "File\n\n\(savePanel.url!)\n\nNOT saved"
+          alert.alertStyle = .critical
+          alert.addButton(withTitle: "Ok")
+          
+          let _ = alert.runModal()
         }
       }
     }
@@ -118,28 +154,48 @@ class LogViewerViewController: NSViewController {
   ///
   private func loadDefaultLog() {
     // get the url for the Logs
-    let logUrl = FileManager.appFolder.appendingPathComponent( "/Logs/xSDR6000.log")
+    let defaultLogUrl = FileManager.appFolder.appendingPathComponent( "Logs/xSDR6000.log")
 
-    // does the Log file exist?
-    if FileManager.default.fileExists( atPath: logUrl.path ) {
-      // YES, read it & populate the textView
-      _logEntries = try! String(contentsOf: logUrl, encoding: .ascii)
-      _textView.string = _logEntries
-    }
+      // read it & populate the textView
+      do {
+        _logEntries = try String(contentsOf: defaultLogUrl, encoding: .ascii)
+        _textView.string = _logEntries
+        _openFileUrl = defaultLogUrl
+        _log.logMessage("Default Log loaded: \(defaultLogUrl)", .debug,  #function, #file, #line)
+
+      } catch {
+        let alert = NSAlert()
+        alert.messageText = "Unable to load Default Log"
+        alert.informativeText = "Log file\n\n\(defaultLogUrl)\n\nNOT found"
+        alert.alertStyle = .critical
+        alert.addButton(withTitle: "Ok")
+        
+        let _ = alert.runModal()
+      }
   }
   /// Filter the displayed Log
   /// - Parameter level:    log level
   ///
-  private func filterLog(level: String) {
+  private func filterLog(level: String, limit: String) {
+    var limitedLines = [String.SubSequence]()
+    
     // filter the log entries
     switch level {
-    case "Debug":     _filteredLogEntries = _lines
-    case "Info":      _filteredLogEntries = _lines.filter { $0.contains(" [Error] ") || $0.contains(" [Warning] ") || $0.contains(" [Info] ") }
-    case "Warning":   _filteredLogEntries = _lines.filter { $0.contains(" [Error] ") || $0.contains(" [Warning] ") }
-    case "Error":     _filteredLogEntries = _lines.filter { $0.contains(" [Error] ") }
-    default:          _filteredLogEntries = _lines
+    case "Debug":     _filteredLines = _lines
+    case "Info":      _filteredLines = _lines.filter { $0.contains(" [Error] ") || $0.contains(" [Warning] ") || $0.contains(" [Info] ") }
+    case "Warning":   _filteredLines = _lines.filter { $0.contains(" [Error] ") || $0.contains(" [Warning] ") }
+    case "Error":     _filteredLines = _lines.filter { $0.contains(" [Error] ") }
+    default:          _filteredLines = _lines
     }
-    _textView.string = _filteredLogEntries.joined(separator: "\n")
+    
+    switch limit {
+    case "None":      limitedLines = _filteredLines
+    case "Prefix":    limitedLines = _filteredLines.filter { $0.hasPrefix(_limitValueTextField.stringValue) }
+    case "Contains":  limitedLines = _filteredLines.filter { $0.contains(_limitValueTextField.stringValue) }
+    case "Excludes":  limitedLines = _filteredLines.filter { !$0.contains(_limitValueTextField.stringValue) }
+    default:          limitedLines = _filteredLines
+    }
+    _textView.string = limitedLines.joined(separator: "\n")
   }
   
 }

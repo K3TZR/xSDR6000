@@ -146,9 +146,6 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
     }
   }
 
-  // ----- TOOLBAR -----
-  
-
   // ----- MENU -----
   
   /// Respond to the Radio Selection menu, show the RadioPicker as a sheet
@@ -224,7 +221,10 @@ final class RadioViewController             : NSSplitViewController, RadioPicker
                     isWan: radio.isWan,
                     wanHandle: radio.wanHandle,
                     pendingDisconnect: pendingDisconnect) {
-            
+       
+      
+      // FIXME: too may vars
+      
       // WAN connect
       if radio.isWan {
         _api.isWan = true

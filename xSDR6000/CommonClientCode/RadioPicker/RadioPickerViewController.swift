@@ -103,6 +103,8 @@ final class RadioPickerViewController    : NSViewController, NSTableViewDelegate
   override func viewDidLoad() {
     super.viewDidLoad()
     
+    _log.logMessage("RadioPicker opened", .debug, #function, #file, #line)
+
     var idToken = ""
     var canLogIn = false
     
@@ -214,6 +216,8 @@ final class RadioPickerViewController    : NSViewController, NSTableViewDelegate
   ///
   @IBAction func closeButton(_ sender: NSButton) {
     
+    _log.logMessage("RadioPicker closed", .debug, #function, #file, #line)
+
     dismiss(sender)
   }
   /// Respond to the Select button
@@ -297,7 +301,9 @@ final class RadioPickerViewController    : NSViewController, NSTableViewDelegate
 
     // Connect / Disconnect
     if _selectButton.title == kConnectTitle {
-      
+            
+      _log.logMessage("RadioPicker connect initiated", .debug, #function, #file, #line)
+
       // CONNECT
       if packet.isWan { openRadio(packet) } else { _delegate?.openRadio(packet) }
       
@@ -305,6 +311,9 @@ final class RadioPickerViewController    : NSViewController, NSTableViewDelegate
       dismiss(self)
       
     } else {
+            
+      _log.logMessage("RadioPicker disconnect initiated", .debug, #function, #file, #line)
+      
       // DISCONNECT, RadioPicker remains open
       delegate.closeRadio(packet)
     }
@@ -326,6 +335,8 @@ final class RadioPickerViewController    : NSViewController, NSTableViewDelegate
   ///
   private func getAuthentification(for packet: DiscoveryPacket) {
     
+    _log.logMessage("RadioPicker getAuthentification: HolePunch required = \(packet.requiresHolePunch)", .debug, #function, #file, #line)
+
     // is a "Hole Punch" required?
     if packet.requiresHolePunch {
       
@@ -344,6 +355,8 @@ final class RadioPickerViewController    : NSViewController, NSTableViewDelegate
     
     if _loginButton.title == kLoginTitle {
       
+      _log.logMessage("RadioPicker SmartLink login initiated", .debug, #function, #file, #line)
+
       // Login to auth0
       // get an instance of Auth0 controller
       _auth0ViewController = storyboard!.instantiateController(withIdentifier: "Auth0Login") as? Auth0ViewController
@@ -358,6 +371,8 @@ final class RadioPickerViewController    : NSViewController, NSTableViewDelegate
       // logout from the actual auth0 account
       // remove refresh token from keychain and email from defaults
       
+      _log.logMessage("RadioPicker SmartLink logout initiated", .debug, #function, #file, #line)
+
       Defaults[.smartLinkWasLoggedIn] = false
       
       if Defaults[.smartLinkAuth0Email] != "" {
@@ -400,6 +415,7 @@ final class RadioPickerViewController    : NSViewController, NSTableViewDelegate
     // to select and connect to a radio
     if _wanServer!.connect(appName: Logger.kAppName, platform: kPlatform, token: token, ping: true) {
       
+      _log.logMessage("SmartLink Server log in: SUCCEEDED", .debug, #function, #file, #line)
       Defaults[.smartLinkWasLoggedIn] = true
 
     } else {
@@ -620,6 +636,7 @@ final class RadioPickerViewController    : NSViewController, NSTableViewDelegate
       
       guard self._discoveryPacket?.serialNumber == serial, self._delegate != nil else { return }
       self._discoveryPacket!.wanHandle = handle
+      
       // tell the delegate to connect to the selected Radio
       self._delegate!.openRadio(self._discoveryPacket!)
     }
@@ -836,9 +853,11 @@ final class RadioPickerViewController    : NSViewController, NSTableViewDelegate
 
     // see if there is a valid default Radio
     guard Defaults[.defaultRadioSerialNumber] != "" else { return false }
+    
     // separate the parts (<type>.<serial number>
     let components = Defaults[.defaultRadioSerialNumber].split(separator: ".")
     guard components.count == 2 else { return false }
+    
     // serial & Wan must match
     return packet.serialNumber == components[1] && packet.isWan == (components[0] == "wan")
   }

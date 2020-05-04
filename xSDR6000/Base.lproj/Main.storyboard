@@ -66,16 +66,6 @@
                                     <action selector="loadButton:" target="33F-G6-de8" id="EpG-FY-qUW"/>
                                 </connections>
                             </button>
-                            <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="thX-O3-SVN">
-                                <rect key="frame" x="383" y="13" width="75" height="32"/>
-                                <buttonCell key="cell" type="push" title="Close" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="JFd-2p-Zqx">
-                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                    <font key="font" metaFont="system"/>
-                                </buttonCell>
-                                <connections>
-                                    <action selector="closeButton:" target="33F-G6-de8" id="2v1-E4-X2M"/>
-                                </connections>
-                            </button>
                             <popUpButton verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="kSp-ja-Ebf" userLabel="Log Level">
                                 <rect key="frame" x="18" y="17" width="125" height="25"/>
                                 <constraints>
@@ -109,24 +99,74 @@
                                     <action selector="saveButton:" target="33F-G6-de8" id="EyS-qC-oc0"/>
                                 </connections>
                             </button>
+                            <popUpButton verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="QyJ-zT-gLO" userLabel="Limit">
+                                <rect key="frame" x="223" y="17" width="105" height="25"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="100" id="TTR-Si-xnz"/>
+                                </constraints>
+                                <popUpButtonCell key="cell" type="push" title="None" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="0Hf-rR-uZ9" id="xSw-g0-i1p">
+                                    <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                    <menu key="menu" id="PC6-xL-9XK">
+                                        <items>
+                                            <menuItem title="None" id="0Hf-rR-uZ9" userLabel="None">
+                                                <modifierMask key="keyEquivalentModifierMask"/>
+                                            </menuItem>
+                                            <menuItem title="Prefix" state="on" id="kiW-tJ-zcG" userLabel="Prefix"/>
+                                            <menuItem title="Contains" id="3Tp-2L-sG0" userLabel="Contains"/>
+                                            <menuItem title="Excludes" id="g5S-Nh-LoH" userLabel="Excludes"/>
+                                        </items>
+                                    </menu>
+                                </popUpButtonCell>
+                                <connections>
+                                    <action selector="limitPopUp:" target="33F-G6-de8" id="DI8-lO-0qh"/>
+                                </connections>
+                            </popUpButton>
+                            <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Adu-fS-etr">
+                                <rect key="frame" x="344" y="20" width="150" height="21"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="150" id="yJH-mq-KTg"/>
+                                </constraints>
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" borderStyle="bezel" drawsBackground="YES" id="li5-1B-C3d">
+                                    <font key="font" metaFont="system"/>
+                                    <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
+                            <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="thX-O3-SVN">
+                                <rect key="frame" x="556" y="13" width="75" height="32"/>
+                                <buttonCell key="cell" type="push" title="Close" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="JFd-2p-Zqx">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="closeButton:" target="33F-G6-de8" id="2v1-E4-X2M"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <constraints>
+                            <constraint firstAttribute="bottom" secondItem="Adu-fS-etr" secondAttribute="bottom" constant="20" id="1px-pL-CPg"/>
                             <constraint firstAttribute="bottom" secondItem="kSp-ja-Ebf" secondAttribute="bottom" constant="20" id="292-aT-Q27"/>
                             <constraint firstAttribute="bottom" secondItem="cY6-Se-xPI" secondAttribute="bottom" constant="20" id="2Oy-Tk-5H8"/>
                             <constraint firstAttribute="trailing" secondItem="LBv-sT-TlG" secondAttribute="trailing" constant="20" symbolic="YES" id="3Nb-Ol-WYy"/>
+                            <constraint firstAttribute="bottom" secondItem="QyJ-zT-gLO" secondAttribute="bottom" constant="20" id="KwG-zt-Q9f"/>
                             <constraint firstAttribute="trailing" secondItem="cY6-Se-xPI" secondAttribute="trailing" constant="20" id="R7v-dE-znj"/>
                             <constraint firstItem="LBv-sT-TlG" firstAttribute="leading" secondItem="oNZ-nH-T2I" secondAttribute="leading" constant="20" symbolic="YES" id="REJ-LZ-Hbn"/>
+                            <constraint firstItem="QyJ-zT-gLO" firstAttribute="leading" secondItem="kSp-ja-Ebf" secondAttribute="trailing" constant="85" id="RXh-AR-pF0"/>
                             <constraint firstItem="cY6-Se-xPI" firstAttribute="top" secondItem="LBv-sT-TlG" secondAttribute="bottom" constant="20" id="UpR-wQ-4l5"/>
                             <constraint firstItem="LBv-sT-TlG" firstAttribute="top" secondItem="oNZ-nH-T2I" secondAttribute="top" constant="20" symbolic="YES" id="Wtv-4k-CcF"/>
                             <constraint firstItem="mBJ-Dz-qdA" firstAttribute="baseline" secondItem="cY6-Se-xPI" secondAttribute="baseline" id="aRH-m1-kTb"/>
                             <constraint firstItem="cY6-Se-xPI" firstAttribute="leading" secondItem="mBJ-Dz-qdA" secondAttribute="trailing" constant="40" id="lpA-OH-1yJ"/>
                             <constraint firstItem="thX-O3-SVN" firstAttribute="baseline" secondItem="cY6-Se-xPI" secondAttribute="baseline" id="qvG-cV-dsw"/>
-                            <constraint firstItem="thX-O3-SVN" firstAttribute="centerX" secondItem="LBv-sT-TlG" secondAttribute="centerX" id="tf7-vN-qyy"/>
+                            <constraint firstItem="thX-O3-SVN" firstAttribute="centerX" secondItem="LBv-sT-TlG" secondAttribute="centerX" constant="173.5" id="tf7-vN-qyy"/>
                             <constraint firstItem="kSp-ja-Ebf" firstAttribute="leading" secondItem="oNZ-nH-T2I" secondAttribute="leading" constant="20" id="xkH-tb-Wyv"/>
+                            <constraint firstItem="Adu-fS-etr" firstAttribute="leading" secondItem="QyJ-zT-gLO" secondAttribute="trailing" constant="19" id="zSt-E4-MfD"/>
                             <constraint firstAttribute="bottom" secondItem="mBJ-Dz-qdA" secondAttribute="bottom" constant="20" id="zUB-bb-bPQ"/>
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="_limitToPopUp" destination="QyJ-zT-gLO" id="iNZ-jt-G8Y"/>
+                        <outlet property="_limitValueTextField" destination="Adu-fS-etr" id="Vpf-6X-55V"/>
                         <outlet property="_logLevelPopUp" destination="kSp-ja-Ebf" id="hSE-p2-gZY"/>
                         <outlet property="_textView" destination="lGC-Gb-Z9x" id="KHw-jV-37K"/>
                     </connections>
