@@ -7,18 +7,7 @@
 //
 
 import Cocoa
-import SwiftyUserDefaults
 import xLib6000
-
-public struct Token {
-
-  var value         : String
-  var expiresAt     : Date
-
-  public func isValidAtDate(_ date: Date) -> Bool {
-    return (date < self.expiresAt)
-  }
-}
 
 // --------------------------------------------------------------------------------
 // MARK: - RadioPicker Delegate protocol
@@ -26,74 +15,64 @@ public struct Token {
 
 protocol RadioPickerDelegate             : class {
   
-  var token: Token? {get set}
+  var defaultPacket : DiscoveryPacket? {get}
 
-  /// Open the specified Radio
+  /// Open  / Close the specified Radio
   ///
-  /// - Parameter radio: a Discovery packet
+  /// - Parameter packet: a Discovery packet
   ///
-  func openRadio(_ radio: DiscoveryPacket)
+  func radioAction(_ packet: DiscoveryPacket, connect: Bool)
   
-  /// Close the active Radio
+  func isActive(_ packet: DiscoveryPacket) -> Bool
+  
+  /// Make the specified Radio the default (if any)
   ///
-  /// - Parameter radio: a Discovery packet
+  /// - Parameter defaultString: a String identifying the default radio (if any)
   ///
-  func closeRadio(_ radio: DiscoveryPacket)
+  func setDefault(_ packet: DiscoveryPacket?)
+  /// Request a Test Connection message be sent to the Radio
+  ///
+  /// - Parameter packet: a Discovery packet
+  ///
+  func testConnection(_ packet: DiscoveryPacket)
+  /// Request an Auth0 Login / Logout
+  ///
+  func auth0Action(login: Bool )
 }
 
-final class RadioPickerViewController    : NSViewController, NSTableViewDelegate, NSTableViewDataSource, Auth0ControllerDelegate, WanServerDelegate {
+final class RadioPickerViewController    : NSViewController, NSTableViewDelegate, NSTableViewDataSource {
   
-  static let kServiceName                   = ".oauth-token"
-  static let testTimeout                    : TimeInterval = 0.1
+  // ----------------------------------------------------------------------------
+  // MARK: - Public properties
+  
+  @IBOutlet public weak var testIndicator   : NSButton!
+
 
   // ----------------------------------------------------------------------------
   // MARK: - Private properties
   
-  @IBOutlet private var _radioTableView     : NSTableView!                  // table of Radios
-  @IBOutlet private var _selectButton       : NSButton!                     // Connect / Disconnect
-  @IBOutlet private weak var _gravatarView  : NSImageView!
-  @IBOutlet private weak var _nameLabel     : NSTextField!
-  @IBOutlet private weak var _callLabel     : NSTextField!
-  @IBOutlet private weak var _loginButton   : NSButton!
-  @IBOutlet private weak var _testIndicator : NSButton!
-  @IBOutlet private weak var _testButton    : NSButton!
+  // SmartLink
+  @IBOutlet private weak var _loginButton     : NSButton!
+  @IBOutlet private weak var _testButton      : NSButton!
+  @IBOutlet private weak var _nameLabel       : NSTextField!
+  @IBOutlet private weak var _callLabel       : NSTextField!
+  @IBOutlet private weak var _logonImageView  : NSImageView!
+
+  @IBOutlet private var _radioTableView     : NSTableView!
+  @IBOutlet private var _selectButton       : NSButton!
   
   private var _api                          = Api.sharedInstance
-  private var _discoveredRadios             = [DiscoveryPacket]()           // Radios discovered
-  private let _log                          = Logger.sharedInstance
-  private var _auth0ViewController          : Auth0ViewController?
-  private weak var _delegate                : RadioPickerDelegate? {
-    return representedObject as? RadioPickerDelegate
-  }
-  private var _discoveryPacket              : DiscoveryPacket?
-  private var _wanServer                    : WanServer?
+  private weak var _delegate                : RadioPickerDelegate? { representedObject as? RadioPickerDelegate }
+  private var _radios                       : [DiscoveryPacket] { Discovery.sharedInstance.discoveredRadios }
   private var _rightClick                   : NSClickGestureRecognizer!
-
+  private var _observations                 = [NSKeyValueObservation]()
+  
   // constants
-  private let kApplicationJson              = "application/json"
-  private let kAuth0Delegation              = "https://frtest.auth0.com/delegation"
-  private let kClaimEmail                   = "email"
-  private let kClaimPicture                 = "picture"
   private let kConnectTitle                 = "Connect"
   private let kDisconnectTitle              = "Disconnect"
-  private let kGrantType                    = "urn:ietf:params:oauth:grant-type:jwt-bearer"
-  private let kHttpHeaderField              = "content-type"
-  private let kHttpPost                     = "POST"
-
-  private let kKeyClientId                  = "client_id"                   // dictionary keys
-  private let kKeyGrantType                 = "grant_type"
-  private let kKeyIdToken                   = "id_token"
-  private let kKeyRefreshToken              = "refresh_token"
-  private let kKeyScope                     = "scope"
-  private let kKeyTarget                    = "target"
-
-  private let kLowBWTitle                   = "Low BW Connect"
+  
   private let kLoginTitle                   = "Log In"
   private let kLogoutTitle                  = "Log Out"
-  private let kPlatform                     = "macOS"
-  private let kScope                        = "openid email given_name family_name picture"
-  private let kService                      = Logger.kAppName + kServiceName
-  private let kUpnpIdentifier               = "upnpSupported"
   
   // ----------------------------------------------------------------------------
   // MARK: - Overriden methods
@@ -103,21 +82,18 @@ final class RadioPickerViewController    : NSViewController, NSTableViewDelegate
   override func viewDidLoad() {
     super.viewDidLoad()
     
-    _log.logMessage("RadioPicker opened", .debug, #function, #file, #line)
-
-    var idToken = ""
-    var canLogIn = false
-    
     #if XDEBUG
     Swift.print("\(#function) - \(URL(fileURLWithPath: #file).lastPathComponent.dropLast(6))")
     #endif
+    
+    addNotifications()
     
     // setup Right Single Click recognizer
     _rightClick = NSClickGestureRecognizer(target: self, action: #selector(rightClick(_:)))
     _rightClick.buttonMask = 0x02
     _rightClick.numberOfClicksRequired = 1
     _radioTableView.addGestureRecognizer(_rightClick)
-
+    
     // allow the User to double-click the desired Radio
     _radioTableView.doubleAction = #selector(RadioPickerViewController.selectButton(_:))
     
@@ -125,129 +101,49 @@ final class RadioPickerViewController    : NSViewController, NSTableViewDelegate
     _loginButton.title = kLoginTitle
     _nameLabel.stringValue = ""
     _callLabel.stringValue = ""
-    _testIndicator.boolState = false
-
-    // TODO: put this on a background queue??
-    // check if we were logged in into Auth0, try to get a token
-
-    if Defaults[.smartLinkWasLoggedIn] {
-      
-      // is there a saved Auth0 token which has not expired?
-      if let previousIdToken = _delegate?.token, previousIdToken.isValidAtDate( Date()) {
-        
-        // YES, we can log into SmartLink, use the saved token
-        canLogIn = true
-        idToken = previousIdToken.value
-      
-      } else if Defaults[.smartLinkAuth0Email] != "" {
-              
-        // there is a saved email, use it to obtain a refresh token from Keychain
-        if let refreshToken = Keychain.get(kService, account: Defaults[.smartLinkAuth0Email]) {
-          
-          // can we get an Id Token from the Refresh Token?
-          if let refreshedIdToken = getIdToken(from: refreshToken) {
-            
-            // YES, we can use the saved token to Log in
-            canLogIn = true
-            idToken = refreshedIdToken
-            
-          } else {
-            
-            // NO, the refresh token and email are no longer valid, delete them
-            Defaults[.smartLinkAuth0Email] = ""
-            Keychain.delete(kService, account: Defaults[.smartLinkAuth0Email])
-
-            canLogIn = false
-            idToken = ""
-          }
-        } else {
-          
-          // no refresh token in Keychain
-          canLogIn = false
-          idToken = ""
-        }
-      } else {
-        
-        // no saved email, user must log in
-        canLogIn = false
-        idToken = ""
-      }
-    }
-    // exit if we don't have the needed token (User will need to press the Log In button)
-    guard canLogIn else { return }
-    
-    // we have the token, get the User image (gravatar)
-    do {
-      
-      // try to get the JSON Web Token
-      let jwt = try decode(jwt: idToken)
-      
-      // get the Log On image (if any) from the token
-      let claim = jwt.claim(name: kClaimPicture)
-      if let gravatar = claim.string, let url = URL(string: gravatar) {
-        
-        setLogOnImage(from: url)
-      }
-      
-    } catch let error as NSError {
-      
-      // log the error
-      _log.logMessage("Error decoding JWT token: \(error.localizedDescription)", .error, #function, #file, #line)
-    }
-    
-    // connect to the SmartLink server (Log in)
-    connectWanServer(token: idToken)
-    
-    // change the button title
-    _loginButton.title = kLogoutTitle
+    testIndicator.boolState = false
   }
-  #if XDEBUG
-  deinit {
-    Swift.print("\(#function) - \(URL(fileURLWithPath: #file).lastPathComponent.dropLast(6))")
+  
+  override func viewDidAppear() {
+    super.viewDidAppear()
+    
+    addObservations()
   }
-  #endif
-
+  
   // ----------------------------------------------------------------------------
   // MARK: - Action methods
   
-  /// Respond to the Close button
-  ///
-  /// - Parameter sender:         the button
-  ///
   @IBAction func closeButton(_ sender: NSButton) {
-    
-    _log.logMessage("RadioPicker closed", .debug, #function, #file, #line)
-
     dismiss(sender)
   }
-  /// Respond to the Select button
-  ///
-  /// - Parameter:                the button
-  ///
   @IBAction func selectButton( _: NSButton ) {
-    
-    // attempt to Connect / Disconnect the selected Radio
-    connectDisconnect()
+    // Open / Close the selected Radio
+    let row = _radioTableView.selectedRow
+    if row >= 0 {
+      let packet = _radios[row]
+      
+      // Connect / Disconnect
+      _delegate?.radioAction(packet, connect: _selectButton.title == kConnectTitle)
+      
+      // close the picker
+      dismiss(self)
+    }
   }
-  /// Respond to the Login button
-  ///
-  /// - Parameter _: the button
-  ///
   @IBAction func loginButton(_ sender: NSButton) {
-    
     // Log In / Out of SmartLink
-    logInOut()
+    _delegate?.auth0Action(login: _loginButton.title == kLoginTitle)
+    dismiss(self)
   }
-  
   @IBAction func testButton(_ sender: NSButton) {
-    _testIndicator.boolState = false
-
-    _wanServer?.sendTestConnection(for: _discoveryPacket!)
+    // initiate a Wan connection test
+    testIndicator.boolState = false
+    let packet = _radios[_radioTableView.selectedRow]
+    _delegate?.testConnection( packet )
   }
   
   // ----------------------------------------------------------------------------
   // MARK: - Private methods
-    
+  
   /// Respond to a Right Click gesture
   ///
   /// - Parameter gr: the GestureRecognizer
@@ -256,513 +152,133 @@ final class RadioPickerViewController    : NSViewController, NSTableViewDelegate
     
     // get the "click" coordinates and convert to this View
     let mouseLocation = gr.location(in: _radioTableView)
-
+    
     // Calculate the clicked row
     let row = _radioTableView.row(at: mouseLocation)
-
+    
     // If the click occurred outside of a row (i.e. empty space), don't show the menu
     guard row != -1 else { return }
-
+    
     // Select the clicked row, implicitly clearing the previous selection
     _radioTableView.selectRowIndexes(IndexSet(integer: row), byExtendingSelection: false)
-
     
-    // create the popup menu
+    // create and display the popup menu
     let menu = NSMenu()
-    if isDefaultRadio(Discovery.sharedInstance.discoveredRadios[row]) {
-      menu.addItem(withTitle: "Clear  Default", action: #selector(contextMenu(_:)), keyEquivalent: "")
-    } else {
-      menu.addItem(withTitle: "Set as Default", action: #selector(contextMenu(_:)), keyEquivalent: "")
-    }
-    // display the popup
+    menu.addItem(withTitle: "Clear  Default", action: #selector(clearDefault(_:)), keyEquivalent: "")
+    menu.addItem(withTitle: "Set as Default", action: #selector(setDefault(_:)), keyEquivalent: "")
     menu.popUp(positioning: menu.item(at: 0), at: mouseLocation, in: _radioTableView)
   }
-  /// Perform the appropriate action
+  /// Set the Default radio
   ///
   /// - Parameter sender: a MenuItem
   ///
-  @objc private func contextMenu(_ sender: NSMenuItem) {
-
-    let packet = Discovery.sharedInstance.discoveredRadios[_radioTableView.selectedRow]
+  @objc private func setDefault(_ sender: NSMenuItem) {
     
-    if sender.title == "Set as Default" {
-      Defaults[.defaultRadioSerialNumber] = (packet.isWan ? "wan" : "local") + "." + packet.serialNumber
-    } else {
-      Defaults[.defaultRadioSerialNumber] = ""
-    }
+    let packet = _radios[_radioTableView.selectedRow]
+    _delegate?.setDefault( packet )
     _radioTableView.reloadData()
   }
-  /// Connect / Disconnect a Radio
+  /// Clear the Default radio
   ///
-  private func connectDisconnect() {
-    
-    guard let packet = _discoveryPacket else { return }
-    guard let delegate = _delegate else { return }
-
-    // Connect / Disconnect
-    if _selectButton.title == kConnectTitle {
-            
-      _log.logMessage("RadioPicker connect initiated", .debug, #function, #file, #line)
-
-      // CONNECT
-      if packet.isWan { openRadio(packet) } else { _delegate?.openRadio(packet) }
-      
-      // close the picker
-      dismiss(self)
-      
-    } else {
-            
-      _log.logMessage("RadioPicker disconnect initiated", .debug, #function, #file, #line)
-      
-      // DISCONNECT, RadioPicker remains open
-      delegate.closeRadio(packet)
-    }
-  }
-
-  /// Open a Radio & close the Picker
+  /// - Parameter sender: a MenuItem
   ///
-  private func openRadio(_ packet: DiscoveryPacket) {
+  @objc private func clearDefault(_ sender: NSMenuItem) {
     
-    getAuthentification(for: packet)
-    
-    DispatchQueue.main.async { [weak self] in
-      self?.dismiss(self)
-    }
-  }
-  /// Start the process to get Authentifictaion for radio connection
-  ///
-  /// - Parameter radio: Radio to connect to
-  ///
-  private func getAuthentification(for packet: DiscoveryPacket) {
-    
-    _log.logMessage("RadioPicker getAuthentification: HolePunch required = \(packet.requiresHolePunch)", .debug, #function, #file, #line)
-
-    // is a "Hole Punch" required?
-    if packet.requiresHolePunch {
-      
-      // YES
-      _wanServer?.sendConnectMessage(for: packet)
-      
-    } else {
-      
-      // NO
-      _wanServer?.sendConnectMessage(for: packet)
-    }
-  }
-  /// Login or Logout to Auth0
-  ///
-  private func logInOut() {
-    
-    if _loginButton.title == kLoginTitle {
-      
-      _log.logMessage("RadioPicker SmartLink login initiated", .debug, #function, #file, #line)
-
-      // Login to auth0
-      // get an instance of Auth0 controller
-      _auth0ViewController = storyboard!.instantiateController(withIdentifier: "Auth0Login") as? Auth0ViewController
-      
-      // make this View Controller the delegate of the Auth0 controller
-      _auth0ViewController!.representedObject = self
-      
-      // show the Auth0 sheet
-      presentAsSheet(_auth0ViewController!)
-
-    } else {
-      // logout from the actual auth0 account
-      // remove refresh token from keychain and email from defaults
-      
-      _log.logMessage("RadioPicker SmartLink logout initiated", .debug, #function, #file, #line)
-
-      Defaults[.smartLinkWasLoggedIn] = false
-      
-      if Defaults[.smartLinkAuth0Email] != "" {
-        
-        Keychain.delete(kService, account: Defaults[.smartLinkAuth0Email])
-        Defaults[.smartLinkAuth0Email] = ""
-      }
-      
-      // clear tableview
-      _discoveredRadios.removeAll()
-      reload()
-      
-      // disconnect with Smartlink server
-      _wanServer?.disconnect()
-      
-      _loginButton.title = kLoginTitle
-      _nameLabel.stringValue = ""
-      _callLabel.stringValue = ""
-      _gravatarView.image = nil
-    }
+    _delegate?.setDefault(nil)
+    _radioTableView.reloadData()
   }
   /// Reload the Radio table
   ///
   private func reload() {
-    
     DispatchQueue.main.async { [unowned self] in
       self._radioTableView.reloadData()
     }
   }
-  /// Connect to the Wan Server
-  ///
-  /// - Parameter token:                token
-  ///
-  private func connectWanServer(token: String) {
-    
-    // instantiate a WanServer instance
-    _wanServer = WanServer(delegate: self)
-    
-    // connect with pinger to avoid the SmartLink server to disconnect if we take too long (>30s)
-    // to select and connect to a radio
-    if _wanServer!.connect(appName: Logger.kAppName, platform: kPlatform, token: token, ping: true) {
-      
-      _log.logMessage("SmartLink Server log in: SUCCEEDED", .debug, #function, #file, #line)
-      Defaults[.smartLinkWasLoggedIn] = true
+  
+  // ----------------------------------------------------------------------------
+  // MARK: - Observation methods
 
-    } else {
+  /// Add observations of various properties
+  ///
+  private func addObservations() {
+    
+    let delegate = _delegate as! RadioViewController
+    _observations = [
       
-      Defaults[.smartLinkWasLoggedIn] = false
-      // log the error
-      _log.logMessage("SmartLink Server log in: FAILED", .warning, #function, #file, #line)
-    }
+      delegate.observe(\.smartLinkUser, options: [.initial, .new]) { [weak self] (object, change) in
+        self?.smartLinkUser(object, \.smartLinkUser) },
+      delegate.observe(\.smartLinkCall, options: [.initial, .new]) { [weak self] (object, change) in
+        self?.smartLinkUser(object, \.smartLinkCall) },
+      delegate.observe(\.smartLinkImage, options: [.initial, .new]) { [weak self] (object, change) in
+        self?.smartLinkImage(object, \.smartLinkImage) }
+    ]
   }
-  /// Given a Refresh Token attempt to get a Token
+  /// Respond to observations
   ///
-  /// - Parameter refreshToken:         a Refresh Token
-  /// - Returns:                        a Token (if any)
+  /// - Parameters:
+  ///   - delegate:                  the object holding the properties
+  ///   - change:                    the change
   ///
-  private func getIdToken(from refreshToken: String) -> String? {
+  private func smartLinkUser(_ delegate: RadioViewController, _ keypath: KeyPath<RadioViewController, String>) {
     
-    // guard that the token isn't empty
-    guard refreshToken != "" else { return nil }
-    
-    // build a URL Request
-    let url = URL(string: kAuth0Delegation)
-    var urlRequest = URLRequest(url: url!)
-    urlRequest.httpMethod = kHttpPost
-    urlRequest.addValue(kApplicationJson, forHTTPHeaderField: kHttpHeaderField)
-    
-    // guard that body data was created
-    guard let bodyData = createBodyData(refreshToken: refreshToken) else { return "" }
-    
-    // update the URL Request and retrieve the data
-    urlRequest.httpBody = bodyData
-    let (responseData, _, error) = URLSession.shared.synchronousDataTask(with: urlRequest)
-    
-    // guard that the data isn't empty and that no error occurred
-    guard let data = responseData, error == nil else {
-      
-      // log the error
-      _log.logMessage("Error retrieving id token token: \(error?.localizedDescription ?? "")", .error, #function, #file, #line)
-
-      return nil
-    }
-    
-    // is there a Token?
-    if let token = parseTokenResponse(data: data) {
-      do {
-        
-        let jwt = try decode(jwt: token)
-        
-        // validate id token; see https://auth0.com/docs/tokens/id-token#validate-an-id-token
-        if !isJWTValid(jwt) {
-          // log the error
-          _log.logMessage("JWT token not valid", .error, #function, #file, #line)
-          
-          return nil
-        }
-        
-      } catch let error as NSError {
-        // log the error
-        _log.logMessage("Error decoding JWT token: \(error.localizedDescription)", .error, #function, #file, #line)
-        
-        return nil
+    DispatchQueue.main.async { [unowned self] in
+      switch keypath {
+      case \.smartLinkUser:   self._nameLabel.stringValue = delegate[keyPath: keypath]
+      case \.smartLinkCall:   self._callLabel.stringValue = delegate[keyPath: keypath]
+      default:                break
       }
-      
-      return token
-    }
-    // NO token
-    return nil
-  }
-  /// Create the Body Data for use in a URLSession
-  ///
-  /// - Parameter refreshToken:     a Refresh Token
-  /// - Returns:                    the Data (if created)
-  ///
-  private func createBodyData(refreshToken: String) -> Data? {
-    
-    // guard that the Refresh Token isn't empty
-    guard refreshToken != "" else { return nil }
-    
-    // create & populate the dictionary
-    var dict = [String : String]()
-    dict[kKeyClientId] = Auth0ViewController.kClientId
-    dict[kKeyGrantType] = kGrantType
-    dict[kKeyRefreshToken] = refreshToken
-    dict[kKeyTarget] = Auth0ViewController.kClientId
-    dict[kKeyScope] = kScope
-
-    // try to obtain the data
-    do {
-      
-      let data = try JSONSerialization.data(withJSONObject: dict)
-      // success
-      return data
-
-    } catch _ {
-      // failure
-      return nil
+      if self._nameLabel.stringValue != "" { self._loginButton.title = "Logout" }
     }
   }
-  /// Parse the URLSession data
-  ///
-  /// - Parameter data:               a Data
-  /// - Returns:                      a Token (if any)
-  ///
-  private func parseTokenResponse(data: Data) -> String? {
-    
-    do {
-      // try to parse
-      let myJSON = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
-      
-      // was something returned?
-      if let parseJSON = myJSON {
+    /// Respond to observations
+    ///
+    /// - Parameters:
+    ///   - delegate:                  the object holding the properties
+    ///   - change:                    the change
+    ///
+    private func smartLinkImage(_ delegate: RadioViewController, _ keypath: KeyPath<RadioViewController, NSImage?>) {
+      switch keypath {
         
-        // YES, does it have a Token?
-        if let  idToken = parseJSON[kKeyIdToken] as? String {
-          // YES, retutn it
-          return idToken
-        }
+      case \.smartLinkImage:  _logonImageView.image = delegate[keyPath: keypath]
+      default:                break
       }
-      // nothing returned
-      return nil
-      
-    } catch _ {
-      // parse error
-      return nil
     }
-  }
-  /// Set the Log On image
-  ///
-  /// - Parameter url:                  the URL of the image
-  ///
-  private func setLogOnImage(from url: URL) {
-    
-    // get the image
-//    let image = NSImage(contentsOf: url)
-    let image = getImage(fromURL: url)
-    _gravatarView.image = image
-  }
 
-
-  func getImage(fromURL url: URL) -> NSImage? {
-      guard let data = try? Data(contentsOf: url) else { return nil }
-      guard let image = NSImage(data: data) else { return nil }
-      return image
-  }
-
-
-
-  /// check if a JWT token is valid
-  ///
-  /// - Parameter jwt:                  a JWT token
-  /// - Returns:                        valid / invalid
-  ///
-  private func isJWTValid(_ jwt: JWT) -> Bool {
-    // see: https://auth0.com/docs/tokens/id-token#validate-an-id-token
-    // validate only the claims
-    
-    // 1.
-    // Token expiration: The current date/time must be before the expiration date/time listed in the exp claim (which
-    // is a Unix timestamp).
-    guard let expiresAt = jwt.expiresAt, Date() < expiresAt else { return false }
-    
-    // 2.
-    // Token issuer: The iss claim denotes the issuer of the JWT. The value must match the the URL of your Auth0
-    // tenant. For JWTs issued by Auth0, iss holds your Auth0 domain with a https:// prefix and a / suffix:
-    // https://YOUR_AUTH0_DOMAIN/.
-    var claim = jwt.claim(name: "iss")
-    guard let domain = claim.string, domain == Auth0ViewController.kAuth0Domain else { return false }
-    
-    // 3.
-    // Token audience: The aud claim identifies the recipients that the JWT is intended for. The value must match the
-    // Client ID of your Auth0 Client.
-    claim = jwt.claim(name: "aud")
-    guard let clientId = claim.string, clientId == Auth0ViewController.kClientId else { return false }
-    
-    return true
-  }
 
   // ----------------------------------------------------------------------------
-  // MARK: - WanServer Delegate methods
+  // MARK: - Notification Methods
   
-  /// Received radio list from server
+  /// Add subscriptions to Notifications
   ///
-  func wanRadioListReceived(wanRadioList: [DiscoveryPacket]) {
+  private func addNotifications() {
     
-    // relaod to display the updated list
-    _discoveredRadios = wanRadioList
-   
-    for (i, _) in wanRadioList.enumerated() {
-      
-      wanRadioList[i].isWan = true
-      Discovery.sharedInstance.processPacket(wanRadioList[i])
-      
-//      Swift.print("WanServer packet = \(wanRadioList[i].nickname), isWan = \(wanRadioList[i].lastSeen)")
-    }
-    
+    NC.makeObserver(self, with: #selector(discoveredRadios(_:)), of: .discoveredRadios)
+    NC.makeObserver(self, with: #selector(guiClientHasBeenAdded(_:)), of: .guiClientHasBeenAdded)
+    NC.makeObserver(self, with: #selector(guiClientHasBeenRemoved(_:)), of: .guiClientHasBeenRemoved)
+    NC.makeObserver(self, with: #selector(smartLinkLogon(_:)), of: .smartLinkLogon)
+    NC.makeObserver(self, with: #selector(smartLinkLogoff(_:)), of: .smartLinkLogoff)
+  }
+  @objc private func discoveredRadios(_ note: Notification) {
     reload()
   }
-  /// Received user settings from server
-  ///
-  /// - Parameter userSettings:         a USer Setting struct
-  ///
-  func wanUserSettings(_ userSettings: WanUserSettings) {
+  @objc private func guiClientHasBeenAdded(_ note: Notification) {
+      reload()
+  }
+  @objc private func guiClientHasBeenRemoved(_ note: Notification) {
+      reload()
+  }
+  @objc private func smartLinkLogon(_ note: Notification) {
+  }
+  @objc private func smartLinkLogoff(_ note: Notification) {
     
-    DispatchQueue.main.async { [unowned self] in
-      
-      self._nameLabel.stringValue = userSettings.firstName + " " + userSettings.lastName
-      self._callLabel.stringValue = userSettings.callsign
+    DispatchQueue.main.async { [weak self] in
+      self?._loginButton.title = "Logon"
+      self?._nameLabel.stringValue = ""
+      self?._callLabel.stringValue = ""
+      self?._logonImageView.image = nil
     }
   }
-  /// Radio is ready to connect
-  ///
-  /// - Parameters:
-  ///   - handle:                       a Radio handle
-  ///   - serial:                       a Radio Serial Number
-  ///
-  func wanRadioConnectReady(handle: String, serial: String) {
-    
-    DispatchQueue.main.async { [unowned self] in
-      
-      guard self._discoveryPacket?.serialNumber == serial, self._delegate != nil else { return }
-      self._discoveryPacket!.wanHandle = handle
-      
-      // tell the delegate to connect to the selected Radio
-      self._delegate!.openRadio(self._discoveryPacket!)
-    }
-  }
-  
-  /// Received Wan test results
-  ///
-  /// - Parameter results:            test results
-  ///
-  func wanTestConnectionResultsReceived(results: WanTestConnectionResults) {
-    
-    // was it successful?
-    let success = (results.forwardTcpPortWorking == true &&
-                  results.forwardUdpPortWorking == true &&
-                  results.upnpTcpPortWorking == false &&
-                  results.upnpUdpPortWorking == false &&
-                  results.natSupportsHolePunch  == false) ||
-      
-                  (results.forwardTcpPortWorking == false &&
-                  results.forwardUdpPortWorking == false &&
-                  results.upnpTcpPortWorking == true &&
-                  results.upnpUdpPortWorking == true &&
-                  results.natSupportsHolePunch  == false)
-    // Log the result
-    _log.logMessage("SmartLink Test completed \(success ? "successfully" : "with errors")", .info, #function, #file, #line)
 
-    DispatchQueue.main.async {
-      
-      // set the indicator
-      self._testIndicator.boolState = success
-        
-      // Alert the user on failure
-      if !success {
-      
-        let alert = NSAlert()
-        alert.alertStyle = .critical
-        let acc = NSTextField(frame: NSMakeRect(0, 0, 233, 125))
-        acc.stringValue = results.string()
-        acc.isEditable = false
-        acc.drawsBackground = true
-        alert.accessoryView = acc
-        alert.messageText = "SmartLink Test Failure"
-        alert.informativeText = "Check your SmartLink settings"
-        
-        alert.beginSheetModal(for: self.view.window!, completionHandler: { (response) in
-          
-          if response == NSApplication.ModalResponse.alertFirstButtonReturn { return }
-        })
-      }
-    }
-  }
-    
-  // ----------------------------------------------------------------------------
-  // MARK: - Auth0 controller Delegate methods
-  
-  /// Close this sheet
-  ///
-  func closeAuth0Sheet() {
-    
-    if _auth0ViewController != nil { dismiss(_auth0ViewController!) }
-    _auth0ViewController = nil
-  }
-  /// Set the id and refresh token
-  ///
-  /// - Parameters:
-  ///   - idToken:        id Token string
-  ///   - refreshToken:   refresh Token string
-  ///
-  func setTokens(idToken: String, refreshToken: String) {
-    var expireDate = Date()
-    
-    do {
-      
-      // try to get the JSON Web Token
-      let jwt = try decode(jwt: idToken)
-      
-      // validate id token; see https://auth0.com/docs/tokens/id-token#validate-an-id-token
-      if !isJWTValid(jwt) {
-        
-        _log.logMessage("JWT token not valid", .error, #function, #file, #line)
-
-        return
-      }
-      // save the Log On email (if any)
-      var claim = jwt.claim(name: kClaimEmail)
-      if let email = claim.string {
-        
-        // YES, save in user defaults
-        Defaults[.smartLinkAuth0Email] = email
-        
-        // save refresh token in keychain
-        Keychain.set(kService, account: email, data: refreshToken)
-      }
-      
-      // save the Log On picture (if any)
-      claim = jwt.claim(name: kClaimPicture)
-      if let gravatar = claim.string, let url = URL(string: gravatar) {
-        setLogOnImage(from: url)
-      }
-      
-      // get the expiry date (if any)
-      if let expiresAt = jwt.expiresAt {
-        expireDate = expiresAt
-      }
-
-    } catch let error as NSError {
-      
-      // log the error & exit
-      _log.logMessage("Error decoding JWT token: \(error.localizedDescription)", .error, #function, #file, #line)
-
-      return
-    }
-    
-    // we have logged in so set the login button title
-    DispatchQueue.main.async { [unowned self] in
-      
-      self._loginButton.title = self.kLogoutTitle
-    }
-    
-    // save id token with expiry date
-    _delegate?.token = Token(value: idToken, expiresAt: expireDate)
-
-    // connect to SmartLink server
-    connectWanServer(token: idToken)
-  }
-  
   // ----------------------------------------------------------------------------
   // MARK: - NSTableView DataSource methods
   
@@ -774,7 +290,7 @@ final class RadioPickerViewController    : NSViewController, NSTableViewDelegate
   func numberOfRows(in aTableView: NSTableView) -> Int {
     
     // get the number of rows
-    return  Discovery.sharedInstance.discoveredRadios.count
+    return  _radios.count
   }
   
   // ----------------------------------------------------------------------------
@@ -790,26 +306,21 @@ final class RadioPickerViewController    : NSViewController, NSTableViewDelegate
   ///
   func tableView( _ tableView: NSTableView, viewFor tableColumn: NSTableColumn?, row: Int) -> NSView? {
     
-    let packet = Discovery.sharedInstance.discoveredRadios[row]
-    let version = Version(packet.firmwareVersion)
-    let type = (packet.isWan ? "SMARTLINK" : "LOCAL")
+    let packet = _radios[row]
     
     // get a view for the cell
     let cellView = tableView.makeView(withIdentifier: tableColumn!.identifier, owner:self) as! NSTableCellView
     cellView.toolTip = "Right-click to Set Default"
     
-    if isDefaultRadio(packet) {
-      cellView.textField!.textColor = NSColor.systemRed
-    } else {
-      cellView.textField!.textColor = NSColor.labelColor
-    }
+    // Default radio has unique color
+    cellView.textField!.textColor = (packet == _delegate?.defaultPacket ? NSColor.systemRed : NSColor.labelColor)
     
     // set the stringValue of the cell's text field to the appropriate field
     switch tableColumn!.identifier.rawValue {
-    case "model":     cellView.textField!.stringValue = type
+    case "type":      cellView.textField!.stringValue = (packet.isWan ? "SMARTLINK" : "LOCAL")
     case "nickname":  cellView.textField!.stringValue = packet.nickname
     case "status":    cellView.textField!.stringValue = packet.status
-    case "stations":  cellView.textField!.stringValue = (version.isNewApi ? packet.guiClientStations : "n/a")
+    case "stations":  cellView.textField!.stringValue = (Version(packet.firmwareVersion).isNewApi ? packet.guiClientStations : "n/a")
     case "publicIp":  cellView.textField!.stringValue = packet.publicIp
     default:          break
     }
@@ -826,39 +337,21 @@ final class RadioPickerViewController    : NSViewController, NSTableViewDelegate
     
     // is a row is selected?
     if _radioTableView.selectedRow >= 0 {
-
-      // YES, a row is selected
-      _discoveryPacket = Discovery.sharedInstance.discoveredRadios[_radioTableView.selectedRow]
       
-      _testIndicator.boolState = false
-      _testButton.isEnabled = Discovery.sharedInstance.discoveredRadios[_radioTableView.selectedRow].isWan
-
-      // set the "select button" title appropriately
-      var isActive = false
-      if let radio = Api.sharedInstance.radio {
-        isActive = ( radio.discoveryPacket == Discovery.sharedInstance.discoveredRadios[_radioTableView.selectedRow] )
-      }
-      _selectButton.title = (isActive ? kDisconnectTitle : kConnectTitle)
-    
+      let packet = _radios[_radioTableView.selectedRow]
+      
+      // YES, setup the Test button
+      testIndicator.boolState = false
+      _testButton.isEnabled = packet.isWan
+      
+      // setup the Select button
+      _selectButton.title = _delegate!.isActive(packet) ? kDisconnectTitle : kConnectTitle
+      
     } else {
-      _testButton.isEnabled = false
-      
-      // NO, no row is selected, set the button titles
+      // NO, no row is selected
       _selectButton.title = kConnectTitle
-      _testIndicator.boolState = false
+      testIndicator.boolState = false
+      _testButton.isEnabled = false
     }
-  }
-
-  private func isDefaultRadio(_ packet: DiscoveryPacket) -> Bool {
-
-    // see if there is a valid default Radio
-    guard Defaults[.defaultRadioSerialNumber] != "" else { return false }
-    
-    // separate the parts (<type>.<serial number>
-    let components = Defaults[.defaultRadioSerialNumber].split(separator: ".")
-    guard components.count == 2 else { return false }
-    
-    // serial & Wan must match
-    return packet.serialNumber == components[1] && packet.isWan == (components[0] == "wan")
   }
 }

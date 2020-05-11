@@ -10,6 +10,7 @@
 		91534CB2244C9A3000F9895F /* RadioPickerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91534CB1244C9A3000F9895F /* RadioPickerViewController.swift */; };
 		91537D8A245CEEDC000BE1C8 /* LogViewerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91537D89245CEEDC000BE1C8 /* LogViewerViewController.swift */; };
 		9164EE5523DDDA6500086338 /* xLib6000 in Frameworks */ = {isa = PBXBuildFile; productRef = 9164EE5423DDDA6500086338 /* xLib6000 */; };
+		916E98A7246196E700287335 /* WanManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 916E98A6246196E700287335 /* WanManager.swift */; };
 		917AAA7A23D53FD90082FAEB /* ObjcExceptionBridging in Frameworks */ = {isa = PBXBuildFile; productRef = 917AAA7923D53FD90082FAEB /* ObjcExceptionBridging */; };
 		917AAA7C23D53FD90082FAEB /* XCGLogger in Frameworks */ = {isa = PBXBuildFile; productRef = 917AAA7B23D53FD90082FAEB /* XCGLogger */; };
 		919614F723D28F8F0069AE94 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 919614F623D28F8F0069AE94 /* README.md */; };
@@ -124,7 +125,8 @@
 /* Begin PBXFileReference section */
 		91534CB1244C9A3000F9895F /* RadioPickerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RadioPickerViewController.swift; sourceTree = "<group>"; };
 		91537D89245CEEDC000BE1C8 /* LogViewerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogViewerViewController.swift; sourceTree = "<group>"; };
-		916E98A5245F0E8E00287335 /* xLib6000 */ = {isa = PBXFileReference; lastKnownFileType = folder; name = xLib6000; path = ../xLib6000; sourceTree = "<group>"; };
+		916E98A6246196E700287335 /* WanManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WanManager.swift; sourceTree = "<group>"; };
+		916E98A824699CC500287335 /* xLib6000 */ = {isa = PBXFileReference; lastKnownFileType = folder; name = xLib6000; path = ../xLib6000; sourceTree = "<group>"; };
 		919614F423D28DB50069AE94 /* xSDR6000-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "xSDR6000-Bridging-Header.h"; sourceTree = "<group>"; };
 		919614F523D28DB50069AE94 /* xSDR6000.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = xSDR6000.entitlements; sourceTree = "<group>"; };
 		919614F623D28F8F0069AE94 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
@@ -249,7 +251,7 @@
 		91E477E823B66661004DA6A7 = {
 			isa = PBXGroup;
 			children = (
-				916E98A5245F0E8E00287335 /* xLib6000 */,
+				916E98A824699CC500287335 /* xLib6000 */,
 				91B1D24B241FC4DD00A7B5E4 /* project.xcworkspace */,
 				919614F623D28F8F0069AE94 /* README.md */,
 				91E4780523B666ED004DA6A7 /* OpusOSX.framework */,
@@ -517,6 +519,7 @@
 			children = (
 				91534CB1244C9A3000F9895F /* RadioPickerViewController.swift */,
 				91E4788223B666EE004DA6A7 /* Auth0ViewController.swift */,
+				916E98A6246196E700287335 /* WanManager.swift */,
 			);
 			path = RadioPicker;
 			sourceTree = "<group>";
@@ -668,6 +671,7 @@
 				91E4789023B666EE004DA6A7 /* Band.swift in Sources */,
 				91E478AB23B666EE004DA6A7 /* AntennaViewController.swift in Sources */,
 				91E478D123B666EE004DA6A7 /* PanafallButtonView.swift in Sources */,
+				916E98A7246196E700287335 /* WanManager.swift in Sources */,
 				91E478D423B666EE004DA6A7 /* PanafallButtonViewController.swift in Sources */,
 				91E478C923B666EE004DA6A7 /* DaxViewController.swift in Sources */,
 				91E4788D23B666EE004DA6A7 /* TPCircularBuffer.c in Sources */,

@@ -22,7 +22,7 @@
         <!--Log Viewer-->
         <scene sceneID="bSa-qH-5fP">
             <objects>
-                <viewController title="Log Viewer" id="33F-G6-de8" customClass="LogViewerViewController" customModule="xSDR6000" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController title="Log Viewer" identifier="Log Viewer" id="33F-G6-de8" customClass="LogViewerViewController" customModule="xSDR6000" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" id="oNZ-nH-T2I">
                         <rect key="frame" x="0.0" y="0.0" width="840" height="300"/>
                         <autoresizingMask key="autoresizingMask"/>
@@ -132,6 +132,9 @@
                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
+                                <connections>
+                                    <action selector="limitToTextField:" target="33F-G6-de8" id="nL2-b5-GW5"/>
+                                </connections>
                             </textField>
                             <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="thX-O3-SVN">
                                 <rect key="frame" x="556" y="13" width="75" height="32"/>
@@ -200,13 +203,13 @@
                                         </menuItem>
                                         <menuItem title="Preferences…" tag="3" enabled="NO" keyEquivalent="," id="BOF-NM-1cW">
                                             <connections>
-                                                <action selector="preferencesMenu:" target="Ady-hI-5gd" id="cdO-EM-SK8"/>
+                                                <action selector="preferencesMenu:" target="Ady-hI-5gd" id="4GT-8g-XCl"/>
                                             </connections>
                                         </menuItem>
                                         <menuItem title="Profiles" tag="3" enabled="NO" id="Bhn-Ih-OT8">
                                             <modifierMask key="keyEquivalentModifierMask"/>
                                             <connections>
-                                                <action selector="profilesMenu:" target="Ady-hI-5gd" id="GCG-V5-l8N"/>
+                                                <action selector="profilesMenu:" target="Ady-hI-5gd" id="4ZW-C0-ZMZ"/>
                                             </connections>
                                         </menuItem>
                                         <menuItem title="Log Viewer" id="uMO-U5-Jxn">
@@ -340,9 +343,6 @@
                             </menuItem>
                         </items>
                     </menu>
-                    <connections>
-                        <outlet property="delegate" destination="Voe-Tx-rLC" id="PrD-fu-P6m"/>
-                    </connections>
                 </application>
                 <customObject id="Voe-Tx-rLC" customClass="AppDelegate" customModule="xSDR6000" customModuleProvider="target"/>
                 <customObject id="Ady-hI-5gd" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>

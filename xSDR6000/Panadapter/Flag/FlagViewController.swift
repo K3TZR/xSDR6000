@@ -879,7 +879,7 @@ class FrequencyTransformer : ValueTransformer {
     return true
   }
   override class func transformedValueClass() -> AnyClass {
-    return Int.self as! AnyClass
+    return NSNumber.self
   }
   override func transformedValue(_ value: Any?) -> Any? {
     return ((value as? Int) ?? 0).intHzToDoubleMhz

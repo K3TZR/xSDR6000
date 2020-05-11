@@ -22,7 +22,7 @@ extension DefaultsKeys {
   
   static var cwxViewOpen              : DefaultsKey<Bool>           { return .init("cwxViewOpen", defaultValue: false)}
   static var clientId                 : DefaultsKey<String?>        { return .init("clientId")}
-  static var defaultRadioSerialNumber : DefaultsKey<String>         { return .init("defaultRadioSerialNumber", defaultValue: "")}
+  static var defaultRadio             : DefaultsKey<String?>        { return .init("defaultRadio")}
   static var eqRxSelected             : DefaultsKey<Bool>           { return .init("eqRxSelected", defaultValue: false)}
   static var flagBorderEnabled        : DefaultsKey<Bool>           { return .init("flagBorderEnabled", defaultValue: false)}
   static var fullDuplexEnabled        : DefaultsKey<Bool>           { return .init("fullDuplexEnabled", defaultValue: false)}
@@ -45,6 +45,7 @@ extension DefaultsKeys {
   static var sidePhneOpen             : DefaultsKey<Bool>           { return .init("sidePhneOpen", defaultValue: false)}
   static var sideEqOpen               : DefaultsKey<Bool>           { return .init("sideEqOpen", defaultValue: false)}
   static var smartLinkAuth0Email      : DefaultsKey<String>         { return .init("smartLinkAuth0Email", defaultValue: "")}
+  static var smartLinkEnabled         : DefaultsKey<Bool>           { return .init("smartLinkEnabled", defaultValue: true)}
   static var smartLinkToken           : DefaultsKey<String?>        { return .init("smartLinkToken")}
   static var smartLinkTokenExpiry     : DefaultsKey<Date?>          { return .init("smartLinkTokenExpiry")}
   static var splitDistance            : DefaultsKey<Int>            { return .init("splitDistance", defaultValue: 0)}

@@ -19,11 +19,7 @@ import xLib6000
 // MARK: - Auth0 Controller Delegate definition
 // --------------------------------------------------------------------------------
 
-protocol Auth0ControllerDelegate {
-  
-  /// Close this sheet
-  ///
-  func closeAuth0Sheet()
+protocol Auth0Delegate {
   
   /// set the id and refresh token
   ///
@@ -62,8 +58,7 @@ final class Auth0ViewController             : NSViewController, WKNavigationDele
   private var myWebView                     : WKWebView!
 //  private let myURL                         = URL(string: smartLinkURL)!
   private let kAutosaveName                 = "AuthViewWindow"
-  private var _delegate                     : Auth0ControllerDelegate {
-    return representedObject as! Auth0ControllerDelegate }
+  private var _delegate                     : Auth0Delegate { representedObject as! Auth0Delegate }
 
   private let kKeyIdToken                    = "id_token"
   private let kKeyRefreshToken               = "refresh_token"
@@ -168,7 +163,10 @@ final class Auth0ViewController             : NSViewController, WKNavigationDele
   ///
   @IBAction func cancelButton(_ sender: NSButton) {
     
-    _delegate.closeAuth0Sheet()
+//    _delegate.closeAuth0Sheet()
+    DispatchQueue.main.async { [weak self] in
+      self?.dismiss(self)
+    }
   }
   
   // ----------------------------------------------------------------------------
@@ -219,9 +217,12 @@ final class Auth0ViewController             : NSViewController, WKNavigationDele
         // end the navigation
         decisionHandler(.cancel)
         
-        // tell the delegate to close the Auth0 sheet
-        _delegate.closeAuth0Sheet()
-        
+//        // tell the delegate to close the Auth0 sheet
+//        _delegate.closeAuth0Sheet()
+        DispatchQueue.main.async { [weak self] in
+          self?.dismiss(self)
+        }
+
         return
       }
     }

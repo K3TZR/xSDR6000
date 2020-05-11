@@ -162,19 +162,6 @@ final class MainWindowController                  : NSWindowController, NSWindow
     // dimensions are dummy values; when created, will be resized to fit its view
     Api.sharedInstance.radio?.requestPanadapter(CGSize(width: 50, height: 50))
   }
-
-  @IBAction func preferencesMenu(_ sender: NSMenuItem) {
-    
-    // open the Preferences window (if not already open)
-    preferencesWindow(open: true)
-  }
-  /// Respond to the Profiles menu (Command-P)
-  ///
-  /// - Parameter sender:         the MenuItem
-  ///
-  @IBAction func profilesMenu(_ sender: NSMenuItem) {
-    profilesWindow(open: true)
-  }
   
   @IBAction func tnfMenu(_ sender: NSMenuItem) {
     Api.sharedInstance.radio!.tnfsEnabled.toggle()
@@ -200,6 +187,22 @@ final class MainWindowController                  : NSWindowController, NSWindow
     // FIXME: ???
   }
 
+  /// Respond to the Profiles menu (Command-,)
+  ///
+  /// - Parameter sender:         the MenuItem
+  ///
+  @IBAction func preferencesMenu(_ sender: NSMenuItem) {
+    preferencesWindow(open: true)
+  }
+  /// Respond to the Profiles menu (Command-P)
+  ///
+  /// - Parameter sender:         the MenuItem
+  ///
+  @IBAction func profilesMenu(_ sender: NSMenuItem) {
+    profilesWindow(open: true)
+  }
+  
+  
   // ----------------------------------------------------------------------------
   // MARK: - Private methods
   
@@ -213,7 +216,7 @@ final class MainWindowController                  : NSWindowController, NSWindow
       // are we connected?
       if let radio = Api.sharedInstance.radio {
         // YES, format and set the window title
-        title = "\(radio.discoveryPacket.nickname) v\(radio.version.longString)         \(Logger.kAppName) v\(Logger.sharedInstance.version.string)"
+        title = "\(radio.discoveryPacket.nickname) v\(radio.version.longString) \(radio.discoveryPacket.isWan ? "SmartLink" : "Local")         \(Logger.kAppName) v\(Logger.sharedInstance.version.string)"
 
       } else {
         // NO, show App & Api only
@@ -382,7 +385,7 @@ final class MainWindowController                  : NSWindowController, NSWindow
   ///
   private func enableButtons(_ api: Api, _ change: Any) {
     
-    if api.hasPendingDisconnect != .oldApi {
+//    if api.hasPendingDisconnect != .oldApi {
       
       // enable / disable based on state of radio
       DispatchQueue.main.async { [weak self] in
@@ -417,7 +420,7 @@ final class MainWindowController                  : NSWindowController, NSWindow
           if Defaults[.macAudioEnabled] { self?.macAudio(start: true)}
         }
       }
-    }
+//    }
   }
   /// Respond to observations
   ///
@@ -520,12 +523,13 @@ final class MainWindowController                  : NSWindowController, NSWindow
   /// - Parameter note:         a Notification instance
   ///
   @objc private func radioHasBeenRemoved(_ note: Notification) {
-    
-    // the Radio class has been removed
-    _log.logMessage("Radio has been removed", .info, #function, #file, #line)
-
-    // update the window title
-    title()
+    if let name = note.object as? String {
+      // the Radio class has been removed
+      _log.logMessage("Radio has been removed: \(name)", .info, #function, #file, #line)
+      
+      // update the window title
+      title()
+    }
   }
   /// Process .tcpPingFirstResponse Notification
   ///

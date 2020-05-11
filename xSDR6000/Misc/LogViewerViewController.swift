@@ -34,15 +34,29 @@ class LogViewerViewController: NSViewController {
 
     _log.logMessage("Log Viewer opened", .debug,  #function, #file, #line)
 
+    view.window?.windowController?.windowFrameAutosaveName = "LogViewerWindow"
+
     _textView.isSelectable = false
     _textView.isEditable = false
     
     loadDefaultLog()
     
     _logLevelPopUp.selectItem(withTitle: Defaults[.logLevel])
-    filterLog(level: Defaults[.logLevel], limit: _limitToPopUp.titleOfSelectedItem! ?? "None")
+    filterLog(level: Defaults[.logLevel], limit: _limitToPopUp.titleOfSelectedItem ?? "None")
   }
   
+  override func viewWillAppear() {
+    super.viewWillAppear()
+    
+    view.window!.setFrameUsingName("LogViewerWindow")
+    view.window!.level = .floating
+  }
+  override func viewWillDisappear() {
+    super.viewWillDisappear()
+    
+    view.window!.saveFrame(usingName: "LogViewerWindow")
+  }
+
   // ----------------------------------------------------------------------------
   // MARK: - Action methods
   
@@ -51,7 +65,7 @@ class LogViewerViewController: NSViewController {
   ///
   @IBAction func logLevelPopUp(_ sender: NSPopUpButton) {
     let level = sender.titleOfSelectedItem ?? "Debug"
-    filterLog(level: level, limit: _limitToPopUp.titleOfSelectedItem! ?? "None")
+    filterLog(level: level, limit: _limitToPopUp.titleOfSelectedItem ?? "None")
     Defaults[.logLevel] = level
 
     _log.logMessage("Log level changed to: \(level)", .debug,  #function, #file, #line)
@@ -132,7 +146,7 @@ class LogViewerViewController: NSViewController {
         do {
           try self?._textView.string.write(to: savePanel.url!, atomically: true, encoding: .ascii)
 
-          self?._log.logMessage("Log \(self?._openFileUrl) saved to: \(savePanel.url!)", .debug,  #function, #file, #line)
+          self?._log.logMessage("Log \(savePanel.nameFieldStringValue) saved to: \(savePanel.url!)", .debug,  #function, #file, #line)
 
         } catch {
           let alert = NSAlert()
@@ -145,6 +159,13 @@ class LogViewerViewController: NSViewController {
         }
       }
     }
+  }
+  
+  @IBAction func limitToTextField(_ sender: NSTextField) {
+    
+    filterLog(level: _logLevelPopUp.titleOfSelectedItem ?? "Debug", limit: _limitToPopUp.titleOfSelectedItem ?? "None")
+
+    _log.logMessage("Log limit text changed to: \(sender.stringValue)", .debug,  #function, #file, #line)
   }
   
   // ----------------------------------------------------------------------------
