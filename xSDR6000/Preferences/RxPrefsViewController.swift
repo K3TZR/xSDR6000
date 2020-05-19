@@ -24,7 +24,6 @@ final class RxPrefsViewController: NSViewController {
   @IBOutlet private weak var _binauralAudioCheckbox   : NSButton!
   
   private var _radio                        : Radio? { Api.sharedInstance.radio }
-  private var _observations                 = [NSKeyValueObservation]()
   
   // ----------------------------------------------------------------------------
   // MARK: - Overridden  methods
@@ -101,6 +100,8 @@ final class RxPrefsViewController: NSViewController {
   // ----------------------------------------------------------------------------
   // MARK: - Observation methods
   
+  private var _observations                 = [NSKeyValueObservation]()
+
   /// Add observations of various properties used by the view
   ///
   private func addObservations() {

@@ -31,15 +31,17 @@ final class MainWindowController                  : NSWindowController, NSWindow
   @IBOutlet private weak var _lineoutGainSlider   : NSSlider!
   @IBOutlet private weak var _headphoneGainSlider : NSSlider!
   
-  private let _log          = Logger.sharedInstance
-  private var _observations = [NSKeyValueObservation]()
-  private var _opusPlayer   : OpusPlayer?
+  private var _firstPingResponse            = false
+  private let _log                          = Logger.sharedInstance
+  private var _observations                 = [NSKeyValueObservation]()
+  private var _opusPlayer                   : OpusPlayer?
+  private var _radioManager                 : RadioManager!
 
-  private var _sideViewController         : SideViewController?
+  private var _sideViewController           : SideViewController?
   private var _profilesWindowController     : NSWindowController?
   private var _preferencesWindowController  : NSWindowController?
-  private var _temperatureMeterAvailable  = false
-  private var _voltageMeterAvailable      = false
+  private var _temperatureMeterAvailable    = false
+  private var _voltageMeterAvailable        = false
 
   private enum WindowState {
     case open
@@ -48,16 +50,6 @@ final class MainWindowController                  : NSWindowController, NSWindow
   private let kSideStoryboardName           = "Side"
   private let kSideIdentifier               = "Side"
   private let kSideViewDelay                = 2   // seconds
-  private let kPreferencesStoryboardName    = "Preferences"
-  private let kPreferencesIdentifier        = "Preferences"
-
-  private let kProfilesStoryboardName       = "Profiles"
-  private let kProfilesIdentifier           = "Profiles"
-
-  private var _sideStoryboard               : NSStoryboard?
-  private var _preferencesStoryboard        : NSStoryboard?
-  private var _profilesStoryboard           : NSStoryboard?
-  private var _tcpPingFirstResponseReceived = false
 
   // ----------------------------------------------------------------------------
   // MARK: - Overridden methods
@@ -65,20 +57,29 @@ final class MainWindowController                  : NSWindowController, NSWindow
   override func awakeFromNib() {
     windowFrameAutosaveName = "MainWindow"
 
-    // get the Storyboards
-    _sideStoryboard = NSStoryboard(name: kSideStoryboardName, bundle: nil)
-    _preferencesStoryboard = NSStoryboard(name: kPreferencesStoryboardName, bundle: nil)
-    _profilesStoryboard = NSStoryboard(name: kProfilesStoryboardName, bundle: nil)
+    // limit color pickers to the ColorWheel
+    NSColorPanel.setPickerMask(NSColorPanel.Options.wheelModeMask)
 
+    // get my version
+    _log.version = Version()
+
+    DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + .seconds( 1 )) { [weak self] in 
+      self?._radioManager = RadioManager()
+    }
+    
     addObservations()
     addNotifications()
   }
+
+  override func prepare(for segue: NSStoryboardSegue, sender: Any?) {
+    Swift.print("----->>>>> prepare")
+  }
+  
   #if XDEBUG
   deinit {
     Swift.print("deinit - \(URL(fileURLWithPath: #file).lastPathComponent.dropLast(6))")
   }
   #endif
-
   /// The Preferences or Profiles window is being closed
   ///
   ///   this is called as a result of clicking the window's close button
@@ -106,17 +107,19 @@ final class MainWindowController                  : NSWindowController, NSWindow
   // ----------------------------------------------------------------------------
   // MARK: - Action methods
   
+  // ----- Buttons -----
+
+
   @IBAction func tnfButton(_ sender: NSButton) {
     Api.sharedInstance.radio!.tnfsEnabled = sender.boolState
   }
   
   @IBAction func markersButton(_ sender: NSButton) {
-    Defaults[.markersEnabled] = sender.boolState
+    Defaults.markersEnabled = sender.boolState
   }
   
-  @IBAction func sideButton(_ sender: NSButton) {
-    Defaults[.sideViewOpen] = sender.boolState
-    sideView(open: Defaults[.sideViewOpen])
+  @IBAction func sideButton(_ sender: Any) {
+    sideMenu(self)
   }
   
   @IBAction func fdxButton(_ sender: NSButton) {
@@ -124,17 +127,38 @@ final class MainWindowController                  : NSWindowController, NSWindow
   }
   
   @IBAction func cwxButton(_ sender: NSButton) {
-    Defaults[.cwxViewOpen] = sender.boolState
+    Defaults.cwxViewOpen = sender.boolState
   }
     
   /// Respond to the Mac Audio button
   ///
   /// - Parameter sender:         the Button
   ///
-  @IBAction func macAudioButton(_ sender: NSButton) {
-    Defaults[.macAudioEnabled] = sender.boolState
+  @IBAction func macAudioButton(_ sender: Any) {
     
-    macAudio(start: sender.boolState)
+    let state = _macAudioButton.boolState
+    Defaults.macAudioEnabled = state
+    
+    // what API version?
+    if Api.sharedInstance.radio!.version.isNewApi {
+      // NewApi
+      if state {
+        // add a stream
+        Api.sharedInstance.radio!.requestRemoteRxAudioStream()
+        
+      } else {
+        // request the stream removal
+        for (_, stream) in Api.sharedInstance.radio!.remoteRxAudioStreams where stream.clientHandle == Api.sharedInstance.connectionHandle {
+          stream.remove()
+        }
+      }
+      
+    } else {
+      // OldApi
+      Api.sharedInstance.radio!.startStopOpusRxAudioStream(state: state)
+      
+      if state { usleep(50_000) ; _opusPlayer?.start() } else { _opusPlayer?.stop() }
+    }
   }
 
   @IBAction func muteLineoutButton(_ sender: NSButton) {
@@ -153,201 +177,115 @@ final class MainWindowController                  : NSWindowController, NSWindow
     Api.sharedInstance.radio!.headphoneMute = sender.boolState
   }
 
-  /// Respond to the Pan button
-  ///
-  /// - Parameter sender:         the Button
-  ///
   @IBAction func panButton(_ sender: AnyObject) {
     
     // dimensions are dummy values; when created, will be resized to fit its view
     Api.sharedInstance.radio?.requestPanadapter(CGSize(width: 50, height: 50))
   }
   
+  // ----- Menus -----
+
+  @IBAction func radioSelectionMenu(_ sender: AnyObject) {
+    
+    _radioManager.openRadioPicker()
+  }
+
   @IBAction func tnfMenu(_ sender: NSMenuItem) {
+    Defaults.tnfsEnabled.toggle()
     Api.sharedInstance.radio!.tnfsEnabled.toggle()
   }
   
   @IBAction func markersMenu(_ sender: NSMenuItem) {
-    Defaults[.markersEnabled].toggle()
-    _markersButton.boolState = Defaults[.markersEnabled]
+    Defaults.markersEnabled.toggle()
+    _markersButton.boolState = Defaults.markersEnabled
   }
   
-  @IBAction func sideMenu(_ sender: NSMenuItem) {
-    Defaults[.sideViewOpen].toggle()
-    _sideButton.boolState = Defaults[.sideViewOpen]
-    sideView(open: Defaults[.sideViewOpen])
-  }
+  @IBAction func sideMenu(_ sender: Any) {
+    Defaults.sideViewOpen = _sideButton.boolState
 
+    // toggle the window
+    if _sideViewController == nil {
+      // NOT OPEN, open it
+      let sideStoryboard = NSStoryboard(name: "Side", bundle: nil)
+      _sideViewController = sideStoryboard.instantiateController(withIdentifier: kSideIdentifier) as? SideViewController
+      
+      _log.logMessage("Side view opened", .debug,  #function, #file, #line)
+      DispatchQueue.main.async { [weak self] in
+        // add it to the split view
+        if let vc = self?.contentViewController {
+          vc.addChild(self!._sideViewController!)
+        }
+      }
+    } else {
+      // OPEN, close it
+      DispatchQueue.main.async { [weak self] in
+        // remove it from the split view
+        if let vc = self?.contentViewController {          
+          // remove it
+          vc.removeChild(at: 1)
+        }
+        self?._sideViewController = nil
+        self?._log.logMessage("Side view closed", .debug,  #function, #file, #line)
+      }
+    }
+  }
+  
   @IBAction func panMenu(_ sender: NSMenuItem) {
     panButton(self)
   }
-
+  
   @IBAction func nextSliceMenu(_ sender: NSMenuItem) {
+    
+    if let slice = Api.sharedInstance.radio!.findActiveSlice() {
+      let slicesOnThisPan = Api.sharedInstance.radio!.slices.values.sorted { $0.frequency < $1.frequency }
+      var index = slicesOnThisPan.firstIndex(of: slice)!
+      
+      index = index + 1
+      index = index % slicesOnThisPan.count
+      
+      slice.active = false
+      slicesOnThisPan[index].active = true
+    }
+  }
   
-    // FIXME: ???
+  @IBAction func quitRadio(_ sender: Any) {
+    
+    // perform an orderly disconnect of all the components
+    if Api.sharedInstance.apiState != .disconnected { Api.sharedInstance.disconnect(reason: .normal) }
+    
+    _log.logMessage("Application closed by user", .info,  #function, #file, #line)
+    DispatchQueue.main.async {
+
+      // close the app
+      NSApp.terminate(sender)
+    }
   }
 
-  /// Respond to the Profiles menu (Command-,)
-  ///
-  /// - Parameter sender:         the MenuItem
-  ///
-  @IBAction func preferencesMenu(_ sender: NSMenuItem) {
-    preferencesWindow(open: true)
+  @IBAction func terminate(_ sender: AnyObject) {
+    
+    quitRadio(self)
   }
-  /// Respond to the Profiles menu (Command-P)
-  ///
-  /// - Parameter sender:         the MenuItem
-  ///
-  @IBAction func profilesMenu(_ sender: NSMenuItem) {
-    profilesWindow(open: true)
-  }
-  
-  
+
   // ----------------------------------------------------------------------------
   // MARK: - Private methods
   
   /// Set the Window's title
   ///
   private func title() {
-
+    
     // set the title bar
     DispatchQueue.main.async { [unowned self] in
       var title = ""
       // are we connected?
       if let radio = Api.sharedInstance.radio {
         // YES, format and set the window title
-        title = "\(radio.discoveryPacket.nickname) v\(radio.version.longString) \(radio.discoveryPacket.isWan ? "SmartLink" : "Local")         \(Logger.kAppName) v\(Logger.sharedInstance.version.string)"
-
+        title = "\(radio.packet.nickname) v\(radio.version.longString) \(radio.packet.isWan ? "SmartLink" : "Local")         \(Logger.kAppName) v\(Logger.sharedInstance.version.string)"
+        
       } else {
         // NO, show App & Api only
         title = "\(Logger.kAppName) v\(Logger.sharedInstance.version.string)"
       }
       self.window?.title = title
-    }
-  }
-  /// Start / Stop Mac audio
-  /// - Parameter start:      state
-  ///
-  private func macAudio(start: Bool) {
-    // what API version?
-    if Api.sharedInstance.radio!.version.isNewApi {
-      // NewApi
-      if start {
-        // add a stream
-        Api.sharedInstance.radio!.requestRemoteRxAudioStream()
-        
-      } else {
-        // request the stream removal
-        for (_, stream) in Api.sharedInstance.radio!.remoteRxAudioStreams where stream.clientHandle == Api.sharedInstance.connectionHandle {
-          stream.remove()
-        }
-      }
-      
-    } else {
-      // OldApi
-      Api.sharedInstance.radio!.startStopOpusRxAudioStream(state: start)
-      
-      if start { usleep(50_000) ; _opusPlayer?.start() } else { _opusPlayer?.stop() }
-    }
-  }
-  /// Open or Close the Side view
-  ///
-  /// - Parameter state:              the desired state
-  ///
-  private func sideView(open: Bool) {
-        
-    if open {
-      // OPENING, is there an existing instance?
-      if _sideViewController == nil {
-        // NO, get an instance of the Side view
-        _sideViewController = _sideStoryboard!.instantiateController(withIdentifier: kSideIdentifier) as? SideViewController
-        
-        _log.logMessage("Side view opened", .info,  #function, #file, #line)
-        DispatchQueue.main.async { [weak self] in
-          // add it to the split view
-          if let vc = self?.contentViewController as? RadioViewController {
-            vc.addChild(self!._sideViewController!)
-          }
-        }
-      }
-    } else {
-      
-      DispatchQueue.main.async { [weak self] in
-        // CLOSING, is there an instance?
-        if self?._sideViewController != nil {
-          
-          if let vc = self?.contentViewController as? RadioViewController {
-            // YES, collapse it first
-            vc.splitViewItems[1].isCollapsed = true
-            
-            // remove it from the split view
-            vc.removeChild(at: 1)
-          }
-          self?._sideViewController = nil
-
-          self?._log.logMessage("Side view closed", .info,  #function, #file, #line)
-        }
-      }
-    }
-  }
-  /// Open or Close the Preferences window
-  ///
-  /// - Parameter state:              the desired state
-  ///
-  private func preferencesWindow(open: Bool) {
-    
-    if open {
-      // OPENING, is there an existing instance?
-      if _preferencesWindowController == nil {
-        // NO, get one
-        _preferencesWindowController = _preferencesStoryboard!.instantiateController(withIdentifier: kPreferencesIdentifier) as? NSWindowController
-        _preferencesWindowController?.window?.delegate = self
-        
-        DispatchQueue.main.async { [weak self] in
-          // show the Preferences window
-          self?._preferencesWindowController?.showWindow(self!)
-        }
-      }
-      
-    } else {
-      // CLOSING, is there an instance?
-      if _preferencesWindowController != nil {
-        // YES, close it
-        DispatchQueue.main.async { [weak self] in
-          self?._preferencesWindowController?.window?.close()
-          self?._preferencesWindowController = nil
-        }
-      }
-    }
-  }
-  /// Open or Close the Profiles window
-  ///
-  /// - Parameter state:              the desired state
-  ///
-  private func profilesWindow(open: Bool) {
-  
-    if open {
-      // OPENING, is there an existing instance?
-      if _profilesWindowController == nil {
-        // NO, get an instance of the Profiles
-        _profilesWindowController = _profilesStoryboard!.instantiateController(withIdentifier: kProfilesIdentifier) as? NSWindowController
-        _profilesWindowController?.window?.delegate = self
-
-        DispatchQueue.main.async { [weak self] in
-          // show the Profiles window
-          self?._profilesWindowController?.showWindow(self!)
-        }
-      }
-    
-    } else {
-      // CLOSING, is there an instance?
-      if _profilesWindowController != nil {
-        // YES, close it
-        DispatchQueue.main.async { [weak self] in
-          self?._profilesWindowController?.close()
-          self?._profilesWindowController = nil
-        }
-      }
     }
   }
 
@@ -406,18 +344,18 @@ final class MainWindowController                  : NSWindowController, NSWindow
         
         // if enabled, set their states / values
         if state {
-          self?._macAudioButton.boolState         = Defaults[.macAudioEnabled]
+          self?._macAudioButton.boolState         = Defaults.macAudioEnabled
           self?._tnfButton.boolState              = api.radio!.tnfsEnabled
-          self?._markersButton.boolState          = Defaults[.markersEnabled]
-          self?._sideButton.boolState             = Defaults[.sideViewOpen]
+          self?._markersButton.boolState          = Defaults.markersEnabled
+          self?._sideButton.boolState             = Defaults.sideViewOpen
           self?._fdxButton.boolState              = api.radio!.fullDuplexEnabled
-          self?._cwxButton.boolState              = Defaults[.cwxViewOpen]
+          self?._cwxButton.boolState              = Defaults.cwxViewOpen
           self?._lineoutGainSlider.integerValue   = api.radio!.lineoutGain
           self?._lineoutMuteButton.boolState      = api.radio!.lineoutMute
           self?._headphoneGainSlider.integerValue = api.radio!.headphoneGain
           self?._headphoneMuteButton.boolState    = api.radio!.headphoneMute
           
-          if Defaults[.macAudioEnabled] { self?.macAudio(start: true)}
+          if Defaults.macAudioEnabled { self?.macAudioButton(self as Any)}
         }
       }
 //    }
@@ -464,6 +402,17 @@ final class MainWindowController                  : NSWindowController, NSWindow
     }
   }
 
+  private func menuState(enabled state: Bool) {
+    
+    let xSDR6000Menu = NSApplication.shared.mainMenu?.item(withTitle: "xSDR6000")
+    for menuItem in xSDR6000Menu!.submenu!.items {
+      
+      switch menuItem.title {
+      case "Preferences", "Profiles":   menuItem.isEnabled = state
+      default:                          break
+      }
+    }
+  }
   // ----------------------------------------------------------------------------
   // MARK: - Notification Methods
   
@@ -493,13 +442,15 @@ final class MainWindowController                  : NSWindowController, NSWindow
     // the Radio class has been initialized
     let radio = note.object as! Radio
     
-    _log.logMessage("Radio initialized: \(radio.nickname), v\(radio.discoveryPacket.firmwareVersion)", .info,  #function, #file, #line)
+    _log.logMessage("Radio initialized: \(radio.nickname), v\(radio.packet.firmwareVersion)", .info,  #function, #file, #line)
 
-    Defaults[.versionRadio] = radio.discoveryPacket.firmwareVersion
-    Defaults[.radioModel] = radio.discoveryPacket.model
+    Defaults.versionRadio = radio.packet.firmwareVersion
+    Defaults.radioModel = radio.packet.model
     
     // update the title bar
     title()
+    
+    menuState(enabled: true)
   }
   /// Process .radioWillBeRemoved Notification
   ///
@@ -512,8 +463,10 @@ final class MainWindowController                  : NSWindowController, NSWindow
       
       _log.logMessage("Radio will be removed: \(radio.nickname)", .info,  #function, #file, #line)
       
-      Defaults[.versionRadio] = ""
-      
+      Defaults.versionRadio = ""
+      menuState(enabled: false)
+      _firstPingResponse = false
+
       // remove all objects on Radio
       radio.removeAll()
     }
@@ -538,12 +491,12 @@ final class MainWindowController                  : NSWindowController, NSWindow
   @objc private func tcpPingFirstResponse(_ note: Notification) {
     
     // receipt of the first Ping response indicates the Radio is fully initialized
-    _tcpPingFirstResponseReceived = true
-    
+    _firstPingResponse = true
+
     // delay the opening of the side view (allows Slice(s) to be instantiated, if any)
     DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + .seconds( kSideViewDelay )) { [weak self] in
       // show/hide the Side view
-      self?.sideView(open: Defaults[.sideViewOpen])
+      if Defaults.sideViewOpen { self?.sideMenu(self as Any) }
     }
   }
   /// Process .meterHasBeenAdded Notification
@@ -587,7 +540,7 @@ final class MainWindowController                  : NSWindowController, NSWindow
       _log.logMessage("OpusAudioStream added: id = \(opusAudioStream.id.hex)", .info, #function, #file, #line)
 
       _opusPlayer = OpusPlayer()
-      if Defaults[.macAudioEnabled] { _opusPlayer!.start() }
+      if Defaults.macAudioEnabled { _opusPlayer!.start() }
       opusAudioStream.delegate = _opusPlayer
     }
   }

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="16096" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="16096" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="jcl-33-LeA">
     <dependencies>
         <deployment identifier="macosx"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="16096"/>
@@ -30,7 +30,7 @@
         <!--Preference Tabs-->
         <scene sceneID="rdp-1L-oes">
             <objects>
-                <tabViewController selectedTabViewItemIndex="0" id="f5E-4P-cEO" userLabel="Preference Tabs" customClass="PreferencesTabViewController" customModule="xSDR6000" customModuleProvider="target" sceneMemberID="viewController">
+                <tabViewController selectedTabViewItemIndex="9" id="f5E-4P-cEO" userLabel="Preference Tabs" customClass="PreferencesTabViewController" customModule="xSDR6000" customModuleProvider="target" sceneMemberID="viewController">
                     <tabViewItems>
                         <tabViewItem identifier="Radio" id="VqQ-ZR-z6L">
                             <nil key="label"/>

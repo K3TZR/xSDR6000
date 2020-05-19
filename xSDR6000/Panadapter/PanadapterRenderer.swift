@@ -58,7 +58,7 @@ public final class PanadapterRenderer       : NSObject {
   private var _commandQueue                 : MTLCommandQueue!
   private var _pipelineState                : MTLRenderPipelineState!
   
-  private var _fillLevel                    = 1
+//  private var _fillLevel                    = 1
   
   private let _panQ                         = DispatchQueue(label: Logger.kAppName + ".panQ", attributes: [.concurrent])
   private let _panDrawQ                     = DispatchQueue(label: Logger.kAppName + ".panDrawQ")
@@ -132,7 +132,6 @@ public final class PanadapterRenderer       : NSObject {
     // Color struct mapping
     //  <--------------------- 16 ---------------------->              spectrumColor
     
-    _fillLevel = fillLevel
     
     // calculate the effective fill color
     let fillPercent = CGFloat(fillLevel)/CGFloat(100.0)
@@ -238,15 +237,15 @@ extension PanadapterRenderer                : MTKViewDelegate {
     // bind the Constants
     encoder.setVertexBytes(&_constants, length: MemoryLayout.size(ofValue: _constants), index: kConstantsBufferIndex)
     
-    // is the Panadapter "filled"?
-    if self._fillLevel > 1 {
+//    // is the Panadapter "filled"?
+//    if self._fillLevel > 1 {
       
       // YES, bind the Fill Color
       encoder.setVertexBytes(&_colorArray[kFillColor], length: MemoryLayout.size(ofValue: _colorArray[kFillColor]), index: kColorBufferIndex)
       
       // Draw filled
       encoder.drawIndexedPrimitives(type: .triangleStrip, indexCount: Int(_numberOfBins * 2), indexType: .uint16, indexBuffer: _spectrumIndicesBuffer, indexBufferOffset: 0)
-    }
+//    }
     encoder.popDebugGroup()
     encoder.pushDebugGroup("Line")
     

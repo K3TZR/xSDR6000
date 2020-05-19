@@ -9,12 +9,13 @@
 import Cocoa
 
 @NSApplicationMain
-  final class AppDelegate                     : NSObject, NSApplicationDelegate {
+  final class AppDelegate                     : NSObject, NSApplicationDelegate, NSWindowDelegate {
 
   private let transformer : Void = {
       let myTransformer = FrequencyTransformer()
       ValueTransformer.setValueTransformer(myTransformer, forName:NSValueTransformerName("FrequencyTransformer"))
   }()
+
   
   // ----------------------------------------------------------------------------
   // MARK: - Internal methods
@@ -22,6 +23,7 @@ import Cocoa
   func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
     return true
   }
+
 }
 
 

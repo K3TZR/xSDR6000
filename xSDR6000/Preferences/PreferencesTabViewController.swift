@@ -32,10 +32,7 @@ final class PreferencesTabViewController    : NSTabViewController {
     
     view.translatesAutoresizingMaskIntoConstraints = false
     
-    // select the previously selelcted tab
-    tabView.selectTabViewItem(withIdentifier: NSUserInterfaceItemIdentifier(Defaults[.preferencesTabId]) )
-
-    _log.logMessage("Preferences window opened", .info, #function, #file, #line)
+    _log.logMessage("Preferences window opened", .debug, #function, #file, #line)
   }
 
   override func viewWillAppear() {
@@ -45,20 +42,21 @@ final class PreferencesTabViewController    : NSTabViewController {
     view.window!.level = .floating
 
     // select the previously displayed tab
-    tabView.selectTabViewItem(withIdentifier: NSUserInterfaceItemIdentifier(Defaults[.preferencesTabId]) )
+    tabView.selectTabViewItem(withIdentifier: NSUserInterfaceItemIdentifier(Defaults.preferencesTabId) )
   }
   
   override func viewWillDisappear() {
     super.viewWillDisappear()
     
     view.window!.saveFrame(usingName: _autosaveName)
+    view.window!.level = .floating
 
     // close the ColorPicker (if open)
     if NSColorPanel.shared.isVisible {
       NSColorPanel.shared.performClose(nil)
     }
     // save the currently displayed tab
-    Defaults[.preferencesTabId] = (tabView.selectedTabViewItem?.identifier as! NSUserInterfaceItemIdentifier).rawValue
+    Defaults.preferencesTabId = (tabView.selectedTabViewItem?.identifier as! NSUserInterfaceItemIdentifier).rawValue
   }
 
   override func tabView(_ tabView: NSTabView, willSelect tabViewItem: NSTabViewItem?) {
@@ -70,7 +68,7 @@ final class PreferencesTabViewController    : NSTabViewController {
     }
   }
   deinit {
-    _log.logMessage("Preferences window closed", .info, #function, #file, #line)
+    _log.logMessage("Preferences window closed", .debug, #function, #file, #line)
     #if XDEBUG
     Swift.print("\(#function) - \(URL(fileURLWithPath: #file).lastPathComponent.dropLast(6))")
     #endif

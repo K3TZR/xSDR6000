@@ -28,8 +28,6 @@ final class ColorsPrefsViewController            : NSViewController {
   @IBOutlet private weak var _tnfActive          : NSColorWell!
   @IBOutlet private weak var _tnfInactive        : NSColorWell!
   
-  private var _observations                      = [NSKeyValueObservation]()
-
   // ----------------------------------------------------------------------------
   // MARK: - Overridden methods
   
@@ -55,35 +53,36 @@ final class ColorsPrefsViewController            : NSViewController {
   // MARK: - Action methods
   
   @IBAction func singleResetButtons(_ sender: NSButton) {
+    let defaults = DefaultsKeys()
     
     // reset the respective color
     switch sender.identifier!.rawValue {
     case "DbLegendReset":
-      Defaults.remove(.dbLegend)
+      Defaults.dbLegend = defaults.dbLegend.defaultValue!
     case "FrequencyLegendReset":
-      Defaults.remove(.frequencyLegend)
+      Defaults.frequencyLegend = defaults.frequencyLegend.defaultValue!
     case "GridLineReset":
-      Defaults.remove(.gridLine)
+      Defaults.gridLine = defaults.gridLine.defaultValue!
     case "MarkerReset":
-      Defaults.remove(.marker)
+      Defaults.marker = defaults.marker.defaultValue!
     case "MarkerEdgeReset":
-      Defaults.remove(.markerEdge)
+      Defaults.markerEdge = defaults.markerEdge.defaultValue!
     case "MarkerSegmentReset":
-      Defaults.remove(.markerSegment)
+      Defaults.markerSegment = defaults.markerSegment.defaultValue!
     case "SliceActiveReset":
-      Defaults.remove(.sliceActive)
+      Defaults.sliceActive = defaults.sliceActive.defaultValue!
     case "SliceFilterReset":
-      Defaults.remove(.sliceFilter)
+      Defaults.sliceFilter = defaults.sliceFilter.defaultValue!
     case "SliceInactiveReset":
-      Defaults.remove(.sliceInactive)
+      Defaults.sliceInactive = defaults.sliceInactive.defaultValue!
     case "SpectrumBackgroundReset":
-      Defaults.remove(.spectrumBackground)
+      Defaults.spectrumBackground = defaults.spectrumBackground.defaultValue!
     case "SpectrumReset":
-      Defaults.remove(.spectrum)
+      Defaults.spectrum = defaults.spectrum.defaultValue!
     case "TnfActiveReset":
-      Defaults.remove(.tnfActive)
+      Defaults.tnfActive = defaults.tnfActive.defaultValue!
     case "TnfInactiveReset":
-      Defaults.remove(.tnfInactive)
+      Defaults.tnfInactive = defaults.tnfInactive.defaultValue!
     default:
       fatalError()
     }
@@ -98,31 +97,31 @@ final class ColorsPrefsViewController            : NSViewController {
     // set the respective color
     switch sender.identifier!.rawValue {
     case "dbLegend":
-      Defaults[.dbLegend] = sender.color
+      Defaults.dbLegend = sender.color
     case "frequencyLegend":
-      Defaults[.frequencyLegend] = sender.color
+      Defaults.frequencyLegend = sender.color
     case "gridLine":
-      Defaults[.gridLine] = sender.color
+      Defaults.gridLine = sender.color
     case "marker":
-      Defaults[.marker] = sender.color
+      Defaults.marker = sender.color
     case "markerEdge":
-      Defaults[.markerEdge] = sender.color
+      Defaults.markerEdge = sender.color
     case "markerSegment":
-      Defaults[.markerSegment] = sender.color
+      Defaults.markerSegment = sender.color
     case "sliceActive":
-      Defaults[.sliceActive] = sender.color
+      Defaults.sliceActive = sender.color
     case "sliceFilter":
-      Defaults[.sliceFilter] = sender.color
+      Defaults.sliceFilter = sender.color
     case "sliceInactive":
-      Defaults[.sliceInactive] = sender.color
+      Defaults.sliceInactive = sender.color
     case "spectrum":
-      Defaults[.spectrum] = sender.color
+      Defaults.spectrum = sender.color
     case "spectrumBackground":
-      Defaults[.spectrumBackground] = sender.color
+      Defaults.spectrumBackground = sender.color
     case "tnfActive":
-      Defaults[.tnfActive] = sender.color
+      Defaults.tnfActive = sender.color
     case "tnfInactive":
-      Defaults[.tnfInactive] = sender.color
+      Defaults.tnfInactive = sender.color
     default:
       fatalError()
     }
@@ -132,70 +131,73 @@ final class ColorsPrefsViewController            : NSViewController {
   /// - Parameter sender:             the button
   ///
   @IBAction func resetButton(_ sender: NSButton) {
-    
+    let defaults = DefaultsKeys()
+
     // reset all colors to their default values
-    Defaults.remove(.dbLegend)
-    Defaults.remove(.frequencyLegend)
-    Defaults.remove(.gridLine)
-    Defaults.remove(.marker)
-    Defaults.remove(.markerEdge)
-    Defaults.remove(.markerSegment)
-    Defaults.remove(.sliceActive)
-    Defaults.remove(.sliceFilter)
-    Defaults.remove(.sliceInactive)
-    Defaults.remove(.spectrum)
-    Defaults.remove(.spectrumBackground)
-    Defaults.remove(.tnfActive)
-    Defaults.remove(.tnfInactive)
+      Defaults.dbLegend           = defaults.dbLegend.defaultValue!
+      Defaults.frequencyLegend    = defaults.frequencyLegend.defaultValue!
+      Defaults.gridLine           = defaults.gridLine.defaultValue!
+      Defaults.marker             = defaults.marker.defaultValue!
+      Defaults.markerEdge         = defaults.markerEdge.defaultValue!
+      Defaults.markerSegment      = defaults.markerSegment.defaultValue!
+      Defaults.sliceActive        = defaults.sliceActive.defaultValue!
+      Defaults.sliceFilter        = defaults.sliceFilter.defaultValue!
+      Defaults.sliceInactive      = defaults.sliceInactive.defaultValue!
+      Defaults.spectrumBackground = defaults.spectrumBackground.defaultValue!
+      Defaults.spectrum           = defaults.spectrum.defaultValue!
+      Defaults.tnfActive          = defaults.tnfActive.defaultValue!
+      Defaults.tnfInactive        = defaults.tnfInactive.defaultValue!
   }
   
   // ----------------------------------------------------------------------------
   // MARK: - Observation methods
-  
+
+  private var _defaultsObservations   = [DefaultsDisposable]()
+
   /// Add observations of various properties used by the view
   ///
   private func addObservations() {
     
-    _observations = [
+    _defaultsObservations = [
       
-      Defaults.observe(\.dbLegend, options: [.initial, .new]) { [weak self] (object, change) in
-        self?._dbLegend.color = Defaults[.dbLegend] },
+      Defaults.observe(\.dbLegend, options: [.initial, .new]) { [weak self] update in
+        self?._dbLegend.color = update.newValue! },
 
-      Defaults.observe(\.frequencyLegend, options: [.initial, .new]) { [weak self] (object, change) in
-        self?._frequencyLegend.color = Defaults[.frequencyLegend] },
+      Defaults.observe(\.frequencyLegend, options: [.initial, .new]) { [weak self] update in
+        self?._frequencyLegend.color =  update.newValue!},
 
-      Defaults.observe(\.gridLine, options: [.initial, .new]) { [weak self] (object, change) in
-        self?._gridLine.color = Defaults[.gridLine] },
+      Defaults.observe(\.gridLine, options: [.initial, .new]) { [weak self] update in
+        self?._gridLine.color =  update.newValue! },
 
-      Defaults.observe(\.marker, options: [.initial, .new]) { [weak self] (object, change) in
-        self?._marker.color = Defaults[.marker] },
+      Defaults.observe(\.marker, options: [.initial, .new]) { [weak self] update in
+        self?._marker.color =  update.newValue! },
 
-      Defaults.observe(\.markerEdge, options: [.initial, .new]) { [weak self] (object, change) in
-        self?._markerEdge.color = Defaults[.markerEdge] },
+      Defaults.observe(\.markerEdge, options: [.initial, .new]) { [weak self] update in
+        self?._markerEdge.color =  update.newValue! },
 
-      Defaults.observe(\.markerSegment, options: [.initial, .new]) { [weak self] (object, change) in
-        self?._markerSegment.color = Defaults[.markerSegment] },
+      Defaults.observe(\.markerSegment, options: [.initial, .new]) { [weak self] update in
+        self?._markerSegment.color =  update.newValue! },
 
-      Defaults.observe(\.sliceActive, options: [.initial, .new]) { [weak self] (object, change) in
-        self?._sliceActive.color = Defaults[.sliceActive] },
+      Defaults.observe(\.sliceActive, options: [.initial, .new]) { [weak self] update in
+        self?._sliceActive.color =  update.newValue! },
 
-      Defaults.observe(\.sliceFilter, options: [.initial, .new]) { [weak self] (object, change) in
-        self?._sliceFilter.color = Defaults[.sliceFilter] },
+      Defaults.observe(\.sliceFilter, options: [.initial, .new]) { [weak self] update in
+        self?._sliceFilter.color =  update.newValue! },
 
-      Defaults.observe(\.sliceInactive, options: [.initial, .new]) { [weak self] (object, change) in
-        self?._sliceInactive.color = Defaults[.sliceInactive] },
+      Defaults.observe(\.sliceInactive, options: [.initial, .new]) { [weak self] update in
+        self?._sliceInactive.color =  update.newValue! },
 
-      Defaults.observe(\.spectrum, options: [.initial, .new]) { [weak self] (object, change) in
-        self?._spectrum.color = Defaults[.spectrum] },
+      Defaults.observe(\.spectrum, options: [.initial, .new]) { [weak self] update in
+        self?._spectrum.color =  update.newValue! },
 
-      Defaults.observe(\.spectrumBackground, options: [.initial, .new]) { [weak self] (object, change) in
-        self?._spectrumBackground.color = Defaults[.spectrumBackground] },
+      Defaults.observe(\.spectrumBackground, options: [.initial, .new]) { [weak self] update in
+        self?._spectrumBackground.color =  update.newValue! },
 
-      Defaults.observe(\.tnfActive, options: [.initial, .new]) { [weak self] (object, change) in
-        self?._tnfActive.color = Defaults[.tnfActive] },
+      Defaults.observe(\.tnfActive, options: [.initial, .new]) { [weak self] update in
+        self?._tnfActive.color =  update.newValue! },
 
-      Defaults.observe(\.tnfInactive, options: [.initial, .new]) { [weak self] (object, change) in
-        self?._tnfInactive.color = Defaults[.tnfInactive] }
+      Defaults.observe(\.tnfInactive, options: [.initial, .new]) { [weak self] update in
+        self?._tnfInactive.color =  update.newValue! }
     ]
   }
   /// Process observations
@@ -207,19 +209,19 @@ final class ColorsPrefsViewController            : NSViewController {
 //  private func changeHandler(_ defaults: Any, _ change: Any) {
 //
 //    DispatchQueue.main.async { [weak self] in
-//      self?._dbLegend.color = Defaults[.dbLegend]
-//      self?._frequencyLegend.color = Defaults[.frequencyLegend]
-//      self?._gridLine.color = Defaults[.gridLine]
-//      self?._marker.color = Defaults[.marker]
-//      self?._markerEdge.color = Defaults[.markerEdge]
-//      self?._markerSegment.color = Defaults[.markerSegment]
-//      self?._sliceActive.color = Defaults[.sliceActive]
-//      self?._sliceFilter.color = Defaults[.sliceFilter]
-//      self?._sliceInactive.color = Defaults[.sliceInactive]
-//      self?._spectrum.color = Defaults[.spectrum]
-//      self?._spectrumBackground.color = Defaults[.spectrumBackground]
-//      self?._tnfActive.color = Defaults[.tnfActive]
-//      self?._tnfInactive.color = Defaults[.tnfInactive]
+//      self?._dbLegend.color = Defaults.dbLegend
+//      self?._frequencyLegend.color = Defaults.frequencyLegend
+//      self?._gridLine.color = Defaults.gridLine
+//      self?._marker.color = Defaults.marker
+//      self?._markerEdge.color = Defaults.markerEdge
+//      self?._markerSegment.color = Defaults.markerSegment
+//      self?._sliceActive.color = Defaults.sliceActive
+//      self?._sliceFilter.color = Defaults.sliceFilter
+//      self?._sliceInactive.color = Defaults.sliceInactive
+//      self?._spectrum.color = Defaults.spectrum
+//      self?._spectrumBackground.color = Defaults.spectrumBackground
+//      self?._tnfActive.color = Defaults.tnfActive
+//      self?._tnfInactive.color = Defaults.tnfInactive
 //
 //    }
 //  }

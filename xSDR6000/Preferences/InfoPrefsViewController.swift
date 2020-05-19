@@ -55,7 +55,7 @@ final class InfoPrefsViewController: NSViewController, NSTableViewDelegate, NSTa
     _versionRadioTextField.stringValue = Api.sharedInstance.radio?.version.longString ?? ""
 
     // load the array
-    _array = Defaults[.supportingApps]
+    _array = Defaults.supportingApps
     
     // populate the App table
     _tableView.delegate = self
@@ -166,7 +166,7 @@ final class InfoPrefsViewController: NSViewController, NSTableViewDelegate, NSTa
   
   private func save(_ array: [[String:Any]]) {
     
-    Defaults[.supportingApps] = array
+    Defaults.supportingApps = array
   }
 
   // ----------------------------------------------------------------------------

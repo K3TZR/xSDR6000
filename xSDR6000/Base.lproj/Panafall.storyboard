@@ -939,7 +939,7 @@
                                 <rect key="frame" x="143" y="166" width="96" height="19"/>
                                 <sliderCell key="cell" continuous="YES" state="on" alignment="left" minValue="1" maxValue="100" doubleValue="24" tickMarkPosition="above" sliderType="linear" id="hvR-pO-wQd"/>
                                 <connections>
-                                    <action selector="sliders:" target="ZbW-v4-iMg" id="p8a-3m-Laa"/>
+                                    <action selector="sliders:" target="ZbW-v4-iMg" id="mAk-CV-IrD"/>
                                 </connections>
                             </slider>
                         </subviews>
@@ -1016,7 +1016,7 @@
                         <outlet property="_colorGainSlider" destination="hft-OR-PjQ" id="f1D-dG-d0g"/>
                         <outlet property="_colorGainTextField" destination="TDd-LH-n0S" id="b6x-Le-F9S"/>
                         <outlet property="_fillSlider" destination="1mO-FY-ajv" id="s6C-3T-Qi4"/>
-                        <outlet property="_fillTextField" destination="36w-jl-JaT" id="Yk0-t6-f44"/>
+                        <outlet property="_fillTextField" destination="36w-jl-JaT" id="5uP-2x-RaR"/>
                         <outlet property="_framesSlider" destination="tJ9-Gv-cYR" id="Xyw-KO-tJs"/>
                         <outlet property="_framesTextField" destination="YHa-e7-Vzc" id="gvl-o2-VsW"/>
                         <outlet property="_gradientPopUp" destination="fM2-Ze-IBj" id="MEg-RI-gpK"/>

@@ -34,7 +34,7 @@ final class DaxViewController: NSViewController {
     
     view.translatesAutoresizingMaskIntoConstraints = false
     
-    if Defaults[.flagBorderEnabled] {
+    if Defaults.flagBorderEnabled {
       view.layer?.borderColor = NSColor.darkGray.cgColor
       view.layer?.borderWidth = 0.5
     }

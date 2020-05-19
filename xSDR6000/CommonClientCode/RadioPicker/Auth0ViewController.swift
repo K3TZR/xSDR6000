@@ -11,12 +11,8 @@ import WebKit
 import SwiftyUserDefaults
 import xLib6000
 
-//#if XSDR6000
-//  import xLib6000
-//#endif
-
 // --------------------------------------------------------------------------------
-// MARK: - Auth0 Controller Delegate definition
+// MARK: - Auth0 Delegate definition
 // --------------------------------------------------------------------------------
 
 protocol Auth0Delegate {
@@ -76,7 +72,7 @@ final class Auth0ViewController             : NSViewController, WKNavigationDele
     Swift.print("\(#function) - \(URL(fileURLWithPath: #file).lastPathComponent.dropLast(6))")
     #endif
 
-    if !Defaults[.smartLinkWasLoggedIn] {
+    if !Defaults.smartLinkWasLoggedIn {
       // clear all cookies to prevent falling back to earlier saved login credentials
       let storage = HTTPCookieStorage.shared
       if let cookies = storage.cookies {
@@ -161,9 +157,8 @@ final class Auth0ViewController             : NSViewController, WKNavigationDele
   ///
   /// - Parameter sender:         the button
   ///
-  @IBAction func cancelButton(_ sender: NSButton) {
+  @IBAction func cancelButton(_ sender: Any) {
     
-//    _delegate.closeAuth0Sheet()
     DispatchQueue.main.async { [weak self] in
       self?.dismiss(self)
     }
@@ -217,12 +212,9 @@ final class Auth0ViewController             : NSViewController, WKNavigationDele
         // end the navigation
         decisionHandler(.cancel)
         
-//        // tell the delegate to close the Auth0 sheet
-//        _delegate.closeAuth0Sheet()
-        DispatchQueue.main.async { [weak self] in
-          self?.dismiss(self)
-        }
-
+        // close the Auth0 sheet
+        cancelButton(self)
+        
         return
       }
     }

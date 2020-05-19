@@ -19,7 +19,6 @@ final class DaxIqViewController             : NSViewController, NSPopoverDelegat
   private var _panadapter                   : Panadapter {
     return representedObject as! Panadapter }
 
-  private var _observations                 = [NSKeyValueObservation]()
   private var _isDetached                   = false
 
   // ----------------------------------------------------------------------------
@@ -68,6 +67,8 @@ final class DaxIqViewController             : NSViewController, NSPopoverDelegat
   // ----------------------------------------------------------------------------
   // MARK: - Observation methods
   
+  private var _observations                 = [NSKeyValueObservation]()
+
   /// Add observations of various properties used by the view
   ///
   private func addObservations() {

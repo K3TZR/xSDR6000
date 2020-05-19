@@ -53,8 +53,6 @@ final class ModeViewController       : NSViewController {
   private var _slice                        : xLib6000.Slice {
     return representedObject as! xLib6000.Slice }
 
-  private var _observations                 = [NSKeyValueObservation]()
-  
   // ----------------------------------------------------------------------------
   // MARK: - Overridden methods
   
@@ -67,7 +65,7 @@ final class ModeViewController       : NSViewController {
     
     view.translatesAutoresizingMaskIntoConstraints = false
     
-    if Defaults[.flagBorderEnabled] {
+    if Defaults.flagBorderEnabled {
       view.layer?.borderColor = NSColor.darkGray.cgColor
       view.layer?.borderWidth = 0.5
     }
@@ -75,10 +73,10 @@ final class ModeViewController       : NSViewController {
     _modePopUp.addItems(withTitles: xLib6000.Slice.Mode.allCases.map {$0.rawValue} )
     
     // populate the Quick Mode buttons
-    _quickMode0.title = Defaults[.quickMode0].uppercased()
-    _quickMode1.title = Defaults[.quickMode1].uppercased()
-    _quickMode2.title = Defaults[.quickMode2].uppercased()
-    _quickMode3.title = Defaults[.quickMode3].uppercased()
+    _quickMode0.title = Defaults.quickMode0.uppercased()
+    _quickMode1.title = Defaults.quickMode1.uppercased()
+    _quickMode2.title = Defaults.quickMode2.uppercased()
+    _quickMode3.title = Defaults.quickMode3.uppercased()
 
     // start observing
     addObservations()
@@ -114,13 +112,13 @@ final class ModeViewController       : NSViewController {
     
     switch sender.tag {
     case 0:
-      _slice.mode = Defaults[.quickMode0].uppercased()
+      _slice.mode = Defaults.quickMode0.uppercased()
     case 1:
-       _slice.mode = Defaults[.quickMode1].uppercased()
+       _slice.mode = Defaults.quickMode1.uppercased()
     case 2:
-       _slice.mode = Defaults[.quickMode2].uppercased()
+       _slice.mode = Defaults.quickMode2.uppercased()
     case 3:
-       _slice.mode = Defaults[.quickMode3].uppercased()
+       _slice.mode = Defaults.quickMode3.uppercased()
     default:
       // unknown tag
       break
@@ -199,6 +197,9 @@ final class ModeViewController       : NSViewController {
   // ----------------------------------------------------------------------------
   // MARK: - Observation methods
   
+  private var _observations         = [NSKeyValueObservation]()
+  private var _defaultsObservations = [DefaultsDisposable]()
+
   /// Add observations of various properties used by the view
   ///
   private func addObservations() {

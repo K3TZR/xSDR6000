@@ -54,7 +54,7 @@ final class EqViewController                : NSViewController {
     _equalizerTx = _radio!.equalizers[.txsc]!
 
     // save a reference to the selected Equalizer
-    _eq = (Defaults[.eqRxSelected] ? _equalizerRx : _equalizerTx)
+    _eq = (Defaults.eqRxSelected ? _equalizerRx : _equalizerTx)
 
     // begin observing parameters
     addObservations()
@@ -83,12 +83,12 @@ final class EqViewController                : NSViewController {
     case "EqRx":
       // select the Rx equalizer
       _eq = _equalizerRx
-      Defaults[.eqRxSelected] = sender.boolState
+      Defaults.eqRxSelected = sender.boolState
 
     case "EqTx":
       // select the Tx equalizer
       _eq = _equalizerTx
-      Defaults[.eqRxSelected] = !sender.boolState
+      Defaults.eqRxSelected = !sender.boolState
       
     default:
       fatalError()
@@ -194,8 +194,8 @@ final class EqViewController                : NSViewController {
       DispatchQueue.main.async { [weak self] in
         
         // enable the appropriate Equalizer
-        self?.rxButton.boolState = Defaults[.eqRxSelected]
-        self?.txButton.boolState = !Defaults[.eqRxSelected]
+        self?.rxButton.boolState = Defaults.eqRxSelected
+        self?.txButton.boolState = !Defaults.eqRxSelected
         
         // set the ON button state
         self?.onButton.boolState = eq.eqEnabled

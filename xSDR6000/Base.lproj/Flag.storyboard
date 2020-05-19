@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="15705" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="16096" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="15705"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="16096"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -39,7 +39,7 @@
                                         </constraints>
                                         <popUpButtonCell key="cell" type="push" bezelStyle="rounded" alignment="center" lineBreakMode="truncatingTail" borderStyle="border" imageScaling="proportionallyDown" inset="2" arrowPosition="noArrow" id="y2d-I3-kg0">
                                             <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
-                                            <font key="font" metaFont="controlContent" size="11"/>
+                                            <font key="font" metaFont="menu" size="11"/>
                                             <menu key="menu" id="NSV-Jw-Rca"/>
                                         </popUpButtonCell>
                                         <connections>
@@ -50,7 +50,7 @@
                                         <rect key="frame" x="63" y="-3" width="50" height="25"/>
                                         <popUpButtonCell key="cell" type="push" bezelStyle="rounded" alignment="center" lineBreakMode="truncatingTail" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" arrowPosition="noArrow" id="8lD-MP-8Gu">
                                             <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
-                                            <font key="font" metaFont="controlContent" size="11"/>
+                                            <font key="font" metaFont="menu" size="11"/>
                                             <menu key="menu" id="ukX-h6-QYI"/>
                                         </popUpButtonCell>
                                         <connections>
@@ -85,7 +85,7 @@
                             <stackView distribution="fill" orientation="horizontal" alignment="top" spacing="0.0" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="jie-8p-irq" userLabel="Lock stack view">
                                 <rect key="frame" x="-4" y="46" width="147" height="21"/>
                                 <subviews>
-                                    <button toolTip="Slice lock" translatesAutoresizingMaskIntoConstraints="NO" id="WIZ-v0-8bz" userLabel="Lock button">
+                                    <button identifier="lock" toolTip="Slice lock" translatesAutoresizingMaskIntoConstraints="NO" id="WIZ-v0-8bz" userLabel="Lock button">
                                         <rect key="frame" x="0.0" y="1" width="25" height="20"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="20" id="UlC-Vo-rCG"/>
@@ -95,6 +95,9 @@
                                             <behavior key="behavior" pushIn="YES" changeContents="YES" lightByContents="YES"/>
                                             <font key="font" metaFont="system"/>
                                         </buttonCell>
+                                        <connections>
+                                            <action selector="buttons:" target="Lmw-yC-7qh" id="Ybn-u8-BWF"/>
+                                        </connections>
                                     </button>
                                     <button identifier="nb" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="amT-qe-1nd">
                                         <rect key="frame" x="19" y="-7" width="40" height="32"/>
@@ -313,7 +316,7 @@
                                         </constraints>
                                         <buttonCell key="cell" type="push" title="AUD" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="FNp-VC-Qj2">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
-                                            <font key="font" metaFont="controlContent" size="11"/>
+                                            <font key="font" metaFont="menu" size="11"/>
                                         </buttonCell>
                                         <connections>
                                             <action selector="controlsButtons:" target="Lmw-yC-7qh" id="LUh-rm-Q6e"/>
@@ -323,7 +326,7 @@
                                         <rect key="frame" x="49" y="-7" width="67" height="32"/>
                                         <buttonCell key="cell" type="push" title="DSP" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="xSR-Pr-w8w">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
-                                            <font key="font" metaFont="controlContent" size="11"/>
+                                            <font key="font" metaFont="menu" size="11"/>
                                         </buttonCell>
                                         <connections>
                                             <action selector="controlsButtons:" target="Lmw-yC-7qh" id="aJ8-gI-y58"/>
@@ -333,7 +336,7 @@
                                         <rect key="frame" x="104" y="-7" width="67" height="32"/>
                                         <buttonCell key="cell" type="push" title="MODE" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Ozc-FQ-Fen">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
-                                            <font key="font" metaFont="controlContent" size="11"/>
+                                            <font key="font" metaFont="menu" size="11"/>
                                         </buttonCell>
                                         <connections>
                                             <action selector="controlsButtons:" target="Lmw-yC-7qh" id="SSM-dZ-d4N"/>
@@ -343,7 +346,7 @@
                                         <rect key="frame" x="159" y="-7" width="67" height="32"/>
                                         <buttonCell key="cell" type="push" title="XRIT" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="h65-Q6-0kR">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
-                                            <font key="font" metaFont="controlContent" size="11"/>
+                                            <font key="font" metaFont="menu" size="11"/>
                                         </buttonCell>
                                         <connections>
                                             <action selector="controlsButtons:" target="Lmw-yC-7qh" id="Fn7-eV-EUi"/>
@@ -353,7 +356,7 @@
                                         <rect key="frame" x="214" y="-7" width="67" height="32"/>
                                         <buttonCell key="cell" type="push" title="DAX" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="7ir-zP-Xif">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
-                                            <font key="font" metaFont="controlContent" size="11"/>
+                                            <font key="font" metaFont="menu" size="11"/>
                                         </buttonCell>
                                         <connections>
                                             <action selector="controlsButtons:" target="Lmw-yC-7qh" id="tmP-Hi-7TS"/>
@@ -662,7 +665,7 @@
                                         </constraints>
                                         <buttonCell key="cell" type="push" title="WNB" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="bLR-K0-azd">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
-                                            <font key="font" metaFont="controlContent" size="11"/>
+                                            <font key="font" metaFont="menu" size="11"/>
                                         </buttonCell>
                                         <connections>
                                             <action selector="buttons:" target="Xq5-Es-VCO" id="bjn-Ea-SqG"/>
@@ -710,7 +713,7 @@
                                         </constraints>
                                         <buttonCell key="cell" type="push" title="NB" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Cuf-p4-y1T">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
-                                            <font key="font" metaFont="controlContent" size="11"/>
+                                            <font key="font" metaFont="menu" size="11"/>
                                         </buttonCell>
                                         <connections>
                                             <action selector="buttons:" target="Xq5-Es-VCO" id="jaV-UW-KIB"/>
@@ -754,7 +757,7 @@
                                         </constraints>
                                         <buttonCell key="cell" type="push" title="NR" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="tbc-jH-v7N">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
-                                            <font key="font" metaFont="controlContent" size="11"/>
+                                            <font key="font" metaFont="menu" size="11"/>
                                         </buttonCell>
                                         <connections>
                                             <action selector="buttons:" target="Xq5-Es-VCO" id="fJD-at-Dqa"/>
@@ -798,7 +801,7 @@
                                         </constraints>
                                         <buttonCell key="cell" type="push" title="ANF" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="pDV-II-2qz">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
-                                            <font key="font" metaFont="controlContent" size="11"/>
+                                            <font key="font" metaFont="menu" size="11"/>
                                         </buttonCell>
                                         <connections>
                                             <action selector="buttons:" target="Xq5-Es-VCO" id="mhk-zx-v9z"/>
@@ -884,7 +887,7 @@
                                     <popUpButton verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="xy8-oG-cXF">
                                         <rect key="frame" x="-2" y="-3" width="60" height="25"/>
                                         <constraints>
-                                            <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="55" id="hsr-KS-iYq"/>
+                                            <constraint firstAttribute="width" constant="55" id="hsr-KS-iYq"/>
                                         </constraints>
                                         <popUpButtonCell key="cell" type="push" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" arrowPosition="arrowAtCenter" preferredEdge="maxX" id="mIc-og-fya">
                                             <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>

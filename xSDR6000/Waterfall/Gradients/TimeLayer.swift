@@ -25,7 +25,7 @@ public final class TimeLayer                : CALayer, CALayerDelegate {
   
   private weak var _waterfall               : Waterfall? { return radio!.waterfalls[panadapter!.waterfallId] }
   
-  private var _spacings                     = Defaults[.timeLegendSpacings]
+  private var _spacings                     = Defaults.timeLegendSpacings
   
   // ----------------------------------------------------------------------------
   // MARK: - Internal methods
@@ -55,7 +55,7 @@ public final class TimeLayer                : CALayer, CALayerDelegate {
   @objc private func legendSpacing(_ sender: NSMenuItem) {
     
     // set the Db Legend spacing
-    Defaults[.timeLegendSpacing] = String(sender.tag, radix: 10)
+    Defaults.timeLegendSpacing = String(sender.tag, radix: 10)
     
     // redraw the db legend
     redraw()

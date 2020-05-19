@@ -42,7 +42,6 @@ final class TXPrefsViewController                 : NSViewController {
   private var _interlock                    : Interlock? { _radio!.interlock }
   private var _transmit                     : Transmit? { _radio!.transmit }
 //  private var _txProfile                    : Profile? { _radio!.profiles[Profile.Group.tx.rawValue] }
-  private var _observations                 = [NSKeyValueObservation]()
 
   // ----------------------------------------------------------------------------
   // MARK: - Overridden methods
@@ -172,6 +171,8 @@ final class TXPrefsViewController                 : NSViewController {
   // ----------------------------------------------------------------------------
   // MARK: - Observation methods
   
+  private var _observations                     = [NSKeyValueObservation]()
+
   /// Add observations of various properties used by the view
   ///
   private func addObservations() {

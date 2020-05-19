@@ -96,7 +96,7 @@ final class PanadapterViewController        : NSViewController, NSGestureRecogni
     _frequencyLegendView.compositingFilter = kFilter
 
     // create the Renderer
-    _panadapterRenderer = PanadapterRenderer(view: _panadapterView, clearColor: Defaults[.spectrumBackground])
+    _panadapterRenderer = PanadapterRenderer(view: _panadapterView, clearColor: Defaults.spectrumBackground)
 
     // tell the Panadapter to tell the Radio the current dimensions
     _panadapter?.xPixels = view.frame.width
@@ -109,7 +109,7 @@ final class PanadapterViewController        : NSViewController, NSGestureRecogni
       _panadapterRenderer.setup(device: device)
 
       // get the list of possible Db level spacings
-      _dbLegendSpacings = Defaults[.dbLegendSpacings]
+      _dbLegendSpacings = Defaults.dbLegendSpacings
 
       // Click, LEFT in panadapter
       _clickLeft = NSClickGestureRecognizer(target: self, action: #selector(clickLeft(_:)))
@@ -142,6 +142,8 @@ final class PanadapterViewController        : NSViewController, NSGestureRecogni
       _dbLegendView.configure(panadapter: _panadapter)
 
       setupObservations()
+      
+      _panadapter?.fillLevel = Defaults.spectrumFillLevel
 
       // make the Renderer the Stream Handler
       _panadapter?.delegate = _panadapterRenderer
@@ -505,6 +507,7 @@ final class PanadapterViewController        : NSViewController, NSGestureRecogni
   // MARK: - Observation methods
 
   private var _baseObservations       = [NSKeyValueObservation]()
+  private var _defaultsObservations   = [DefaultsDisposable]()
   private var _tnfObservations        = [NSKeyValueObservation]()
 
   /// Add observations of various properties used by the Panadapter
@@ -512,62 +515,48 @@ final class PanadapterViewController        : NSViewController, NSGestureRecogni
   private func createBaseObservations(_ observations: inout [NSKeyValueObservation]) {
 
     observations = [
-
+      
       _panadapter!.observe(\Panadapter.bandwidth, options: [.initial, .new]) { [weak self] (object, change) in
         self?.redrawLegends() },
-      
       _panadapter!.observe(\Panadapter.center, options: [.initial, .new]) { [weak self] (object, change) in
         self?.redrawLegends() },
-      
       _radio!.observe(\Radio.tnfsEnabled, options: [.initial, .new]) { [weak self] (object, change) in
         self?.redrawLegends() },
-
-      Defaults.observe(\.dbLegend, options: [.initial, .new]) { [weak self] (object, change) in
-        self?.redrawLegends() },
+      _panadapter!.observe(\Panadapter.fillLevel, options: [.initial, .new]) { [weak self] (object, change) in
+        self?.fillLevel() },
+    ]
+    
+    _defaultsObservations = [
       
-      Defaults.observe(\.marker, options: [.initial, .new]) { [weak self] (object, change) in
+      Defaults.observe(\.dbLegend, options: [.initial, .new]) { [weak self] _ in
         self?.redrawLegends() },
-      
-      Defaults.observe(\.dbLegendSpacing, options: [.initial, .new]) { [weak self] (object, change) in
+      Defaults.observe(\.marker, options: [.initial, .new]) { [weak self] _ in
         self?.redrawLegends() },
-      
-      Defaults.observe(\.frequencyLegend, options: [.initial, .new]) { [weak self] (object, change) in
+      Defaults.observe(\.dbLegendSpacing, options: [.initial, .new]) { [weak self] _ in
         self?.redrawLegends() },
-      
-      Defaults.observe(\.sliceActive, options: [.initial, .new]) { [weak self] (object, change) in
+      Defaults.observe(\.frequencyLegend, options: [.initial, .new]) { [weak self] _ in
         self?.redrawLegends() },
-      
-      Defaults.observe(\.markersEnabled, options: [.initial, .new]) { [weak self] (object, change) in
+      Defaults.observe(\.sliceActive, options: [.initial, .new]) { [weak self] _ in
         self?.redrawLegends() },
-      
-      Defaults.observe(\.markerSegment, options: [.initial, .new]) { [weak self] (object, change) in
+      Defaults.observe(\.markersEnabled, options: [.initial, .new]) { [weak self] _ in
         self?.redrawLegends() },
-      
-      Defaults.observe(\.markerEdge, options: [.initial, .new]) { [weak self] (object, change) in
+      Defaults.observe(\.markerSegment, options: [.initial, .new]) { [weak self] _ in
         self?.redrawLegends() },
-      
-      Defaults.observe(\.sliceFilter, options: [.initial, .new]) { [weak self] (object, change) in
+      Defaults.observe(\.markerEdge, options: [.initial, .new]) { [weak self] _ in
         self?.redrawLegends() },
-      
-      Defaults.observe(\.sliceInactive, options: [.initial, .new]) { [weak self] (object, change) in
+      Defaults.observe(\.sliceFilter, options: [.initial, .new]) { [weak self] _ in
         self?.redrawLegends() },
-      
-      Defaults.observe(\.tnfActive, options: [.initial, .new]) { [weak self] (object, change) in
+      Defaults.observe(\.sliceInactive, options: [.initial, .new]) { [weak self] _ in
         self?.redrawLegends() },
-      
-      Defaults.observe(\.tnfInactive, options: [.initial, .new]) { [weak self] (object, change) in
+      Defaults.observe(\.tnfActive, options: [.initial, .new]) { [weak self] _ in
         self?.redrawLegends() },
-      
-      Defaults.observe(\.gridLine, options: [.initial, .new]) { [weak self] (object, change) in
+      Defaults.observe(\.tnfInactive, options: [.initial, .new]) { [weak self] _ in
         self?.redrawLegends() },
-      
-      Defaults.observe(\.spectrumFillLevel, options: [.initial, .new]) { [weak self] (object, change) in
+      Defaults.observe(\.gridLine, options: [.initial, .new]) { [weak self] _ in
+        self?.redrawLegends() },
+      Defaults.observe(\.spectrum, options: [.initial, .new]) { [weak self] _ in
         self?.defaultsObserver() },
-      
-      Defaults.observe(\.spectrum, options: [.initial, .new]) { [weak self] (object, change) in
-        self?.defaultsObserver() },
-      
-      Defaults.observe(\.spectrumBackground, options: [.initial, .new]) { [weak self] (object, change) in
+      Defaults.observe(\.spectrumBackground, options: [.initial, .new]) { [weak self] _ in
         self?.defaultsObserver() },
     ]
   }
@@ -606,10 +595,19 @@ final class PanadapterViewController        : NSViewController, NSGestureRecogni
   ///
   private func defaultsObserver() {
 
-    _panadapterRenderer.updateColor(spectrumColor: Defaults[.spectrum], fillLevel: Defaults[.spectrumFillLevel], fillColor: Defaults[.spectrum])
+    _panadapterRenderer.updateColor(spectrumColor: Defaults.spectrum, fillLevel: _panadapter!.fillLevel, fillColor: Defaults.spectrum)
 
     // Panadapter background color
-    _panadapterView.clearColor = Defaults[.spectrumBackground].metalClearColor
+    _panadapterView.clearColor = Defaults.spectrumBackground.metalClearColor
+  }
+  /// Respond to Panadapter fillLevel observations
+  ///
+  private func fillLevel() {
+
+    _panadapterRenderer.updateColor(spectrumColor: Defaults.spectrum, fillLevel: _panadapter!.fillLevel, fillColor: Defaults.spectrum)
+
+    // Panadapter background color
+    _panadapterView.clearColor = Defaults.spectrumBackground.metalClearColor
   }
   /// Respond to observations requiring a redraw of the entire Panadapter
   ///

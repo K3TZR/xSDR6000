@@ -31,7 +31,6 @@ final class PhoneViewController                   : NSViewController {
   @IBOutlet private weak var _txFilterHighStepper : NSStepper!
   
   private var _radio                        : Radio? { Api.sharedInstance.radio }
-  private var _observations                 = [NSKeyValueObservation]()
   
   // ----------------------------------------------------------------------------
   // MARK: - Overriden methods
@@ -112,6 +111,8 @@ final class PhoneViewController                   : NSViewController {
   // ----------------------------------------------------------------------------
   // MARK: - Observation methods
   
+  private var _observations                 = [NSKeyValueObservation]()
+
   /// Add observations of parameters
   ///
   private func addObservations() {

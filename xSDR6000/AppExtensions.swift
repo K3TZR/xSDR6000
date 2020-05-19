@@ -17,164 +17,160 @@ extension NSColor : DefaultsSerializable {}
 extension DefaultsKeys {
   
   // Radio level info
-  
-  static var username                 : DefaultsKey<String?>        { return .init("username") }
-  
-  static var cwxViewOpen              : DefaultsKey<Bool>           { return .init("cwxViewOpen", defaultValue: false)}
-  static var clientId                 : DefaultsKey<String?>        { return .init("clientId")}
-  static var defaultRadio             : DefaultsKey<String?>        { return .init("defaultRadio")}
-  static var eqRxSelected             : DefaultsKey<Bool>           { return .init("eqRxSelected", defaultValue: false)}
-  static var flagBorderEnabled        : DefaultsKey<Bool>           { return .init("flagBorderEnabled", defaultValue: false)}
-  static var fullDuplexEnabled        : DefaultsKey<Bool>           { return .init("fullDuplexEnabled", defaultValue: false)}
-  static var logLevel                 : DefaultsKey<String>         { return .init("logLevel", defaultValue: "Debug")}
-  static var lowBandwidthEnabled      : DefaultsKey<Bool>           { return .init("lowBandwidthEnabled", defaultValue: false)}
-  static var macAudioEnabled          : DefaultsKey<Bool>           { return .init("macAudioEnabled", defaultValue: false)}
-  static var markersEnabled           : DefaultsKey<Bool>           { return .init("markersEnabled", defaultValue: false)}
-  static var preferencesTabId         : DefaultsKey<String>         { return .init("preferencesTabId", defaultValue: "")}
-  static var profilesTabId            : DefaultsKey<String>         { return .init("profilesTabId", defaultValue: "")}
-  static var quickMode0               : DefaultsKey<String>         { return .init("quickMode0", defaultValue: "")}
-  static var quickMode1               : DefaultsKey<String>         { return .init("quickMode1", defaultValue: "")}
-  static var quickMode2               : DefaultsKey<String>         { return .init("quickMode2", defaultValue: "")}
-  static var quickMode3               : DefaultsKey<String>         { return .init("quickMode3", defaultValue: "")}
-  static var radioModel               : DefaultsKey<String>         { return .init("radioModel", defaultValue: "")}
-  static var remoteViewOpen           : DefaultsKey<Bool>           { return .init("remoteViewOpen", defaultValue: false)}
-  static var sideViewOpen             : DefaultsKey<Bool>           { return .init("sideViewOpen", defaultValue: false)}
-  static var sideRxOpen               : DefaultsKey<Bool>           { return .init("sideRxOpen", defaultValue: false)}
-  static var sideTxOpen               : DefaultsKey<Bool>           { return .init("sideTxOpen", defaultValue: false)}
-  static var sidePcwOpen              : DefaultsKey<Bool>           { return .init("sidePcwOpen", defaultValue: false)}
-  static var sidePhneOpen             : DefaultsKey<Bool>           { return .init("sidePhneOpen", defaultValue: false)}
-  static var sideEqOpen               : DefaultsKey<Bool>           { return .init("sideEqOpen", defaultValue: false)}
-  static var smartLinkAuth0Email      : DefaultsKey<String>         { return .init("smartLinkAuth0Email", defaultValue: "")}
-  static var smartLinkEnabled         : DefaultsKey<Bool>           { return .init("smartLinkEnabled", defaultValue: true)}
-  static var smartLinkToken           : DefaultsKey<String?>        { return .init("smartLinkToken")}
-  static var smartLinkTokenExpiry     : DefaultsKey<Date?>          { return .init("smartLinkTokenExpiry")}
-  static var splitDistance            : DefaultsKey<Int>            { return .init("splitDistance", defaultValue: 0)}
-  static var supportingApps           : DefaultsKey<[[String:Any]]> { return .init("supportingApps", defaultValue:[])}
-  static var tnfsEnabled              : DefaultsKey<Bool>           { return .init("tnfsEnabled", defaultValue: false)}
-  static var spectrumFillLevel        : DefaultsKey<Int>            { return .init("spectrumFillLevel", defaultValue: 0)}
-  static var spectrumIsFilled         : DefaultsKey<Bool>           { return .init("spectrumIsFilled", defaultValue: false)}
-  static var versionRadio             : DefaultsKey<String>         { return .init("versionRadio", defaultValue: "")}
-
-  static var smartLinkWasLoggedIn     : DefaultsKey<Bool>           { return .init("smartLinkWasLoggedIn", defaultValue: false)}
+  var cwxViewOpen              : DefaultsKey<Bool>           { .init("cwxViewOpen", defaultValue: false)}
+  var clientId                 : DefaultsKey<String?>        { .init("clientId")}
+  var defaultRadio             : DefaultsKey<String?>        { .init("defaultRadio")}
+  var eqRxSelected             : DefaultsKey<Bool>           { .init("eqRxSelected", defaultValue: false)}
+  var flagBorderEnabled        : DefaultsKey<Bool>           { .init("flagBorderEnabled", defaultValue: false)}
+  var fullDuplexEnabled        : DefaultsKey<Bool>           { .init("fullDuplexEnabled", defaultValue: false)}
+  var logLevel                 : DefaultsKey<String>         { .init("logLevel", defaultValue: "Debug")}
+  var lowBandwidthEnabled      : DefaultsKey<Bool>           { .init("lowBandwidthEnabled", defaultValue: false)}
+  var macAudioEnabled          : DefaultsKey<Bool>           { .init("macAudioEnabled", defaultValue: false)}
+  var markersEnabled           : DefaultsKey<Bool>           { .init("markersEnabled", defaultValue: false)}
+  var preferencesTabId         : DefaultsKey<String>         { .init("preferencesTabId", defaultValue: "radio")}
+  var profileType              : DefaultsKey<String>         { .init("profileType", defaultValue: "global")}
+  var quickMode0               : DefaultsKey<String>         { .init("quickMode0", defaultValue: "USB")}
+  var quickMode1               : DefaultsKey<String>         { .init("quickMode1", defaultValue: "LSB")}
+  var quickMode2               : DefaultsKey<String>         { .init("quickMode2", defaultValue: "CW")}
+  var quickMode3               : DefaultsKey<String>         { .init("quickMode3", defaultValue: "AM")}
+  var radioModel               : DefaultsKey<String>         { .init("radioModel", defaultValue: "FM")}
+  var remoteViewOpen           : DefaultsKey<Bool>           { .init("remoteViewOpen", defaultValue: false)}
+  var sideViewOpen             : DefaultsKey<Bool>           { .init("sideViewOpen", defaultValue: false)}
+  var sideRxOpen               : DefaultsKey<Bool>           { .init("sideRxOpen", defaultValue: false)}
+  var sideTxOpen               : DefaultsKey<Bool>           { .init("sideTxOpen", defaultValue: false)}
+  var sidePcwOpen              : DefaultsKey<Bool>           { .init("sidePcwOpen", defaultValue: false)}
+  var sidePhneOpen             : DefaultsKey<Bool>           { .init("sidePhneOpen", defaultValue: false)}
+  var sideEqOpen               : DefaultsKey<Bool>           { .init("sideEqOpen", defaultValue: false)}
+  var smartLinkAuth0Email      : DefaultsKey<String>         { .init("smartLinkAuth0Email", defaultValue: "")}
+  var smartLinkEnabled         : DefaultsKey<Bool>           { .init("smartLinkEnabled", defaultValue: true)}
+  var smartLinkToken           : DefaultsKey<String?>        { .init("smartLinkToken")}
+  var smartLinkTokenExpiry     : DefaultsKey<Date?>          { .init("smartLinkTokenExpiry")}
+  var smartLinkWasLoggedIn     : DefaultsKey<Bool>           { .init("smartLinkWasLoggedIn", defaultValue: false)}
+  var splitDistance            : DefaultsKey<Int>            { .init("splitDistance", defaultValue: 5_000)}
+  var supportingApps           : DefaultsKey<[[String:Any]]> { .init("supportingApps", defaultValue:[])}
+  var tnfsEnabled              : DefaultsKey<Bool>           { .init("tnfsEnabled", defaultValue: false)}
+  var spectrumFillLevel        : DefaultsKey<Int>            { .init("spectrumFillLevel", defaultValue: 0)}
+  var spectrumIsFilled         : DefaultsKey<Bool>           { .init("spectrumIsFilled", defaultValue: false)}
+  var versionRadio             : DefaultsKey<String>         { .init("versionRadio", defaultValue: "")}
   
   // Colors common to all Panafalls
-  static var dbLegend                 : DefaultsKey<NSColor>        { return .init("dbLegend", defaultValue: .red)}
-  static var frequencyLegend          : DefaultsKey<NSColor>        { return .init("frequencyLegend", defaultValue: .red)}
-  static var gridLine                 : DefaultsKey<NSColor>        { return .init("gridLine", defaultValue: .red)}
-  static var marker                   : DefaultsKey<NSColor>        { return .init("marker", defaultValue: .red)}
-  static var markerEdge               : DefaultsKey<NSColor>        { return .init("markerEdge", defaultValue: .red)}
-  static var markerSegment            : DefaultsKey<NSColor>        { return .init("markerSegment", defaultValue: .red)}
-  static var sliceActive              : DefaultsKey<NSColor>        { return .init("sliceActive", defaultValue: .red)}
-  static var sliceFilter              : DefaultsKey<NSColor>        { return .init("sliceFilter", defaultValue: .red)}
-  static var sliceInactive            : DefaultsKey<NSColor>        { return .init("sliceInactive", defaultValue: .red)}
-  static var spectrum                 : DefaultsKey<NSColor>        { return .init("spectrum", defaultValue: .red)}
-  static var spectrumBackground       : DefaultsKey<NSColor>        { return .init("spectrumBackground", defaultValue: .red)}
-  static var spectrumFill             : DefaultsKey<NSColor>        { return .init("spectrumFill", defaultValue: .red)}
-  static var tnfActive                : DefaultsKey<NSColor>        { return .init("tnfActive", defaultValue: .red)}
-  static var tnfInactive              : DefaultsKey<NSColor>        { return .init("tnfInactive", defaultValue: .red)}
+  var dbLegend                 : DefaultsKey<NSColor>        { .init("dbLegend", defaultValue: NSColor(red: 0.0, green: 1.0, blue: 0.0, alpha: 1.0))}
+  var frequencyLegend          : DefaultsKey<NSColor>        { .init("frequencyLegend", defaultValue: NSColor(red: 0.0, green: 1.0, blue: 0.0, alpha: 1.0))}
+  var gridLine                 : DefaultsKey<NSColor>        { .init("gridLine", defaultValue: NSColor(red: 0.5, green: 0.5, blue: 0.5, alpha: 0.3))}
+  var marker                   : DefaultsKey<NSColor>        { .init("marker", defaultValue: NSColor(red: 1.0, green: 1.0, blue: 0.0, alpha: 1.0))}
+  var markerEdge               : DefaultsKey<NSColor>        { .init("markerEdge", defaultValue: NSColor(red: 1.0, green: 0.0, blue: 0.0, alpha: 0.2))}
+  var markerSegment            : DefaultsKey<NSColor>        { .init("markerSegment", defaultValue: NSColor(red: 1.0, green: 1.0, blue: 1.0, alpha: 0.2))}
+  var sliceActive              : DefaultsKey<NSColor>        { .init("sliceActive", defaultValue: NSColor(red: 1.0, green: 0.0, blue: 0.0, alpha: 0.6))}
+  var sliceFilter              : DefaultsKey<NSColor>        { .init("sliceFilter", defaultValue: NSColor(red: 0.3, green: 0.3, blue: 0.3, alpha: 0.3))}
+  var sliceInactive            : DefaultsKey<NSColor>        { .init("sliceInactive", defaultValue: NSColor(red: 1.0, green: 1.0, blue: 0.0, alpha: 0.6))}
+  var spectrum                 : DefaultsKey<NSColor>        { .init("spectrum", defaultValue: NSColor(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0))}
+  var spectrumBackground       : DefaultsKey<NSColor>        { .init("spectrumBackground", defaultValue: NSColor(red: 0.0, green: 0.0, blue: 0.0, alpha: 1.0))}
+  var spectrumFill             : DefaultsKey<NSColor>        { .init("spectrumFill", defaultValue: NSColor(red: 1.0, green: 1.0, blue: 1.0, alpha: 0.2))}
+  var tnfActive                : DefaultsKey<NSColor>        { .init("tnfActive", defaultValue: NSColor(red: 0.0, green: 0.5, blue: 0.0, alpha: 0.2))}
+  var tnfInactive              : DefaultsKey<NSColor>        { .init("tnfInactive", defaultValue: NSColor(red: 0.5, green: 0.5, blue: 0.5, alpha: 0.2))}
   
   // Settings common to all Panafalls
-  static var dbLegendSpacing          : DefaultsKey<String>         { return .init("dbLegendSpacing", defaultValue: "")}
-  static var dbLegendSpacings         : DefaultsKey<[String]>       { return .init("dbLegendSpacings", defaultValue: [])}
-  static var timeLegendSpacing        : DefaultsKey<String>         { return .init("timeLegendSpacing", defaultValue: "")}
-  static var timeLegendSpacings       : DefaultsKey<[String]>       { return .init("timeLegendSpacings", defaultValue: [])}
+  var dbLegendSpacing          : DefaultsKey<String>         { .init("dbLegendSpacing", defaultValue: "10")}
+  var dbLegendSpacings         : DefaultsKey<[String]>       { .init("dbLegendSpacings", defaultValue: ["5","10","15","20"])}
+  var timeLegendSpacing        : DefaultsKey<String>         { .init("timeLegendSpacing", defaultValue: "5")}
+  var timeLegendSpacings       : DefaultsKey<[String]>       { .init("timeLegendSpacings", defaultValue: ["5","10","20","30","60"])}
 }
 
-extension  UserDefaults {
-  
-  // alternate access to allow KVO observation
-  @objc dynamic var dbLegend : NSColor {
-    get { return Defaults[.dbLegend] }
-    set { Defaults[.dbLegend] = newValue } }
-  
-  @objc dynamic var dbLegendSpacing : String {
-    get { return Defaults[.dbLegendSpacing] }
-    set { Defaults[.dbLegendSpacing] = newValue } }
-  
-  @objc dynamic var cwxViewOpen : Bool {
-    get { return Defaults[.cwxViewOpen] }
-    set { Defaults[.cwxViewOpen] = newValue } }
-  
-  @objc dynamic var frequencyLegend : NSColor {
-    get { return Defaults[.frequencyLegend] }
-    set { Defaults[.frequencyLegend] = newValue } }
-  
-  @objc dynamic var fullDuplexEnabled : Bool {
-    get { return Defaults[.fullDuplexEnabled] }
-    set { Defaults[.fullDuplexEnabled] = newValue } }
-  
-  @objc dynamic var gridLine : NSColor {
-    get { return Defaults[.gridLine] }
-    set { Defaults[.gridLine] = newValue } }
-  
-  @objc dynamic var macAudioEnabled : Bool {
-    get { return Defaults[.macAudioEnabled] }
-    set { Defaults[.macAudioEnabled] = newValue } }
-  
-  @objc dynamic var marker : NSColor {
-    get { return Defaults[.marker] }
-    set { Defaults[.marker] = newValue } }
-  
-  @objc dynamic var markerSegment : NSColor {
-    get { return Defaults[.markerSegment] }
-    set { Defaults[.markerSegment] = newValue } }
-  
-  @objc dynamic var markerEdge : NSColor {
-    get { return Defaults[.markerEdge] }
-    set { Defaults[.markerEdge] = newValue } }
-  
-  @objc dynamic var markersEnabled : Bool {
-    get { return Defaults[.markersEnabled] }
-    set { Defaults[.markersEnabled] = newValue } }
-  
-  @objc dynamic var sliceActive : NSColor {
-    get { return Defaults[.sliceActive] }
-    set { Defaults[.sliceActive] = newValue } }
-  
-  @objc dynamic var sliceFilter : NSColor {
-    get { return Defaults[.sliceFilter] }
-    set { Defaults[.sliceFilter] = newValue } }
-  
-  @objc dynamic var sliceInactive : NSColor {
-    get { return Defaults[.sliceInactive] }
-    set { Defaults[.sliceInactive] = newValue } }
-  
-  @objc dynamic var spectrum : NSColor {
-    get { return Defaults[.spectrum] }
-    set { Defaults[.spectrum] = newValue } }
-  
-  @objc dynamic var spectrumBackground : NSColor {
-    get { return Defaults[.spectrumBackground] }
-    set { Defaults[.spectrumBackground] = newValue } }
-  
-  @objc dynamic var spectrumFillLevel : Int {
-    get { return Defaults[.spectrumFillLevel] }
-    set { Defaults[.spectrumFillLevel] = newValue } }
-  
-  @objc dynamic var splitDistance : Int {
-    get { return Defaults[.splitDistance] }
-    set { Defaults[.splitDistance] = newValue } }
-  
-  @objc dynamic var supportingApps : [[String:Any]] {
-    get { return Defaults[.supportingApps] }
-    set { Defaults[.supportingApps] = newValue } }
-  
-  @objc dynamic var tnfActive : NSColor {
-    get { return Defaults[.tnfActive] }
-    set { Defaults[.tnfActive] = newValue } }
-  
-  @objc dynamic var tnfInactive : NSColor {
-    get { return Defaults[.tnfInactive] }
-    set { Defaults[.tnfInactive] = newValue } }
-
-  @objc dynamic var tnfsEnabled : Bool {
-    get { return Defaults[.tnfsEnabled] }
-    set { Defaults[.tnfsEnabled] = newValue } }
-  
-  @objc dynamic var versionRadio : String {
-    get { return Defaults[.versionRadio] }
-    set { Defaults[.versionRadio] = newValue } }
-}
+//extension  UserDefaults {
+//
+//  // alternate access to allow KVO observation
+//  @objc dynamic var dbLegend : NSColor {
+//    get { return Defaults.dbLegend }
+//    set { Defaults.dbLegend = newValue } }
+//
+//  @objc dynamic var dbLegendSpacing : String {
+//    get { return Defaults.dbLegendSpacing }
+//    set { Defaults.dbLegendSpacing = newValue } }
+//
+//  @objc dynamic var cwxViewOpen : Bool {
+//    get { return Defaults.cwxViewOpen }
+//    set { Defaults.cwxViewOpen = newValue } }
+//
+//  @objc dynamic var frequencyLegend : NSColor {
+//    get { return Defaults.frequencyLegend }
+//    set { Defaults.frequencyLegend = newValue } }
+//
+//  @objc dynamic var fullDuplexEnabled : Bool {
+//    get { return Defaults.fullDuplexEnabled }
+//    set { Defaults.fullDuplexEnabled = newValue } }
+//
+//  @objc dynamic var gridLine : NSColor {
+//    get { return Defaults.gridLine }
+//    set { Defaults.gridLine = newValue } }
+//
+//  @objc dynamic var macAudioEnabled : Bool {
+//    get { return Defaults.macAudioEnabled }
+//    set { Defaults.macAudioEnabled = newValue } }
+//
+//  @objc dynamic var marker : NSColor {
+//    get { return Defaults.marker }
+//    set { Defaults.marker = newValue } }
+//
+//  @objc dynamic var markerSegment : NSColor {
+//    get { return Defaults.markerSegment }
+//    set { Defaults.markerSegment = newValue } }
+//
+//  @objc dynamic var markerEdge : NSColor {
+//    get { return Defaults.markerEdge }
+//    set { Defaults.markerEdge = newValue } }
+//
+//  @objc dynamic var markersEnabled : Bool {
+//    get { return Defaults.markersEnabled }
+//    set { Defaults.markersEnabled = newValue } }
+//
+//  @objc dynamic var sliceActive : NSColor {
+//    get { return Defaults.sliceActive }
+//    set { Defaults.sliceActive = newValue } }
+//
+//  @objc dynamic var sliceFilter : NSColor {
+//    get { return Defaults.sliceFilter }
+//    set { Defaults.sliceFilter = newValue } }
+//
+//  @objc dynamic var sliceInactive : NSColor {
+//    get { return Defaults.sliceInactive }
+//    set { Defaults.sliceInactive = newValue } }
+//
+//  @objc dynamic var spectrum : NSColor {
+//    get { return Defaults.spectrum }
+//    set { Defaults.spectrum = newValue } }
+//
+//  @objc dynamic var spectrumBackground : NSColor {
+//    get { return Defaults.spectrumBackground }
+//    set { Defaults.spectrumBackground = newValue } }
+//
+//  @objc dynamic var spectrumFillLevel : Int {
+//    get { return Defaults.spectrumFillLevel }
+//    set { Defaults.spectrumFillLevel = newValue } }
+//
+//  @objc dynamic var splitDistance : Int {
+//    get { return Defaults.splitDistance }
+//    set { Defaults.splitDistance = newValue } }
+//
+//  @objc dynamic var supportingApps : [[String:Any]] {
+//    get { return Defaults.supportingApps }
+//    set { Defaults.supportingApps = newValue } }
+//
+//  @objc dynamic var tnfActive : NSColor {
+//    get { return Defaults.tnfActive }
+//    set { Defaults.tnfActive = newValue } }
+//
+//  @objc dynamic var tnfInactive : NSColor {
+//    get { return Defaults.tnfInactive }
+//    set { Defaults.tnfInactive = newValue } }
+//
+//  @objc dynamic var tnfsEnabled : Bool {
+//    get { return Defaults.tnfsEnabled }
+//    set { Defaults.tnfsEnabled = newValue } }
+//
+//  @objc dynamic var versionRadio : String {
+//    get { return Defaults.versionRadio }
+//    set { Defaults.versionRadio = newValue } }
+//}
 
 extension Bool {
 

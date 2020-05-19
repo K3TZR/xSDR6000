@@ -38,8 +38,6 @@ final class DisplayViewController                     : NSViewController, NSPopo
   private var _panadapter                             : Panadapter?
   private var _waterfall                              : Waterfall?
   
-  private var _observations                           = [NSKeyValueObservation]()
-  private var _observationsDefaults                   : DefaultsDisposable?
   private var _isDetached                             = false
 
   // ----------------------------------------------------------------------------
@@ -53,6 +51,9 @@ final class DisplayViewController                     : NSViewController, NSPopo
     #endif
     
     _gradientPopUp.addItems(withTitles: WaterfallViewController.gradientNames)
+    
+    _fillSlider.integerValue = Defaults.spectrumFillLevel
+    _fillTextField.integerValue = Defaults.spectrumFillLevel
     
     // start observing
     addObservations()
@@ -104,7 +105,8 @@ final class DisplayViewController                     : NSViewController, NSPopo
     case "frames":
       _panadapter?.fps = sender.integerValue
     case "fill":
-      Defaults[.spectrumFillLevel] = sender.integerValue
+      _panadapter?.fillLevel = sender.integerValue
+      Defaults.spectrumFillLevel = sender.integerValue
     case "colorGain":
       _waterfall?.colorGain = sender.integerValue
     case "blackLevel":
@@ -134,6 +136,9 @@ final class DisplayViewController                     : NSViewController, NSPopo
   // ----------------------------------------------------------------------------
   // MARK: - Observation methods
   
+  private var _observations                           = [NSKeyValueObservation]()
+  private var _defaultsObservations                   = [DefaultsDisposable]()
+
   /// Add observations of various properties used by the view
   ///
   private func addObservations() {
@@ -141,31 +146,29 @@ final class DisplayViewController                     : NSViewController, NSPopo
     _observations = [
       _panadapter!.observe(\.average, options: [.initial, .new]) { [weak self] (object, change) in
         self?.changeHandler(object, change) },
-      
       _panadapter!.observe(\.fps, options: [.initial, .new]) { [weak self] (object, change) in
         self?.changeHandler(object, change) },
-      
+      _panadapter!.observe(\.fillLevel, options: [.initial, .new]) { [weak self] (object, change) in
+        self?.changeHandler(object, change) },
       _panadapter!.observe(\.weightedAverageEnabled, options: [.initial, .new]) { [weak self] (object, change) in
         self?.changeHandler(object, change) },
-      
       _waterfall!.observe(\.colorGain, options: [.initial, .new]) { [weak self] (object, change) in
         self?.changeHandler(object, change) },
-      
       _waterfall!.observe(\.blackLevel, options: [.initial, .new]) { [weak self] (object, change) in
         self?.changeHandler(object, change) },
-      
       _waterfall!.observe(\.lineDuration, options: [.initial, .new]) { [weak self] (object, change) in
         self?.changeHandler(object, change) },
-      
       _waterfall!.observe(\.autoBlackEnabled, options: [.initial, .new]) { [weak self] (object, change) in
-        self?.changeHandler(object, change) },
-      
+        self?.changeHandler(object, change) },      
       _waterfall!.observe(\.gradientIndex, options: [.initial, .new]) { [weak self] (object, change) in
-        self?.changeHandler(object, change) },
-      
-      Defaults.observe(\.spectrumFillLevel, options: [.initial, .new]) { [weak self] (object, change) in
-        self?.defaultsHandler() }
+        self?.changeHandler(object, change) }
     ]
+    
+    _defaultsObservations = [
+      Defaults.observe(\.spectrumFillLevel, options: [.initial, .new]) { [weak self] _ in
+      self?.defaultsHandler() }
+    ]
+
   }
   /// Process observations
   ///
@@ -186,6 +189,9 @@ final class DisplayViewController                     : NSViewController, NSPopo
         
         self?._framesSlider.integerValue = panadapter.fps
         self?._framesTextField.integerValue = panadapter.fps
+
+        self?._fillSlider.integerValue = panadapter.fillLevel
+        self?._fillTextField.integerValue = panadapter.fillLevel
 
         self?._weightedAverageCheckbox.boolState = panadapter.weightedAverageEnabled
 
@@ -216,8 +222,8 @@ final class DisplayViewController                     : NSViewController, NSPopo
     
     DispatchQueue.main.async { [weak self] in
       
-      self?._fillSlider.integerValue = Defaults[.spectrumFillLevel]
-      self?._fillTextField.integerValue = Defaults[.spectrumFillLevel]
+      self?._fillSlider.integerValue = Defaults.spectrumFillLevel
+      self?._fillTextField.integerValue = Defaults.spectrumFillLevel
     }
   }
 }

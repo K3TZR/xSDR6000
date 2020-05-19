@@ -38,7 +38,6 @@ final class SideViewController              : NSViewController {
   
   private var _rxViewLoaded                 = false
   private var _flagVc                       : FlagViewController?
-  private var _observations                 : [NSKeyValueObservation]?
   
   private let kSideViewWidth                : CGFloat = 311
   private let kRxHeightOpen                 : CGFloat = 90
@@ -76,20 +75,20 @@ final class SideViewController              : NSViewController {
     }
       
     // set the button states
-    _rxButton.state = Defaults[.sideRxOpen].state
-    _txButton.state = Defaults[.sideTxOpen].state
-    _pcwButton.state = Defaults[.sidePcwOpen].state
-    _phneButton.state = Defaults[.sidePhneOpen].state
-    _eqButton.state = Defaults[.sideEqOpen].state
+    _rxButton.state = Defaults.sideRxOpen.state
+    _txButton.state = Defaults.sideTxOpen.state
+    _pcwButton.state = Defaults.sidePcwOpen.state
+    _phneButton.state = Defaults.sidePhneOpen.state
+    _eqButton.state = Defaults.sideEqOpen.state
     
     // open the Pcw / Cw views as appropriate
     pcwStatus()
     
     // unhide the selected views
-    _rxContainerHeight.constant = ( Defaults[.sideRxOpen] ? kRxHeightOpen : kHeightClosed )
-    _txContainerHeight.constant = ( Defaults[.sideTxOpen] ? kTxHeightOpen : kHeightClosed )
-    _phneContainerHeight.constant = ( Defaults[.sidePhneOpen] ? kPhneHeightOpen : kHeightClosed )
-    _eqContainerHeight.constant = ( Defaults[.sideEqOpen] ? kEqHeightOpen : kHeightClosed )
+    _rxContainerHeight.constant = ( Defaults.sideRxOpen ? kRxHeightOpen : kHeightClosed )
+    _txContainerHeight.constant = ( Defaults.sideTxOpen ? kTxHeightOpen : kHeightClosed )
+    _phneContainerHeight.constant = ( Defaults.sidePhneOpen ? kPhneHeightOpen : kHeightClosed )
+    _eqContainerHeight.constant = ( Defaults.sideEqOpen ? kEqHeightOpen : kHeightClosed )
   }
   override func viewDidLayout() {
 
@@ -113,23 +112,23 @@ final class SideViewController              : NSViewController {
     
     switch sender.identifier!.rawValue {
     case "RxButton":
-      Defaults[.sideRxOpen] = sender.boolState
+      Defaults.sideRxOpen = sender.boolState
       _rxContainerHeight.constant = (sender.boolState ? kRxHeightOpen : kHeightClosed)
     case "TxButton":
-      Defaults[.sideTxOpen] = sender.boolState
+      Defaults.sideTxOpen = sender.boolState
       _txContainerHeight.constant = (sender.boolState ? kTxHeightOpen : kHeightClosed)
     case "PcwButton":
-      Defaults[.sidePcwOpen] = sender.boolState
+      Defaults.sidePcwOpen = sender.boolState
       if _flagVc!.slice!.mode == xLib6000.Slice.Mode.CW.rawValue {
         _cwContainerHeight.constant = (sender.boolState ? kCwHeightOpen : kHeightClosed)
       } else {
         _pcwContainerHeight.constant = (sender.boolState ? kPcwHeightOpen : kHeightClosed)
       }
     case "PhneButton":
-      Defaults[.sidePhneOpen] = sender.boolState
+      Defaults.sidePhneOpen = sender.boolState
       _phneContainerHeight.constant = (sender.boolState ? kPhneHeightOpen : kHeightClosed)
     case "EqButton":
-      Defaults[.sideEqOpen] = sender.boolState
+      Defaults.sideEqOpen = sender.boolState
       _eqContainerHeight.constant = (sender.boolState ? kEqHeightOpen : kHeightClosed)
     default:
       fatalError()
@@ -149,7 +148,7 @@ final class SideViewController              : NSViewController {
   private func pcwStatus() {
     
     // Is PCW open?
-    if Defaults[.sidePcwOpen] {
+    if Defaults.sidePcwOpen {
       // YES, get the active Slice )if any)
       // YES, get the active Slice )if any)
       if _flagVc != nil {
@@ -195,7 +194,7 @@ final class SideViewController              : NSViewController {
                                flagWidth: FlagViewController.kLargeFlagWidth + 36)
     
     // if selected, make it visible (i.e. height > 0)
-    _rxContainerHeight.constant = (Defaults[.sideRxOpen] ? kRxHeightOpen : kHeightClosed)
+    _rxContainerHeight.constant = (Defaults.sideRxOpen ? kRxHeightOpen : kHeightClosed)
   }
   /// Position a scroll view at the top
   ///
@@ -212,14 +211,15 @@ final class SideViewController              : NSViewController {
   // ----------------------------------------------------------------------------
   // MARK: - Observation methods
   
+  private var _observation : NSKeyValueObservation?
+
   /// Add observations
   ///
   private func addObservations() {
     
-    _observations = [
+    _observation =
       _flagVc!.slice!.observe(\.mode, options: [.initial, .new]) { [weak self] (slice, change) in
         self?.modeChange(slice, change) }
-    ]
   }
 
   /// The slice's mode changed
@@ -239,12 +239,12 @@ final class SideViewController              : NSViewController {
   ///
   func removeObservations() {
 
-    if _observations != nil {
+    if _observation != nil {
       // invalidate each observation
-      _observations!.forEach { $0.invalidate() }
+      _observation!.invalidate()
       
       // remove the tokens
-      _observations!.removeAll()
+      _observation = nil
     }
   }
 

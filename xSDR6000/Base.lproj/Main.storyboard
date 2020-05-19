@@ -6,10 +6,18 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
+        <!--Profiles-->
+        <scene sceneID="87n-Xa-ASU">
+            <objects>
+                <controllerPlaceholder storyboardName="Profiles" id="aQN-mH-neH" sceneMemberID="viewController"/>
+                <customObject id="zCF-hR-x3B" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="836" y="-599"/>
+        </scene>
         <!--xSDR6000 Help-->
         <scene sceneID="Tyz-zX-qCE">
             <objects>
-                <viewController title="xSDR6000 Help" id="vtv-T3-87a" customClass="HelpViewController" customModule="xSDR6000" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController title="xSDR6000 Help" showSeguePresentationStyle="single" id="vtv-T3-87a" customClass="HelpViewController" customModule="xSDR6000" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" id="wen-gs-TpI" customClass="PDFView">
                         <rect key="frame" x="0.0" y="0.0" width="450" height="300"/>
                         <autoresizingMask key="autoresizingMask"/>
@@ -17,12 +25,20 @@
                 </viewController>
                 <customObject id="qFp-QP-0Vu" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="746" y="-729"/>
+            <point key="canvasLocation" x="-113" y="-243"/>
+        </scene>
+        <!--Preferences-->
+        <scene sceneID="HgL-wS-0qc">
+            <objects>
+                <controllerPlaceholder storyboardName="Preferences" id="iKn-fq-oQ2" sceneMemberID="viewController"/>
+                <customObject id="npl-Hz-1rA" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="849" y="-670"/>
         </scene>
         <!--Log Viewer-->
         <scene sceneID="bSa-qH-5fP">
             <objects>
-                <viewController title="Log Viewer" identifier="Log Viewer" id="33F-G6-de8" customClass="LogViewerViewController" customModule="xSDR6000" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController title="Log Viewer" identifier="Log Viewer" showSeguePresentationStyle="single" id="33F-G6-de8" customClass="LogViewerViewController" customModule="xSDR6000" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" id="oNZ-nH-T2I">
                         <rect key="frame" x="0.0" y="0.0" width="840" height="300"/>
                         <autoresizingMask key="autoresizingMask"/>
@@ -104,15 +120,15 @@
                                 <constraints>
                                     <constraint firstAttribute="width" constant="100" id="TTR-Si-xnz"/>
                                 </constraints>
-                                <popUpButtonCell key="cell" type="push" title="None" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="0Hf-rR-uZ9" id="xSw-g0-i1p">
+                                <popUpButtonCell key="cell" type="push" title="None" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="0Hf-rR-uZ9" id="xSw-g0-i1p">
                                     <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
                                     <font key="font" metaFont="system"/>
                                     <menu key="menu" id="PC6-xL-9XK">
                                         <items>
-                                            <menuItem title="None" id="0Hf-rR-uZ9" userLabel="None">
+                                            <menuItem title="None" state="on" id="0Hf-rR-uZ9" userLabel="None">
                                                 <modifierMask key="keyEquivalentModifierMask"/>
                                             </menuItem>
-                                            <menuItem title="Prefix" state="on" id="kiW-tJ-zcG" userLabel="Prefix"/>
+                                            <menuItem title="Prefix" id="kiW-tJ-zcG" userLabel="Prefix"/>
                                             <menuItem title="Contains" id="3Tp-2L-sG0" userLabel="Contains"/>
                                             <menuItem title="Excludes" id="g5S-Nh-LoH" userLabel="Excludes"/>
                                         </items>
@@ -176,7 +192,7 @@
                 </viewController>
                 <customObject id="vGD-4I-NHv" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1022" y="-241"/>
+            <point key="canvasLocation" x="646" y="-243"/>
         </scene>
         <!--Main Menu-->
         <scene sceneID="JPo-4y-FX3">
@@ -186,34 +202,31 @@
                         <items>
                             <menuItem title="xSDR6000" id="1Xt-HY-uBw">
                                 <modifierMask key="keyEquivalentModifierMask"/>
-                                <menu key="submenu" title="xSDR6000" systemMenu="apple" id="uQy-DD-JDr">
+                                <menu key="submenu" title="xSDR6000" systemMenu="apple" autoenablesItems="NO" id="uQy-DD-JDr">
                                     <items>
                                         <menuItem title="About xSDR6000" tag="1" id="5kV-Vb-QxS">
                                             <modifierMask key="keyEquivalentModifierMask"/>
                                             <connections>
-                                                <action selector="orderFrontStandardAboutPanel:" target="Ady-hI-5gd" id="Exp-CZ-Vem"/>
+                                                <action selector="aboutMenu:" target="Ady-hI-5gd" id="lgY-N4-Y9K"/>
                                             </connections>
                                         </menuItem>
                                         <menuItem isSeparatorItem="YES" id="VOq-y0-SEH"/>
-                                        <menuItem title="Radio Selection" tag="2" id="d2Q-cE-C1v">
-                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                        <menuItem title="Radio Selection" tag="2" keyEquivalent="R" id="d2Q-cE-C1v">
                                             <connections>
-                                                <action selector="openRadioPicker:" target="Ady-hI-5gd" id="MTX-uh-Ert"/>
+                                                <action selector="radioSelectionMenu:" target="Ady-hI-5gd" id="MTX-uh-Ert"/>
                                             </connections>
                                         </menuItem>
-                                        <menuItem title="Preferences…" tag="3" enabled="NO" keyEquivalent="," id="BOF-NM-1cW">
+                                        <menuItem title="Preferences" tag="3" enabled="NO" keyEquivalent="," id="BOF-NM-1cW">
                                             <connections>
-                                                <action selector="preferencesMenu:" target="Ady-hI-5gd" id="4GT-8g-XCl"/>
+                                                <segue destination="iKn-fq-oQ2" kind="show" id="haz-BS-HBB"/>
                                             </connections>
                                         </menuItem>
-                                        <menuItem title="Profiles" tag="3" enabled="NO" id="Bhn-Ih-OT8">
-                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                        <menuItem title="Profiles" tag="3" enabled="NO" keyEquivalent="P" id="Bhn-Ih-OT8">
                                             <connections>
-                                                <action selector="profilesMenu:" target="Ady-hI-5gd" id="4ZW-C0-ZMZ"/>
+                                                <segue destination="aQN-mH-neH" kind="show" id="ouk-mc-c3E"/>
                                             </connections>
                                         </menuItem>
-                                        <menuItem title="Log Viewer" id="uMO-U5-Jxn">
-                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                        <menuItem title="Log Viewer" keyEquivalent="L" id="uMO-U5-Jxn">
                                             <connections>
                                                 <segue destination="33F-G6-de8" kind="show" id="mVf-sS-PJD"/>
                                             </connections>
@@ -347,7 +360,7 @@
                 <customObject id="Voe-Tx-rLC" customClass="AppDelegate" customModule="xSDR6000" customModuleProvider="target"/>
                 <customObject id="Ady-hI-5gd" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="63.5" y="-299"/>
+            <point key="canvasLocation" x="386" y="-602"/>
         </scene>
         <!--Radio Main window controller-->
         <scene sceneID="R2V-B0-nI4">
@@ -617,7 +630,7 @@
         <!--Radio view controller-->
         <scene sceneID="hg3-hZ-gZY">
             <objects>
-                <splitViewController identifier="Radio View Controller" id="2ro-LE-ZBU" userLabel="Radio view controller" customClass="RadioViewController" customModule="xSDR6000" customModuleProvider="target" sceneMemberID="viewController">
+                <splitViewController identifier="Radio View Controller" id="2ro-LE-ZBU" userLabel="Radio view controller" sceneMemberID="viewController">
                     <splitViewItems>
                         <splitViewItem id="0W5-iK-sGW" userLabel="Panafalls split item"/>
                     </splitViewItems>
@@ -660,7 +673,7 @@
                 </splitViewController>
                 <customObject id="LJk-F1-rPo" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1373" y="606"/>
+            <point key="canvasLocation" x="1269" y="750"/>
         </scene>
     </scenes>
     <resources>

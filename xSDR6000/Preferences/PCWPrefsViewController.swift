@@ -28,7 +28,6 @@ final class PCWPrefsViewController                : NSViewController {
   
   private var _radio                        : Radio? { Api.sharedInstance.radio }
   private var _transmit                     : Transmit? { _radio!.transmit }
-  private var _observations                 = [NSKeyValueObservation]()
   
   // ----------------------------------------------------------------------------
   // MARK: - Overridden methods
@@ -116,6 +115,8 @@ final class PCWPrefsViewController                : NSViewController {
   // ----------------------------------------------------------------------------
   // MARK: - Observation methods
   
+  private var _observations                 = [NSKeyValueObservation]()
+
   /// Add observations of various properties used by the view
   ///
   private func addObservations() {

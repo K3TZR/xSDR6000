@@ -43,7 +43,7 @@ public final class DbLegendView             : NSView {
   
   private var _minDbm                       : CGFloat { _panadapter!.minDbm }
   private var _maxDbm                       : CGFloat { _panadapter!.maxDbm }
-  private var _spacings                     = Defaults[.dbLegendSpacings]
+  private var _spacings                     = Defaults.dbLegendSpacings
   private var _path                         = NSBezierPath()  
   private var _attributes                   = [NSAttributedString.Key:AnyObject]() // Font & Size for the db Legend
   private var _fontHeight                   : CGFloat = 0                         // height of typical label
@@ -150,17 +150,17 @@ public final class DbLegendView             : NSView {
   private func drawLegend(_ dirtyRect: NSRect) {
     
     // setup the Legend font & size
-    _attributes[NSAttributedString.Key.foregroundColor] = Defaults[.dbLegend]
+    _attributes[NSAttributedString.Key.foregroundColor] = Defaults.dbLegend
     _attributes[NSAttributedString.Key.font] = font
     
     // calculate a typical font height
     _fontHeight = "-000".size(withAttributes: _attributes).height
     
     // setup the Legend color
-    _attributes[NSAttributedString.Key.foregroundColor] = Defaults[.dbLegend]
+    _attributes[NSAttributedString.Key.foregroundColor] = Defaults.dbLegend
     
     // get the spacing between legends
-    let dbSpacing = CGFloat(Defaults[.dbLegendSpacing])
+    let dbSpacing = CGFloat(Defaults.dbLegendSpacing)
     
     // calculate the number of legends & the y pixels per db
     let dbRange = _maxDbm - _minDbm
@@ -187,7 +187,7 @@ public final class DbLegendView             : NSView {
     _path.lineWidth = 0.4
     let dash: [CGFloat] = [2.0, 0.0]
     _path.setLineDash( dash, count: 2, phase: 0 )
-    Defaults[.gridLine].set()
+    Defaults.gridLine.set()
     
     // draw the horizontal grid lines
     for i in 0...numberOfLegends {
@@ -207,7 +207,7 @@ public final class DbLegendView             : NSView {
   @objc private func legendSpacing(_ sender: NSMenuItem) {
     
     // set the Db Legend spacing
-    Defaults[.dbLegendSpacing] = String(sender.tag, radix: 10)
+    Defaults.dbLegendSpacing = String(sender.tag, radix: 10)
     
     // redraw the db legend
     redraw()

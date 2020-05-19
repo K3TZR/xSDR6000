@@ -29,7 +29,6 @@ final class NetworkPrefsViewController: NSViewController {
   @IBOutlet private weak var _applyButton               : NSButton!
   
   private var _radio                            : Radio? { Api.sharedInstance.radio }
-  private var _observations                     = [NSKeyValueObservation]()
 
   // ----------------------------------------------------------------------------
   // MARK: - Overridden  methods
@@ -107,6 +106,8 @@ final class NetworkPrefsViewController: NSViewController {
   // ----------------------------------------------------------------------------
   // MARK: - Observation methods
   
+  private var _observations                     = [NSKeyValueObservation]()
+
   /// Add observations of various properties used by the view
   ///
   private func addObservations() {

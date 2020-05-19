@@ -41,8 +41,8 @@ class LogViewerViewController: NSViewController {
     
     loadDefaultLog()
     
-    _logLevelPopUp.selectItem(withTitle: Defaults[.logLevel])
-    filterLog(level: Defaults[.logLevel], limit: _limitToPopUp.titleOfSelectedItem ?? "None")
+    _logLevelPopUp.selectItem(withTitle: Defaults.logLevel)
+    filterLog(level: Defaults.logLevel, limit: _limitToPopUp.titleOfSelectedItem ?? "None")
   }
   
   override func viewWillAppear() {
@@ -66,7 +66,7 @@ class LogViewerViewController: NSViewController {
   @IBAction func logLevelPopUp(_ sender: NSPopUpButton) {
     let level = sender.titleOfSelectedItem ?? "Debug"
     filterLog(level: level, limit: _limitToPopUp.titleOfSelectedItem ?? "None")
-    Defaults[.logLevel] = level
+    Defaults.logLevel = level
 
     _log.logMessage("Log level changed to: \(level)", .debug,  #function, #file, #line)
   }

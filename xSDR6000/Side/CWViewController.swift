@@ -30,7 +30,6 @@ final class CWViewController                          : NSViewController {
   @IBOutlet private weak var _speedTextfield          : NSTextField!
 
   private var _radio               : Radio? { Api.sharedInstance.radio }
-  private var _observations        = [NSKeyValueObservation]()
 
   private let kAlcLevel            = Meter.ShortName.voltageHwAlc.rawValue
 
@@ -142,6 +141,8 @@ final class CWViewController                          : NSViewController {
   // ----------------------------------------------------------------------------
   // MARK: - Observation methods
   
+  private var _observations                 = [NSKeyValueObservation]()
+
   /// Add observations
   ///
   private func addObservations() {

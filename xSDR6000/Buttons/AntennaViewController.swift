@@ -20,7 +20,6 @@ final class AntennaViewController           : NSViewController, NSPopoverDelegat
 
   private var _panadapter                   : Panadapter { representedObject as! Panadapter }
   
-  private var _observations                 = [NSKeyValueObservation]()
   private var _isDetached                   = false
 
   // ----------------------------------------------------------------------------
@@ -33,14 +32,15 @@ final class AntennaViewController           : NSViewController, NSPopoverDelegat
     Swift.print("\(#function) - \(URL(fileURLWithPath: #file).lastPathComponent.dropLast(6))")
     #endif
     
-    switch Api.sharedInstance.radio!.discoveryPacket.model.lowercased() {
+    switch Api.sharedInstance.radio!.radioType {
       
-      case "flex-6300": _rfGainSlider.minValue = 0    ; _rfGainSlider.maxValue = 20 ; _rfGainSlider.numberOfTickMarks = 3
-      case "flex-6400": _rfGainSlider.minValue = -8   ; _rfGainSlider.maxValue = 32 ; _rfGainSlider.numberOfTickMarks = 9
-      case "flex-6500": _rfGainSlider.minValue = -10  ; _rfGainSlider.maxValue = 20 ; _rfGainSlider.numberOfTickMarks = 4
-      case "flex-6600": _rfGainSlider.minValue = -8   ; _rfGainSlider.maxValue = 32 ; _rfGainSlider.numberOfTickMarks = 9
-      case "flex-6700": _rfGainSlider.minValue = -10  ; _rfGainSlider.maxValue = 40 ; _rfGainSlider.numberOfTickMarks = 6
-      default:          _rfGainSlider.minValue = -10  ; _rfGainSlider.maxValue = 40 ; _rfGainSlider.numberOfTickMarks = 6
+    case .flex6300:             _rfGainSlider.minValue = 0    ; _rfGainSlider.maxValue = 20 ; _rfGainSlider.numberOfTickMarks = 3
+    case .flex6400, .flex6400m: _rfGainSlider.minValue = -8   ; _rfGainSlider.maxValue = 32 ; _rfGainSlider.numberOfTickMarks = 9
+    case .flex6500:             _rfGainSlider.minValue = -10  ; _rfGainSlider.maxValue = 20 ; _rfGainSlider.numberOfTickMarks = 4
+    case .flex6600, .flex6600m: _rfGainSlider.minValue = -8   ; _rfGainSlider.maxValue = 32 ; _rfGainSlider.numberOfTickMarks = 9
+    case .flex6700:             _rfGainSlider.minValue = -10  ; _rfGainSlider.maxValue = 40 ; _rfGainSlider.numberOfTickMarks = 6
+    case .none:                 _rfGainSlider.minValue = 0    ; _rfGainSlider.maxValue = 20 ; _rfGainSlider.numberOfTickMarks = 3
+      
     }
     
     _rxAntPopUp.addItems(withTitles: _panadapter.antList)
@@ -95,6 +95,8 @@ final class AntennaViewController           : NSViewController, NSPopoverDelegat
   // ----------------------------------------------------------------------------
   // MARK: - Observation methods
   
+  private var _observations                 = [NSKeyValueObservation]()
+
   /// Add observations of various properties used by the view
   ///
   private func addObservations() {

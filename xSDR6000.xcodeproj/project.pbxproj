@@ -15,13 +15,13 @@
 		917AAA7C23D53FD90082FAEB /* XCGLogger in Frameworks */ = {isa = PBXBuildFile; productRef = 917AAA7B23D53FD90082FAEB /* XCGLogger */; };
 		919614F723D28F8F0069AE94 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 919614F623D28F8F0069AE94 /* README.md */; };
 		919F57DC24109324001956B0 /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 919F57DB24109324001956B0 /* Logger.swift */; };
+		91E2430E246D8DD500AECEC1 /* RadioManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91E2430D246D8DD500AECEC1 /* RadioManager.swift */; };
 		91E4788A23B666EE004DA6A7 /* AudioHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91E4780923B666EE004DA6A7 /* AudioHelper.swift */; };
 		91E4788B23B666EE004DA6A7 /* TPCircularBuffer+AudioBufferList.c in Sources */ = {isa = PBXBuildFile; fileRef = 91E4780D23B666EE004DA6A7 /* TPCircularBuffer+AudioBufferList.c */; };
 		91E4788C23B666EE004DA6A7 /* README.markdown in Resources */ = {isa = PBXBuildFile; fileRef = 91E4780F23B666EE004DA6A7 /* README.markdown */; };
 		91E4788D23B666EE004DA6A7 /* TPCircularBuffer.c in Sources */ = {isa = PBXBuildFile; fileRef = 91E4781023B666EE004DA6A7 /* TPCircularBuffer.c */; };
 		91E4789023B666EE004DA6A7 /* Band.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91E4781723B666EE004DA6A7 /* Band.swift */; };
 		91E4789123B666EE004DA6A7 /* Filters.xml in Resources */ = {isa = PBXBuildFile; fileRef = 91E4781823B666EE004DA6A7 /* Filters.xml */; };
-		91E4789223B666EE004DA6A7 /* Defaults.plist in Resources */ = {isa = PBXBuildFile; fileRef = 91E4781923B666EE004DA6A7 /* Defaults.plist */; };
 		91E4789323B666EE004DA6A7 /* LevelIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91E4781B23B666EE004DA6A7 /* LevelIndicator.swift */; };
 		91E4789423B666EE004DA6A7 /* BarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91E4781C23B666EE004DA6A7 /* BarView.swift */; };
 		91E4789523B666EE004DA6A7 /* OpusEncode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91E4781D23B666EE004DA6A7 /* OpusEncode.swift */; };
@@ -43,7 +43,6 @@
 		91E478A523B666EE004DA6A7 /* NetworkPrefsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91E4782F23B666EE004DA6A7 /* NetworkPrefsViewController.swift */; };
 		91E478A623B666EE004DA6A7 /* TXPrefsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91E4783023B666EE004DA6A7 /* TXPrefsViewController.swift */; };
 		91E478A723B666EE004DA6A7 /* MainWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91E4783323B666EE004DA6A7 /* MainWindowController.swift */; };
-		91E478A823B666EE004DA6A7 /* RadioViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91E4783423B666EE004DA6A7 /* RadioViewController.swift */; };
 		91E478A923B666EE004DA6A7 /* BandButtonViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91E4783623B666EE004DA6A7 /* BandButtonViewController.swift */; };
 		91E478AA23B666EE004DA6A7 /* DisplayViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91E4783723B666EE004DA6A7 /* DisplayViewController.swift */; };
 		91E478AB23B666EE004DA6A7 /* AntennaViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91E4783823B666EE004DA6A7 /* AntennaViewController.swift */; };
@@ -82,7 +81,7 @@
 		91E478D323B666EE004DA6A7 /* PanafallsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91E4786D23B666EE004DA6A7 /* PanafallsViewController.swift */; };
 		91E478D423B666EE004DA6A7 /* PanafallButtonViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91E4786E23B666EE004DA6A7 /* PanafallButtonViewController.swift */; };
 		91E478D523B666EE004DA6A7 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91E4786F23B666EE004DA6A7 /* AppDelegate.swift */; };
-		91E478D623B666EE004DA6A7 /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91E4787123B666EE004DA6A7 /* ProfileViewController.swift */; };
+		91E478D623B666EE004DA6A7 /* ProfilesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91E4787123B666EE004DA6A7 /* ProfilesViewController.swift */; };
 		91E478D723B666EE004DA6A7 /* AppExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91E4787223B666EE004DA6A7 /* AppExtensions.swift */; };
 		91E478D923B666EE004DA6A7 /* Keychain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91E4787723B666EE004DA6A7 /* Keychain.swift */; };
 		91E478DA23B666EE004DA6A7 /* JWTDecode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91E4787923B666EE004DA6A7 /* JWTDecode.swift */; };
@@ -126,12 +125,13 @@
 		91534CB1244C9A3000F9895F /* RadioPickerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RadioPickerViewController.swift; sourceTree = "<group>"; };
 		91537D89245CEEDC000BE1C8 /* LogViewerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogViewerViewController.swift; sourceTree = "<group>"; };
 		916E98A6246196E700287335 /* WanManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WanManager.swift; sourceTree = "<group>"; };
-		916E98A824699CC500287335 /* xLib6000 */ = {isa = PBXFileReference; lastKnownFileType = folder; name = xLib6000; path = ../xLib6000; sourceTree = "<group>"; };
+		916E98C9246C32C100287335 /* xLib6000 */ = {isa = PBXFileReference; lastKnownFileType = folder; name = xLib6000; path = ../xLib6000; sourceTree = "<group>"; };
 		919614F423D28DB50069AE94 /* xSDR6000-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "xSDR6000-Bridging-Header.h"; sourceTree = "<group>"; };
 		919614F523D28DB50069AE94 /* xSDR6000.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = xSDR6000.entitlements; sourceTree = "<group>"; };
 		919614F623D28F8F0069AE94 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		919F57DB24109324001956B0 /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
 		91B1D24B241FC4DD00A7B5E4 /* project.xcworkspace */ = {isa = PBXFileReference; lastKnownFileType = wrapper.workspace; name = project.xcworkspace; path = xSDR6000.xcodeproj/project.xcworkspace; sourceTree = "<group>"; };
+		91E2430D246D8DD500AECEC1 /* RadioManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadioManager.swift; sourceTree = "<group>"; };
 		91E477F123B66661004DA6A7 /* xSDR6000.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = xSDR6000.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		91E4780523B666ED004DA6A7 /* OpusOSX.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = OpusOSX.framework; sourceTree = "<group>"; };
 		91E4780923B666EE004DA6A7 /* AudioHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AudioHelper.swift; sourceTree = "<group>"; };
@@ -143,7 +143,6 @@
 		91E4781523B666EE004DA6A7 /* TPCircularBuffer+AudioBufferList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "TPCircularBuffer+AudioBufferList.h"; sourceTree = "<group>"; };
 		91E4781723B666EE004DA6A7 /* Band.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Band.swift; sourceTree = "<group>"; };
 		91E4781823B666EE004DA6A7 /* Filters.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = Filters.xml; sourceTree = "<group>"; };
-		91E4781923B666EE004DA6A7 /* Defaults.plist */ = {isa = PBXFileReference; lastKnownFileType = file.bplist; path = Defaults.plist; sourceTree = "<group>"; };
 		91E4781B23B666EE004DA6A7 /* LevelIndicator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LevelIndicator.swift; sourceTree = "<group>"; };
 		91E4781C23B666EE004DA6A7 /* BarView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BarView.swift; sourceTree = "<group>"; };
 		91E4781D23B666EE004DA6A7 /* OpusEncode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpusEncode.swift; sourceTree = "<group>"; };
@@ -165,7 +164,6 @@
 		91E4782F23B666EE004DA6A7 /* NetworkPrefsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkPrefsViewController.swift; sourceTree = "<group>"; };
 		91E4783023B666EE004DA6A7 /* TXPrefsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TXPrefsViewController.swift; sourceTree = "<group>"; };
 		91E4783323B666EE004DA6A7 /* MainWindowController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainWindowController.swift; sourceTree = "<group>"; };
-		91E4783423B666EE004DA6A7 /* RadioViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RadioViewController.swift; sourceTree = "<group>"; };
 		91E4783623B666EE004DA6A7 /* BandButtonViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BandButtonViewController.swift; sourceTree = "<group>"; };
 		91E4783723B666EE004DA6A7 /* DisplayViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DisplayViewController.swift; sourceTree = "<group>"; };
 		91E4783823B666EE004DA6A7 /* AntennaViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AntennaViewController.swift; sourceTree = "<group>"; };
@@ -204,7 +202,7 @@
 		91E4786D23B666EE004DA6A7 /* PanafallsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PanafallsViewController.swift; sourceTree = "<group>"; };
 		91E4786E23B666EE004DA6A7 /* PanafallButtonViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PanafallButtonViewController.swift; sourceTree = "<group>"; };
 		91E4786F23B666EE004DA6A7 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		91E4787123B666EE004DA6A7 /* ProfileViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileViewController.swift; sourceTree = "<group>"; };
+		91E4787123B666EE004DA6A7 /* ProfilesViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfilesViewController.swift; sourceTree = "<group>"; };
 		91E4787223B666EE004DA6A7 /* AppExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppExtensions.swift; sourceTree = "<group>"; };
 		91E4787423B666EE004DA6A7 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		91E4787723B666EE004DA6A7 /* Keychain.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Keychain.swift; sourceTree = "<group>"; };
@@ -251,7 +249,7 @@
 		91E477E823B66661004DA6A7 = {
 			isa = PBXGroup;
 			children = (
-				916E98A824699CC500287335 /* xLib6000 */,
+				916E98C9246C32C100287335 /* xLib6000 */,
 				91B1D24B241FC4DD00A7B5E4 /* project.xcworkspace */,
 				919614F623D28F8F0069AE94 /* README.md */,
 				91E4780523B666ED004DA6A7 /* OpusOSX.framework */,
@@ -302,7 +300,6 @@
 				91E4780A23B666EE004DA6A7 /* RingBuffer */,
 				91E4781723B666EE004DA6A7 /* Band.swift */,
 				91E4781823B666EE004DA6A7 /* Filters.xml */,
-				91E4781923B666EE004DA6A7 /* Defaults.plist */,
 				91E4781A23B666EE004DA6A7 /* LevelIndicator */,
 				91E4781D23B666EE004DA6A7 /* OpusEncode.swift */,
 				91E4781E23B666EE004DA6A7 /* BandSegments.plist */,
@@ -374,7 +371,7 @@
 			isa = PBXGroup;
 			children = (
 				91E4783323B666EE004DA6A7 /* MainWindowController.swift */,
-				91E4783423B666EE004DA6A7 /* RadioViewController.swift */,
+				91E2430D246D8DD500AECEC1 /* RadioManager.swift */,
 			);
 			path = Radio;
 			sourceTree = "<group>";
@@ -469,7 +466,7 @@
 		91E4787023B666EE004DA6A7 /* Profiles */ = {
 			isa = PBXGroup;
 			children = (
-				91E4787123B666EE004DA6A7 /* ProfileViewController.swift */,
+				91E4787123B666EE004DA6A7 /* ProfilesViewController.swift */,
 			);
 			path = Profiles;
 			sourceTree = "<group>";
@@ -636,7 +633,6 @@
 				91E4792E23B69A2A004DA6A7 /* Preferences.storyboard in Resources */,
 				91E4789A23B666EE004DA6A7 /* xSDR6000.pages in Resources */,
 				91E478AE23B666EE004DA6A7 /* Grayscale.tex in Resources */,
-				91E4789223B666EE004DA6A7 /* Defaults.plist in Resources */,
 				91E4789623B666EE004DA6A7 /* BandSegments.plist in Resources */,
 				91E4788C23B666EE004DA6A7 /* README.markdown in Resources */,
 				91E478B423B666EE004DA6A7 /* Tritanopia.tex in Resources */,
@@ -667,7 +663,6 @@
 				91E478D923B666EE004DA6A7 /* Keychain.swift in Sources */,
 				91E478CF23B666EE004DA6A7 /* PanadapterRenderer.swift in Sources */,
 				91E478B823B666EE004DA6A7 /* SideViewController.swift in Sources */,
-				91E478A823B666EE004DA6A7 /* RadioViewController.swift in Sources */,
 				91E4789023B666EE004DA6A7 /* Band.swift in Sources */,
 				91E478AB23B666EE004DA6A7 /* AntennaViewController.swift in Sources */,
 				91E478D123B666EE004DA6A7 /* PanafallButtonView.swift in Sources */,
@@ -686,6 +681,7 @@
 				91E478B923B666EE004DA6A7 /* CWViewController.swift in Sources */,
 				91E478A923B666EE004DA6A7 /* BandButtonViewController.swift in Sources */,
 				91E478A523B666EE004DA6A7 /* NetworkPrefsViewController.swift in Sources */,
+				91E2430E246D8DD500AECEC1 /* RadioManager.swift in Sources */,
 				91E478BB23B666EE004DA6A7 /* PCWViewController.swift in Sources */,
 				91E4789C23B666EE004DA6A7 /* PCWPrefsViewController.swift in Sources */,
 				91E478D223B666EE004DA6A7 /* PanafallViewController.swift in Sources */,
@@ -712,7 +708,7 @@
 				91E478B523B666EE004DA6A7 /* WaterfallViewController.swift in Sources */,
 				91E478A323B666EE004DA6A7 /* InfoPrefsViewController.swift in Sources */,
 				91E478BA23B666EE004DA6A7 /* EqViewController.swift in Sources */,
-				91E478D623B666EE004DA6A7 /* ProfileViewController.swift in Sources */,
+				91E478D623B666EE004DA6A7 /* ProfilesViewController.swift in Sources */,
 				91E478CA23B666EE004DA6A7 /* ModeViewController.swift in Sources */,
 				91E4789823B666EE004DA6A7 /* OpusPlayer.swift in Sources */,
 				91E478A223B666EE004DA6A7 /* PreferencesTabViewController.swift in Sources */,
@@ -1009,7 +1005,7 @@
 			repositoryURL = "https://github.com/sunshinejr/SwiftyUserDefaults.git";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 4.0.0;
+				minimumVersion = 5.0.0;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */

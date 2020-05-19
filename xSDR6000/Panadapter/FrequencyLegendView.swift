@@ -118,7 +118,7 @@ public final class FrequencyLegendView      : NSView {
       drawLegend(dirtyRect)
       
       // draw band markers (if shown)
-      if Defaults[.markersEnabled] { drawBandMarkers() }
+      if Defaults.markersEnabled { drawBandMarkers() }
     }
   }
   #if XDEBUG
@@ -303,7 +303,7 @@ public final class FrequencyLegendView      : NSView {
   private func drawLegend(_ dirtyRect: NSRect) {
     
     // setup the Frequency Legend font & size
-    _attributes[NSAttributedString.Key.foregroundColor] = Defaults[.frequencyLegend]
+    _attributes[NSAttributedString.Key.foregroundColor] = Defaults.frequencyLegend
     _attributes[NSAttributedString.Key.font] = font
 
     let bandwidthParams = kBandwidthParams.filter { $0.high > _bandwidth && $0.low <= _bandwidth }.first ?? kBandwidthParams[0]
@@ -326,7 +326,7 @@ public final class FrequencyLegendView      : NSView {
     _path.setLineDash( dash, count: 2, phase: 0 )
 
     // horizontal line above legend
-    Defaults[.frequencyLegend].set()
+    Defaults.frequencyLegend.set()
     _path.hLine(at: legendHeight, fromX: 0, toX: frame.width)
 
     // draw legends
@@ -353,7 +353,7 @@ public final class FrequencyLegendView      : NSView {
     _path.lineWidth = 0.4
     dash = [2.0, 0.0]
     _path.setLineDash( dash, count: 2, phase: 0 )
-    Defaults[.gridLine].set()
+    Defaults.gridLine.set()
     
     // draw vertical grid lines
     for i in 0...numberOfMarks {
@@ -383,7 +383,7 @@ public final class FrequencyLegendView      : NSView {
         $0.enabled && $0.useMarkers}                  // segment is enabled & uses Markers
     
     // ***** Band edges *****
-    Defaults[.markerEdge].set()  // set the color
+    Defaults.markerEdge.set()  // set the color
     _path.lineWidth = 1         // set the width
     
     // filter for segments that contain a band edge
@@ -411,7 +411,7 @@ public final class FrequencyLegendView      : NSView {
     var colorIndex = 0
     
     // ***** Inside segments *****
-    Defaults[.markerSegment].set()        // set the color
+    Defaults.markerSegment.set()        // set the color
     _path.lineWidth = 1         // set the width
     var previousEnd = 0
     
@@ -434,7 +434,7 @@ public final class FrequencyLegendView      : NSView {
     _path.strokeRemove()
     
     // ***** Band Shading *****
-//    Defaults[.marker].set()
+//    Defaults.marker.set()
     segments.forEach {
       _segmentColors[colorIndex].set()
 
@@ -473,7 +473,7 @@ public final class FrequencyLegendView      : NSView {
     
     // draw the Filter
     let _rect = NSRect(x: _filterPosition, y: 0, width: _filterWidth, height: frame.height)
-    _path.fillRect( _rect, withColor: Defaults[.sliceFilter], andAlpha: 0.5)
+    _path.fillRect( _rect, withColor: Defaults.sliceFilter, andAlpha: 0.5)
     
     _path.strokeRemove()
   }
@@ -489,7 +489,7 @@ public final class FrequencyLegendView      : NSView {
 
     // set the width & color
     _path.lineWidth = _frequencyLineWidth
-    if slice.active { Defaults[.sliceActive].set() } else { Defaults[.sliceInactive].set() }
+    if slice.active { Defaults.sliceActive.set() } else { Defaults.sliceInactive.set() }
     
     // calculate the position
     let _freqPosition = ( CGFloat(slice.frequency - _start) / _hzPerUnit)
@@ -519,7 +519,7 @@ public final class FrequencyLegendView      : NSView {
         // draw the rectangle
         let rect = NSRect(x: tnfPosition, y: 0, width: tnfWidth, height: frame.height)
         
-        _path.fillRect( rect, withColor: radio!.tnfsEnabled ? Defaults[.tnfActive] : Defaults[.tnfInactive])
+        _path.fillRect( rect, withColor: radio!.tnfsEnabled ? Defaults.tnfActive : Defaults.tnfInactive)
         
         // crosshatch it based on depth
         _path.crosshatch(rect, color: _lineColor, depth: Int(tnf.depth), twoWay: true)

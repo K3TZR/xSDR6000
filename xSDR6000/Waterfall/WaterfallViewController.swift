@@ -97,7 +97,8 @@ final class WaterfallViewController               : NSViewController, NSGestureR
       // setup the gradient texture
       _waterfallRenderer.setGradient( loadGradient(index: _waterfall!.gradientIndex) )
       
-      setupObservations()
+      addObservations()
+      addNotifications()
       
       // make the Renderer the Stream Handler
       DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + .seconds(3), execute: {  self._waterfall?.delegate = self._waterfallRenderer })
@@ -208,27 +209,18 @@ final class WaterfallViewController               : NSViewController, NSGestureR
     }
     return nil
   }
-  /// start observations & Notification
-  ///
-  private func setupObservations() {
-
-    // begin observations (panadapter, waterfall & Defaults)
-    createBaseObservations(&_baseObservations)
-    
-    // add notification subscriptions
-    addNotifications()
-  }
 
   // ----------------------------------------------------------------------------
   // MARK: - NEW Observation methods
 
-  private var _baseObservations        = [NSKeyValueObservation]()
-  
+  private var _observations           = [NSKeyValueObservation]()
+  private var _defaultsObservations   = [DefaultsDisposable]()
+
   /// Add observations of various properties
   ///
-  private func createBaseObservations(_ observations: inout [NSKeyValueObservation]) {
+  private func addObservations() {
     
-    observations = [
+    _observations = [
       panadapter!.observe(\.band, options: [.initial, .new]) { [weak self] (object, change) in
         self?.panadapterBandChange(object, change) },
 
@@ -249,9 +241,10 @@ final class WaterfallViewController               : NSViewController, NSGestureR
       
       _waterfall!.observe(\.gradientIndex, options: [.initial, .new]) { [weak self] (object, change) in
         self?.waterfallObserverGradient(object, change) },
-
-      Defaults.observe(\.spectrumBackground, options: [.initial, .new]) { [weak self] (object, change) in
-        self?.defaultsObserver(object, change) }
+    ]
+    _defaultsObservations = [
+      Defaults.observe(\.spectrumBackground, options: [.initial, .new]) { [weak self] update in
+        self?.defaultsObserver(update.newValue!) }
     ]
   }
   /// Invalidate observations (optionally remove)
@@ -260,14 +253,14 @@ final class WaterfallViewController               : NSViewController, NSGestureR
   ///   - observations:                 an array of NSKeyValueObservation
   ///   - remove:                       remove all enabled
   ///
-  func invalidateObservations(_ observations: inout [NSKeyValueObservation], remove: Bool = true) {
-    
-    // invalidate each observation
-    observations.forEach {$0.invalidate()}
-
-    // if specified, remove the tokens
-    if remove { observations.removeAll() }
-  }
+//  func invalidateObservations(_ observations: inout [NSKeyValueObservation], remove: Bool = true) {
+//
+//    // invalidate each observation
+//    observations.forEach {$0.invalidate()}
+//
+//    // if specified, remove the tokens
+//    if remove { observations.removeAll() }
+//  }
   /// Respond to Panadapter observations
   ///
   /// - Parameters:
@@ -320,10 +313,9 @@ final class WaterfallViewController               : NSViewController, NSGestureR
   ///   - object:                       the object holding the properties
   ///   - change:                       the change
   ///
-  private func defaultsObserver(_ defaults: UserDefaults, _ change: Any) {
+  private func defaultsObserver(_ color: NSColor) {
     
     // reset the spectrum background color
-    let color = Defaults[.spectrumBackground]
     _waterfallView.clearColor = MTLClearColor(red: Double(color.redComponent),
                                               green: Double(color.greenComponent),
                                               blue: Double(color.blueComponent),
@@ -357,7 +349,7 @@ final class WaterfallViewController               : NSViewController, NSGestureR
     waterfall.delegate = nil
     
     // invalidate all property observers
-    invalidateObservations(&_baseObservations)
+//    invalidateObservations(&_baseObservations)
     
     // remove the UI components of the Panafall
     DispatchQueue.main.async { [weak self] in

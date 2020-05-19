@@ -79,8 +79,6 @@ final class FlagViewController       : NSViewController, NSTextFieldDelegate, NS
   private var _end                          : Int  { return _center + (_bandwidth/2) }
   private var _hzPerUnit                    : CGFloat { return CGFloat(_end - _start) / _panadapter!.xPixels }
   
-  private var _observations                 = [NSKeyValueObservation]()
-  
   private var _previousFrequency            = 0
   private var _beginEditing                 = false
   private var _darkMode                     = false
@@ -182,7 +180,7 @@ final class FlagViewController       : NSViewController, NSTextFieldDelegate, NS
     
     view.translatesAutoresizingMaskIntoConstraints = false
 
-    if Defaults[.flagBorderEnabled] {
+    if Defaults.flagBorderEnabled {
       view.layer?.borderColor = NSColor.darkGray.cgColor
       view.layer?.borderWidth = 0.5
     }
@@ -374,7 +372,7 @@ final class FlagViewController       : NSViewController, NSTextFieldDelegate, NS
 
     if sender.boolState {
       // Create a split
-      _radio?.requestSlice(panadapter: _panadapter!, frequency: slice!.frequency + Defaults[.splitDistance], callback: splitCreated)
+      _radio?.requestSlice(panadapter: _panadapter!, frequency: slice!.frequency + Defaults.splitDistance, callback: splitCreated)
     
     } else {
       // Remove the Split
@@ -451,6 +449,8 @@ final class FlagViewController       : NSViewController, NSTextFieldDelegate, NS
       slice?.anfEnabled = sender.boolState
     case "qsk":
       slice?.qskEnabled = sender.boolState
+    case "lock":
+      slice?.locked = sender.boolState
     default:
       fatalError()
     }
@@ -502,12 +502,14 @@ final class FlagViewController       : NSViewController, NSTextFieldDelegate, NS
   // ----------------------------------------------------------------------------
   // MARK: - Observation methods
   
+  private var _observations = [NSKeyValueObservation]()
+  
   /// Add observers for properties used by the Flag
   ///
   private func addObservations(slice: xLib6000.Slice, panadapter: Panadapter ) {
     
-    _observations.append( slice.observe(\.active, options: [.initial, .new]) { [weak self] (slice, change) in
-      self?.sliceChange(slice, change) })
+    _observations.append( slice.observe(\.active, options: [.initial, .new, .old]) { [weak self] (slice, change) in
+      self?.activeChange(slice, change) })
     
     _observations.append( slice.observe(\.mode, options: [.initial, .new]) { [weak self] (slice, change) in
       self?.sliceChange(slice, change) })
@@ -662,6 +664,15 @@ final class FlagViewController       : NSViewController, NSTextFieldDelegate, NS
       panVc.redrawFrequencyLegend()
     }
   }
+  private func activeChange(_ slice: xLib6000.Slice, _ change: NSKeyValueObservedChange<Bool>) {
+  
+    if let old = change.oldValue, let new = change.newValue {
+      if old == false && new == true {
+        _log.logMessage("Slice became active: slice \(slice.id )", .debug, #function, #file, #line)
+        NC.post(.sliceBecameActive, object: slice)
+      }
+    }
+  }
   /// Respond to a change in Panadapter or Slice properties
   ///
   /// - Parameters:
@@ -684,7 +695,7 @@ final class FlagViewController       : NSViewController, NSTextFieldDelegate, NS
   ///
   private func addNotifications() {
     
-    NC.makeObserver(self, with: #selector(sliceMeterHasBeenAdded(_:)), of: .sliceMeterHasBeenAdded)
+    NC.makeObserver(self, with: #selector(meterHasBeenAdded(_:)), of: .meterHasBeenAdded)
   }
   private var _meterObservations    = [NSKeyValueObservation]()
   
@@ -692,22 +703,11 @@ final class FlagViewController       : NSViewController, NSTextFieldDelegate, NS
   ///
   /// - Parameter note:       a Notification instance
   ///
-  @objc private func sliceMeterHasBeenAdded(_ note: Notification) {
-    
-    // does the Notification contain a Meter object for this Slice?
-    if let meter = note.object as? Meter, meter.group.objectId == slice?.id {
-
-      // which meter?
-      switch meter.name {
-      
-      // S-Meter
-      case Meter.ShortName.signalPassband.rawValue:
-        
-        addMeterObservation( meter )
-      
-      default:
-        break
-      }
+  @objc private func meterHasBeenAdded(_ note: Notification) {
+    // does the Notification contain an S-Meter object for this Slice?
+    if let meter = note.object as? Meter, meter.group.objectId == slice?.id, meter.name == Meter.ShortName.signalPassband.rawValue {
+      // YES
+      addMeterObservation( meter )      
     }
   }
   /// Respond to a change in the S-Meter

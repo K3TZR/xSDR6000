@@ -28,9 +28,6 @@ final class TxViewController                      : NSViewController {
   @IBOutlet private weak var _swrIndicator      : LevelIndicator!
   
   private var _radio                        : Radio? { Api.sharedInstance.radio }
-  private var _observations                 = [NSKeyValueObservation]()
-  private var _profileObservations          = [NSKeyValueObservation]()
-  private var _meterObservations            = [NSKeyValueObservation]()
 
   private let kPowerForward                 = Meter.ShortName.powerForward.rawValue
   private let kSwr                          = Meter.ShortName.swr.rawValue
@@ -172,6 +169,9 @@ final class TxViewController                      : NSViewController {
   // ----------------------------------------------------------------------------
   // MARK: - Observation methods
   
+  private var _observations       = [NSKeyValueObservation]()
+  private var _meterObservations  = [NSKeyValueObservation]()
+
   /// Add observations
   ///
   private func addObservations() {

@@ -28,7 +28,6 @@ final class PCWViewController                     : NSViewController {
   @IBOutlet private weak var _saveButton              : NSButton!
   
   private var _radio                        : Radio? { Api.sharedInstance.radio }
-  private var _observations                 = [NSKeyValueObservation]()
   
   private let kMicrophoneAverage            = Meter.ShortName.microphoneAverage.rawValue
   private let kMicrophonePeak               = Meter.ShortName.microphonePeak.rawValue
@@ -189,6 +188,8 @@ final class PCWViewController                     : NSViewController {
   // ----------------------------------------------------------------------------
   // MARK: - Observation methods
   
+  private var _observations                 = [NSKeyValueObservation]()
+
   /// Add observations
   ///
   private func addObservations() {
