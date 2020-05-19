@@ -42,8 +42,8 @@ Flex Radios can have one of four different version groups:
 *  v1.x.x, the v1 API - untested at this time
 *  v2.0.x thru v2.4.9, the v2 API <<-- CURRENTLY SUPPORTED
 *  v2.5.1 to less than v3.0.0, the v3 API without MultiFlex <<-- CURRENTLY SUPPORTED
-*  v3.0.0 thru v3.1.8, the v3 API with MultiFlex <<-- CURRENTLY SUPPORTED
-*  greater than v3.1.8 - untested at this time
+*  v3.0.0 thru v3.1.11, the v3 API with MultiFlex <<-- CURRENTLY SUPPORTED
+*  greater than v3.1.11 - untested at this time
 
 
 ## Credits
@@ -64,6 +64,26 @@ OpusOSX, framework built from sources at:
 
 * https://opus-codec.org/downloads/
 
+
+## 1.2.0 Release Notes
+
+* corrected crash on changing Pan fill level
+* corrected crash on Slice mode change
+* corrected s-Meter operation w/2 slices
+* corrected side view of Slice when active Slice is changed
+* corrected Slice lock
+* corrected Profiles window
+* added right-click in Radio Picker to set/reset default radio
+* addded sheet to announce "waiting for default radio"
+* added additional logging
+
+* internal changes, major refactoring to simplify internal structure
+
+Known Issues
+
+* Application crashes (sometimes) when Waterfall resized
+* Xvtr preference panel not implemented
+* GPS preference panel not implemented
 
 ## 1.1.10 Release Notes
 
