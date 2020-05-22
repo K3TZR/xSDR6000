@@ -7,6 +7,7 @@
 //
 
 import Cocoa
+import SwiftyUserDefaults
 import xLib6000
 
 // --------------------------------------------------------------------------------
@@ -15,27 +16,12 @@ import xLib6000
 
 protocol RadioPickerDelegate             : class {
   
-  var defaultRadio  : String? {get}
-  var radios        : [DiscoveryPacket] {get}
-  var isLoggedIn    : Bool {get}
-  
-  /// Connect  /  Disconnect the specified Radio
+  /// Open / Close the specified Radio
   /// - Parameters:
   ///   - packet:           a DIscoveryPacket
   ///   - connect:          connect / disconnect
   ///
-  func radioAction(_ packet: DiscoveryPacket, connect: Bool)
-  
-  /// Determine whether the specified packet is the Default Radio packet
-  /// - Parameter packet:   a DiscoveryPacket
-  ///
-  func isActive(_ packet: DiscoveryPacket) -> Bool
-  
-  /// Make the specified Radio the default (if any)
-  ///
-  /// - Parameter defaultString: a String identifying the default radio (if any)
-  ///
-  func setDefault(_ packet: DiscoveryPacket?)
+  func openCloseRadio(_ packet: DiscoveryPacket, connect: Bool)
   
   /// Request a Test Connection message be sent to the Radio
   ///
@@ -55,27 +41,29 @@ final class RadioPickerViewController : NSViewController, NSTableViewDelegate, N
   // ----------------------------------------------------------------------------
   // MARK: - Public properties
   
+  public weak var delegate                    : MainWindowController?
+  
   @IBOutlet public weak var testIndicator     : NSButton!
 
   // ----------------------------------------------------------------------------
   // MARK: - Private properties
   
-  @IBOutlet private weak var _loginButton     : NSButton!
-  @IBOutlet private weak var _testButton      : NSButton!
-  @IBOutlet private weak var _nameLabel       : NSTextField!
-  @IBOutlet private weak var _callLabel       : NSTextField!
-  @IBOutlet private weak var _logonImage      : NSImageView!
-
-  @IBOutlet private var _radioTable           : NSTableView!
-  @IBOutlet private var _selectButton         : NSButton!
+  @IBOutlet private weak var _loginButton             : NSButton!
+  @IBOutlet private weak var _testButton              : NSButton!
+  @IBOutlet private weak var _nameLabel               : NSTextField!
+  @IBOutlet private weak var _callLabel               : NSTextField!
+  @IBOutlet private weak var _logonImage              : NSImageView!
+  @IBOutlet private weak var _enableSmartLinkCheckBox : NSButton!
   
-  private weak var _delegate                  : RadioPickerDelegate? { representedObject as? RadioPickerDelegate }
+  @IBOutlet private var _radioTable                   : NSTableView!
+  @IBOutlet private var _selectButton                 : NSButton!
+
+  private var _radios                         : [DiscoveryPacket] { Discovery.sharedInstance.discoveredRadios }
   private var _rightClick                     : NSClickGestureRecognizer!
   
   private let kConnectTitle                   = "Connect"
   private let kDisconnectTitle                = "Disconnect"
   private let kLogin                          = "Log In"
-  private let kLogout                         = "Log Out"
 
   // ----------------------------------------------------------------------------
   // MARK: - Overriden methods
@@ -99,16 +87,12 @@ final class RadioPickerViewController : NSViewController, NSTableViewDelegate, N
     
     // allow the User to double-click the desired Radio
     _radioTable.doubleAction = #selector(RadioPickerViewController.selectButton(_:))
-    
-    _selectButton.title = kConnectTitle
-    _loginButton.title = _delegate!.isLoggedIn ? kLogout : kLogin
-    _nameLabel.stringValue = ""
-    _callLabel.stringValue = ""
-    testIndicator.boolState = false
   }
   
   override func viewDidAppear() {
     super.viewDidAppear()
+    
+    _enableSmartLinkCheckBox.boolState = Defaults.smartLinkEnabled
     addObservations()
   }
   
@@ -123,10 +107,10 @@ final class RadioPickerViewController : NSViewController, NSTableViewDelegate, N
     // Open / Close the selected Radio
     let row = _radioTable.selectedRow
     if row >= 0 {
-      let packet = _delegate!.radios[row]
+      let packet = _radios[row]
       
       // Connect / Disconnect
-      _delegate!.radioAction(packet, connect: _selectButton.title == kConnectTitle)
+      delegate!.openCloseRadio(packet, connect: _selectButton.title == kConnectTitle)
       
       // close the picker
       dismiss(self)
@@ -135,15 +119,23 @@ final class RadioPickerViewController : NSViewController, NSTableViewDelegate, N
   
   @IBAction func loginButton(_ sender: NSButton) {
     // Log In / Out of SmartLink
-    _delegate?.auth0Action(login: _loginButton.title == kLogin)
+    delegate?.auth0Action(login: _loginButton.title == kLogin)
     dismiss(self)
   }
   
   @IBAction func testButton(_ sender: NSButton) {
     // initiate a Wan connection test
     testIndicator.boolState = false
-    let packet = _delegate!.radios[_radioTable.selectedRow]
-    _delegate?.testConnection( packet )
+    let packet = _radios[_radioTable.selectedRow]
+    delegate?.testConnection( packet )
+  }
+  
+  @IBAction func enableSmartLinkCheckBox(_ sender: NSButton) {
+    Defaults.smartLinkEnabled = sender.boolState
+    
+    // FIXME: Start/Stop SmartLink
+    
+    // FIXME: Hide / Show Top of Picker
   }
   
   @IBAction func quitRadio(_ sender: Any) {
@@ -192,8 +184,9 @@ final class RadioPickerViewController : NSViewController, NSTableViewDelegate, N
   ///
   @objc private func setDefault(_ sender: NSMenuItem) {
     
-    let packet = _delegate!.radios[_radioTable.selectedRow]
-    _delegate?.setDefault( packet )
+    let packet = _radios[_radioTable.selectedRow]
+    Defaults.defaultRadio = "\(packet.isWan ? "wan" : "local").\(packet.serialNumber)"
+
     _radioTable.reloadData()
   }
   /// Clear the Default radio
@@ -202,7 +195,7 @@ final class RadioPickerViewController : NSViewController, NSTableViewDelegate, N
   ///
   @objc private func clearDefault(_ sender: NSMenuItem) {
     
-    _delegate?.setDefault( nil )
+    Defaults.defaultRadio = nil
     _radioTable.reloadData()
   }
   /// Reload the Radio table
@@ -222,21 +215,21 @@ final class RadioPickerViewController : NSViewController, NSTableViewDelegate, N
   ///
   private func addObservations() {
     
-    let delegate = _delegate as! RadioManager
-    _observations = [
-      
-      delegate.observe(\.smartLinkUser, options: [.initial, .new]) { [weak self] (_, _) in
-        DispatchQueue.main.async {
-          self?._nameLabel.stringValue = delegate[keyPath: \.smartLinkUser] }},
-      
-      delegate.observe(\.smartLinkCall, options: [.initial, .new]) { [weak self] (_, _) in
-        DispatchQueue.main.async {
-          self?._callLabel.stringValue = delegate[keyPath: \.smartLinkCall] }},
-      
-      delegate.observe(\.smartLinkImage, options: [.initial, .new]) { [weak self] (_, _) in
-        DispatchQueue.main.async {
-          self?._logonImage.image = delegate[keyPath: \.smartLinkImage] }}
-    ]
+//    let delegate = delegate as! MainWindowController
+//    _observations = [
+//      
+//      delegate.observe(\.smartLinkUser, options: [.initial, .new]) { [weak self] (_, _) in
+//        DispatchQueue.main.async {
+//          self?._nameLabel.stringValue = delegate[keyPath: \.smartLinkUser] }},
+//      
+//      delegate.observe(\.smartLinkCall, options: [.initial, .new]) { [weak self] (_, _) in
+//        DispatchQueue.main.async {
+//          self?._callLabel.stringValue = delegate[keyPath: \.smartLinkCall] }},
+//      
+//      delegate.observe(\.smartLinkImage, options: [.initial, .new]) { [weak self] (_, _) in
+//        DispatchQueue.main.async {
+//          self?._logonImage.image = delegate[keyPath: \.smartLinkImage] }}
+//    ]
   }
 
   // ----------------------------------------------------------------------------
@@ -265,7 +258,7 @@ final class RadioPickerViewController : NSViewController, NSTableViewDelegate, N
   func numberOfRows(in aTableView: NSTableView) -> Int {
     
     // get the number of rows
-    return  _delegate!.radios.count
+    return  _radios.count
   }
   
   // ----------------------------------------------------------------------------
@@ -281,7 +274,7 @@ final class RadioPickerViewController : NSViewController, NSTableViewDelegate, N
   ///
   func tableView( _ tableView: NSTableView, viewFor tableColumn: NSTableColumn?, row: Int) -> NSView? {
     
-    let packet = _delegate!.radios[row]
+    let packet = _radios[row]
     
     // get a view for the cell
     let cellView = tableView.makeView(withIdentifier: tableColumn!.identifier, owner:self) as! NSTableCellView
@@ -289,7 +282,7 @@ final class RadioPickerViewController : NSViewController, NSTableViewDelegate, N
     
     // Default radio has unique color
     let packetParams = "\(packet.isWan ? "wan" : "local").\(packet.serialNumber)"
-    cellView.textField!.textColor = (packetParams == _delegate?.defaultRadio ? NSColor.systemRed : NSColor.labelColor)
+    cellView.textField!.textColor = (packetParams == Defaults.defaultRadio ? NSColor.systemRed : NSColor.labelColor)
     
     // set the stringValue of the cell's text field to the appropriate field
     switch tableColumn!.identifier.rawValue {
@@ -314,14 +307,14 @@ final class RadioPickerViewController : NSViewController, NSTableViewDelegate, N
     // is a row is selected?
     if _radioTable.selectedRow >= 0 {
       
-      let packet = _delegate!.radios[_radioTable.selectedRow]
+      let packet = _radios[_radioTable.selectedRow]
       
       // YES, setup the Test button
       testIndicator.boolState = false
       _testButton.isEnabled = packet.isWan
       
       // setup the Select button
-      _selectButton.title = _delegate!.isActive(packet) ? kDisconnectTitle : kConnectTitle
+      _selectButton.title = Api.sharedInstance.radio?.packet == packet ? kDisconnectTitle : kConnectTitle
       
     } else {
       // NO, no row is selected

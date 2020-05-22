@@ -23,10 +23,10 @@ public struct Token {
 // MARK: - WanManager Delegate protocol
 // --------------------------------------------------------------------------------
 
-protocol WanManagerDelegate             : class {
+protocol WanManagerDelegate : class {
 
   var smartLinkImage  : NSImage? {get set}
-  var auth0Email      : String {get set}
+  var auth0Email      : String? {get set}
   var wasLoggedIn     : Bool {get set}
   
   func openRadioPicker()
@@ -44,7 +44,7 @@ protocol WanManagerDelegate             : class {
   func closeRadio(_ radio: DiscoveryPacket)
 }
 
-public final class WanManager : Auth0Delegate {
+public final class WanManager {
   
   // ----------------------------------------------------------------------------
   // MARK: - Static properties
@@ -63,7 +63,7 @@ public final class WanManager : Auth0Delegate {
   private var _wanServer                    : WanServer?
   private let _delegate                     : WanManagerDelegate?
   private var _serverDelegate               : WanServerDelegate?
-  private let _log                          = Logger.sharedInstance
+  private let _log                          = Logger.sharedInstance.logMessage
   private var _previousToken                : Token?
 
   // constants
@@ -93,14 +93,13 @@ public final class WanManager : Auth0Delegate {
   private let kUpnpIdentifier               = "upnpSupported"
   
   
-  init(managerDelegate: WanManagerDelegate, serverDelegate: WanServerDelegate, auth0Email: String) {
-    _delegate = managerDelegate
-    _serverDelegate = serverDelegate
+  init(delegate: WanManagerDelegate, auth0Email: String) {
+    _delegate = delegate
     
-    _wanServer = WanServer(delegate: serverDelegate)
+    _wanServer = WanServer(delegate: delegate as! WanServerDelegate)
     
     // try to get a logon token
-    if let tokenValue = obtainLoginToken(auth0Email) {
+    if let tokenValue = isAbleToLogin(auth0Email) {
       // got a token, try to connect
       loginToSmartLink(tokenValue: tokenValue)
     }
@@ -122,7 +121,7 @@ public final class WanManager : Auth0Delegate {
   }
   
   
-  public func obtainLoginToken(_ auth0Email: String) -> String? {
+  public func isAbleToLogin(_ auth0Email: String) -> String? {
     var canLogin = false
     var tokenValue : String? = nil
     
@@ -152,9 +151,7 @@ public final class WanManager : Auth0Delegate {
         }
       }
     }
-    // exit if we don't have the needed token (User will need to press the Log In button)
-    guard canLogin else { return nil}
-    
+    // return valid token (or nil)
     return canLogin ? tokenValue : nil
   }
   /// Login to SmartLink
@@ -166,17 +163,17 @@ public final class WanManager : Auth0Delegate {
     if let image = getUserImage(tokenValue: tokenValue) {
       _delegate!.smartLinkImage = image
     } else {
-      _log.logMessage("Error retrieving Logon image", .error, #function, #file, #line)
+      _log("Error retrieving Logon image", .error, #function, #file, #line)
     }
     // connect with pinger to avoid the SmartLink server to disconnect if we take too long (>30s)
     // to select and connect to a radio
     if _wanServer!.connectToSmartLinkServer(appName: Logger.kAppName, platform: kPlatform, token: tokenValue, ping: true) {
-      _log.logMessage("SmartLink Server log in: SUCCEEDED", .debug, #function, #file, #line)
+      _log("SmartLink Server log in: SUCCEEDED", .debug, #function, #file, #line)
       _delegate?.wasLoggedIn = true
       
     } else {
       // log the error
-      _log.logMessage("SmartLink Server log in: FAILED", .warning, #function, #file, #line)
+      _log("SmartLink Server log in: FAILED", .warning, #function, #file, #line)
       _delegate?.wasLoggedIn = false
     }
   }
@@ -216,7 +213,7 @@ public final class WanManager : Auth0Delegate {
     // guard that the data isn't empty and that no error occurred
     guard let data = responseData, error == nil else {
       
-      _log.logMessage("Error retrieving id token token: \(error?.localizedDescription ?? "")", .error, #function, #file, #line)
+      _log("Error retrieving id token token: \(error?.localizedDescription ?? "")", .error, #function, #file, #line)
       return nil
     }
     
@@ -229,14 +226,14 @@ public final class WanManager : Auth0Delegate {
         // validate id token; see https://auth0.com/docs/tokens/id-token#validate-an-id-token
         if !isJWTValid(jwt) {
           // log the error
-          _log.logMessage("JWT token not valid", .error, #function, #file, #line)
+          _log("JWT token not valid", .error, #function, #file, #line)
           
           return nil
         }
         
       } catch let error as NSError {
         // log the error
-        _log.logMessage("Error decoding JWT token: \(error.localizedDescription)", .error, #function, #file, #line)
+        _log("Error decoding JWT token: \(error.localizedDescription)", .error, #function, #file, #line)
         
         return nil
       }
@@ -373,7 +370,7 @@ public final class WanManager : Auth0Delegate {
       // validate id token; see https://auth0.com/docs/tokens/id-token#validate-an-id-token
       if !isJWTValid(jwt) {
         
-        _log.logMessage("JWT token not valid", .error, #function, #file, #line)
+        _log("JWT token not valid", .error, #function, #file, #line)
         
         return
       }
@@ -404,7 +401,7 @@ public final class WanManager : Auth0Delegate {
     } catch let error as NSError {
       
       // log the error & exit
-      _log.logMessage("Error decoding JWT token: \(error.localizedDescription)", .error, #function, #file, #line)
+      _log("Error decoding JWT token: \(error.localizedDescription)", .error, #function, #file, #line)
       
       return
     }

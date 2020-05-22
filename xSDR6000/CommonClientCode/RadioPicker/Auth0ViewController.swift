@@ -33,16 +33,6 @@ final class Auth0ViewController             : NSViewController, WKNavigationDele
   static let kRedirect                      = "https://frtest.auth0.com/mobile"
   static let kResponseType                  = "token"
   static let kScope                         = "openid%20offline_access%20email%20given_name%20family_name%20picture"
-//  static let kState                         = "ypfolhnqwpedrxdb"
-
-//  static let smartLinkURL = """
-//  \(kAuth0Domain)authorize?client_id=\(kClientId)\
-//  &redirect_uri=\(kRedirect)\
-//  &response_type=\(kResponseType)\
-//  &scope=\(kScope)\
-//  &state=\(kState)\
-//  &device=\(Logger.kAppName)
-//  """
 
   // ----------------------------------------------------------------------------
   // MARK: - Private properties
@@ -52,7 +42,6 @@ final class Auth0ViewController             : NSViewController, WKNavigationDele
   private let _api                          = Api.sharedInstance
   private let _log                          = Logger.sharedInstance
   private var myWebView                     : WKWebView!
-//  private let myURL                         = URL(string: smartLinkURL)!
   private let kAutosaveName                 = "AuthViewWindow"
   private var _delegate                     : Auth0Delegate { representedObject as! Auth0Delegate }
 

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="16096" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="16097" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="16096"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="16097"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -229,6 +229,12 @@
                                         <menuItem title="Log Viewer" keyEquivalent="L" id="uMO-U5-Jxn">
                                             <connections>
                                                 <segue destination="33F-G6-de8" kind="show" id="mVf-sS-PJD"/>
+                                            </connections>
+                                        </menuItem>
+                                        <menuItem title="SmartLink enabled" state="on" onStateImage="NSMenuOnStateTemplate" id="H9C-3T-wm4">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <connections>
+                                                <action selector="smartLinkMenu:" target="Ady-hI-5gd" id="CXr-YO-Hzb"/>
                                             </connections>
                                         </menuItem>
                                         <menuItem isSeparatorItem="YES" id="wFC-TO-SCJ"/>
@@ -677,6 +683,7 @@
         </scene>
     </scenes>
     <resources>
+        <image name="NSMenuOnStateTemplate" width="12" height="12"/>
         <image name="NSStatusAvailable" width="16" height="16"/>
         <image name="NSStatusUnavailable" width="16" height="16"/>
     </resources>

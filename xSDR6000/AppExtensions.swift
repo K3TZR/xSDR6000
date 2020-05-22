@@ -188,6 +188,15 @@ extension NSButton {
   }
 }
 
+extension NSMenuItem {
+  /// Boolean equivalent of an NSButton state property
+  ///
+  var boolState : Bool {
+    get { return self.state == NSControl.StateValue.on ? true : false }
+    set { self.state = (newValue == true ? NSControl.StateValue.on : NSControl.StateValue.off) }
+  }
+}
+
 extension FileManager {
   
   /// Get / create the Application Support folder

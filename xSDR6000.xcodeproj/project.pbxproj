@@ -370,6 +370,7 @@
 			children = (
 				91E4783323B666EE004DA6A7 /* MainWindowController.swift */,
 				91E2430D246D8DD500AECEC1 /* RadioManager.swift */,
+				916E98A6246196E700287335 /* WanManager.swift */,
 			);
 			path = Radio;
 			sourceTree = "<group>";
@@ -514,7 +515,6 @@
 			children = (
 				91534CB1244C9A3000F9895F /* RadioPickerViewController.swift */,
 				91E4788223B666EE004DA6A7 /* Auth0ViewController.swift */,
-				916E98A6246196E700287335 /* WanManager.swift */,
 			);
 			path = RadioPicker;
 			sourceTree = "<group>";
@@ -920,7 +920,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
-				MARKETING_VERSION = 1.2.0;
+				MARKETING_VERSION = 1.2.1;
 				PRODUCT_BUNDLE_IDENTIFIER = net.k3tzr.xSDR6000;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "xSDR6000/xSDR6000-Bridging-Header.h";
@@ -950,7 +950,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
-				MARKETING_VERSION = 1.2.0;
+				MARKETING_VERSION = 1.2.1;
 				PRODUCT_BUNDLE_IDENTIFIER = net.k3tzr.xSDR6000;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "xSDR6000/xSDR6000-Bridging-Header.h";
@@ -986,8 +986,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/K3TZR/xLib6000.git";
 			requirement = {
-				kind = exactVersion;
-				version = 1.3.0;
+				branch = master;
+				kind = branch;
 			};
 		};
 		917AAA7823D53FD90082FAEB /* XCRemoteSwiftPackageReference "XCGLogger" */ = {
