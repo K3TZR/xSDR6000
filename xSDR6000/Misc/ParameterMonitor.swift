@@ -23,64 +23,32 @@ class ParameterMonitor: NSToolbarItem {
   // ----------------------------------------------------------------------------
   // MARK: - Private properties
   
-  @IBOutlet private var topField            : NSTextField!
-  @IBOutlet private var bottomField         : NSTextField!
+  @IBOutlet private var topField    : NSTextField!
+  @IBOutlet private var bottomField : NSTextField!
 
-  private weak var _radio                   : Radio?
-  private var _id                           : NSToolbarItem.Identifier
+  private let _shortNames           = [Meter.ShortName.voltageAfterFuse.rawValue, Meter.ShortName.temperaturePa.rawValue]
+  private let _units                = ["v", "c"]
   
-  private var _q                            = DispatchQueue(label: "objectQ", attributes: [.concurrent])
-
-  var _shortNames : [Meter.ShortName] {
-    get { _q.sync { __shortNames } }
-    set { _q.sync(flags: .barrier) {__shortNames = newValue }}}
-  var _units : [String] {
-    get { _q.sync { __units } }
-    set { _q.sync(flags: .barrier) {__units = newValue }}}
-  private var _observations                 = [NSKeyValueObservation]()
+  private var _observations         : [NSKeyValueObservation?] = [nil, nil]
   
-  private let kTopValue                     = 0
-  private let kBottomValue                  = 1
+  private let kTopValue             = 0
+  private let kBottomValue          = 1
 
   // ----------------------------------------------------------------------------
   // MARK: - Initialization
   
-  override init(itemIdentifier: NSToolbarItem.Identifier) {
-    _id = itemIdentifier
+  override func awakeFromNib() {
+    super.awakeFromNib()
     
-    super.init(itemIdentifier: itemIdentifier)
+    addNotifications()
   }
-
-  // ----------------------------------------------------------------------------
-  // MARK: - Internal methods
   
-  /// Activate this Parameter Monitor
-  ///
-  /// - Parameters:
-  ///   - radio:              a reference to the Radio class
-  ///   - meterShortNames:    an array of  Meter ShortNames
-  ///   - units:              an array of units
-  ///
-  func activate(radio: Radio, shortNames: [Meter.ShortName], units: [String]) {
-    
-    _radio = radio
-    _shortNames = shortNames
-    _units = units
-    
-    // for the first two short names (others are ignored)
-    for shortName in _shortNames {
-      
-      // is there a Meter by that name?
-      if let meter = _radio?.findMeter(shortName: shortName.rawValue) {
-        
-        // YES, observe it's value
-        _observations.append( meter.observe(\.value, options: [.initial, .new],changeHandler: updateValue))
-      }
-    }
-  }
+  // ----------------------------------------------------------------------------
+  // MARK: - Private methods
+
   /// Deactivate this Parameter Monitor
   ///
-  func deactivate() {
+  private func deactivate() {
     
     removeObservations()
     
@@ -97,8 +65,20 @@ class ParameterMonitor: NSToolbarItem {
   }
   
   // ----------------------------------------------------------------------------
-  // MARK: - Private methods
+  // MARK: - Observation Methods
   
+  /// Remove observations
+  ///
+  private func removeObservations() {
+    
+    // invalidate each observation
+    if _observations[kTopValue] != nil { _observations[kTopValue]!.invalidate() }
+    if _observations[kBottomValue] != nil { _observations[kBottomValue]!.invalidate() }
+
+    // remove the tokens
+    _observations[kTopValue] = nil
+    _observations[kBottomValue] = nil
+  }
   /// Update the value of the ParameterMonitor
   ///
   /// - Parameters:
@@ -113,10 +93,10 @@ class ParameterMonitor: NSToolbarItem {
 
     // which Meter?
     switch meter.name {
-    case _shortNames[kTop].rawValue:
+    case _shortNames[kTopValue]:
       updateField(topField, for: meter, units: _units[kTop])
 
-    case _shortNames[kBottom].rawValue:
+    case _shortNames[kBottom]:
       updateField(bottomField, for: meter, units: _units[kBottom])
 
     default:
@@ -150,20 +130,59 @@ class ParameterMonitor: NSToolbarItem {
       field.stringValue = String(format: self.formatString + " \(units)" , meter.value)
     }
   }
-  /// Remove observations
-  ///
-  func removeObservations() {
-    
-    // invalidate each observation
-    _observations.forEach { $0.invalidate() }
-    
-    // remove the tokens
-    _observations.removeAll()
-  }
-  
+
   // ----------------------------------------------------------------------------
-  // *** Hidden properties (Do NOT use) ***
+  // MARK: - Notification Methods
   
-  private var __shortNames  = [Meter.ShortName]()
-  private var __units       = [String]()
+  /// Add subscriptions to Notifications
+  ///
+  private func addNotifications() {
+    NC.makeObserver(self, with: #selector(radioHasBeenAdded(_:)), of: .radioHasBeenAdded)
+    NC.makeObserver(self, with: #selector(radioWillBeRemoved(_:)), of: .radioWillBeRemoved)
+  }
+  /// Process .radioHasBeenAdded Notification
+  ///
+  /// - Parameter note:         a Notification instance
+  ///
+  @objc private func radioHasBeenAdded(_ note: Notification) {
+    NC.makeObserver(self, with: #selector(meterHasBeenAdded(_:)), of: .meterHasBeenAdded)
+  }
+  /// Process .meterHasBeenAdded Notification
+  ///
+  /// - Parameter note:         a Notification instance
+  ///
+  @objc private func meterHasBeenAdded(_ note: Notification) {
+    if let meter = note.object as? Meter {
+      
+      if meter.name == _shortNames[kTopValue] && _observations[kTopValue] == nil {
+        // YES, observe it's value
+        _observations[kTopValue] = meter.observe(\.value, options: [.initial, .new],changeHandler: updateValue)
+      }
+      if meter.name == _shortNames[kBottomValue] && _observations[kBottomValue] == nil {
+        // YES, observe it's value
+        _observations[kBottomValue] = meter.observe(\.value, options: [.initial, .new],changeHandler: updateValue)
+      }
+    }
+    if _observations[kTopValue] != nil && _observations[kBottomValue] != nil {
+      NC.deleteObserver(self, of: .meterHasBeenAdded, object: nil)
+    }
+  }
+  /// Process .radioWillBeRemoved Notification
+  ///
+  /// - Parameter note:         a Notification instance
+  ///
+  @objc private func radioWillBeRemoved(_ note: Notification) {
+    removeObservations()
+    
+    DispatchQueue.main.async { [weak self] in
+      
+      // set the background color
+      self?.topField.backgroundColor = NSColor.systemGreen.withAlphaComponent(0.5)
+      self?.bottomField.backgroundColor = NSColor.systemGreen.withAlphaComponent(0.5)
+      
+      // set the field value
+      self?.topField.stringValue = "----"
+      self?.bottomField.stringValue = "----"
+    }
+  }
 }

@@ -15,11 +15,13 @@ import xLib6000
 // MARK: - Auth0 Delegate definition
 // --------------------------------------------------------------------------------
 
-protocol Auth0Delegate {
+protocol Auth0Delegate : class {
   
   /// set the id and refresh token
   ///
   func setTokens(idToken: String, refreshToken: String)
+  
+  func closeAuth0()
 }
 
 // ------------------------------------------------------------------------------
@@ -27,27 +29,31 @@ protocol Auth0Delegate {
 // ------------------------------------------------------------------------------
 
 final class Auth0ViewController             : NSViewController, WKNavigationDelegate {
-
+  
   static let kAuth0Domain                   = "https://frtest.auth0.com/"
   static let kClientId                      = "4Y9fEIIsVYyQo5u6jr7yBWc4lV5ugC2m"
   static let kRedirect                      = "https://frtest.auth0.com/mobile"
   static let kResponseType                  = "token"
   static let kScope                         = "openid%20offline_access%20email%20given_name%20family_name%20picture"
-
+  
+  // ----------------------------------------------------------------------------
+  // MARK: - Public properties
+  
+  public weak var delegate                  : Auth0Delegate?
+  
   // ----------------------------------------------------------------------------
   // MARK: - Private properties
   
   @IBOutlet private weak var _customView    : NSView!
   
   private let _api                          = Api.sharedInstance
-  private let _log                          = Logger.sharedInstance
+  private let _log                          = Logger.sharedInstance.logMessage
   private var myWebView                     : WKWebView!
   private let kAutosaveName                 = "AuthViewWindow"
-  private var _delegate                     : Auth0Delegate { representedObject as! Auth0Delegate }
-
+  
   private let kKeyIdToken                    = "id_token"
   private let kKeyRefreshToken               = "refresh_token"
-
+  
   
   private var _smartLinkURL = ""
   
@@ -56,12 +62,10 @@ final class Auth0ViewController             : NSViewController, WKNavigationDele
   
   override func viewDidLoad() {
     super.viewDidLoad()
+    
+    _log("Auth0 view loaded", .debug, #function, #file, #line)
 
-    #if XDEBUG
-    Swift.print("\(#function) - \(URL(fileURLWithPath: #file).lastPathComponent.dropLast(6))")
-    #endif
-
-    if !Defaults.smartLinkWasLoggedIn {
+//    if !Defaults.smartLinkWasLoggedIn {
       // clear all cookies to prevent falling back to earlier saved login credentials
       let storage = HTTPCookieStorage.shared
       if let cookies = storage.cookies {
@@ -70,8 +74,8 @@ final class Auth0ViewController             : NSViewController, WKNavigationDele
           storage.deleteCookie(cookie)
         }
       }
-    }
-
+//    }
+    
     let _state = String.random(length: 16)
     _smartLinkURL =  """
     \(Auth0ViewController.kAuth0Domain)authorize?client_id=\(Auth0ViewController.kClientId)\
@@ -83,9 +87,8 @@ final class Auth0ViewController             : NSViewController, WKNavigationDele
     """
     
     // create a URLRequest for the SmartLink URL
-//    let request = URLRequest(url: myURL)
     let request = URLRequest(url: URL(string: _smartLinkURL)!)
-
+    
     // configure a web view
     let configuration = WKWebViewConfiguration()
     myWebView = WKWebView(frame: .zero, configuration: configuration)
@@ -96,49 +99,32 @@ final class Auth0ViewController             : NSViewController, WKNavigationDele
     _customView.addSubview(myWebView)
     
     // anchor its position
-    if #available(OSX 10.11, *) {
-      // 10.11+
-      [myWebView.topAnchor.constraint(equalTo: _customView.topAnchor),
-       myWebView.bottomAnchor.constraint(equalTo: _customView.bottomAnchor),
-       myWebView.leftAnchor.constraint(equalTo: _customView.leftAnchor),
-       myWebView.rightAnchor.constraint(equalTo: _customView.rightAnchor)].forEach  {
-        anchor in
-        anchor.isActive = true
-      }
+    [myWebView.heightAnchor.constraint(equalToConstant: 600.0),
+     myWebView.topAnchor.constraint(equalTo: _customView.topAnchor),
+     myWebView.bottomAnchor.constraint(equalTo: _customView.bottomAnchor),
+     myWebView.leftAnchor.constraint(equalTo: _customView.leftAnchor),
+     myWebView.rightAnchor.constraint(equalTo: _customView.rightAnchor)].forEach {
+      $0.isActive = true }
     
-    } else {
-      // before 10.11
-      NSLayoutConstraint(item: myWebView as Any, attribute: .leading, relatedBy: .equal, toItem: _customView, attribute: .leading, multiplier: 1.0, constant: 0.0).isActive = true
-      NSLayoutConstraint(item: myWebView as Any, attribute: .trailing, relatedBy: .equal, toItem: _customView, attribute: .trailing, multiplier: 1.0, constant: 0.0).isActive = true
-      NSLayoutConstraint(item: myWebView as Any, attribute: .top, relatedBy: .equal, toItem: _customView, attribute:.top, multiplier: 1.0, constant:0.0).isActive = true
-      NSLayoutConstraint(item: myWebView as Any, attribute: .bottom, relatedBy: .equal, toItem: _customView, attribute:.bottom, multiplier: 1.0, constant:0.0).isActive = true
-    }
     // load it
     if myWebView.load(request) == nil {
       
-      _log.logMessage("Auth0 web view failed to load", .error, #function, #file, #line)
+      _log("Auth0 web view failed to load", .error, #function, #file, #line)
     }
   }
   
   override func viewWillAppear() {
-    
     super.viewWillAppear()
     // position it
     view.window!.setFrameUsingName(kAutosaveName)
   }
   
   override func viewWillDisappear() {
-    
     super.viewWillDisappear()
     // save its position
     view.window!.saveFrame(usingName: kAutosaveName)
   }
-  #if XDEBUG
-  deinit {
-    Swift.print("\(#function) - \(URL(fileURLWithPath: #file).lastPathComponent.dropLast(6))")
-  }
-  #endif
-
+  
   // ----------------------------------------------------------------------------
   // MARK: - Action methods
   
@@ -146,8 +132,7 @@ final class Auth0ViewController             : NSViewController, WKNavigationDele
   ///
   /// - Parameter sender:         the button
   ///
-  @IBAction func cancelButton(_ sender: Any) {
-    
+  @IBAction func cancelButton(_ sender: Any) {    
     DispatchQueue.main.async { [weak self] in
       self?.dismiss(self)
     }
@@ -165,7 +150,15 @@ final class Auth0ViewController             : NSViewController, WKNavigationDele
   ///
   func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
     
-    _log.logMessage("Could not navigate to Auth0 page: \(error.localizedDescription)", .error, #function, #file, #line)
+    let nsError = (error as NSError)
+    if (nsError.domain == "WebKitErrorDomain" && nsError.code == 102) || (nsError.domain == "WebKitErrorDomain" && nsError.code == 101) {
+      // Error code 102 "Frame load interrupted" is raised by the WKWebView
+      // when the URL is from an http redirect. This is a common pattern when
+      // implementing OAuth with a WebView.
+      return
+    }
+    _log("Auth0 navigation failed: \(error.localizedDescription)", .error, #function, #file, #line)
+    
   }
   /// Decides whether to allow or cancel a navigation
   ///
@@ -179,35 +172,32 @@ final class Auth0ViewController             : NSViewController, WKNavigationDele
     // does the navigation action's request contain a URL?
     if let url = navigationAction.request.url {
       
+//      Swift.print("----->>>>> url = \(url)")
+      
       // YES, is there a token inside the url?
       if url.absoluteString.contains(kKeyIdToken) {
-      
-        // YES, make a dictionary
-        var responseParameters = [String: String]()
-
+        
+//        Swift.print("----->>>>> url contains \(kKeyIdToken)")
+        
         // extract the tokens
-        if let query = url.query {
-          responseParameters += query.parametersFromQueryString
-        }
-        if let fragment = url.fragment, !fragment.isEmpty {
-          responseParameters += fragment.parametersFromQueryString
-        }
+        var responseParameters = [String: String]()
+        if let query = url.query { responseParameters += query.parametersFromQueryString }
+        if let fragment = url.fragment, !fragment.isEmpty { responseParameters += fragment.parametersFromQueryString }
+        
         // did we extract both tokens?
         if let idToken = responseParameters[kKeyIdToken], let refreshToken = responseParameters[kKeyRefreshToken] {
           
+//          Swift.print("----->>>>> Both tokens")
+          
           // YES, pass them to our delegate
-          _delegate.setTokens(idToken: idToken, refreshToken: refreshToken)
+          delegate!.setTokens(idToken: idToken, refreshToken: refreshToken)
         }
-        // end the navigation
         decisionHandler(.cancel)
         
-        // close the Auth0 sheet
-        cancelButton(self)
-        
+        delegate!.closeAuth0()
         return
       }
     }
-    // NO URL, allow the navigation
     decisionHandler(.allow)
   }
 }

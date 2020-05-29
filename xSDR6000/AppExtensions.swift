@@ -33,7 +33,6 @@ extension DefaultsKeys {
   var quickMode1               : DefaultsKey<String>         { .init("quickMode1", defaultValue: "LSB")}
   var quickMode2               : DefaultsKey<String>         { .init("quickMode2", defaultValue: "CW")}
   var quickMode3               : DefaultsKey<String>         { .init("quickMode3", defaultValue: "AM")}
-  var radioModel               : DefaultsKey<String>         { .init("radioModel", defaultValue: "FM")}
   var remoteViewOpen           : DefaultsKey<Bool>           { .init("remoteViewOpen", defaultValue: false)}
   var sideViewOpen             : DefaultsKey<Bool>           { .init("sideViewOpen", defaultValue: false)}
   var sideRxOpen               : DefaultsKey<Bool>           { .init("sideRxOpen", defaultValue: false)}
@@ -41,7 +40,7 @@ extension DefaultsKeys {
   var sidePcwOpen              : DefaultsKey<Bool>           { .init("sidePcwOpen", defaultValue: false)}
   var sidePhneOpen             : DefaultsKey<Bool>           { .init("sidePhneOpen", defaultValue: false)}
   var sideEqOpen               : DefaultsKey<Bool>           { .init("sideEqOpen", defaultValue: false)}
-  var smartLinkAuth0Email      : DefaultsKey<String>         { .init("smartLinkAuth0Email", defaultValue: "")}
+  var smartLinkAuth0Email      : DefaultsKey<String?>        { .init("smartLinkAuth0Email")}
   var smartLinkEnabled         : DefaultsKey<Bool>           { .init("smartLinkEnabled", defaultValue: true)}
   var smartLinkToken           : DefaultsKey<String?>        { .init("smartLinkToken")}
   var smartLinkTokenExpiry     : DefaultsKey<Date?>          { .init("smartLinkTokenExpiry")}
@@ -51,7 +50,6 @@ extension DefaultsKeys {
   var tnfsEnabled              : DefaultsKey<Bool>           { .init("tnfsEnabled", defaultValue: false)}
   var spectrumFillLevel        : DefaultsKey<Int>            { .init("spectrumFillLevel", defaultValue: 0)}
   var spectrumIsFilled         : DefaultsKey<Bool>           { .init("spectrumIsFilled", defaultValue: false)}
-  var versionRadio             : DefaultsKey<String>         { .init("versionRadio", defaultValue: "")}
   
   // Colors common to all Panafalls
   var dbLegend                 : DefaultsKey<NSColor>        { .init("dbLegend", defaultValue: NSColor(red: 0.0, green: 1.0, blue: 0.0, alpha: 1.0))}
@@ -76,101 +74,6 @@ extension DefaultsKeys {
   var timeLegendSpacings       : DefaultsKey<[String]>       { .init("timeLegendSpacings", defaultValue: ["5","10","20","30","60"])}
 }
 
-//extension  UserDefaults {
-//
-//  // alternate access to allow KVO observation
-//  @objc dynamic var dbLegend : NSColor {
-//    get { return Defaults.dbLegend }
-//    set { Defaults.dbLegend = newValue } }
-//
-//  @objc dynamic var dbLegendSpacing : String {
-//    get { return Defaults.dbLegendSpacing }
-//    set { Defaults.dbLegendSpacing = newValue } }
-//
-//  @objc dynamic var cwxViewOpen : Bool {
-//    get { return Defaults.cwxViewOpen }
-//    set { Defaults.cwxViewOpen = newValue } }
-//
-//  @objc dynamic var frequencyLegend : NSColor {
-//    get { return Defaults.frequencyLegend }
-//    set { Defaults.frequencyLegend = newValue } }
-//
-//  @objc dynamic var fullDuplexEnabled : Bool {
-//    get { return Defaults.fullDuplexEnabled }
-//    set { Defaults.fullDuplexEnabled = newValue } }
-//
-//  @objc dynamic var gridLine : NSColor {
-//    get { return Defaults.gridLine }
-//    set { Defaults.gridLine = newValue } }
-//
-//  @objc dynamic var macAudioEnabled : Bool {
-//    get { return Defaults.macAudioEnabled }
-//    set { Defaults.macAudioEnabled = newValue } }
-//
-//  @objc dynamic var marker : NSColor {
-//    get { return Defaults.marker }
-//    set { Defaults.marker = newValue } }
-//
-//  @objc dynamic var markerSegment : NSColor {
-//    get { return Defaults.markerSegment }
-//    set { Defaults.markerSegment = newValue } }
-//
-//  @objc dynamic var markerEdge : NSColor {
-//    get { return Defaults.markerEdge }
-//    set { Defaults.markerEdge = newValue } }
-//
-//  @objc dynamic var markersEnabled : Bool {
-//    get { return Defaults.markersEnabled }
-//    set { Defaults.markersEnabled = newValue } }
-//
-//  @objc dynamic var sliceActive : NSColor {
-//    get { return Defaults.sliceActive }
-//    set { Defaults.sliceActive = newValue } }
-//
-//  @objc dynamic var sliceFilter : NSColor {
-//    get { return Defaults.sliceFilter }
-//    set { Defaults.sliceFilter = newValue } }
-//
-//  @objc dynamic var sliceInactive : NSColor {
-//    get { return Defaults.sliceInactive }
-//    set { Defaults.sliceInactive = newValue } }
-//
-//  @objc dynamic var spectrum : NSColor {
-//    get { return Defaults.spectrum }
-//    set { Defaults.spectrum = newValue } }
-//
-//  @objc dynamic var spectrumBackground : NSColor {
-//    get { return Defaults.spectrumBackground }
-//    set { Defaults.spectrumBackground = newValue } }
-//
-//  @objc dynamic var spectrumFillLevel : Int {
-//    get { return Defaults.spectrumFillLevel }
-//    set { Defaults.spectrumFillLevel = newValue } }
-//
-//  @objc dynamic var splitDistance : Int {
-//    get { return Defaults.splitDistance }
-//    set { Defaults.splitDistance = newValue } }
-//
-//  @objc dynamic var supportingApps : [[String:Any]] {
-//    get { return Defaults.supportingApps }
-//    set { Defaults.supportingApps = newValue } }
-//
-//  @objc dynamic var tnfActive : NSColor {
-//    get { return Defaults.tnfActive }
-//    set { Defaults.tnfActive = newValue } }
-//
-//  @objc dynamic var tnfInactive : NSColor {
-//    get { return Defaults.tnfInactive }
-//    set { Defaults.tnfInactive = newValue } }
-//
-//  @objc dynamic var tnfsEnabled : Bool {
-//    get { return Defaults.tnfsEnabled }
-//    set { Defaults.tnfsEnabled = newValue } }
-//
-//  @objc dynamic var versionRadio : String {
-//    get { return Defaults.versionRadio }
-//    set { Defaults.versionRadio = newValue } }
-//}
 
 extension Bool {
 
@@ -197,6 +100,12 @@ extension NSMenuItem {
   }
 }
 
+extension NSMenuItem {
+  
+  func item(title: String) -> NSMenuItem? {
+    self.submenu?.items.first(where: {$0.title == title})
+  }
+}
 extension FileManager {
   
   /// Get / create the Application Support folder

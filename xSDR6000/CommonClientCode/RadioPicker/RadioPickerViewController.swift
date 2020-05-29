@@ -16,24 +16,31 @@ import xLib6000
 
 protocol RadioPickerDelegate             : class {
   
-  /// Open / Close the specified Radio
+  /// Open the selected Radio
   /// - Parameters:
   ///   - packet:           a DIscoveryPacket
-  ///   - connect:          connect / disconnect
   ///
-  func openCloseRadio(_ packet: DiscoveryPacket, connect: Bool)
-  
-  /// Request a Test Connection message be sent to the Radio
+  func openSelectedRadio(_ packet: DiscoveryPacket)
+
+  /// Close the selected Radio
+  /// - Parameters:
+  ///   - packet:           a DIscoveryPacket
+  ///
+  func closeSelectedRadio(_ packet: DiscoveryPacket)
+
+  /// Test the Wan connection
   ///
   /// - Parameter packet:   a Discovery packet
   ///
-  func testConnection(_ packet: DiscoveryPacket)
+  func testWanConnection(_ packet: DiscoveryPacket)
   
-  /// Login / Logout Auth0
+  /// Login to SmartLink
   ///
-  /// - Parameter login:    login / logout
+  func smartLinkLogin()
+
+  ///Logout of SmartLink
   ///
-  func auth0Action(login: Bool )
+  func smartLinkLogout()
 }
 
 final class RadioPickerViewController : NSViewController, NSTableViewDelegate, NSTableViewDataSource {
@@ -53,7 +60,6 @@ final class RadioPickerViewController : NSViewController, NSTableViewDelegate, N
   @IBOutlet private weak var _nameLabel               : NSTextField!
   @IBOutlet private weak var _callLabel               : NSTextField!
   @IBOutlet private weak var _logonImage              : NSImageView!
-  @IBOutlet private weak var _enableSmartLinkCheckBox : NSButton!
   
   @IBOutlet private var _radioTable                   : NSTableView!
   @IBOutlet private var _selectButton                 : NSButton!
@@ -77,7 +83,6 @@ final class RadioPickerViewController : NSViewController, NSTableViewDelegate, N
     Swift.print("\(#function) - \(URL(fileURLWithPath: #file).lastPathComponent.dropLast(6))")
     #endif
     
-    addNotifications()
     
     // setup Right Single Click recognizer
     _rightClick = NSClickGestureRecognizer(target: self, action: #selector(rightClick(_:)))
@@ -87,12 +92,14 @@ final class RadioPickerViewController : NSViewController, NSTableViewDelegate, N
     
     // allow the User to double-click the desired Radio
     _radioTable.doubleAction = #selector(RadioPickerViewController.selectButton(_:))
-  }
-  
-  override func viewDidAppear() {
-    super.viewDidAppear()
     
-    _enableSmartLinkCheckBox.boolState = Defaults.smartLinkEnabled
+    
+//  }
+//
+//  override func viewDidAppear() {
+//    super.viewDidAppear()
+    
+    addNotifications()
     addObservations()
   }
   
@@ -103,15 +110,17 @@ final class RadioPickerViewController : NSViewController, NSTableViewDelegate, N
     dismiss(sender)
   }
   
-  @IBAction func selectButton( _: NSButton ) {
+  @IBAction func selectButton(_ sender: Any ) {
     // Open / Close the selected Radio
     let row = _radioTable.selectedRow
     if row >= 0 {
       let packet = _radios[row]
       
-      // Connect / Disconnect
-      delegate!.openCloseRadio(packet, connect: _selectButton.title == kConnectTitle)
-      
+      if Api.sharedInstance.radio?.packet == packet {
+        delegate!.closeSelectedRadio(packet)
+      } else {
+        delegate!.openSelectedRadio(packet)
+      }
       // close the picker
       dismiss(self)
     }
@@ -119,15 +128,20 @@ final class RadioPickerViewController : NSViewController, NSTableViewDelegate, N
   
   @IBAction func loginButton(_ sender: NSButton) {
     // Log In / Out of SmartLink
-    delegate?.auth0Action(login: _loginButton.title == kLogin)
-    dismiss(self)
+    
+    if sender.title == kLogin {
+//      dismiss(self)
+      delegate!.smartLinkLogin()
+    } else {
+      delegate!.smartLinkLogout()
+    }
   }
   
   @IBAction func testButton(_ sender: NSButton) {
     // initiate a Wan connection test
     testIndicator.boolState = false
     let packet = _radios[_radioTable.selectedRow]
-    delegate?.testConnection( packet )
+    delegate!.testWanConnection( packet )
   }
   
   @IBAction func enableSmartLinkCheckBox(_ sender: NSButton) {
@@ -215,21 +229,21 @@ final class RadioPickerViewController : NSViewController, NSTableViewDelegate, N
   ///
   private func addObservations() {
     
-//    let delegate = delegate as! MainWindowController
-//    _observations = [
-//      
-//      delegate.observe(\.smartLinkUser, options: [.initial, .new]) { [weak self] (_, _) in
-//        DispatchQueue.main.async {
-//          self?._nameLabel.stringValue = delegate[keyPath: \.smartLinkUser] }},
-//      
-//      delegate.observe(\.smartLinkCall, options: [.initial, .new]) { [weak self] (_, _) in
-//        DispatchQueue.main.async {
-//          self?._callLabel.stringValue = delegate[keyPath: \.smartLinkCall] }},
-//      
-//      delegate.observe(\.smartLinkImage, options: [.initial, .new]) { [weak self] (_, _) in
-//        DispatchQueue.main.async {
-//          self?._logonImage.image = delegate[keyPath: \.smartLinkImage] }}
-//    ]
+    _observations = [
+      delegate!.observe(\.smartLinkUser, options: [.initial, .new]) { [weak self] (object, change) in
+        DispatchQueue.main.async {
+          self?._nameLabel.stringValue = object.smartLinkUser ?? ""
+          self?._loginButton.title = (object.smartLinkUser != nil ? "Log Out" : "Log In")
+        }},
+      delegate!.observe(\.smartLinkCall, options: [.initial, .new]) { [weak self] (object, change) in
+        DispatchQueue.main.async {
+          self?._callLabel.stringValue = object.smartLinkCall ?? ""
+        }},
+      delegate!.observe(\.smartLinkImage, options: [.initial, .new]) { [weak self] (object, change) in
+        DispatchQueue.main.async {
+          self?._logonImage.image = object.smartLinkImage
+        }}
+    ]
   }
 
   // ----------------------------------------------------------------------------

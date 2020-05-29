@@ -202,7 +202,7 @@
                         <items>
                             <menuItem title="xSDR6000" id="1Xt-HY-uBw">
                                 <modifierMask key="keyEquivalentModifierMask"/>
-                                <menu key="submenu" title="xSDR6000" systemMenu="apple" autoenablesItems="NO" id="uQy-DD-JDr">
+                                <menu key="submenu" title="xSDR6000" systemMenu="apple" showsStateColumn="NO" autoenablesItems="NO" id="uQy-DD-JDr">
                                     <items>
                                         <menuItem title="About xSDR6000" tag="1" id="5kV-Vb-QxS">
                                             <modifierMask key="keyEquivalentModifierMask"/>
@@ -231,13 +231,6 @@
                                                 <segue destination="33F-G6-de8" kind="show" id="mVf-sS-PJD"/>
                                             </connections>
                                         </menuItem>
-                                        <menuItem title="SmartLink enabled" state="on" onStateImage="NSMenuOnStateTemplate" id="H9C-3T-wm4">
-                                            <modifierMask key="keyEquivalentModifierMask"/>
-                                            <connections>
-                                                <action selector="smartLinkMenu:" target="Ady-hI-5gd" id="CXr-YO-Hzb"/>
-                                            </connections>
-                                        </menuItem>
-                                        <menuItem isSeparatorItem="YES" id="wFC-TO-SCJ"/>
                                         <menuItem title="Services" id="NMo-om-nkz">
                                             <modifierMask key="keyEquivalentModifierMask"/>
                                             <menu key="submenu" title="Services" systemMenu="services" id="hz9-B4-Xy5"/>
@@ -271,31 +264,37 @@
                             </menuItem>
                             <menuItem title="Radio" id="OL1-wT-l2F">
                                 <modifierMask key="keyEquivalentModifierMask"/>
-                                <menu key="submenu" title="Radio" showsStateColumn="NO" id="V5S-GG-4wu">
+                                <menu key="submenu" title="Radio" autoenablesItems="NO" id="V5S-GG-4wu">
                                     <items>
-                                        <menuItem title="New Pan" keyEquivalent="p" id="1a9-Ez-lG1">
+                                        <menuItem title="SmartLink enabled" state="on" id="YfH-EN-7hi">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <connections>
+                                                <action selector="smartLinkMenu:" target="Ady-hI-5gd" id="Y3S-cj-cVU"/>
+                                            </connections>
+                                        </menuItem>
+                                        <menuItem title="New Pan" enabled="NO" keyEquivalent="p" id="1a9-Ez-lG1">
                                             <connections>
                                                 <action selector="panMenu:" target="Ady-hI-5gd" id="P0o-AO-Tos"/>
                                             </connections>
                                         </menuItem>
                                         <menuItem isSeparatorItem="YES" id="Ur4-0f-HpY"/>
-                                        <menuItem title="Tnf On/Off" keyEquivalent="t" id="WUk-bV-YeP">
+                                        <menuItem title="Tnf On/Off" onStateImage="NSMenuOnStateTemplate" enabled="NO" keyEquivalent="t" id="WUk-bV-YeP">
                                             <connections>
                                                 <action selector="tnfMenu:" target="Ady-hI-5gd" id="pxk-0Z-4Uo"/>
                                             </connections>
                                         </menuItem>
-                                        <menuItem title="Markers On/Off" keyEquivalent="m" id="KhT-uR-jSV">
+                                        <menuItem title="Markers On/Off" onStateImage="NSMenuOnStateTemplate" enabled="NO" keyEquivalent="m" id="KhT-uR-jSV">
                                             <connections>
                                                 <action selector="markersMenu:" target="Ady-hI-5gd" id="IpJ-cK-Oht"/>
                                             </connections>
                                         </menuItem>
-                                        <menuItem title="Side View On/Off" keyEquivalent="s" id="bFA-Pe-XRv">
+                                        <menuItem title="Side View On/Off" onStateImage="NSMenuOnStateTemplate" enabled="NO" keyEquivalent="s" id="bFA-Pe-XRv">
                                             <connections>
                                                 <action selector="sideMenu:" target="Ady-hI-5gd" id="cQX-5s-dhD"/>
                                             </connections>
                                         </menuItem>
                                         <menuItem isSeparatorItem="YES" id="8R9-UA-qh3"/>
-                                        <menuItem title="Next Slice" keyEquivalent="n" id="ySd-8C-EZg">
+                                        <menuItem title="Next Slice" enabled="NO" keyEquivalent="n" id="ySd-8C-EZg">
                                             <connections>
                                                 <action selector="nextSliceMenu:" target="Ady-hI-5gd" id="adf-r6-dIV"/>
                                             </connections>
@@ -474,8 +473,8 @@
                                         <action selector="sideButton:" target="Oky-zY-oP4" id="QXQ-jD-kF5"/>
                                     </connections>
                                 </toolbarItem>
-                                <toolbarItem implicitItemIdentifier="NSToolbarSpaceItem" id="b3x-Xh-oFv"/>
                                 <toolbarItem implicitItemIdentifier="NSToolbarFlexibleSpaceItem" id="qnV-ol-DRw"/>
+                                <toolbarItem implicitItemIdentifier="NSToolbarSpaceItem" id="b3x-Xh-oFv"/>
                                 <toolbarItem implicitItemIdentifier="AE697A3C-2CBB-449E-ADBE-94E5A8F088C6" explicitItemIdentifier="macAudioEnabled" label="Mac Audio" paletteLabel="Mac Audio" tag="8" id="z4t-r2-UAf">
                                     <nil key="toolTip"/>
                                     <size key="minSize" width="47" height="25"/>
@@ -593,8 +592,27 @@
                                         </connections>
                                     </button>
                                 </toolbarItem>
+                                <toolbarItem implicitItemIdentifier="90CAF1B5-DFB3-45D7-8CDD-2DE4259903EE" label="" paletteLabel="" toolTip="Add a Panadapter" id="5eM-lI-HAj">
+                                    <size key="minSize" width="47" height="28"/>
+                                    <size key="maxSize" width="85" height="32"/>
+                                    <button key="view" verticalHuggingPriority="750" id="3Nf-D2-vuD" userLabel="Connect Button">
+                                        <rect key="frame" x="0.0" y="14" width="85" height="28"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                        <buttonCell key="cell" type="roundTextured" title="Connect" bezelStyle="texturedRounded" alignment="center" lineBreakMode="truncatingTail" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="0FJ-lO-Dfk">
+                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                            <font key="font" metaFont="system"/>
+                                            <string key="keyEquivalent">p</string>
+                                            <modifierMask key="keyEquivalentModifierMask" command="YES"/>
+                                        </buttonCell>
+                                        <connections>
+                                            <action selector="connectButton:" target="B8D-0N-5wS" id="jAa-cb-U9i"/>
+                                        </connections>
+                                    </button>
+                                </toolbarItem>
                             </allowedToolbarItems>
                             <defaultToolbarItems>
+                                <toolbarItem reference="5eM-lI-HAj"/>
+                                <toolbarItem reference="qnV-ol-DRw"/>
                                 <toolbarItem reference="SRQ-Qz-auw"/>
                                 <toolbarItem reference="HTE-sv-0bk"/>
                                 <toolbarItem reference="JhY-lZ-UVg"/>
@@ -614,6 +632,7 @@
                         </connections>
                     </window>
                     <connections>
+                        <outlet property="_connectButton" destination="3Nf-D2-vuD" id="v7E-e0-Kll"/>
                         <outlet property="_cwxButton" destination="Yu1-bq-afA" id="OvS-XD-rEH"/>
                         <outlet property="_fdxButton" destination="lSI-pj-GOM" id="yGb-lf-yDc"/>
                         <outlet property="_headphoneGainSlider" destination="l0h-rt-Rcg" id="l9U-xb-P6o"/>
