@@ -383,81 +383,84 @@ final class MainWindowController                  : NSWindowController, NSWindow
       _radioManager.connectRadio(packet)
       
     case (false, kInUse, _):              // oldApi, connected to another client
-      let alert = NSAlert()
-      alert.alertStyle = .warning
-      alert.messageText = "Radio is connected to another Client"
-      alert.informativeText = "Close the Client?"
-      alert.addButton(withTitle: "Close current client")
-      alert.addButton(withTitle: "Cancel")
-      
-      // ignore if not confirmed by the user
-      alert.beginSheetModal(for: NSApplication.shared.mainWindow!, completionHandler: { (response) in
-        // close the connected Radio if the YES button pressed
+      DispatchQueue.main.async {
+        let alert = NSAlert()
+        alert.alertStyle = .warning
+        alert.messageText = "Radio is connected to another Client"
+        alert.informativeText = "Close the Client?"
+        alert.addButton(withTitle: "Close current client")
+        alert.addButton(withTitle: "Cancel")
         
-        switch response {
-        case NSApplication.ModalResponse.alertFirstButtonReturn:
-          self._radioManager.connectRadio(packet, pendingDisconnect: .oldApi)
-          sleep(1)
-          self._api.disconnect()
-          sleep(1)
-          self.openRadioPicker()
+        // ignore if not confirmed by the user
+        alert.beginSheetModal(for: NSApplication.shared.mainWindow!, completionHandler: { (response) in
+          // close the connected Radio if the YES button pressed
           
-        default:  break
-        }
-        
-      })
+          switch response {
+          case NSApplication.ModalResponse.alertFirstButtonReturn:
+            self._radioManager.connectRadio(packet, pendingDisconnect: .oldApi)
+            sleep(1)
+            self._api.disconnect()
+            sleep(1)
+            self.openRadioPicker()
+            
+          default:  break
+          }
+          
+        })}
       
     case (true, kAvailable, 0):           // newApi, not connected to another client
       _radioManager.connectRadio(packet)
       
     case (true, kAvailable, _):           // newApi, connected to another client
-      let alert = NSAlert()
-      alert.alertStyle = .warning
-      alert.messageText = "Radio is connected to Station: \(clients[0].station)"
-      alert.informativeText = "Close the Station . . Or . . Connect using Multiflex . . Or . . use Remote Control"
-      alert.addButton(withTitle: "Close \(clients[0].station)")
-      alert.addButton(withTitle: "Multiflex Connect")
-      alert.addButton(withTitle: "Remote Control")
-      alert.addButton(withTitle: "Cancel")
-      
-      // FIXME: Remote Control implementation needed
-      
-      alert.buttons[2].isEnabled = false
-      
-      // ignore if not confirmed by the user
-      alert.beginSheetModal(for: NSApplication.shared.mainWindow!, completionHandler: { (response) in
-        // close the connected Radio if the YES button pressed
+      DispatchQueue.main.async {
+        let alert = NSAlert()
+        alert.alertStyle = .warning
+        alert.messageText = "Radio is connected to Station: \(clients[0].station)"
+        alert.informativeText = "Close the Station . . Or . . Connect using Multiflex . . Or . . use Remote Control"
+        alert.addButton(withTitle: "Close \(clients[0].station)")
+        alert.addButton(withTitle: "Multiflex Connect")
+        alert.addButton(withTitle: "Remote Control")
+        alert.addButton(withTitle: "Cancel")
         
-        switch response {
-        case NSApplication.ModalResponse.alertFirstButtonReturn:  self._radioManager.connectRadio(packet, pendingDisconnect: .newApi(handle: handles[0]))
-        case NSApplication.ModalResponse.alertSecondButtonReturn: self._radioManager.connectRadio(packet)
-        default:  break
-        }
-      })
+        // FIXME: Remote Control implementation needed
+        
+        alert.buttons[2].isEnabled = false
+        
+        // ignore if not confirmed by the user
+        alert.beginSheetModal(for: NSApplication.shared.mainWindow!, completionHandler: { (response) in
+          // close the connected Radio if the YES button pressed
+          
+          switch response {
+          case NSApplication.ModalResponse.alertFirstButtonReturn:  self._radioManager.connectRadio(packet, pendingDisconnect: .newApi(handle: handles[0]))
+          case NSApplication.ModalResponse.alertSecondButtonReturn: self._radioManager.connectRadio(packet)
+          default:  break
+          }
+        })}
       
     case (true, kInUse, 2):               // newApi, connected to 2 clients
-      let alert = NSAlert()
-      alert.alertStyle = .warning
-      alert.messageText = "Radio is connected to multiple Stations"
-      alert.informativeText = "Close one of the Stations . . Or . . use Remote Control"
-      alert.addButton(withTitle: "Close \(clients[0].station)")
-      alert.addButton(withTitle: "Close \(clients[1].station)")
-      alert.addButton(withTitle: "Remote Control")
-      alert.addButton(withTitle: "Cancel")
-      
-      // FIXME: Remote Control implementation needed
-      
-      alert.buttons[2].isEnabled = false
-      
-      // ignore if not confirmed by the user
-      alert.beginSheetModal(for: NSApplication.shared.mainWindow!, completionHandler: { (response) in
+      DispatchQueue.main.async {
+        let alert = NSAlert()
+        alert.alertStyle = .warning
+        alert.messageText = "Radio is connected to multiple Stations"
+        alert.informativeText = "Close one of the Stations . . Or . . use Remote Control"
+        alert.addButton(withTitle: "Close \(clients[0].station)")
+        alert.addButton(withTitle: "Close \(clients[1].station)")
+        alert.addButton(withTitle: "Remote Control")
+        alert.addButton(withTitle: "Cancel")
         
-        switch response {
-        case NSApplication.ModalResponse.alertFirstButtonReturn:  self._radioManager.connectRadio(packet, pendingDisconnect: .newApi(handle: handles[0]))
-        case NSApplication.ModalResponse.alertSecondButtonReturn: self._radioManager.connectRadio(packet, pendingDisconnect: .newApi(handle: handles[1]))
-        default:  break
-        }
-      })
+        // FIXME: Remote Control implementation needed
+        
+        alert.buttons[2].isEnabled = false
+        
+        // ignore if not confirmed by the user
+        alert.beginSheetModal(for: NSApplication.shared.mainWindow!, completionHandler: { (response) in
+          
+          switch response {
+          case NSApplication.ModalResponse.alertFirstButtonReturn:  self._radioManager.connectRadio(packet, pendingDisconnect: .newApi(handle: handles[0]))
+          case NSApplication.ModalResponse.alertSecondButtonReturn: self._radioManager.connectRadio(packet, pendingDisconnect: .newApi(handle: handles[1]))
+          default:  break
+          }
+        })}
       
     default:
       break
@@ -493,60 +496,61 @@ final class MainWindowController                  : NSWindowController, NSWindow
         // FIXME: don't think can ever be executed
         
         // NO, let the user choose what to do
+        DispatchQueue.main.async {
+          let alert = NSAlert()
+          alert.alertStyle = .informational
+          alert.messageText = "Radio is connected to one Station"
+          alert.informativeText = "Close the Station . . Or . . Disconnect " + Logger.kAppName
+          alert.addButton(withTitle: "Close \(clients[0].station)")
+          alert.addButton(withTitle: "Disconnect " + Logger.kAppName)
+          alert.addButton(withTitle: "Cancel")
+          
+          alert.buttons[0].isEnabled = clients[0].station != Logger.kAppName
+          
+          // ignore if not confirmed by the user
+          alert.beginSheetModal(for: NSApplication.shared.mainWindow!, completionHandler: { (response) in
+            // close the connected Radio if the YES button pressed
+            
+            switch response {
+            case NSApplication.ModalResponse.alertFirstButtonReturn:  self._api.disconnectClient( packet: discoveryPacket, handle: handles[0])
+            case NSApplication.ModalResponse.alertSecondButtonReturn: self.disconnectApplication()
+            default:  break
+            }
+          })}
+      }
+      
+    case (true, kInUse, 2):           // newApi, 2 clients
+      DispatchQueue.main.async {
         let alert = NSAlert()
         alert.alertStyle = .informational
-        alert.messageText = "Radio is connected to one Station"
-        alert.informativeText = "Close the Station . . Or . . Disconnect " + Logger.kAppName
-        alert.addButton(withTitle: "Close \(clients[0].station)")
+        alert.messageText = "Radio is connected to multiple Stations"
+        alert.informativeText = "Close a Station . . Or . . Disconnect "  + Logger.kAppName
+        if clients[0].station != Logger.kAppName {
+          alert.addButton(withTitle: "Close \(clients[0].station)")
+        } else {
+          alert.addButton(withTitle: "---")
+        }
+        if clients[1].station != Logger.kAppName {
+          alert.addButton(withTitle: "Close \(clients[1].station)")
+        } else {
+          alert.addButton(withTitle: "---")
+        }
         alert.addButton(withTitle: "Disconnect " + Logger.kAppName)
         alert.addButton(withTitle: "Cancel")
         
         alert.buttons[0].isEnabled = clients[0].station != Logger.kAppName
+        alert.buttons[1].isEnabled = clients[1].station != Logger.kAppName
         
         // ignore if not confirmed by the user
         alert.beginSheetModal(for: NSApplication.shared.mainWindow!, completionHandler: { (response) in
-          // close the connected Radio if the YES button pressed
           
           switch response {
           case NSApplication.ModalResponse.alertFirstButtonReturn:  self._api.disconnectClient( packet: discoveryPacket, handle: handles[0])
-          case NSApplication.ModalResponse.alertSecondButtonReturn: self.disconnectApplication()
+          case NSApplication.ModalResponse.alertSecondButtonReturn: self._api.disconnectClient( packet: discoveryPacket, handle: handles[1])
+          case NSApplication.ModalResponse.alertThirdButtonReturn:  self.disconnectApplication()
           default:  break
           }
-        })
-      }
-      
-    case (true, kInUse, 2):           // newApi, 2 clients
-      
-      let alert = NSAlert()
-      alert.alertStyle = .informational
-      alert.messageText = "Radio is connected to multiple Stations"
-      alert.informativeText = "Close a Station . . Or . . Disconnect "  + Logger.kAppName
-      if clients[0].station != Logger.kAppName {
-        alert.addButton(withTitle: "Close \(clients[0].station)")
-      } else {
-        alert.addButton(withTitle: "---")
-      }
-      if clients[1].station != Logger.kAppName {
-        alert.addButton(withTitle: "Close \(clients[1].station)")
-      } else {
-        alert.addButton(withTitle: "---")
-      }
-      alert.addButton(withTitle: "Disconnect " + Logger.kAppName)
-      alert.addButton(withTitle: "Cancel")
-      
-      alert.buttons[0].isEnabled = clients[0].station != Logger.kAppName
-      alert.buttons[1].isEnabled = clients[1].station != Logger.kAppName
-      
-      // ignore if not confirmed by the user
-      alert.beginSheetModal(for: NSApplication.shared.mainWindow!, completionHandler: { (response) in
-        
-        switch response {
-        case NSApplication.ModalResponse.alertFirstButtonReturn:  self._api.disconnectClient( packet: discoveryPacket, handle: handles[0])
-        case NSApplication.ModalResponse.alertSecondButtonReturn: self._api.disconnectClient( packet: discoveryPacket, handle: handles[1])
-        case NSApplication.ModalResponse.alertThirdButtonReturn:  self.disconnectApplication()
-        default:  break
-        }
-      })
+        })}
       
     default:
       self.disconnectApplication()
@@ -574,15 +578,6 @@ final class MainWindowController                  : NSWindowController, NSWindow
   /// Disconect this Application
   ///
   private func disconnectApplication() {
-    
-//    // turn off the Parameter Monitor
-//    DispatchQueue.main.async {
-//      // turn off the Voltage/Temperature monitor
-//      if let toolbar = NSApplication.shared.mainWindow!.toolbar {
-//        let monitor = toolbar.items.findElement({  $0.itemIdentifier.rawValue == "VoltageTemp"} ) as! ParameterMonitor
-//        monitor.deactivate()
-//      }
-//    }
     // perform an orderly disconnect of all the components
     _api.disconnect(reason: .normal)
   }
@@ -674,7 +669,6 @@ final class MainWindowController                  : NSWindowController, NSWindow
       self?._lineoutMuteButton.isEnabled    = state
       self?._headphoneGainSlider.isEnabled  = state
       self?._headphoneMuteButton.isEnabled  = state
-//      self?._disconnectButton.isEnabled     = state
       
       self?._connectButton.title = (state ? "Disconnect" : "Connect")
 
@@ -706,7 +700,6 @@ final class MainWindowController                  : NSWindowController, NSWindow
         if Defaults.macAudioEnabled { self?.macAudioStartStop()}
       }
     }
-    //    }
   }
   
   private func closeRadioPicker() {

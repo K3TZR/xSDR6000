@@ -34,20 +34,9 @@ final class ColorsPrefsViewController            : NSViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
     
-    #if XDEBUG
-    Swift.print("\(#function) - \(URL(fileURLWithPath: #file).lastPathComponent.dropLast(6))")
-    #endif
-    
     view.translatesAutoresizingMaskIntoConstraints = false
-    
-    // start observing
     addObservations()
   }
-  #if XDEBUG
-  deinit {
-    Swift.print("\(#function) - \(URL(fileURLWithPath: #file).lastPathComponent.dropLast(6))")
-  }
-  #endif
 
   // ----------------------------------------------------------------------------
   // MARK: - Action methods
@@ -161,68 +150,56 @@ final class ColorsPrefsViewController            : NSViewController {
     _defaultsObservations = [
       
       Defaults.observe(\.dbLegend, options: [.initial, .new]) { [weak self] update in
-        self?._dbLegend.color = update.newValue! },
+        DispatchQueue.main.async {
+          self?._dbLegend.color = update.newValue! }},
 
       Defaults.observe(\.frequencyLegend, options: [.initial, .new]) { [weak self] update in
-        self?._frequencyLegend.color =  update.newValue!},
+        DispatchQueue.main.async {
+          self?._frequencyLegend.color =  update.newValue!}},
 
       Defaults.observe(\.gridLine, options: [.initial, .new]) { [weak self] update in
-        self?._gridLine.color =  update.newValue! },
+        DispatchQueue.main.async {
+          self?._gridLine.color =  update.newValue! }},
 
       Defaults.observe(\.marker, options: [.initial, .new]) { [weak self] update in
-        self?._marker.color =  update.newValue! },
+        DispatchQueue.main.async {
+          self?._marker.color =  update.newValue! }},
 
       Defaults.observe(\.markerEdge, options: [.initial, .new]) { [weak self] update in
-        self?._markerEdge.color =  update.newValue! },
+        DispatchQueue.main.async {
+          self?._markerEdge.color =  update.newValue! }},
 
       Defaults.observe(\.markerSegment, options: [.initial, .new]) { [weak self] update in
-        self?._markerSegment.color =  update.newValue! },
+        DispatchQueue.main.async {
+          self?._markerSegment.color =  update.newValue! }},
 
       Defaults.observe(\.sliceActive, options: [.initial, .new]) { [weak self] update in
-        self?._sliceActive.color =  update.newValue! },
+        DispatchQueue.main.async {
+          self?._sliceActive.color =  update.newValue! }},
 
       Defaults.observe(\.sliceFilter, options: [.initial, .new]) { [weak self] update in
-        self?._sliceFilter.color =  update.newValue! },
+        DispatchQueue.main.async {
+          self?._sliceFilter.color =  update.newValue! }},
 
       Defaults.observe(\.sliceInactive, options: [.initial, .new]) { [weak self] update in
-        self?._sliceInactive.color =  update.newValue! },
+        DispatchQueue.main.async {
+          self?._sliceInactive.color =  update.newValue! }},
 
       Defaults.observe(\.spectrum, options: [.initial, .new]) { [weak self] update in
-        self?._spectrum.color =  update.newValue! },
+        DispatchQueue.main.async {
+          self?._spectrum.color =  update.newValue! }},
 
       Defaults.observe(\.spectrumBackground, options: [.initial, .new]) { [weak self] update in
-        self?._spectrumBackground.color =  update.newValue! },
+        DispatchQueue.main.async {
+          self?._spectrumBackground.color =  update.newValue! }},
 
       Defaults.observe(\.tnfActive, options: [.initial, .new]) { [weak self] update in
-        self?._tnfActive.color =  update.newValue! },
+        DispatchQueue.main.async {
+          self?._tnfActive.color =  update.newValue! }},
 
       Defaults.observe(\.tnfInactive, options: [.initial, .new]) { [weak self] update in
-        self?._tnfInactive.color =  update.newValue! }
+        DispatchQueue.main.async {
+          self?._tnfInactive.color =  update.newValue! }}
     ]
   }
-  /// Process observations
-  ///
-  /// - Parameters:
-  ///   - defaults:                 the Defaults being observed
-  ///   - change:                   the change
-  ///
-//  private func changeHandler(_ defaults: Any, _ change: Any) {
-//
-//    DispatchQueue.main.async { [weak self] in
-//      self?._dbLegend.color = Defaults.dbLegend
-//      self?._frequencyLegend.color = Defaults.frequencyLegend
-//      self?._gridLine.color = Defaults.gridLine
-//      self?._marker.color = Defaults.marker
-//      self?._markerEdge.color = Defaults.markerEdge
-//      self?._markerSegment.color = Defaults.markerSegment
-//      self?._sliceActive.color = Defaults.sliceActive
-//      self?._sliceFilter.color = Defaults.sliceFilter
-//      self?._sliceInactive.color = Defaults.sliceInactive
-//      self?._spectrum.color = Defaults.spectrum
-//      self?._spectrumBackground.color = Defaults.spectrumBackground
-//      self?._tnfActive.color = Defaults.tnfActive
-//      self?._tnfInactive.color = Defaults.tnfInactive
-//
-//    }
-//  }
 }

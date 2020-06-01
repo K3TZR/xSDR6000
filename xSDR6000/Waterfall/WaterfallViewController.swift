@@ -76,17 +76,13 @@ final class WaterfallViewController               : NSViewController, NSGestureR
   override func viewDidLoad() {
     super.viewDidLoad()
     
-    #if XDEBUG
-    Swift.print("\(#function) - \(URL(fileURLWithPath: #file).lastPathComponent.dropLast(6))")
-    #endif
-
     _waterfallRenderer = WaterfallRenderer(view: _waterfallView, radio: Api.sharedInstance.radio!, panadapter: panadapter!)
     
     _waterfallView.isPaused = true
     _waterfallView.enableSetNeedsDisplay = false
     
     // setup
-    if let device = makeDevice(view: _waterfallView) {
+    if let device = makeDevice(for: _waterfallView) {
       
       _waterfallRenderer.setConstants(size: view.frame.size)
       _waterfallRenderer.setup(device: device)
@@ -104,11 +100,6 @@ final class WaterfallViewController               : NSViewController, NSGestureR
       DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + .seconds(3), execute: {  self._waterfall?.delegate = self._waterfallRenderer })
     }
   }
-  #if XDEBUG
-  deinit {
-    Swift.print("\(#function) - \(URL(fileURLWithPath: #file).lastPathComponent.dropLast(6))")
-  }
-  #endif
 
   // ----------------------------------------------------------------------------
   // MARK: - Public methods
@@ -201,7 +192,7 @@ final class WaterfallViewController               : NSViewController, NSGestureR
   /// - Parameter view:         an MTKView
   /// - Returns:                a MTLDevice
   ///
-  private func makeDevice(view: MTKView) -> MTLDevice? {
+  private func makeDevice(for view: MTKView) -> MTLDevice? {
     
     if let device = MTLCreateSystemDefaultDevice() {
       view.device = device

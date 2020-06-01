@@ -41,13 +41,6 @@ final class PanafallButtonViewController    : NSViewController {
   // ----------------------------------------------------------------------------
   // MARK: - Overridden methods
   
-  override func viewDidLoad() {
-    super.viewDidLoad()
-
-    #if XDEBUG
-    Swift.print("\(#function) - \(URL(fileURLWithPath: #file).lastPathComponent.dropLast(6))")
-    #endif
-  }
   /// Prepare to execute a Segue
   ///
   /// - Parameters:
@@ -93,11 +86,6 @@ final class PanafallButtonViewController    : NSViewController {
       break
     }
   }
-  #if XDEBUG
-  deinit {
-    Swift.print("\(#function) - \(URL(fileURLWithPath: #file).lastPathComponent.dropLast(6))")
-  }
-  #endif
 
   // ----------------------------------------------------------------------------
   // MARK: - Internal methods
@@ -201,8 +189,7 @@ final class PanafallButtonViewController    : NSViewController {
       // put the Tnf in the center of the Panadapter
       frequency = _panadapter!.center
     }
-    // tell the Radio (hardware) to add a Tnf on this Panadapter
-//    Tnf.create(frequency: freq.hzToMhz)
+    // tell the Radio to add a Tnf on this Panadapter
     _radio?.requestTnf(at: frequency)
   }
 }

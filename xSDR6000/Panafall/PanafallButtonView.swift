@@ -51,10 +51,6 @@ final class PanafallButtonView                : NSView {
   
   override func awakeFromNib() {
     
-    #if XDEBUG
-    Swift.print("\(#function) - \(URL(fileURLWithPath: #file).lastPathComponent.dropLast(6))")
-    #endif
-
     // hide the Button area
     buttonViewWidth.constant = 0
     

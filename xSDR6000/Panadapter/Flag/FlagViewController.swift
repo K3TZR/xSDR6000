@@ -561,7 +561,7 @@ final class FlagViewController       : NSViewController, NSTextFieldDelegate, NS
   func addMeterObservation(_ meter: Meter) {
     
     // YES, log the event
-    _log.logMessage("Slice Meter found: slice \(meter.group ), id = \(meter.id), \"\(meter.desc)\"", .debug, #function, #file, #line)
+    _log.logMessage("Slice Meter found: slice \(meter.group ), id = \(meter.id), \"\(meter.name)\"", .debug, #function, #file, #line)
 
     // add the observation
     _observations.append( meter.observe(\.value, options: [.initial, .new]) { [weak self] (meter, change) in

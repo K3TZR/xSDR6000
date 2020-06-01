@@ -28,6 +28,7 @@ final class InfoPrefsViewController: NSViewController, NSTableViewDelegate, NSTa
   @IBOutlet private weak var _tableView             : NSTableView!     // table of Apps
   @IBOutlet private weak var _deleteButton          : NSButton!
   
+  // layout examples
   //  var _array = [
   //    ["appName":"/Applications/Photo Booth.app", "enabled": true, "delay": false, "interval": 500, "parameter": ""],
   //    ["appName":"/Applications/Notes.app", "enabled": false, "delay": true, "interval": 2000, "parameter": ""],
@@ -44,10 +45,6 @@ final class InfoPrefsViewController: NSViewController, NSTableViewDelegate, NSTa
   override func viewDidLoad() {
     super.viewDidLoad()
     
-    #if XDEBUG
-    Swift.print("\(#function) - \(URL(fileURLWithPath: #file).lastPathComponent.dropLast(6))")
-    #endif
-    
     view.translatesAutoresizingMaskIntoConstraints = false
     
     // populate the version fields
@@ -61,11 +58,6 @@ final class InfoPrefsViewController: NSViewController, NSTableViewDelegate, NSTa
     _tableView.delegate = self
     _tableView.reloadData()
   }
-  #if XDEBUG
-  deinit {
-    Swift.print("\(#function) - \(URL(fileURLWithPath: #file).lastPathComponent.dropLast(6))")
-  }
-  #endif
 
   // ----------------------------------------------------------------------------
   // MARK: - Action methods

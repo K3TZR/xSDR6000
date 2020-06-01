@@ -36,20 +36,9 @@ final class NetworkPrefsViewController: NSViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
     
-    #if XDEBUG
-    Swift.print("\(#function) - \(URL(fileURLWithPath: #file).lastPathComponent.dropLast(6))")
-    #endif
-    
-    view.translatesAutoresizingMaskIntoConstraints = false
-    
-    // begin observing properties
+    view.translatesAutoresizingMaskIntoConstraints = false    
     addObservations()
   }
-  #if XDEBUG
-  deinit {
-    Swift.print("\(#function) - \(URL(fileURLWithPath: #file).lastPathComponent.dropLast(6))")
-  }
-  #endif
 
   // ----------------------------------------------------------------------------
   // MARK: - Action  methods

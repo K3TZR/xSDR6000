@@ -217,7 +217,9 @@ public final class RadioManager : NSObject {
       alert.informativeText = explanation
       alert.addButton(withTitle: "Ok")
       alert.beginSheetModal(for: NSApplication.shared.mainWindow!, completionHandler: { (response) in })
-      _delegate!.closeRadio(_api.radio!.packet)
+//      _delegate!.disconnectApplication()
+      // perform an orderly disconnect of all the components
+      _api.disconnect(reason: .normal)
     }
 
     _api.disconnect()

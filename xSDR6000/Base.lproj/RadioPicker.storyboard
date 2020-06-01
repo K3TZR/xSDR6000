@@ -180,15 +180,15 @@ Gw
                                 </customSpacing>
                             </stackView>
                             <stackView distribution="fill" orientation="horizontal" alignment="centerY" spacing="37" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="f3d-dK-tug" userLabel="Buttons Stack View">
-                                <rect key="frame" x="63" y="20" width="395" height="21"/>
+                                <rect key="frame" x="48" y="20" width="425" height="21"/>
                                 <subviews>
                                     <stackView distribution="fill" orientation="horizontal" alignment="centerY" spacing="50" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="OiU-wT-1UT">
-                                        <rect key="frame" x="0.0" y="0.0" width="395" height="21"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="425" height="21"/>
                                         <subviews>
                                             <button horizontalHuggingPriority="249" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="eE6-D5-HYF">
-                                                <rect key="frame" x="-6" y="-7" width="87" height="32"/>
+                                                <rect key="frame" x="-6" y="-7" width="97" height="32"/>
                                                 <constraints>
-                                                    <constraint firstAttribute="width" constant="75" id="gI1-KW-GHe"/>
+                                                    <constraint firstAttribute="width" constant="85" id="gI1-KW-GHe"/>
                                                 </constraints>
                                                 <buttonCell key="cell" type="push" title="Test" bezelStyle="rounded" alignment="center" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="tHU-hw-yCm">
                                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -202,7 +202,7 @@ DQ
                                                 </connections>
                                             </button>
                                             <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="tH2-5w-ryW">
-                                                <rect key="frame" x="125" y="3" width="20" height="16"/>
+                                                <rect key="frame" x="135" y="3" width="20" height="16"/>
                                                 <constraints>
                                                     <constraint firstAttribute="width" constant="20" id="WUD-YK-NDC"/>
                                                 </constraints>
@@ -212,7 +212,7 @@ DQ
                                                 </buttonCell>
                                             </button>
                                             <button horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="bdL-j0-dqO">
-                                                <rect key="frame" x="189" y="-7" width="87" height="32"/>
+                                                <rect key="frame" x="199" y="-7" width="97" height="32"/>
                                                 <buttonCell key="cell" type="push" title="Close" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="iDR-IN-1sd">
                                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                     <font key="font" metaFont="system"/>
@@ -225,7 +225,7 @@ Gw
                                                 </connections>
                                             </button>
                                             <button horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Jh4-B8-hx2">
-                                                <rect key="frame" x="314" y="-7" width="87" height="32"/>
+                                                <rect key="frame" x="334" y="-7" width="97" height="32"/>
                                                 <buttonCell key="cell" type="push" title="Select" bezelStyle="rounded" alignment="center" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="dS0-bg-ZrP">
                                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                     <font key="font" metaFont="system"/>

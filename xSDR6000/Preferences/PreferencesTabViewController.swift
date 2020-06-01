@@ -26,12 +26,7 @@ final class PreferencesTabViewController    : NSTabViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
     
-    #if XDEBUG
-    Swift.print("\(#function) - \(URL(fileURLWithPath: #file).lastPathComponent.dropLast(6))")
-    #endif
-    
     view.translatesAutoresizingMaskIntoConstraints = false
-    
     _log.logMessage("Preferences window opened", .debug, #function, #file, #line)
   }
 
@@ -73,26 +68,5 @@ final class PreferencesTabViewController    : NSTabViewController {
     Swift.print("\(#function) - \(URL(fileURLWithPath: #file).lastPathComponent.dropLast(6))")
     #endif
   }
-
-  // ----------------------------------------------------------------------------
-  // MARK: - Action methods
-  
-//  /// Respond to the Quit menu item
-//  ///
-//  /// - Parameter sender:     the button
-//  ///
-//  @IBAction func quitRadio(_ sender: AnyObject) {
-//
-//    dismiss(sender)
-//
-//    // perform an orderly shutdown of all the components
-//    Api.sharedInstance.shutdown(reason: .normal)
-//
-//    DispatchQueue.main.async {
-//      _log("Application closed by user", .info, #function, #file, #line)
-//
-//      NSApp.terminate(self)
-//    }
-//  }
 }
 

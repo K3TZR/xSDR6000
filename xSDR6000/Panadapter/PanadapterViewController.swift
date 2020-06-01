@@ -735,7 +735,7 @@ final class PanadapterViewController        : NSViewController, NSGestureRecogni
     if let panadapter = _panadapter, slice.panadapterId == panadapter.id  {
       
       // YES, log the event
-      _log.logMessage("Slice will be removed: id = \(slice.id), pan =  \(panadapter.id.hex), freq = \(slice.frequency)", .info, #function, #file, #line)
+      _log.logMessage("Slice will be removed: id = \(slice.id), pan = \(panadapter.id.hex), freq = \(slice.frequency)", .info, #function, #file, #line)
 
       // remove the Flag & Observations of this Slice
       removeFlag(for: slice)

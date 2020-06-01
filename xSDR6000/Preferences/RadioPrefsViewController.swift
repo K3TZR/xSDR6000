@@ -35,24 +35,13 @@ final class RadioPrefsViewController: NSViewController {
   
   override func viewDidLoad() {
     super.viewDidLoad()
-    
-    #if XDEBUG
-    Swift.print("\(#function) - \(URL(fileURLWithPath: #file).lastPathComponent.dropLast(6))")
-    #endif
-    
     view.translatesAutoresizingMaskIntoConstraints = false
   }
   
   override func viewWillAppear() {
     super.viewWillAppear()
-    
     loadFields()
   }
-  #if XDEBUG
-  deinit {
-    Swift.print("\(#function) - \(URL(fileURLWithPath: #file).lastPathComponent.dropLast(6))")
-  }
-  #endif
 
   // ----------------------------------------------------------------------------
   // MARK: - Action  methods
@@ -65,7 +54,6 @@ final class RadioPrefsViewController: NSViewController {
   }
   
   @IBAction func screensaver(_ sender: NSButton) {
-    
     _radio?.radioScreenSaver = sender.identifier!.rawValue
   }
   
@@ -89,13 +77,14 @@ final class RadioPrefsViewController: NSViewController {
     case "RemoteOn":
       _radio?.remoteOnEnabled = sender.boolState
       
-      // TODO:
+    case "FlexControl":
       
-//    case "FlexControl":
-//      _radio?.flexControlEnabled = sender.boolState
+      // TODO: add code
       
+      notImplemented(sender.title).beginSheetModal(for: NSApp.mainWindow!, completionHandler: { (response) in } )
+
     default:
-      fatalError()
+      break
     }
   }
   
