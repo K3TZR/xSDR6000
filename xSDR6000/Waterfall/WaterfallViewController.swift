@@ -84,7 +84,7 @@ final class WaterfallViewController               : NSViewController, NSGestureR
     // setup
     if let device = makeDevice(for: _waterfallView) {
       
-      _waterfallRenderer.setConstants(size: view.frame.size)
+      _waterfallRenderer.setConstants()
       _waterfallRenderer.setup(device: device)
       
       _waterfallView.delegate = _waterfallRenderer
@@ -272,7 +272,7 @@ final class WaterfallViewController               : NSViewController, NSGestureR
   private func panadapterBandChange(_ object: Panadapter, _ change: Any) {
 
     // force the Waterfall to restart
-    _waterfallRenderer.restart()
+    _waterfallRenderer.setConstants()
   }
   /// Respond to Waterfall observations
   ///

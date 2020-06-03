@@ -17,17 +17,18 @@ struct Intensity {                    // Intensity struct
   ushort  i;
 };
 
-struct Line {                         // Constant struct
+struct Line {
   float   firstBinFrequency;
   float   binBandwidth;
-  ushort  number;
+  ushort  index;
 };
 
-struct Constant {                     // Constant struct
+struct Constants {
   ushort  blackLevel;
   ushort  colorGain;
-  ushort  offsetY;
-  ushort  numberOfLines;
+  ushort  numberOfBufferLines;
+  ushort  numberOfScreenLines;
+  ushort  topLineIndex;
   float   startingFrequency;
   float   endingFrequency;
 };
@@ -46,8 +47,8 @@ struct VertexOutput {
 //  - Returns:          a VertexOutput struct
 //
 vertex VertexOutput waterfall_vertex(const device Intensity* intensities [[ buffer(0) ]],
-                                     const device Line &l [[ buffer(1) ]],
-                                     constant Constant &c [[ buffer(2) ]],
+                                     const device Line &line [[ buffer(1) ]],
+                                     constant Constants &constants [[ buffer(2) ]],
                                      unsigned int vertexId [[ vertex_id ]])
 
 {
@@ -61,8 +62,8 @@ vertex VertexOutput waterfall_vertex(const device Intensity* intensities [[ buff
   float endingBin;
   float deltaX;
   
-  startingBin = (c.startingFrequency - l.firstBinFrequency) / l.binBandwidth;
-  endingBin = (c.endingFrequency - l.firstBinFrequency) / l.binBandwidth;
+  startingBin = (constants.startingFrequency - line.firstBinFrequency) / line.binBandwidth;
+  endingBin = (constants.endingFrequency - line.firstBinFrequency) / line.binBandwidth;
   deltaX = 1.0 / (endingBin - startingBin);
 
   // calculate the x coordinate & normalize to clip space
@@ -70,24 +71,24 @@ vertex VertexOutput waterfall_vertex(const device Intensity* intensities [[ buff
   
   // calculate the y coordinate & normalize to clip space
   // with line "0" == top. line "# lines" == bottom
-  temp1 = ((l.number) + c.offsetY) % (c.numberOfLines);
-  yCoord = -((( float(temp1) / (float(c.numberOfLines) ))  * 2.0) - 1.0);
+  temp1 = line.index - constants.topLineIndex;
+  yCoord = -(((float(temp1) / float(constants.numberOfScreenLines -1))  * 2.0) - 1.0);
   
   // pass the vertex & texture coordinates to the Fragment shader
   v_out.coord = float4(xCoord, yCoord, 0.0, 1.0);
   
   // is the intensity below the black level?
-  if (intensities[vertexId].i < c.blackLevel) {
+  if (intensities[vertexId].i < constants.blackLevel) {
     // YES, ignore it
     v_out.intensity = 0;
     
   } else {
     
     // NO, make it non-linear
-    power = pow( (1.0 + float(c.colorGain)/100.0), 4.0 );
+    power = pow( (1.0 + float(constants.colorGain)/100.0), 4.0 );
     
     // normalize it (0 -> UInt16.max becomes 0.0 -> 1.0)
-    v_out.intensity = float( (intensities[vertexId].i - c.blackLevel) / float(65536) ) * power;
+    v_out.intensity = float( (intensities[vertexId].i - constants.blackLevel) / float(65536) ) * power;
   }
   
   return v_out;
