@@ -399,12 +399,12 @@ final class PanadapterViewController        : NSViewController, NSGestureRecogni
       } else {
         current.isOnLeft = current.freqPosition - previous.freqPosition > 2 * (flagWidth + FlagViewController.kFlagOffset) + FlagViewController.kFlagMinimumSeparation
       }
-      flagVc.isOnLeft = current.isOnLeft
-      
-      // Flag position based on room for it
-      let flagPosition = (current.isOnLeft ? current.freqPosition - flagWidth - FlagViewController.kFlagOffset : current.freqPosition + FlagViewController.kFlagOffset)
-      
-      DispatchQueue.main.async { 
+      DispatchQueue.main.async {
+        flagVc.isOnLeft = current.isOnLeft
+        
+        // Flag position based on room for it
+        let flagPosition = (current.isOnLeft ? current.freqPosition - flagWidth - FlagViewController.kFlagOffset : current.freqPosition + FlagViewController.kFlagOffset)
+        
         flagVc.flagXPositionConstraint?.isActive = false
         flagVc.flagXPositionConstraint?.constant = flagPosition
         flagVc.flagXPositionConstraint?.isActive = true

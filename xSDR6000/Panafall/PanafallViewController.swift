@@ -59,7 +59,9 @@ final class PanafallViewController          : NSSplitViewController, NSGestureRe
     super.viewDidLoad()
     
     splitView.delegate = self
-    
+    splitViewItems[0].minimumThickness = 20
+    splitViewItems[1].minimumThickness = 20
+
     // setup Right Single Click recognizer
     _rightClick = NSClickGestureRecognizer(target: self, action: #selector(rightClick(_:)))
     _rightClick.buttonMask = kRightButton
@@ -69,6 +71,13 @@ final class PanafallViewController          : NSSplitViewController, NSGestureRe
     // save the divider position
     splitView.autosaveName = "Panadapter \(_panadapter?.id.hex ?? "0x99999999")"
   }
+
+  override func splitView(_ splitView: NSSplitView, canCollapseSubview subview: NSView) -> Bool {
+    return false
+  }
+
+
+
   /// Process scroll wheel events to change the Active Slice frequency
   ///
   /// - Parameter theEvent: a Scroll Wheel event

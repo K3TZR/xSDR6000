@@ -110,26 +110,27 @@ public class Logger : LogHandler {
   ///
   public func logMessage(_ msg: String, _ level: MessageLevel, _ function: StaticString, _ file: StaticString, _ line: Int) -> Void {
     
-    // Log Handler to support XCGLogger
-    
-    switch level {
-    case .verbose:
-      log.verbose(msg, functionName: function, fileName: file, lineNumber: line )
-      
-    case .debug:
-      log.debug(msg, functionName: function, fileName: file, lineNumber: line)
-
-    case .info:
-      log.info(msg, functionName: function, fileName: file, lineNumber: line)
-      
-    case .warning:
-      log.warning(msg, functionName: function, fileName: file, lineNumber: line)
-      
-    case .error:
-      log.error(msg, functionName: function, fileName: file, lineNumber: line)
-      
-    case .severe:
-      log.severe(msg, functionName: function, fileName: file, lineNumber: line)
+    // Log Handler to support XCGLogger    
+    DispatchQueue.main.async { [weak self] in
+      switch level {
+      case .verbose:
+        self?.log.verbose(msg, functionName: function, fileName: file, lineNumber: line )
+        
+      case .debug:
+        self?.log.debug(msg, functionName: function, fileName: file, lineNumber: line)
+        
+      case .info:
+        self?.log.info(msg, functionName: function, fileName: file, lineNumber: line)
+        
+      case .warning:
+        self?.log.warning(msg, functionName: function, fileName: file, lineNumber: line)
+        
+      case .error:
+        self?.log.error(msg, functionName: function, fileName: file, lineNumber: line)
+        
+      case .severe:
+        self?.log.severe(msg, functionName: function, fileName: file, lineNumber: line)
+      }
     }
   }
 }

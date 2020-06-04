@@ -107,15 +107,16 @@ public final class WaterfallRenderer: NSObject, MTKViewDelegate {
   private var _gradientSamplerState         : MTLSamplerState!
   private var _gradientTexture              : MTLTexture!
   private var _lineBuffer                   : MTLBuffer!
-  private var _visibleLineCount             = 0
   
   private let _waterQ                       = DispatchQueue(label: Logger.kAppName + ".waterQ", attributes: [.concurrent])
   private var _waterDrawQ                   = DispatchQueue(label: Logger.kAppName + ".waterDrawQ")
+  private var _isDrawing                    : DispatchSemaphore = DispatchSemaphore(value: 1)
   
   private let kFragmentShader               = "waterfall_fragment"
   private let kVertexShader                 = "waterfall_vertex"
   private let kGradientSize                 = 256
 
+//  private var _visibleLineCount             = 0
 //  private var _sizeOfLine                   = 0
 //  private var _sizeOfIntensities            = 0
 //  private var _activeLines                  : UInt16 = 0
@@ -144,7 +145,7 @@ public final class WaterfallRenderer: NSObject, MTKViewDelegate {
 //    set { _waterQ.sync(flags: .barrier) { __topLine = newValue } } }
 
   // ----------------------------------------------------------------------------
-  // *** Hidden properties (Do NOT use) ***
+  // *** Backing properties (Do NOT use) ***
   
   private var __changingSize                = false
   private var __constants                   = Constants()
@@ -173,11 +174,15 @@ public final class WaterfallRenderer: NSObject, MTKViewDelegate {
   ///
   public func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {
    
-    _changingSize = true
-    
-    setConstants()
+    DispatchQueue.main.async { [unowned self] in 
+      self._changingSize = true
 
-    _changingSize = false
+      self._isDrawing.wait()
+      self._constants.numberOfScreenLines = UInt16(self._metalView.frame.size.height)
+      self._isDrawing.signal()
+
+      self._changingSize = false
+    }
   }
   /// Draw lines colored by the Gradient texture
   ///
@@ -208,8 +213,6 @@ public final class WaterfallRenderer: NSObject, MTKViewDelegate {
     for i in 0..<Int(_constants.numberOfScreenLines - 1) {
       let loc = (Int(_constants.topLineIndex) + i) % Int(_constants.numberOfBufferLines)
       
-//      Swift.print("Draw \(loc)")
-      
       // move to the next set of Intensities & Line params
       encoder.setVertexBufferOffset(loc * MemoryLayout<Intensity>.stride * WaterfallRenderer.kMaxIntensities, index: 0)
       encoder.setVertexBufferOffset((loc * MemoryLayout<Line>.stride), index: 1)
@@ -232,13 +235,15 @@ public final class WaterfallRenderer: NSObject, MTKViewDelegate {
   
   func setConstants() {
     DispatchQueue.main.async { [unowned self] in
+      self._isDrawing.wait()
+      
       self._constants.numberOfBufferLines = UInt16(WaterfallRenderer.kMaxLines)
       self._constants.numberOfScreenLines = UInt16(self._metalView.frame.size.height)
       self._constants.topLineIndex        = UInt16(WaterfallRenderer.kMaxLines)
       self._constants.startingFrequency   = Float(self._start)
       self._constants.endingFrequency     = Float(self._end)
-      
-      Swift.print("----->>>>> Height = \(self._metalView.frame.size.height)")
+
+      self._isDrawing.signal()
     }
   }
   /// Setup persistent objects & state
@@ -348,13 +353,11 @@ extension WaterfallRenderer                 : StreamHandler {
     
     guard let streamFrame = streamFrame as? WaterfallFrame else { return }
     
-    guard _changingSize == false else { return }
-
+    _isDrawing.wait()
+    
     // decrement the Top Line
     _constants.topLineIndex = (_constants.topLineIndex == 0 ? _constants.numberOfBufferLines - 1 : _constants.topLineIndex - 1)
 
-    Swift.print("topLine = \(_constants.topLineIndex)")
-    
     // copy the Intensities into the Intensity buffer
     memcpy(_intensityBuffer.contents().advanced(by: Int(_constants.topLineIndex) * MemoryLayout<Intensity>.stride * WaterfallRenderer.kMaxIntensities), &streamFrame.bins, streamFrame.numberOfBins * MemoryLayout<UInt16>.size)
     
@@ -375,5 +378,6 @@ extension WaterfallRenderer                 : StreamHandler {
         self._metalView.draw()
       }
     }
+    _isDrawing.signal()
   }
 }

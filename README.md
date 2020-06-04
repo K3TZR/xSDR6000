@@ -6,8 +6,8 @@
 
 ### Built on:
 
-*  macOS 10.15.4
-*  Xcode 11.4.1 (11E503a)
+*  macOS 10.15.5
+*  Xcode 11.5 (11E608c)
 *  Swift 5.2
 
 
@@ -43,7 +43,7 @@ Flex Radios can have one of four different version groups:
 *  v2.0.x thru v2.4.9, the v2 API <<-- CURRENTLY SUPPORTED
 *  v2.5.1 to less than v3.0.0, the v3 API without MultiFlex <<-- CURRENTLY SUPPORTED
 *  v3.0.0 thru v3.1.11, the v3 API with MultiFlex <<-- CURRENTLY SUPPORTED
-*  greater than v3.1.11 - untested at this time
+*  greater than v3.1.11 - untested at this time (may work ???)
 
 
 ## Credits
@@ -63,6 +63,20 @@ xLib6000 Package:
 OpusOSX, framework built from sources at:
 
 * https://opus-codec.org/downloads/
+
+
+## 1.2.1 Release Notes
+
+* major refactor of RadioPicker / RadioViewController / WanManager / Auth0
+* refactor of Parameter Monitor
+* updated Help to include list of Unimplemented features and Known issues
+* corrected crash on FlexControl enable (FlexControl not implemented)
+* corrected a number of Main Thread issues
+* refactored Waterfall to eliminate crash on resizing
+* added Connect / Disconnect button to Toolbar
+* corrected main thread issue in Slice flag
+* corrected Side button action (toolbar)
+* corrected Radio menu actions
 
 
 ## 1.2.0 Release Notes

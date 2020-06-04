@@ -70,7 +70,6 @@ vertex VertexOutput waterfall_vertex(const device Intensity* intensities [[ buff
   xCoord = ((float(vertexId - startingBin) * deltaX) * 2) - 1 ;
   
   // calculate the y coordinate & normalize to clip space
-  // with line "0" == top. line "# lines" == bottom
   temp1 = line.index - constants.topLineIndex;
   yCoord = -(((float(temp1) / float(constants.numberOfScreenLines -1))  * 2.0) - 1.0);
   

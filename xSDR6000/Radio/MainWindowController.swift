@@ -153,6 +153,7 @@ final class MainWindowController                  : NSWindowController, NSWindow
   
   @IBAction func sideButton(_ sender: NSButton) {
     _radioMenu?.item(title: "Side View On/Off")?.boolState = sender.boolState
+    Defaults.sideViewOpen = sender.boolState
     if sender.boolState {
       openSideWindow()
     } else {
