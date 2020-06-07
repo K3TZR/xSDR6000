@@ -174,10 +174,6 @@ final class FlagViewController       : NSViewController, NSTextFieldDelegate, NS
   public override func viewDidLoad() {
     super.viewDidLoad()
     
-    #if XDEBUG
-    Swift.print("\(#function) - \(URL(fileURLWithPath: #file).lastPathComponent.dropLast(6))")
-    #endif
-    
     view.translatesAutoresizingMaskIntoConstraints = false
 
     if Defaults.flagBorderEnabled {
@@ -236,11 +232,6 @@ final class FlagViewController       : NSViewController, NSTextFieldDelegate, NS
       _beginEditing = false
     }
   }
-  #if XDEBUG
-  deinit {
-    Swift.print("\(#function) - \(URL(fileURLWithPath: #file).lastPathComponent.dropLast(6))")
-  }
-  #endif
 
   // ----------------------------------------------------------------------------
   // MARK: - Internal methods
@@ -265,10 +256,7 @@ final class FlagViewController       : NSViewController, NSTextFieldDelegate, NS
     // create observations of Slice & Panadapter properties
     addObservations(slice: slice, panadapter: _panadapter!)
     
-    // find the S-Meter feed (if any, it may alreaady exist or it may come later as a sliceMeterAdded Notification)
-    findSMeter(for: slice)
-    
-    // start receiving Notifications
+    // start receiving S-Meter notifications
     addNotifications()
   }
   /// Update an existing Flag
@@ -289,9 +277,6 @@ final class FlagViewController       : NSViewController, NSTextFieldDelegate, NS
     // add observations of the new objects
     addObservations(slice: slice, panadapter: panadapter)
 
-    // find the s-meter feed for the new Slice
-    findSMeter(for: slice)
-    
     // update the Slice Letter
     _alphaButton.attributedTitle = NSAttributedString(string: FlagViewController.kSliceLetters[Int(slice.id)], attributes: kLetterAttr)
   }
@@ -302,18 +287,12 @@ final class FlagViewController       : NSViewController, NSTextFieldDelegate, NS
   func selectControls(_ tag: Int) {
     
     switch tag {
-    case 0:
-      _audButton.performClick(self)
-    case 1:
-      _dspButton.performClick(self)
-    case 2:
-      _modeButton.performClick(self)
-    case 3:
-      _xritButton.performClick(self)
-    case 4:
-      _daxButton.performClick(self)
-    default:
-      _audButton.performClick(self)
+    case 0:   _audButton.performClick(self)
+    case 1:   _dspButton.performClick(self)
+    case 2:   _modeButton.performClick(self)
+    case 3:   _xritButton.performClick(self)
+    case 4:   _daxButton.performClick(self)
+    default:  _audButton.performClick(self)
     }
   }
   
@@ -426,12 +405,9 @@ final class FlagViewController       : NSViewController, NSTextFieldDelegate, NS
   @IBAction func popups(_ sender: NSPopUpButton) {
     
     switch sender.identifier!.rawValue {
-    case "rxAnt":
-      slice?.rxAnt = sender.titleOfSelectedItem!
-    case "txAnt":
-      slice?.txAnt = sender.titleOfSelectedItem!
-    default:
-      fatalError()
+    case "rxAnt": slice?.rxAnt = sender.titleOfSelectedItem!
+    case "txAnt": slice?.txAnt = sender.titleOfSelectedItem!
+    default:      break
     }
   }
   /// One of the buttons has been clicked
@@ -441,18 +417,12 @@ final class FlagViewController       : NSViewController, NSTextFieldDelegate, NS
   @IBAction func buttons(_ sender: NSButton) {
     
     switch sender.identifier!.rawValue {
-    case "nb":
-      slice?.nbEnabled = sender.boolState
-    case "nr":
-      slice?.nrEnabled = sender.boolState
-    case "anf":
-      slice?.anfEnabled = sender.boolState
-    case "qsk":
-      slice?.qskEnabled = sender.boolState
-    case "lock":
-      slice?.locked = sender.boolState
-    default:
-      fatalError()
+    case "nb":    slice?.nbEnabled = sender.boolState
+    case "nr":    slice?.nrEnabled = sender.boolState
+    case "anf":   slice?.anfEnabled = sender.boolState
+    case "qsk":   slice?.qskEnabled = sender.boolState
+    case "lock":  slice?.locked = sender.boolState
+    default:      break
     }
   }
 
@@ -472,18 +442,6 @@ final class FlagViewController       : NSViewController, NSTextFieldDelegate, NS
     // if success, save the Split's Id
     if responseValue == Api.kNoError {
       splitId = reply.objectId
-    }
-  }
-  /// Find the S-Meter for this Slice (if any)
-  ///
-  private func findSMeter(for slice: xLib6000.Slice) {
-    
-    if let item = Api.sharedInstance.radio!.meters.first(where: {
-      $0.value.source == "slc" &&
-        $0.value.group.objectId == slice.id &&
-      $0.value.name == Meter.ShortName.signalPassband.rawValue} ) {
-      
-      addMeterObservation( item.value)
     }
   }
   /// Change a Slice frequency while maintaining its position in the Panadapter display
@@ -553,20 +511,7 @@ final class FlagViewController       : NSViewController, NSTextFieldDelegate, NS
     _observations.append( slice.observe(\.txAnt, options: [.initial, .new]) { [weak self] (slice, change) in
       self?.antennaChange(slice, change) })
   }
-  /// Add Observation of the S-Meter feed
-  ///
-  ///     Note: meters may not be available at Slice creation.
-  ///     If not, the .sliceMeterHasBeenAdded notification will identify the S-Meter
-  ///
-  func addMeterObservation(_ meter: Meter) {
-    
-    // YES, log the event
-    _log.logMessage("Slice Meter found: slice \(meter.group ), id = \(meter.id), \"\(meter.name)\"", .debug, #function, #file, #line)
 
-    // add the observation
-    _observations.append( meter.observe(\.value, options: [.initial, .new]) { [weak self] (meter, change) in
-      self?.meterChange(meter, change) })
-  }
   /// Invalidate observations (optionally remove)
   ///
   /// - Parameters:
@@ -604,12 +549,9 @@ final class FlagViewController       : NSViewController, NSTextFieldDelegate, NS
     
     let width = slice.filterHigh - slice.filterLow
     switch width {
-    case 1_000...:
-      formattedWidth = String(format: "%2.1fk", Float(width)/1000.0)
-    case 0..<1_000:
-      formattedWidth = String(format: "%3d", width)
-    default:
-      formattedWidth = "0"
+    case 1_000...:  formattedWidth = String(format: "%2.1fk", Float(width)/1000.0)
+    case 0..<1_000: formattedWidth = String(format: "%3d", width)
+    default:        formattedWidth = "0"
     }
     DispatchQueue.main.async { [weak self] in
       self?._filterWidth.stringValue = formattedWidth
@@ -691,99 +633,57 @@ final class FlagViewController       : NSViewController, NSTextFieldDelegate, NS
   // MARK: - Notification Methods
   
   /// Add subsciptions to Notifications
-  ///     (as of 10.11, subscriptions are automatically removed on deinit when using the Selector-based approach)
   ///
   private func addNotifications() {
     
-    NC.makeObserver(self, with: #selector(meterHasBeenAdded(_:)), of: .meterHasBeenAdded)
+    NC.makeObserver(self, with: #selector(sliceMeterUpdated(_:)), of: .sliceMeterUpdated)
   }
   private var _meterObservations    = [NSKeyValueObservation]()
   
-  /// Process sliceMeterHasBeenAdded Notification
+  /// Process Meter Notification
   ///
   /// - Parameter note:       a Notification instance
   ///
-  @objc private func meterHasBeenAdded(_ note: Notification) {
+  @objc private func sliceMeterUpdated(_ note: Notification) {
+    
     // does the Notification contain an S-Meter object for this Slice?
     if let meter = note.object as? Meter, meter.group.objectId == slice?.id, meter.name == Meter.ShortName.signalPassband.rawValue {
       // YES
-      addMeterObservation( meter )      
-    }
-  }
-  /// Respond to a change in the S-Meter
-  ///
-  /// - Parameters:
-  ///   - object:                 the Meter
-  ///   - change:                 the Change
-  ///
-  private func meterChange(_ object: Any, _ change: Any) {
-    
-    DispatchQueue.main.async { [weak self] in
-
-      let meter = object as! Meter
-
       var value = CGFloat(meter.value)
+      var sLevel = ""
       
-      // S-Units above S9 are scaled 
-      if value > -73 {
-        value = ((value + 73) * 0.6) - 73
-      }
-      
-      // set the bargraph level
-      self?._sMeter.level = value
+      // S-Units above S9 are scaled
+      if value > -73 { value = ((value + 73) * 0.6) - 73 }
       
       // set the "S" level
       switch value {
-      case ..<(-121):
-        self?._sLevel.stringValue = " S0"
+      case ..<(-121):       sLevel = " S0"
+      case (-121)..<(-115): sLevel = " S1"
+      case (-115)..<(-109): sLevel = " S2"
+      case (-109)..<(-103): sLevel = " S3"
+      case (-103)..<(-97):  sLevel = " S4"
+      case (-103)..<(-97):  sLevel = " S5"
+      case (-97)..<(-91):   sLevel = " S6"
+      case (-91)..<(-85):   sLevel = " S7"
+      case (-85)..<(-79):   sLevel = " S8"
+      case (-79)..<(-73):   sLevel = " S9"
+      case (-73)..<(-67):   sLevel = "+10"
+      case (-67)..<(-61):   sLevel = "+20"
+      case (-61)..<(-55):   sLevel = "+30"
+      case (-55)..<(-49):   sLevel = "+40"
+      case (-49)...:        sLevel = "+++"
+      default:              break
+      }
       
-      case (-121)..<(-115):
-        self?._sLevel.stringValue = " S1"
-     
-      case (-115)..<(-109):
-        self?._sLevel.stringValue = " S2"
-      
-      case (-109)..<(-103):
-        self?._sLevel.stringValue = " S3"
-      
-      case (-103)..<(-97):
-        self?._sLevel.stringValue = " S4"
-      
-      case (-103)..<(-97):
-        self?._sLevel.stringValue = " S5"
-      
-      case (-97)..<(-91):
-        self?._sLevel.stringValue = " S6"
-      
-      case (-91)..<(-85):
-        self?._sLevel.stringValue = " S7"
-      
-      case (-85)..<(-79):
-        self?._sLevel.stringValue = " S8"
-      
-      case (-79)..<(-73):
-        self?._sLevel.stringValue = " S9"
-      
-      case (-73)..<(-67):
-        self?._sLevel.stringValue = "+10"
-     
-      case (-67)..<(-61):
-        self?._sLevel.stringValue = "+20"
-      
-      case (-61)..<(-55):
-        self?._sLevel.stringValue = "+30"
-      
-      case (-55)..<(-49):
-        self?._sLevel.stringValue = "+40"
-      
-      case (-49)...:
-        self?._sLevel.stringValue = "+++"
-      default:
-        break
+      DispatchQueue.main.async { [weak self] in
+        // set the bargraph & S level
+        self?._sMeter.level = value
+        self?._sLevel.stringValue = sLevel
       }
     }
   }
 }
+
 // --------------------------------------------------------------------------------
 // MARK: - Frequency Formatter class implementation
 // --------------------------------------------------------------------------------

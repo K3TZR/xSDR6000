@@ -31,31 +31,21 @@ final class CWViewController                          : NSViewController {
 
   private var _radio               : Radio? { Api.sharedInstance.radio }
 
-  private let kAlcLevel            = Meter.ShortName.voltageHwAlc.rawValue
-
   // ----------------------------------------------------------------------------
   // MARK: - Overriden methods
   
   override func viewDidLoad() {
     super.viewDidLoad()
     
-    #if XDEBUG
-    Swift.print("\(#function) - \(URL(fileURLWithPath: #file).lastPathComponent.dropLast(6))")
-    #endif
-    
     view.translatesAutoresizingMaskIntoConstraints = false
     
     // setup the MicLevel & Compression graphs
     setupBarGraphs()
     
-    // start observing properties
+    // start observations
+    addNotifications()
     addObservations()
   }
-  #if XDEBUG
-  deinit {
-    Swift.print("\(#function) - \(URL(fileURLWithPath: #file).lastPathComponent.dropLast(6))")
-  }
-  #endif
 
   // ----------------------------------------------------------------------------
   // MARK: - Action methods
@@ -67,16 +57,11 @@ final class CWViewController                          : NSViewController {
   @IBAction func textFields(_ sender: NSTextField) {
     
     switch sender.identifier?.rawValue {
-    case "DelayTextfield":
-      _radio!.transmit!.cwBreakInDelay = sender.integerValue
-    case "PitchTextfield":
-      _radio!.transmit!.cwPitch = sender.integerValue
-    case "SidetoneLevelTextfield":
-      _radio!.transmit!.txMonitorGainCw = sender.integerValue
-    case "SpeedTextField":
-      _radio!.transmit!.cwSpeed = sender.integerValue
-    default:
-      fatalError()
+    case "DelayTextfield":          _radio!.transmit!.cwBreakInDelay = sender.integerValue
+    case "PitchTextfield":          _radio!.transmit!.cwPitch = sender.integerValue
+    case "SidetoneLevelTextfield":  _radio!.transmit!.txMonitorGainCw = sender.integerValue
+    case "SpeedTextField":          _radio!.transmit!.cwSpeed = sender.integerValue
+    default:                        break
     }
   }
   /// Respond to one of the buttons
@@ -86,14 +71,10 @@ final class CWViewController                          : NSViewController {
   @IBAction func buttons(_ sender: NSButton) {
     
     switch sender.identifier!.rawValue {
-    case "BreakInButton":
-      _radio!.transmit?.cwBreakInEnabled = sender.boolState
-    case "IambicButton":
-      _radio!.transmit?.cwIambicEnabled = sender.boolState
-    case "SidetoneButton":
-      _radio!.transmit?.cwSidetoneEnabled = sender.boolState
-    default:
-      fatalError()
+    case "BreakInButton":   _radio!.transmit?.cwBreakInEnabled = sender.boolState
+    case "IambicButton":    _radio!.transmit?.cwIambicEnabled = sender.boolState
+    case "SidetoneButton":  _radio!.transmit?.cwSidetoneEnabled = sender.boolState
+    default:                break
     }
   }
   /// Respond to one of the sliders
@@ -103,16 +84,11 @@ final class CWViewController                          : NSViewController {
   @IBAction func sliders(_ sender: NSSlider) {
     
     switch sender.identifier!.rawValue {
-    case "DelaySlider":
-      _radio!.transmit!.cwBreakInDelay = sender.integerValue
-    case "SidetoneLevelSlider":
-      _radio!.transmit?.txMonitorGainCw = sender.integerValue
-    case "SidetonePanSlider":
-      _radio!.transmit?.txMonitorPanCw = sender.integerValue
-    case "SpeedSlider":
-      _radio!.transmit?.cwSpeed = sender.integerValue
-    default:
-      fatalError()
+    case "DelaySlider":         _radio!.transmit!.cwBreakInDelay = sender.integerValue
+    case "SidetoneLevelSlider": _radio!.transmit?.txMonitorGainCw = sender.integerValue
+    case "SidetonePanSlider":   _radio!.transmit?.txMonitorPanCw = sender.integerValue
+    case "SpeedSlider":         _radio!.transmit?.cwSpeed = sender.integerValue
+    default:                    break
     }
   }
   /// Respond to the Pitch stepper
@@ -166,13 +142,6 @@ final class CWViewController                          : NSViewController {
       self?.cwChange(transmit, change) })
     _observations.append( transmit.observe(\.txMonitorPanCw, options: [.initial, .new]) { [weak self] (transmit, change) in
       self?.cwChange(transmit, change) })
-
-    // Cw Meter parameters
-    _radio!.meters.values.filter { $0.name == kAlcLevel }
-      .forEach({
-        _observations.append( $0.observe(\.value, options: [.initial, .new]) { [weak self] (meter, change) in
-          self?.meterChange(meter, change) })
-      })
   }
   /// Update all control values
   ///
@@ -195,22 +164,36 @@ final class CWViewController                          : NSViewController {
       self?._speedTextfield.integerValue = transmit.cwSpeed
     }
   }
-  /// Respond to changes in a Meter
+  
+  // ----------------------------------------------------------------------------
+  // MARK: - Notification Methods
+  
+  /// Add subsciptions to Notifications
+  ///
+  private func addNotifications() {
+    
+    NC.makeObserver(self, with: #selector(cwMeterUpdated(_:)), of: .cwMeterUpdated)
+  }
+  /// Respond to a change in a Meter
   ///
   /// - Parameters:
-  ///   - object:                       a Meter
-  ///   - change:                       the change
+  ///   - note:                 a Notification
   ///
-  private func meterChange(_ meter: Meter, _ change: Any) {
+  @objc private func cwMeterUpdated(_ note: Notification) {
     
-    // which meter?
-    switch meter.name {
-
-    case kAlcLevel:
-      DispatchQueue.main.async { [weak self] in  self?._alcLevelIndicator.level = CGFloat(meter.value) }
-    
-    default:
-      fatalError()
+    if let meter = note.object as? Meter {
+      
+      DispatchQueue.main.async { [weak self] in
+        // update the appropriate field
+        switch meter.name {
+          
+        case Meter.ShortName.voltageHwAlc.rawValue:
+          DispatchQueue.main.async { [weak self] in  self?._alcLevelIndicator.level = CGFloat(meter.value) }
+          
+        default:
+          break
+        }
+      }
     }
   }
 }

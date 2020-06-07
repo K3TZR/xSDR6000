@@ -29,9 +29,9 @@ final class PCWViewController                     : NSViewController {
   
   private var _radio                        : Radio? { Api.sharedInstance.radio }
   
-  private let kMicrophoneAverage            = Meter.ShortName.microphoneAverage.rawValue
-  private let kMicrophonePeak               = Meter.ShortName.microphonePeak.rawValue
-  private let kCompression                  = Meter.ShortName.postClipper.rawValue
+//  private let kMicrophoneAverage            = Meter.ShortName.microphoneAverage.rawValue
+//  private let kMicrophonePeak               = Meter.ShortName.microphonePeak.rawValue
+//  private let kCompression                  = Meter.ShortName.postClipper.rawValue
 
   // ----------------------------------------------------------------------------
   // MARK: - Overriden methods
@@ -48,7 +48,8 @@ final class PCWViewController                     : NSViewController {
     // setup the MicLevel & Compression graphs
     setupBarGraphs()
     
-    // start observing properties
+    // start observations
+    addNotifications()
     addObservations()
   }
   #if XDEBUG
@@ -67,12 +68,9 @@ final class PCWViewController                     : NSViewController {
   @IBAction func popups(_ sender: NSPopUpButton)  {
     
     switch sender.identifier!.rawValue {
-    case "MicProfile":
-      _radio!.profiles[Profile.Group.mic.rawValue]?.selection = sender.selectedItem!.title
-    case "MicSelection":
-      _radio!.transmit?.micSelection = sender.selectedItem!.title
-    default:
-      fatalError()
+    case "MicProfile":    _radio!.profiles[Profile.Group.mic.rawValue]?.selection = sender.selectedItem!.title
+    case "MicSelection":  _radio!.transmit?.micSelection = sender.selectedItem!.title
+    default:              break
     }
   }
   /// Respond to one of the buttons
@@ -82,18 +80,12 @@ final class PCWViewController                     : NSViewController {
   @IBAction func buttons(_ sender: NSButton) {
     
     switch sender.identifier!.rawValue {
-    case "Acc":
-      _radio!.transmit!.micAccEnabled = sender.boolState
-    case "DaxMic":
-       _radio!.transmit!.daxEnabled = sender.boolState
-    case "Mon":
-       _radio!.transmit!.txMonitorEnabled = sender.boolState
-    case "Proc":
-      _radio!.transmit!.speechProcessorEnabled = sender.boolState
-    case "Save":
-      showDialog(sender)
-    default:
-      fatalError()
+    case "Acc":     _radio!.transmit!.micAccEnabled = sender.boolState
+    case "DaxMic":  _radio!.transmit!.daxEnabled = sender.boolState
+    case "Mon":     _radio!.transmit!.txMonitorEnabled = sender.boolState
+    case "Proc":    _radio!.transmit!.speechProcessorEnabled = sender.boolState
+    case "Save":    showDialog(sender)
+    default:        break
     }
   }
   /// Respond to one of the sliders
@@ -103,17 +95,10 @@ final class PCWViewController                     : NSViewController {
   @IBAction func sliders(_ sender: NSSlider) {
   
     switch sender.identifier!.rawValue {
-    case "MicLevel":
-     _radio!.transmit!.micLevel = sender.integerValue
-    
-    case "SpeechProcessorLevel":
-      _radio!.transmit!.speechProcessorLevel = sender.integerValue
-      
-    case "TxMonitorGainSb":
-      _radio!.transmit!.txMonitorGainSb = sender.integerValue
-    
-    default:
-      fatalError()
+    case "MicLevel":              _radio!.transmit!.micLevel = sender.integerValue
+    case "SpeechProcessorLevel":  _radio!.transmit!.speechProcessorLevel = sender.integerValue
+    case "TxMonitorGainSb":       _radio!.transmit!.txMonitorGainSb = sender.integerValue
+    default:                      break
     }
   }
   
@@ -223,13 +208,6 @@ final class PCWViewController                     : NSViewController {
       _radio!.profiles[Profile.Group.mic.rawValue]!.observe(\.selection, options: [.initial, .new]) { [weak self] (transmit, change) in
         self?.profileChange(transmit, change) }
     ]
-
-    // Pcw Meter parameters
-    _radio!.meters.values.filter { $0.name == kMicrophoneAverage || $0.name == kMicrophonePeak  || $0.name == kCompression }
-      .forEach({
-          _observations.append( $0.observe(\.value, options: [.initial, .new]) { [weak self] (meter, change) in
-            self?.meterChange(meter, change) })
-      })
   }
   /// Update profile value
   ///
@@ -282,36 +260,42 @@ final class PCWViewController                     : NSViewController {
       self?._monButton.boolState = transmit.txMonitorEnabled
     }
   }
-  /// Respond to changes in a Meter
+  
+  // ----------------------------------------------------------------------------
+  // MARK: - Notification Methods
+  
+  /// Add subscriptions to Notifications
+  ///
+  private func addNotifications() {
+    NC.makeObserver(self, with: #selector(pcwMeterUpdated(_:)), of: .pcwMeterUpdated)
+  }
+  /// Respond to a change in a Meter
   ///
   /// - Parameters:
-  ///   - object:                       a Meter
-  ///   - change:                       the change
+  ///   - note:                 a Notification
   ///
-  private func meterChange(_ meter: Meter, _ change: Any) {
-
-    // which meter?
-    switch meter.name {
+  @objc private func pcwMeterUpdated(_ note: Notification) {
+    
+    if let meter = note.object as? Meter {
       
-    case kMicrophoneAverage:
-      let value = _radio?.interlock.state == "TRANSMITTING" ||
-        _radio!.transmit.metInRxEnabled ? CGFloat(meter.value) : -50
-      
-      DispatchQueue.main.async { [weak self] in self?._micLevelIndicator.level = value }
-      
-    case kMicrophonePeak:
-      let value = _radio?.interlock.state == "TRANSMITTING" ||
-        _radio!.transmit.metInRxEnabled ? CGFloat(meter.value) : -50
-      
-      DispatchQueue.main.async {  [weak self] in self?._micLevelIndicator.peak = value }
-      
-    case kCompression:
-      let value = _radio?.interlock.state == "TRANSMITTING" && meter.value > -30.0 ? CGFloat(meter.value) : 10
-      
-      DispatchQueue.main.async {  [weak self] in self?._compressionIndicator.level = value }
-      
-    default:
-      fatalError()
+      // update the appropriate field
+      switch meter.name {
+        
+      case Meter.ShortName.microphoneAverage.rawValue:
+        let value = (_radio?.interlock.state == "TRANSMITTING" || _radio!.transmit.metInRxEnabled ? CGFloat(meter.value) : -50)
+        DispatchQueue.main.async { [weak self] in self?._micLevelIndicator.level = value }
+        
+      case Meter.ShortName.microphonePeak.rawValue:
+        let value = (_radio?.interlock.state == "TRANSMITTING" || _radio!.transmit.metInRxEnabled ? CGFloat(meter.value) : -50)
+        DispatchQueue.main.async {  [weak self] in self?._micLevelIndicator.peak = value }
+        
+      case Meter.ShortName.postClipper.rawValue:
+        let value = (_radio?.interlock.state == "TRANSMITTING" && meter.value > -30.0 ? CGFloat(meter.value) : 10)
+        DispatchQueue.main.async {  [weak self] in self?._compressionIndicator.level = value }
+        
+      default:
+        break
+      }
     }
   }
 }

@@ -27,6 +27,7 @@ final class TxViewController                      : NSViewController {
   @IBOutlet private weak var _rfPowerIndicator  : LevelIndicator!
   @IBOutlet private weak var _swrIndicator      : LevelIndicator!
   
+  private let _log                          = Logger.sharedInstance.logMessage
   private var _radio                        : Radio? { Api.sharedInstance.radio }
 
   private let kPowerForward                 = Meter.ShortName.powerForward.rawValue
@@ -39,23 +40,15 @@ final class TxViewController                      : NSViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
     
-    #if XDEBUG
-    Swift.print("\(#function) - \(URL(fileURLWithPath: #file).lastPathComponent.dropLast(6))")
-    #endif
-    
-    view.translatesAutoresizingMaskIntoConstraints = false    
+    view.translatesAutoresizingMaskIntoConstraints = false
     
     // setup the RfPower & Swr graphs
     setupBarGraphs()
     
-    // start observing properties
+    // start observing
+    addNotifications()
     addObservations()
   }
-  #if XDEBUG
-  deinit {
-    Swift.print("\(#function) - \(URL(fileURLWithPath: #file).lastPathComponent.dropLast(6))")
-  }
-  #endif
 
   // ----------------------------------------------------------------------------
   // MARK: - Action methods
@@ -203,13 +196,6 @@ final class TxViewController                      : NSViewController {
       _radio!.profiles[Profile.Group.tx.rawValue]!.observe(\.selection, options: [.initial, .new]) { [weak self] (profile, change) in
         self?.profileChange(profile, change) }
     ]
-
-    // Tx Meter parameters
-    _radio!.meters.values.filter { $0.name == kPowerForward || $0.name == kSwr}
-      .forEach({
-        _meterObservations.append( $0.observe(\.value, options: [.initial, .new]) { [weak self] (meter, change) in
-          self?.meterChange(meter, change) })
-      })
   }
   /// Update all Atu control values
   ///
@@ -259,23 +245,39 @@ final class TxViewController                      : NSViewController {
       self?._rfPowerLevel.integerValue = transmit.rfPower
     }
   }
-  /// Update a Meter
+  
+  // ----------------------------------------------------------------------------
+  // MARK: - Notification Methods
+  
+  /// Add subsciptions to Notifications
+  ///     (as of 10.11, subscriptions are automatically removed on deinit when using the Selector-based approach)
+  ///
+  private func addNotifications() {
+    
+    NC.makeObserver(self, with: #selector(txMeterUpdated(_:)), of: .txMeterUpdated)
+  }
+  /// Respond to a change in a Meter
   ///
   /// - Parameters:
-  ///   - object:                       a Meter
-  ///   - change:                       the change
+  ///   - note:                 a Notification
   ///
-  private func meterChange(_ meter: Meter, _ change: Any) {
+  @objc private func txMeterUpdated(_ note: Notification) {
     
-    switch meter.name {
-    case kPowerForward:                     // kPowerForward is in Dbm
-      DispatchQueue.main.async { [weak self] in self?._rfPowerIndicator.level = CGFloat(meter.value.powerFromDbm) }
-    
-    case kSwr:                              // kSwr is actual SWR value
-      DispatchQueue.main.async { [weak self] in self?._swrIndicator.level = CGFloat(meter.value)  }
-    
-    default:
-      fatalError()
+    if let meter = note.object as? Meter {
+      
+      DispatchQueue.main.async { [weak self] in
+        // update the appropriate field
+        switch meter.name {
+        case Meter.ShortName.powerForward.rawValue:                     // PowerForward is in Dbm
+          self?._rfPowerIndicator.level = CGFloat(meter.value.powerFromDbm)
+        
+        case Meter.ShortName.swr.rawValue:                              // Swr is actual SWR value
+          self?._swrIndicator.level = CGFloat(meter.value)
+        
+        default:
+          break
+        }
+      }
     }
   }
 }

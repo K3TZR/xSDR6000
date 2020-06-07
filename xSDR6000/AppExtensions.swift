@@ -25,7 +25,7 @@ extension DefaultsKeys {
   var fullDuplexEnabled        : DefaultsKey<Bool>           { .init("fullDuplexEnabled", defaultValue: false)}
   var logLevel                 : DefaultsKey<String>         { .init("logLevel", defaultValue: "Debug")}
   var lowBandwidthEnabled      : DefaultsKey<Bool>           { .init("lowBandwidthEnabled", defaultValue: false)}
-  var macAudioEnabled          : DefaultsKey<Bool>           { .init("macAudioEnabled", defaultValue: false)}
+  var macAudioActive           : DefaultsKey<Bool>           { .init("macAudioActive", defaultValue: false)}
   var markersEnabled           : DefaultsKey<Bool>           { .init("markersEnabled", defaultValue: false)}
   var preferencesTabId         : DefaultsKey<String>         { .init("preferencesTabId", defaultValue: "radio")}
   var profileType              : DefaultsKey<String>         { .init("profileType", defaultValue: "global")}
@@ -33,7 +33,7 @@ extension DefaultsKeys {
   var quickMode1               : DefaultsKey<String>         { .init("quickMode1", defaultValue: "LSB")}
   var quickMode2               : DefaultsKey<String>         { .init("quickMode2", defaultValue: "CW")}
   var quickMode3               : DefaultsKey<String>         { .init("quickMode3", defaultValue: "AM")}
-  var remoteViewOpen           : DefaultsKey<Bool>           { .init("remoteViewOpen", defaultValue: false)}
+//  var remoteViewOpen           : DefaultsKey<Bool>           { .init("remoteViewOpen", defaultValue: false)}
   var sideViewOpen             : DefaultsKey<Bool>           { .init("sideViewOpen", defaultValue: false)}
   var sideRxOpen               : DefaultsKey<Bool>           { .init("sideRxOpen", defaultValue: false)}
   var sideTxOpen               : DefaultsKey<Bool>           { .init("sideTxOpen", defaultValue: false)}
@@ -92,7 +92,7 @@ extension NSButton {
 }
 
 extension NSMenuItem {
-  /// Boolean equivalent of an NSButton state property
+  /// Boolean equivalent of an NSMenuItem state property
   ///
   var boolState : Bool {
     get { return self.state == NSControl.StateValue.on ? true : false }

@@ -35,9 +35,9 @@ final class AntennaViewController           : NSViewController, NSPopoverDelegat
     switch Api.sharedInstance.radio!.radioType {
       
     case .flex6300:             _rfGainSlider.minValue = 0    ; _rfGainSlider.maxValue = 20 ; _rfGainSlider.numberOfTickMarks = 3
-    case .flex6400, .flex6400m: _rfGainSlider.minValue = -8   ; _rfGainSlider.maxValue = 32 ; _rfGainSlider.numberOfTickMarks = 9
+    case .flex6400, .flex6400m: _rfGainSlider.minValue = -8   ; _rfGainSlider.maxValue = 32 ; _rfGainSlider.numberOfTickMarks = 6
     case .flex6500:             _rfGainSlider.minValue = -10  ; _rfGainSlider.maxValue = 20 ; _rfGainSlider.numberOfTickMarks = 4
-    case .flex6600, .flex6600m: _rfGainSlider.minValue = -8   ; _rfGainSlider.maxValue = 32 ; _rfGainSlider.numberOfTickMarks = 9
+    case .flex6600, .flex6600m: _rfGainSlider.minValue = -8   ; _rfGainSlider.maxValue = 32 ; _rfGainSlider.numberOfTickMarks = 6
     case .flex6700:             _rfGainSlider.minValue = -10  ; _rfGainSlider.maxValue = 40 ; _rfGainSlider.numberOfTickMarks = 6
     case .none:                 _rfGainSlider.minValue = 0    ; _rfGainSlider.maxValue = 20 ; _rfGainSlider.numberOfTickMarks = 3
       

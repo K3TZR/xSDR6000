@@ -155,9 +155,9 @@ final class MainWindowController                  : NSWindowController, NSWindow
     _radioMenu?.item(title: "Side View On/Off")?.boolState = sender.boolState
     Defaults.sideViewOpen = sender.boolState
     if sender.boolState {
-      openSideWindow()
+      openSideView()
     } else {
-      closeSideWindow()
+      closeSideView()
     }
   }
   
@@ -170,8 +170,8 @@ final class MainWindowController                  : NSWindowController, NSWindow
   }
   
   @IBAction func macAudioButton(_ sender: NSButton) {
-    Defaults.macAudioEnabled = sender.boolState
-    macAudioStartStop()
+    Defaults.macAudioActive = sender.boolState
+    if sender.boolState { macAudioStart() } else { macAudioStop() }
   }
   
   @IBAction func muteLineoutButton(_ sender: NSButton) {
@@ -232,13 +232,13 @@ final class MainWindowController                  : NSWindowController, NSWindow
     _sideButton.boolState = sender.boolState
 
     if sender.boolState {
-      openSideWindow()
+      openSideView()
     } else {
-      closeSideWindow()
+      closeSideView()
     }
   }
   
-  func openSideWindow() {
+  func openSideView() {
     
     let sideStoryboard = NSStoryboard(name: "Side", bundle: nil)
     _sideViewController = sideStoryboard.instantiateController(withIdentifier: kSideIdentifier) as? SideViewController
@@ -252,16 +252,19 @@ final class MainWindowController                  : NSWindowController, NSWindow
     }
   }
 
-  func closeSideWindow() {
+  func closeSideView() {
     
-    DispatchQueue.main.async { [weak self] in
-      // remove it from the split view
-      if let vc = self?.contentViewController {
-        // remove it
-        vc.removeChild(at: 1)
+    if _sideViewController != nil {
+      
+      DispatchQueue.main.async { [weak self] in
+        // remove it from the split view
+        if let vc = self?.contentViewController {
+          // remove it
+          vc.removeChild(at: 1)
+        }
+        self?._sideViewController = nil
+        self?._log("Side view closed", .debug,  #function, #file, #line)
       }
-      self?._sideViewController = nil
-      self?._log("Side view closed", .debug,  #function, #file, #line)
     }
   }
   
@@ -313,7 +316,7 @@ final class MainWindowController                  : NSWindowController, NSWindow
     func closeSheet(_ packet: DiscoveryPacket?) {
       window!.endSheet(_pleaseWait.window)
       if let packet = packet {
-        openRadio(packet)
+        openSelectedRadio(packet)
       } else {
         openRadioPicker()
       }
@@ -557,23 +560,33 @@ final class MainWindowController                  : NSWindowController, NSWindow
       self.disconnectApplication()
     }
   }
-  /// Start / Stop Mac Audio
+  /// Start Mac Audio
   ///
-  private func macAudioStartStop() {
-    let start = Defaults.macAudioEnabled
+  private func macAudioStart() {
     
     // what API version?
     if _api.radio!.version.isNewApi {
       // NewApi
-      if start {
-        _api.radio!.requestRemoteRxAudioStream()
-      } else {
-        _api.radio!.remoteRxAudioStreamRemove(for: _api.connectionHandle!)
-      }
+      _api.radio!.requestRemoteRxAudioStream()
     } else {
       // OldApi
-      Api.sharedInstance.radio!.startStopOpusRxAudioStream(state: start)
-      if start { usleep(50_000) ; _opusPlayer?.start() } else { _opusPlayer?.stop() }
+      Api.sharedInstance.radio!.startStopOpusRxAudioStream(state: true)
+      usleep(50_000)
+      _opusPlayer?.start()
+    }
+  }
+  /// Stop Mac Audio
+  ///
+  private func macAudioStop() {
+    
+    // what API version?
+    if _api.radio!.version.isNewApi {
+      // NewApi
+      _api.radio!.remoteRxAudioStreamRemove(for: _api.connectionHandle!)
+    } else {
+      // OldApi
+      Api.sharedInstance.radio!.startStopOpusRxAudioStream(state: false)
+      _opusPlayer?.stop()
     }
   }
   /// Disconect this Application
@@ -618,7 +631,7 @@ final class MainWindowController                  : NSWindowController, NSWindow
         }},
       radio.observe(\.fullDuplexEnabled, options: [.initial, .new]) { [weak self] (object, change) in
         DispatchQueue.main.async {
-          self?._tnfButton.boolState = radio[keyPath: \.tnfsEnabled]
+          self?._fdxButton.boolState = radio[keyPath: \.fullDuplexEnabled]
         }},
       radio.observe(\.lineoutMute, options: [.initial, .new]) { [weak self] (object, change) in
         DispatchQueue.main.async {
@@ -649,16 +662,14 @@ final class MainWindowController                  : NSWindowController, NSWindow
   /// Enable / Disable UI elements
   ///
   /// - Parameters:
-  ///   - api:                       the object holding the properties
-  ///   - change:                    the change
+  ///   - state:       enable / disable
   ///
-  private func enableButtons(_ radio: Radio?) {
+  private func enableButtons(_ state: Bool) {
         
-    // enable / disable based on state of radio
     DispatchQueue.main.async { [weak self] in
-      
-      let state = (radio != nil)
-      
+
+      self?._log("EnableButtons: state = \(state)", .debug,  #function, #file, #line)
+
       self?._panButton.isEnabled            = state
       self?._macAudioButton.isEnabled       = state
       self?._tnfButton.isEnabled            = state
@@ -672,7 +683,6 @@ final class MainWindowController                  : NSWindowController, NSWindow
       self?._headphoneMuteButton.isEnabled  = state
       
       self?._connectButton.title = (state ? "Disconnect" : "Connect")
-
       
       self?._xSDR6000Menu?.item(title: "Preferences")?.isEnabled = state
       self?._xSDR6000Menu?.item(title: "Profiles")?.isEnabled = state
@@ -681,25 +691,32 @@ final class MainWindowController                  : NSWindowController, NSWindow
       self?._radioMenu?.item(title: "Markers On/Off")?.isEnabled = state
       self?._radioMenu?.item(title: "Side View On/Off")?.isEnabled = state
       self?._radioMenu?.item(title: "Next Slice")?.isEnabled = state
-
-      // if enabled, set their states / values
-      if let radio = radio {
-        self?._macAudioButton.boolState         = Defaults.macAudioEnabled
-        self?._tnfButton.boolState              = radio.tnfsEnabled
-        self?._radioMenu?.item(title: "Tnf On/Off")?.boolState = radio.tnfsEnabled
-        self?._markersButton.boolState          = Defaults.markersEnabled
-        self?._radioMenu?.item(title: "Markers On/Off")?.boolState = Defaults.markersEnabled
-        self?._sideButton.boolState             = Defaults.sideViewOpen
-        self?._radioMenu?.item(title: "Side View On/Off")?.boolState = Defaults.sideViewOpen
-        self?._fdxButton.boolState              = radio.fullDuplexEnabled
-        self?._cwxButton.boolState              = Defaults.cwxViewOpen
-        self?._lineoutGainSlider.integerValue   = radio.lineoutGain
-        self?._lineoutMuteButton.boolState      = radio.lineoutMute
-        self?._headphoneGainSlider.integerValue = radio.headphoneGain
-        self?._headphoneMuteButton.boolState    = radio.headphoneMute
-        
-        if Defaults.macAudioEnabled { self?.macAudioStartStop()}
-      }
+    }
+  }
+  
+  private func setButtonState(_ radio: Radio) {
+    
+    DispatchQueue.main.async { [weak self] in
+      
+      self?._log("setButtonState: radio = \(String(describing: radio))", .debug,  #function, #file, #line)
+      
+      self?._macAudioButton.boolState         = Defaults.macAudioActive
+      
+      self?._tnfButton.boolState              = radio.tnfsEnabled
+      self?._radioMenu?.item(title: "Tnf On/Off")?.boolState = radio.tnfsEnabled
+      
+      self?._markersButton.boolState          = Defaults.markersEnabled
+      self?._radioMenu?.item(title: "Markers On/Off")?.boolState = Defaults.markersEnabled
+      
+      self?._sideButton.boolState             = Defaults.sideViewOpen
+      self?._radioMenu?.item(title: "Side View On/Off")?.boolState = Defaults.sideViewOpen
+      
+      self?._fdxButton.boolState              = radio.fullDuplexEnabled
+      self?._cwxButton.boolState              = Defaults.cwxViewOpen
+      self?._lineoutGainSlider.integerValue   = radio.lineoutGain
+      self?._lineoutMuteButton.boolState      = radio.lineoutMute
+      self?._headphoneGainSlider.integerValue = radio.headphoneGain
+      self?._headphoneMuteButton.boolState    = radio.headphoneMute
     }
   }
   
@@ -737,9 +754,10 @@ final class MainWindowController                  : NSWindowController, NSWindow
       
       _log("Radio initialized: \(radio.nickname), v\(radio.packet.firmwareVersion)", .info,  #function, #file, #line)
       
-      enableButtons(radio)
-      title()
-      addObservations(of: radio)
+//      enableButtons(true)
+//      setButtonState(radio)
+//      title()
+//      addObservations(of: radio)
     }
   }
   /// Process .radioWillBeRemoved Notification
@@ -754,7 +772,10 @@ final class MainWindowController                  : NSWindowController, NSWindow
       _log("Radio will be removed: \(radio.nickname)", .info,  #function, #file, #line)
       
       _firstPingResponse = false
-      enableButtons(nil)
+      enableButtons(false)
+//      setButtonState(nil)
+
+      if Defaults.sideViewOpen { closeSideView() }
       removeObservations()
       radio.removeAllObjects()
       title()
@@ -781,8 +802,20 @@ final class MainWindowController                  : NSWindowController, NSWindow
     
     // delay the opening of the side view (allows Slice(s) to be instantiated, if any)
     DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + .seconds( kSideViewDelay )) { [weak self] in
-      // show/hide the Side view
-      if Defaults.sideViewOpen { self?.openSideWindow() }
+      
+      if let radio = self?._api.radio {
+        self?.enableButtons(true)
+        self?.title()
+        
+        self?.addObservations(of: radio)
+        self?.setButtonState(radio)
+        
+        // show/hide the Side view
+        if Defaults.sideViewOpen { self?.openSideView() }
+        
+        // start audio if active
+        if Defaults.macAudioActive { self?.macAudioStart()}
+      }
     }
   }
   /// Process .opusAudioStreamHasBeenAdded Notification
@@ -797,7 +830,7 @@ final class MainWindowController                  : NSWindowController, NSWindow
       _log("OpusAudioStream added: id = \(opusAudioStream.id.hex)", .info, #function, #file, #line)
       
       _opusPlayer = OpusPlayer()
-      if Defaults.macAudioEnabled { _opusPlayer!.start() }
+      if Defaults.macAudioActive { _opusPlayer!.start() }
       opusAudioStream.delegate = _opusPlayer
     }
   }

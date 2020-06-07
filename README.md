@@ -65,6 +65,15 @@ OpusOSX, framework built from sources at:
 * https://opus-codec.org/downloads/
 
 
+## 1.2.2 Release Notes
+
+* made width of parameter monitor fixed
+* delayed toolbar button enabling to firstPing Response
+* correction to Rf Gain values for 6400 & 6600
+* corrections to meter handling (e.g. S-Meter, Power & SWR indicators)
+* corrections to eliminate data races and main thread issues
+
+
 ## 1.2.1 Release Notes
 
 * major refactor of RadioPicker / RadioViewController / WanManager / Auth0

@@ -53,14 +53,6 @@ public final class DbLegendView             : NSView {
   // ----------------------------------------------------------------------------
   // MARK: - Overridden methods
 
-  public override func awakeFromNib() {
-    super.awakeFromNib()
-    
-    #if XDEBUG
-    Swift.print("\(#function) - \(URL(fileURLWithPath: #file).lastPathComponent.dropLast(6))")
-    #endif
-  }
-
   public override func draw(_ dirtyRect: NSRect) {
     super.draw(dirtyRect)
     
@@ -72,11 +64,6 @@ public final class DbLegendView             : NSView {
     // draw the Db legend and horizontal grid lines
     drawLegend(dirtyRect)
   }
-  #if XDEBUG
-  deinit {
-    Swift.print("\(#function) - \(URL(fileURLWithPath: #file).lastPathComponent.dropLast(6))")
-  }
-  #endif
 
   // ----------------------------------------------------------------------------
   // MARK: - Internal methods

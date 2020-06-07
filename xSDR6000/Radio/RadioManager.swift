@@ -152,13 +152,13 @@ public final class RadioManager : NSObject {
       // FIXME: too may vars
       
       // WAN connect
-      if packet.isWan {
-        _api.isWan = true
-        _api.connectionHandleWan = packet.wanHandle
-      } else {
-        _api.isWan = false
-        _api.connectionHandleWan = ""
-      }
+//      if packet.isWan {
+//        _api.isWan = true
+//        _api.connectionHandleWan = packet.wanHandle
+//      } else {
+//        _api.isWan = false
+//        _api.connectionHandleWan = ""
+//      }
     }
   }
   /// Produce a Client Id (UUID)
