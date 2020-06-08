@@ -384,7 +384,7 @@ final class MainWindowController                  : NSWindowController, NSWindow
     switch (isNewApi, status, guiCount) {
       
     case (false, kAvailable, _):          // oldApi, not connected to another client
-      _radioManager.connectRadio(packet)
+      _ = _radioManager.connectRadio(packet)
       
     case (false, kInUse, _):              // oldApi, connected to another client
       DispatchQueue.main.async {
@@ -401,7 +401,7 @@ final class MainWindowController                  : NSWindowController, NSWindow
           
           switch response {
           case NSApplication.ModalResponse.alertFirstButtonReturn:
-            self._radioManager.connectRadio(packet, pendingDisconnect: .oldApi)
+            _ = self._radioManager.connectRadio(packet, pendingDisconnect: .oldApi)
             sleep(1)
             self._api.disconnect()
             sleep(1)
@@ -413,7 +413,7 @@ final class MainWindowController                  : NSWindowController, NSWindow
         })}
       
     case (true, kAvailable, 0):           // newApi, not connected to another client
-      _radioManager.connectRadio(packet)
+      _ = _radioManager.connectRadio(packet)
       
     case (true, kAvailable, _):           // newApi, connected to another client
       DispatchQueue.main.async {
@@ -435,8 +435,8 @@ final class MainWindowController                  : NSWindowController, NSWindow
           // close the connected Radio if the YES button pressed
           
           switch response {
-          case NSApplication.ModalResponse.alertFirstButtonReturn:  self._radioManager.connectRadio(packet, pendingDisconnect: .newApi(handle: handles[0]))
-          case NSApplication.ModalResponse.alertSecondButtonReturn: self._radioManager.connectRadio(packet)
+          case NSApplication.ModalResponse.alertFirstButtonReturn:  _ = self._radioManager.connectRadio(packet, pendingDisconnect: .newApi(handle: handles[0]))
+          case NSApplication.ModalResponse.alertSecondButtonReturn: _ = self._radioManager.connectRadio(packet)
           default:  break
           }
         })}
@@ -460,8 +460,8 @@ final class MainWindowController                  : NSWindowController, NSWindow
         alert.beginSheetModal(for: NSApplication.shared.mainWindow!, completionHandler: { (response) in
           
           switch response {
-          case NSApplication.ModalResponse.alertFirstButtonReturn:  self._radioManager.connectRadio(packet, pendingDisconnect: .newApi(handle: handles[0]))
-          case NSApplication.ModalResponse.alertSecondButtonReturn: self._radioManager.connectRadio(packet, pendingDisconnect: .newApi(handle: handles[1]))
+          case NSApplication.ModalResponse.alertFirstButtonReturn:  _ = self._radioManager.connectRadio(packet, pendingDisconnect: .newApi(handle: handles[0]))
+          case NSApplication.ModalResponse.alertSecondButtonReturn: _ = self._radioManager.connectRadio(packet, pendingDisconnect: .newApi(handle: handles[1]))
           default:  break
           }
         })}
@@ -734,7 +734,7 @@ final class MainWindowController                  : NSWindowController, NSWindow
     NC.makeObserver(self, with: #selector(radioHasBeenAdded(_:)), of: .radioHasBeenAdded)
     NC.makeObserver(self, with: #selector(radioWillBeRemoved(_:)), of: .radioWillBeRemoved)
     NC.makeObserver(self, with: #selector(radioHasBeenRemoved(_:)), of: .radioHasBeenRemoved)
-    
+
     NC.makeObserver(self, with: #selector(tcpPingFirstResponse(_:)), of: .tcpPingFirstResponse)
     
     NC.makeObserver(self, with: #selector(opusAudioStreamHasBeenAdded(_:)), of: .opusAudioStreamHasBeenAdded)
@@ -1008,7 +1008,6 @@ final class MainWindowController                  : NSWindowController, NSWindow
       packet.wanHandle = handle
       openRadio(packet)
     }
-    Swift.print("wanRadioConnectReady: handle \(handle), serial \(serial)")
   }
   
   func smartLinkUserSettings(name: String?, call: String?) {

@@ -106,6 +106,7 @@ extension NSMenuItem {
     self.submenu?.items.first(where: {$0.title == title})
   }
 }
+
 extension FileManager {
   
   /// Get / create the Application Support folder

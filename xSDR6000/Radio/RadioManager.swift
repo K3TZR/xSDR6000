@@ -20,7 +20,7 @@ public final class RadioManager : NSObject {
   private var _api                          = Api.sharedInstance
   private var _auth0ViewController          : Auth0ViewController?
   private var _clientId                     : String?
-  private var _delegate                     : MainWindowController!
+  private var _delegate                     : WanManagerDelegate!
   private let _log                          = Logger.sharedInstance.logMessage
   private var _radioPickerViewController    : RadioPickerViewController?
   private var _wanManager                   : WanManager?
@@ -29,7 +29,7 @@ public final class RadioManager : NSObject {
   // ----------------------------------------------------------------------------
   // MARK: -Initialization
   
-  init(delegate: MainWindowController?) {
+  init(delegate: WanManagerDelegate?) {
     super.init()
     
     _delegate = delegate
@@ -133,33 +133,21 @@ public final class RadioManager : NSObject {
   /// - Parameters:
   ///   - packet:               the DiscoveryPacket for the desired radio
   ///   - pendingDisconnect:    type, if any
+  /// - Returns:                success / failure
   ///
-  func connectRadio(_ packet: DiscoveryPacket?, pendingDisconnect: Api.PendingDisconnect = .none) {
+  func connectRadio(_ packet: DiscoveryPacket?, pendingDisconnect: Api.PendingDisconnect = .none) -> Bool {
     
     // exit if no Radio selected
-    guard let packet = packet else { return }
+    guard let packet = packet else { return false }
     
     // connect to the radio
-    if _api.connect(packet,
-                    station           : Logger.kAppName,
-                    program           : Logger.kAppName,
-                    clientId          : _clientId,
-                    isGui             : true,
-                    wanHandle         : packet.wanHandle,
-                    pendingDisconnect : pendingDisconnect) {
-      
-      
-      // FIXME: too may vars
-      
-      // WAN connect
-//      if packet.isWan {
-//        _api.isWan = true
-//        _api.connectionHandleWan = packet.wanHandle
-//      } else {
-//        _api.isWan = false
-//        _api.connectionHandleWan = ""
-//      }
-    }
+    return _api.connect(packet,
+                        station           : Logger.kAppName,
+                        program           : Logger.kAppName,
+                        clientId          : _clientId,
+                        isGui             : true,
+                        wanHandle         : packet.wanHandle,
+                        pendingDisconnect : pendingDisconnect)
   }
   /// Produce a Client Id (UUID)
   ///
@@ -182,9 +170,6 @@ public final class RadioManager : NSObject {
   private func addNotifications() {
     
     NC.makeObserver(self, with: #selector(tcpDidDisconnect(_:)), of: .tcpDidDisconnect)
-    NC.makeObserver(self, with: #selector(radioDowngrade(_:)), of: .radioDowngrade)
-//    NC.makeObserver(self, with: #selector(xvtrHasBeenAdded(_:)), of: .xvtrHasBeenAdded)
-//    NC.makeObserver(self, with: #selector(xvtrWillBeRemoved(_:)), of: .xvtrWillBeRemoved)
   }
   /// Process .tcpDidDisconnect Notification
   ///
@@ -217,67 +202,10 @@ public final class RadioManager : NSObject {
       alert.informativeText = explanation
       alert.addButton(withTitle: "Ok")
       alert.beginSheetModal(for: NSApplication.shared.mainWindow!, completionHandler: { (response) in })
-//      _delegate!.disconnectApplication()
       // perform an orderly disconnect of all the components
       _api.disconnect(reason: .normal)
     }
 
     _api.disconnect()
   }
-  /// Process .radioDowngrade Notification
-  ///
-  /// - Parameter note:         a Notification instance
-  ///
-  @objc private func radioDowngrade(_ note: Notification) {
-    
-    let versions = note.object as! (apiVersion: String, radioVersion: String)
-    
-    // the API & Radio versions are not compatible
-    // alert if other than normal
-    DispatchQueue.main.async {
-      let alert = NSAlert()
-      alert.alertStyle = .warning
-      alert.messageText = "The Radio's version may not be supported by this version of \(Logger.kAppName)."
-      alert.informativeText = """
-      Radio:\t\tv\(versions.radioVersion)
-      xLib6000:\\ttv\(versions.apiVersion)
-      
-      You can use SmartSDR to DOWNGRADE the Radio
-      \t\t\tOR
-      Install a newer version of \(Logger.kAppName)
-      \t\t\tOR
-      CONTINUE to ignore, CLOSE to abort
-      """
-      alert.addButton(withTitle: "Close")
-      alert.addButton(withTitle: "Continue")
-      alert.beginSheetModal(for: NSApplication.shared.mainWindow!, completionHandler: { (response) in
-        if response == NSApplication.ModalResponse.alertFirstButtonReturn {
-          NSApp.terminate(self)
-        }
-      })
-    }
-  }
-  /// Process xvtrHasBeenAdded Notification
-  ///
-  /// - Parameter note:         a Notification instance
-  ///
-//  @objc private func xvtrHasBeenAdded(_ note: Notification) {
-//
-//    // the Radio class has been initialized
-//    let xvtr = note.object as! Xvtr
-//
-//    _log("Xvtr added: id = \(xvtr.id), Name = \(xvtr.name), Rf Frequency = \(xvtr.rfFrequency.hzToMhz)", .info, #function, #file, #line)
-//  }
-//  /// Process xvtrHasBeenRemoved Notification
-//  ///
-//  /// - Parameter note:         a Notification instance
-//  ///
-//  @objc private func xvtrWillBeRemoved(_ note: Notification) {
-//
-//    // the Radio class has been initialized
-//    let xvtr = note.object as! Xvtr
-//
-//    _log("Xvtr will be removed: id = \(xvtr.id)", .info, #function, #file, #line)
-//  }
-
 }

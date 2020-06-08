@@ -65,6 +65,11 @@ OpusOSX, framework built from sources at:
 * https://opus-codec.org/downloads/
 
 
+## 1.2.3 Release Notes
+
+* removed version warning (source of toolbar button issue)
+
+
 ## 1.2.2 Release Notes
 
 * made width of parameter monitor fixed

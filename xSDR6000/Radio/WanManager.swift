@@ -410,7 +410,7 @@ public final class WanManager : WanServerDelegate, Auth0Delegate {
     
     _auth0ViewController!.dismiss(nil)
   
-    smartLinkLogin(using: _delegate.auth0Email)
+    _ = smartLinkLogin(using: _delegate.auth0Email)
     
     _delegate.openRadioPicker()
   }
