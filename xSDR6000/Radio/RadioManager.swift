@@ -25,9 +25,10 @@ public final class RadioManager : NSObject {
   private var _radioPickerViewController    : RadioPickerViewController?
   private var _wanManager                   : WanManager?
 
-  
+  private lazy var _radioMenu = NSApplication.shared.mainMenu?.item(withTitle: "Radio")
+
   // ----------------------------------------------------------------------------
-  // MARK: -Initialization
+  // MARK: Initialization
   
   init(delegate: WanManagerDelegate?) {
     super.init()
@@ -43,6 +44,7 @@ public final class RadioManager : NSObject {
     // start Discovery
     let _ = Discovery.sharedInstance
     
+    _radioMenu?.item(title: "SmartLink enabled")?.boolState = Defaults.smartLinkEnabled
     if Defaults.smartLinkEnabled {
       // only log in if we were logged in previously
       if Defaults.smartLinkWasLoggedIn {
@@ -57,7 +59,10 @@ public final class RadioManager : NSObject {
 
     addNotifications()
   }
-    
+
+  // ----------------------------------------------------------------------------
+  // MARK: Internal methods
+  
   func smartLinkLogin() {
     // instantiate the WanManager
     _wanManager = WanManager(delegate: _delegate)
@@ -78,7 +83,7 @@ public final class RadioManager : NSObject {
       // remove the Keychain entry
       Keychain.delete( Logger.kAppName + ".oauth-token", account: email)
       Defaults.smartLinkAuth0Email = nil
-    }    
+    }
     Discovery.sharedInstance.removeSmartLinkRadios()
 
     _wanManager?.smartLinkLogout()
@@ -96,11 +101,30 @@ public final class RadioManager : NSObject {
   func testWanConnection(_ packet: DiscoveryPacket) {
     _wanManager?.testConnection(packet)
   }
-
+  /// Connect the selected Radio
+  ///
+  /// - Parameters:
+  ///   - packet:               the DiscoveryPacket for the desired radio
+  ///   - pendingDisconnect:    type, if any
+  /// - Returns:                success / failure
+  ///
+  func connectRadio(_ packet: DiscoveryPacket?, isGui: Bool = true, pendingDisconnect: Api.PendingDisconnect = .none) -> Bool {
+    
+    // exit if no Radio selected
+    guard let packet = packet else { return false }
+    
+    // connect to the radio
+    return _api.connect(packet,
+                        station           : Logger.kAppName,
+                        program           : Logger.kAppName,
+                        clientId          : _clientId,
+                        isGui             : isGui,
+                        wanHandle         : packet.wanHandle,
+                        pendingDisconnect : pendingDisconnect)
+  }
 
   // ----------------------------------------------------------------------------
   // MARK: - Private methods
-  
   
   private func scheduleSupportingApps() {
     
@@ -127,27 +151,6 @@ public final class RadioManager : NSObject {
         }
       }
     })
-  }
-  /// Connect the selected Radio
-  ///
-  /// - Parameters:
-  ///   - packet:               the DiscoveryPacket for the desired radio
-  ///   - pendingDisconnect:    type, if any
-  /// - Returns:                success / failure
-  ///
-  func connectRadio(_ packet: DiscoveryPacket?, pendingDisconnect: Api.PendingDisconnect = .none) -> Bool {
-    
-    // exit if no Radio selected
-    guard let packet = packet else { return false }
-    
-    // connect to the radio
-    return _api.connect(packet,
-                        station           : Logger.kAppName,
-                        program           : Logger.kAppName,
-                        clientId          : _clientId,
-                        isGui             : true,
-                        wanHandle         : packet.wanHandle,
-                        pendingDisconnect : pendingDisconnect)
   }
   /// Produce a Client Id (UUID)
   ///

@@ -46,10 +46,6 @@ final class DisplayViewController                     : NSViewController, NSPopo
   override func viewDidLoad() {
     super.viewDidLoad()
     
-    #if XDEBUG
-    Swift.print("\(#function) - \(URL(fileURLWithPath: #file).lastPathComponent.dropLast(6))")
-    #endif
-    
     _gradientPopUp.addItems(withTitles: WaterfallViewController.gradientNames)
     
     _fillSlider.integerValue = Defaults.spectrumFillLevel
@@ -76,11 +72,6 @@ final class DisplayViewController                     : NSViewController, NSPopo
     _panadapter = panadapter
     _waterfall = waterfall
   }
-  #if XDEBUG
-  deinit {
-    Swift.print("\(#function) - \(URL(fileURLWithPath: #file).lastPathComponent.dropLast(6))")
-  }
-  #endif
 
   // ----------------------------------------------------------------------------
   // MARK: - Action methods

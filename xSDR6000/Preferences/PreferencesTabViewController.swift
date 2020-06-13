@@ -64,9 +64,6 @@ final class PreferencesTabViewController    : NSTabViewController {
   }
   deinit {
     _log.logMessage("Preferences window closed", .debug, #function, #file, #line)
-    #if XDEBUG
-    Swift.print("\(#function) - \(URL(fileURLWithPath: #file).lastPathComponent.dropLast(6))")
-    #endif
   }
 }
 

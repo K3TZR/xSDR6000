@@ -14,9 +14,12 @@ import xLib6000
 // MARK: - Flag View Controller class implementation
 // --------------------------------------------------------------------------------
 
-final class FlagViewController       : NSViewController, NSTextFieldDelegate, NSGestureRecognizerDelegate {
-  
-  static let kSliceLetters : [String]       = ["A", "B", "C", "D", "E", "F", "G", "H"]
+final class FlagViewController : NSViewController, NSTextFieldDelegate, NSGestureRecognizerDelegate {
+
+  static let maxFrequency : Double = 74.00001
+  static let minFrequency : Double = 0.001001
+
+  static let kSliceLetters                  = ["A", "B", "C", "D", "E", "F", "G", "H"]
   static let kFlagOffset                    : CGFloat = 7.5
   static let kFlagMinimumSeparation         : CGFloat = 10
   static let kLargeFlagWidth                : CGFloat = 275
@@ -41,8 +44,9 @@ final class FlagViewController       : NSViewController, NSTextFieldDelegate, NS
     didSet {DispatchQueue.main.async { [weak self] in self?._splitButton.isEnabled = !self!.isaSplit }}
   }
 
-  @objc dynamic var slice                   : xLib6000.Slice?
+  @objc dynamic public var slice            : xLib6000.Slice!
 
+    
   // ----------------------------------------------------------------------------
   // MARK: - Private properties
   
@@ -225,10 +229,18 @@ final class FlagViewController       : NSViewController, NSTextFieldDelegate, NS
   }
   
   public func controlTextDidEndEditing(_ note: Notification) {
-    
+
     if let field = note.object as? NSTextField, field == _frequencyField, _beginEditing {
 
-      repositionPanadapter(center: _center, frequency: _previousFrequency, newFrequency: slice!.frequency)
+      if field.doubleValue == FlagViewController.maxFrequency || field.doubleValue == FlagViewController.minFrequency {
+        slice!.frequency = _previousFrequency
+        field.doubleValue = _previousFrequency.intHzToDoubleMhz
+      } else {
+        Swift.print("center = \(_center), frequency = \(_previousFrequency), new = \(slice!.frequency), field = \(field.doubleValue)")
+        slice!.frequency = field.doubleValue.doubleMhzToIntHz
+        
+        repositionPanadapter(center: _center, frequency: _previousFrequency, newFrequency: slice!.frequency)
+      }
       _beginEditing = false
     }
   }
@@ -282,7 +294,7 @@ final class FlagViewController       : NSViewController, NSTextFieldDelegate, NS
   }
   /// Select one of the Controls views
   ///
-  /// - Parameter id:                   an identifier String
+  /// - Parameter tag:           a control tag
   ///
   func selectControls(_ tag: Int) {
     
@@ -299,11 +311,56 @@ final class FlagViewController       : NSViewController, NSTextFieldDelegate, NS
   // ----------------------------------------------------------------------------
   // MARK: - Action methods
   
-  /// Respond to the Slice Letter button
-  ///
-  /// - Parameter sender:             the button
-  ///
-  @IBAction func alphaButton(_ sender: Any) {
+  @IBAction func buttons(_ sender: NSButton) {
+    
+    switch sender.identifier!.rawValue {
+    case "nb":    slice?.nbEnabled = sender.boolState
+    case "nr":    slice?.nrEnabled = sender.boolState
+    case "anf":   slice?.anfEnabled = sender.boolState
+    case "qsk":   slice?.qskEnabled = sender.boolState
+    case "lock":  slice?.locked = sender.boolState
+    default:      break
+    }
+  }
+  
+  @IBAction func controlsButtons(_ sender: NSButton) {
+    // is the button "on"?
+    if sender.boolState {
+      
+      // YES, turn off any other buttons
+      if sender.tag != 0 { _audButton.boolState = false}
+      if sender.tag != 1 { _dspButton.boolState = false}
+      if sender.tag != 2 { _modeButton.boolState = false}
+      if sender.tag != 3 { _xritButton.boolState = false}
+      if sender.tag != 4 { _daxButton.boolState = false}
+
+      // select the desired tab
+      controlsVc?.selectedTabViewItemIndex = sender.tag
+
+      if _vc is SideViewController { (_vc as! SideViewController).setRxHeight(2 * FlagViewController.kLargeFlagHeight) }
+
+      // unhide the controls
+      controlsVc!.view.isHidden = false
+      
+    } else {
+      
+      // hide the controls
+      controlsVc!.view.isHidden = true
+
+      if _vc is SideViewController { (_vc as! SideViewController).setRxHeight( FlagViewController.kLargeFlagHeight) }
+    }
+  }
+  
+  @IBAction func popups(_ sender: NSPopUpButton) {
+    
+    switch sender.identifier!.rawValue {
+    case "rxAnt": slice?.rxAnt = sender.titleOfSelectedItem!
+    case "txAnt": slice?.txAnt = sender.titleOfSelectedItem!
+    default:      break
+    }
+  }
+    
+  @IBAction func sliceLetterButton(_ sender: Any) {
    
     // return if this a Side flag (i.e. not on a Slice)
     guard _vc is PanadapterViewController else { return }
@@ -334,18 +391,7 @@ final class FlagViewController       : NSViewController, NSTextFieldDelegate, NS
     // re-evaluate all flag positions
     (_vc as! PanadapterViewController).positionFlags()
   }
-  /// Respond to the TX button
-  ///
-  /// - Parameter sender:             the button
-  ///
-  @IBAction func txButton(_ sender: NSButton) {
 
-    slice?.txEnabled = !sender.boolState
-  }
-  /// Respond to the SPLIT button
-  ///
-  /// - Parameter sender:             the button
-  ///
   @IBAction func splitButton(_ sender: NSButton) {
     sender.attributedTitle = NSAttributedString(string: kSplitCaption, attributes: sender.boolState ? kSplitOnAttr : kSplitOffAttr)
 
@@ -360,75 +406,31 @@ final class FlagViewController       : NSViewController, NSTextFieldDelegate, NS
       }
     }
   }
-  /// Respond to the Close button
-  ///
-  /// - Parameter sender:         the button
-  ///
-  @IBAction func closeButton(_ sender: NSButton) {
+  
+  @IBAction func txButton(_ sender: NSButton) {
+
+    slice?.txEnabled = !sender.boolState
+  }
+  
+  @IBAction func xButton(_ sender: NSButton) {
     slice!.remove()
-  }
-  /// One of the "tab" view buttons has been clicked
-  ///
-  /// - Parameter sender:         the button
-  ///
-  @IBAction func controlsButtons(_ sender: NSButton) {
-    // is the button "on"?
-    if sender.boolState {
-      
-      // YES, turn off any other buttons
-      if sender.tag != 0 { _audButton.boolState = false}
-      if sender.tag != 1 { _dspButton.boolState = false}
-      if sender.tag != 2 { _modeButton.boolState = false}
-      if sender.tag != 3 { _xritButton.boolState = false}
-      if sender.tag != 4 { _daxButton.boolState = false}
-
-      // select the desired tab
-      controlsVc?.selectedTabViewItemIndex = sender.tag
-
-      if _vc is SideViewController { (_vc as! SideViewController).setRxHeight(2 * FlagViewController.kLargeFlagHeight) }
-
-      // unhide the controls
-      controlsVc!.view.isHidden = false
-      
-    } else {
-      
-      // hide the controls
-      controlsVc!.view.isHidden = true
-
-      if _vc is SideViewController { (_vc as! SideViewController).setRxHeight( FlagViewController.kLargeFlagHeight) }
-    }
-  }
-  /// One of the popups has been clicked
-  ///
-  /// - Parameter sender:         the popup
-  ///
-  @IBAction func popups(_ sender: NSPopUpButton) {
-    
-    switch sender.identifier!.rawValue {
-    case "rxAnt": slice?.rxAnt = sender.titleOfSelectedItem!
-    case "txAnt": slice?.txAnt = sender.titleOfSelectedItem!
-    default:      break
-    }
-  }
-  /// One of the buttons has been clicked
-  ///
-  /// - Parameter sender:         the button
-  ///
-  @IBAction func buttons(_ sender: NSButton) {
-    
-    switch sender.identifier!.rawValue {
-    case "nb":    slice?.nbEnabled = sender.boolState
-    case "nr":    slice?.nrEnabled = sender.boolState
-    case "anf":   slice?.anfEnabled = sender.boolState
-    case "qsk":   slice?.qskEnabled = sender.boolState
-    case "lock":  slice?.locked = sender.boolState
-    default:      break
-    }
   }
 
   // ----------------------------------------------------------------------------
   // MARK: - Private methods
   
+  /// Change a Slice frequency while maintaining its position in the Panadapter display
+  ///
+  /// - Parameters:
+  ///   - center:                   the current Panadapter center frequency
+  ///   - frequency:                the current Slice frequency
+  ///   - newFrequency:             the new SLice frequency
+  ///
+  private func repositionPanadapter(center: Int, frequency: Int, newFrequency: Int) {
+  
+    slice!.frequency = newFrequency
+    _panadapter!.center = newFrequency - (frequency - center)
+  }
   /// Receive the Reply to a Split Create action
   ///
   /// - Parameters:
@@ -444,18 +446,6 @@ final class FlagViewController       : NSViewController, NSTextFieldDelegate, NS
       splitId = reply.objectId
     }
   }
-  /// Change a Slice frequency while maintaining its position in the Panadapter display
-  ///
-  /// - Parameters:
-  ///   - center:                   the current Panadapter center frequency
-  ///   - frequency:                the current Slice frequency
-  ///   - newFrequency:             the new SLice frequency
-  ///
-  private func repositionPanadapter(center: Int, frequency: Int, newFrequency: Int) {
-  
-    slice!.frequency = newFrequency
-    _panadapter!.center = newFrequency - (frequency - center)
-  }
  
   // ----------------------------------------------------------------------------
   // MARK: - Observation methods
@@ -466,50 +456,67 @@ final class FlagViewController       : NSViewController, NSTextFieldDelegate, NS
   ///
   private func addObservations(slice: xLib6000.Slice, panadapter: Panadapter ) {
     
-    _observations.append( slice.observe(\.active, options: [.initial, .new, .old]) { [weak self] (slice, change) in
-      self?.activeChange(slice, change) })
-    
-    _observations.append( slice.observe(\.mode, options: [.initial, .new]) { [weak self] (slice, change) in
-      self?.sliceChange(slice, change) })
-    
-    _observations.append(  slice.observe(\.txEnabled, options: [.initial, .new]) { [weak self] (slice, change) in
-      self?.txChange(slice, change) })
-    
-    _observations.append( slice.observe(\.filterHigh, options: [.initial, .new]) { [weak self] (slice, change) in
-      self?.filterChange(slice, change) })
-    
-    _observations.append( slice.observe(\.filterLow, options: [.initial, .new]) { [weak self] (slice, change) in
-      self?.filterChange(slice, change) })
-    
-    _observations.append( slice.observe(\.frequency, options: [.initial, .new]) { [weak self] (slice, change) in
-      self?.positionChange(slice, change) })
-    
-    _observations.append(  panadapter.observe(\.center, options: [.initial, .new]) { [weak self] (panadapter, change) in
-      self?.positionChange(panadapter, change) })
-    
-    _observations.append( panadapter.observe(\.bandwidth, options: [.initial, .new]) { [weak self] (panadapter, change) in
-      self?.positionChange(panadapter, change) })
-    
-    _observations.append( slice.observe(\.nbEnabled, options: [.initial, .new]) { [weak self] (slice, change) in
-      self?.buttonsChange(slice, change) })
-    
-    _observations.append( slice.observe(\.nrEnabled, options: [.initial, .new]) { [weak self] (slice, change) in
-      self?.buttonsChange(slice, change) })
-    
-    _observations.append( slice.observe(\.anfEnabled, options: [.initial, .new]) { [weak self] (slice, change) in
-      self?.buttonsChange(slice, change) })
-    
-    _observations.append( slice.observe(\.qskEnabled, options: [.initial, .new]) { [weak self] (slice, change) in
-      self?.buttonsChange(slice, change) })
-    
-    _observations.append( slice.observe(\.locked, options: [.initial, .new]) { [weak self] (slice, change) in
-      self?.buttonsChange(slice, change) })
-    
-    _observations.append( slice.observe(\.rxAnt, options: [.initial, .new]) { [weak self] (slice, change) in
-      self?.antennaChange(slice, change) })
-    
-    _observations.append( slice.observe(\.txAnt, options: [.initial, .new]) { [weak self] (slice, change) in
-      self?.antennaChange(slice, change) })
+    _observations = [
+      
+      slice.observe(\.active, options: [.initial, .new, .old]) { [weak self] (slice, change) in
+        if let old = change.oldValue, let new = change.newValue {
+          if old == false && new == true {
+            self?._log.logMessage("Slice became active: slice \(slice.id )", .debug, #function, #file, #line)
+            NC.post(.sliceBecameActive, object: slice) }}},
+      
+      slice.observe(\.mode, options: [.initial, .new]) { [weak self] (slice, change) in
+        DispatchQueue.main.async { self?._modeButton.title = slice.mode }},
+      
+      slice.observe(\.txEnabled, options: [.initial, .new]) { [weak self] (slice, change) in
+        DispatchQueue.main.async {
+          self?._txButton.attributedTitle = NSAttributedString(string: self!.kTxCaption, attributes: (slice.txEnabled ? self!.kTxOnAttr : self!.kTxOffAttr)) }},
+      
+      slice.observe(\.filterHigh, options: [.initial, .new]) { [weak self] (slice, change) in
+        if let panVc = self?._vc as? PanadapterViewController {
+          panVc.redrawFrequencyLegend()
+          DispatchQueue.main.async { self!._filterWidth.stringValue = self!.calcFilterWidth(slice, change) }}},
+      
+      slice.observe(\.filterLow, options: [.initial, .new]) { [weak self] (slice, change) in
+        if let panVc = self?._vc as? PanadapterViewController {
+          panVc.redrawFrequencyLegend()
+          DispatchQueue.main.async { self!._filterWidth.stringValue = self!.calcFilterWidth(slice, change) }}},
+      
+      slice.observe(\.frequency, options: [.initial, .new]) { [weak self] (slice, change) in
+        if let panVc = self?._vc as? PanadapterViewController {
+          panVc.redrawFrequencyLegend()
+          DispatchQueue.main.async { self?._frequencyField?.doubleValue = slice.frequency.intHzToDoubleMhz }}},
+      
+      panadapter.observe(\.center, options: [.initial, .new]) { [weak self] (panadapter, change) in
+        if let panVc = self?._vc as? PanadapterViewController {
+            // this is a Slice Flag, move the Flag(s)
+            panVc.positionFlags() }},
+      
+      panadapter.observe(\.bandwidth, options: [.initial, .new]) { [weak self] (panadapter, change) in
+        if let panVc = self?._vc as? PanadapterViewController {
+            // this is a Slice Flag, move the Flag(s)
+            panVc.positionFlags() }},
+      
+      slice.observe(\.nbEnabled, options: [.initial, .new]) { [weak self] (slice, change) in
+        DispatchQueue.main.async { self?._nbButton.boolState = slice.nbEnabled }},
+      
+      slice.observe(\.nrEnabled, options: [.initial, .new]) { [weak self] (slice, change) in
+        DispatchQueue.main.async { self?._nrButton.boolState = slice.nrEnabled }},
+      
+      slice.observe(\.anfEnabled, options: [.initial, .new]) { [weak self] (slice, change) in
+        DispatchQueue.main.async { self?._anfButton.boolState = slice.anfEnabled }},
+      
+      slice.observe(\.qskEnabled, options: [.initial, .new]) { [weak self] (slice, change) in
+        DispatchQueue.main.async { self?._qskButton.boolState = slice.qskEnabled }},
+      
+      slice.observe(\.locked, options: [.initial, .new]) { [weak self] (slice, change) in
+        DispatchQueue.main.async { self?._lockButton.boolState = slice.locked }},
+      
+      slice.observe(\.rxAnt, options: [.initial, .new]) { [weak self] (slice, change) in
+        DispatchQueue.main.async { self?._rxAntPopUp.selectItem(withTitle: slice.rxAnt) }},
+      
+      slice.observe(\.txAnt, options: [.initial, .new]) { [weak self] (slice, change) in
+        DispatchQueue.main.async { self?._txAntPopUp.selectItem(withTitle: slice.txAnt)}}
+    ]
   }
 
   /// Invalidate observations (optionally remove)
@@ -526,25 +533,13 @@ final class FlagViewController       : NSViewController, NSTextFieldDelegate, NS
     // remove the tokens
     _observations.removeAll()
   }
-  /// Respond to a change in Slice Tx state
+  /// Calculate Filter width
   ///
   /// - Parameters:
   ///   - object:               the object that changed
   ///   - change:               the change
   ///
-  private func txChange(_ slice: xLib6000.Slice, _ change: Any) {
-
-    DispatchQueue.main.async {
-      self._txButton.attributedTitle = NSAttributedString(string: self.kTxCaption, attributes: (slice.txEnabled ? self.kTxOnAttr : self.kTxOffAttr))
-    }
-  }
-  /// Respond to a change in Slice Filter width
-  ///
-  /// - Parameters:
-  ///   - object:               the object that changed
-  ///   - change:               the change
-  ///
-  private func filterChange(_ slice: xLib6000.Slice, _ change: Any) {
+  private func calcFilterWidth(_ slice: xLib6000.Slice, _ change: Any) -> String {
     var formattedWidth = ""
     
     let width = slice.filterHigh - slice.filterLow
@@ -553,40 +548,21 @@ final class FlagViewController       : NSViewController, NSTextFieldDelegate, NS
     case 0..<1_000: formattedWidth = String(format: "%3d", width)
     default:        formattedWidth = "0"
     }
-    DispatchQueue.main.async { [weak self] in
-      self?._filterWidth.stringValue = formattedWidth
-
-      // update the filter outline
-      (self?.parent as? PanadapterViewController)?.redrawFrequencyLegend()
-    }
+    return formattedWidth
   }
-  /// Respond to a change in buttons
+  /// Respond to a change in Panadapter or Slice properties
   ///
   /// - Parameters:
-  ///   - slice:                the slice that changed
+  ///   - object:               the object rhat changed
   ///   - change:               the change
   ///
-  private func buttonsChange(_ slice: xLib6000.Slice, _ change: Any) {
-
-    DispatchQueue.main.async {
-      self._lockButton.boolState = slice.locked
-      self._nbButton.boolState = slice.nbEnabled
-      self._nrButton.boolState = slice.nrEnabled
-      self._anfButton.boolState = slice.anfEnabled
-      self._qskButton.boolState = slice.qskEnabled
-    }
-  }
-  /// Respond to a change in Antennas
-  ///
-  /// - Parameters:
-  ///   - slice:                the slice that changed
-  ///   - change:               the change
-  ///
-  private func antennaChange(_ slice: xLib6000.Slice, _ change: Any) {
-
-    DispatchQueue.main.async {
-      self._rxAntPopUp.selectItem(withTitle: slice.rxAnt)
-      self._txAntPopUp.selectItem(withTitle: slice.txAnt)
+  private func positionChange(_ object: Any, _ change: Any) {
+    
+    if let panVc = _vc as? PanadapterViewController {
+      DispatchQueue.main.async {
+        // this is a Slice Flag, move the Flag(s)
+        panVc.positionFlags()
+      }
     }
   }
   /// Respond to a change in the active Slice
@@ -598,34 +574,10 @@ final class FlagViewController       : NSViewController, NSTextFieldDelegate, NS
   private func sliceChange(_ slice: xLib6000.Slice, _ change: Any) {
     
     if let panVc = _vc as? PanadapterViewController {
-      
-      DispatchQueue.main.async {
-        self._modeButton.title = slice.mode
-      }
-     // this is a Slice Flag, redraw
       panVc.redrawFrequencyLegend()
-    }
-  }
-  private func activeChange(_ slice: xLib6000.Slice, _ change: NSKeyValueObservedChange<Bool>) {
-  
-    if let old = change.oldValue, let new = change.newValue {
-      if old == false && new == true {
-        _log.logMessage("Slice became active: slice \(slice.id )", .debug, #function, #file, #line)
-        NC.post(.sliceBecameActive, object: slice)
+      DispatchQueue.main.async {
+        self._frequencyField?.doubleValue = slice.frequency.intHzToDoubleMhz
       }
-    }
-  }
-  /// Respond to a change in Panadapter or Slice properties
-  ///
-  /// - Parameters:
-  ///   - object:               the object rhat changed
-  ///   - change:               the change
-  ///
-  private func positionChange(_ object: Any, _ change: Any) {
-    
-    if let panVc = _vc as? PanadapterViewController {
-      // this is a Slice Flag, move the Flag(s)
-      panVc.positionFlags()
     }
   }
   
@@ -689,9 +641,10 @@ final class FlagViewController       : NSViewController, NSTextFieldDelegate, NS
 // --------------------------------------------------------------------------------
 
 class FrequencyFormatter : NumberFormatter {
-  let maxValue : NSNumber = 54.000_000
-  let minValue : NSNumber = 0.100_000
-
+  
+  let max = FlagViewController.maxFrequency
+  let min = FlagViewController.minFrequency
+  
   // assumes that the formatter was added in IB
   override init() {
     fatalError("Init can not be used")
@@ -703,8 +656,6 @@ class FrequencyFormatter : NumberFormatter {
     // set the parameters
     roundingMode = .ceiling
     allowsFloats = true
-    minimum = minValue
-    maximum = maxValue
   }
   
   override func string(for obj: Any?) -> String? {
@@ -713,7 +664,13 @@ class FrequencyFormatter : NumberFormatter {
     super.string(for: obj)
 
     // guard that it's a Double
-    guard let value = obj as? Double else { return nil }
+    guard var value = obj as? Double else { return nil }
+    
+    // allow 4 or 5 digit Khz entries
+    if value >= 1_000.0 && value < 10_000.0 { value = value / 1_000 }
+    
+    guard value <= max else { return adjustPeriods(String(max)) }
+    guard value >= min else { return adjustPeriods(String(min)) }
 
     // make a String version, format xx.xxxxxx
     var stringValue = String(format: "%.6f", value)
@@ -773,20 +730,20 @@ class FrequencyFormatter : NumberFormatter {
     return adjustedString
   }
 }
-class FrequencyTransformer : ValueTransformer {
-  
-  override class func allowsReverseTransformation() -> Bool {
-    return true
-  }
-  override class func transformedValueClass() -> AnyClass {
-    return NSNumber.self
-  }
-  override func transformedValue(_ value: Any?) -> Any? {
-    return ((value as? Int) ?? 0).intHzToDoubleMhz
-  }
-  override func reverseTransformedValue(_ value: Any?) -> Any? {
-    return ((value as? Double) ?? 0).doubleMhzToIntHz
-  }
-}
+//class FrequencyTransformer : ValueTransformer {
+//  
+//  override class func allowsReverseTransformation() -> Bool {
+//    return true
+//  }
+//  override class func transformedValueClass() -> AnyClass {
+//    return NSNumber.self
+//  }
+//  override func transformedValue(_ value: Any?) -> Any? {
+//    return ((value as? Int) ?? 0).intHzToDoubleMhz
+//  }
+//  override func reverseTransformedValue(_ value: Any?) -> Any? {
+//    return ((value as? Double) ?? 0).doubleMhzToIntHz
+//  }
+//}
 
 

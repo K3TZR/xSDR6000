@@ -62,9 +62,6 @@ final class PanafallButtonView                : NSView {
     
     // remove the Tracking area (if any)
     removeTrackingArea()
-    #if XDEBUG
-    Swift.print("\(#function) - \(URL(fileURLWithPath: #file).lastPathComponent.dropLast(6))")
-    #endif
   }
   
   /// Mouse entered the Button area

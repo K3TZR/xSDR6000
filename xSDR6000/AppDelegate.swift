@@ -10,12 +10,6 @@ import Cocoa
 
 @NSApplicationMain
   final class AppDelegate                     : NSObject, NSApplicationDelegate, NSWindowDelegate {
-
-  private let transformer : Void = {
-      let myTransformer = FrequencyTransformer()
-      ValueTransformer.setValueTransformer(myTransformer, forName:NSValueTransformerName("FrequencyTransformer"))
-  }()
-
   
   // ----------------------------------------------------------------------------
   // MARK: - Internal methods

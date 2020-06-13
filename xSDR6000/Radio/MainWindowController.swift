@@ -24,12 +24,6 @@ final class MainWindowController                  : NSWindowController, NSWindow
   @objc dynamic var smartLinkUser   : String?
   
   // ----------------------------------------------------------------------------
-  // MARK: - Static properties
-  
-  static let kSearchTime            = 2                 // seconds
-  static let kSearchIncrements      : UInt32 = 500_000  // microseconds
-  
-  // ----------------------------------------------------------------------------
   // MARK: - Private properties
   
   @IBOutlet private weak var _connectButton       : NSButton!
@@ -79,6 +73,8 @@ final class MainWindowController                  : NSWindowController, NSWindow
   // MARK: - Overridden methods
   
   override func awakeFromNib() {
+    super.awakeFromNib()
+    
     windowFrameAutosaveName = "MainWindow"
     
     // limit color pickers to the ColorWheel
@@ -93,39 +89,11 @@ final class MainWindowController                  : NSWindowController, NSWindow
     
     // create the Radio Manager
     _radioManager = RadioManager(delegate: self)
-    
-    // find & open the default (if any)
-    findDefault(Defaults.defaultRadio)
-    
+        
     addNotifications()
+    
+    findDefault()
   }
-  // -------------------------------------------------------------
-  
-  // FIXME: Is this still needed?????
-  
-  /// The Preferences or Profiles window is being closed
-  ///
-  ///   this is called as a result of clicking the window's close button
-  ///
-  /// - Parameter sender:             the window
-  /// - Returns:                      return true to allow
-  ///
-//  func windowShouldClose(_ sender: NSWindow) -> Bool {
-//
-//    // which window?
-//    if _preferencesWindowController?.window == sender {
-//      // Preferences
-//      DispatchQueue.main.async { [weak self] in
-//        self?._preferencesWindowController = nil
-//      }
-//    } else {
-//      // Profiles
-//      DispatchQueue.main.async { [weak self] in
-//        self?._profilesWindowController = nil
-//      }
-//    }
-//    return true
-//  }
   
   // ----------------------------------------------------------------------------
   // MARK: - Action methods
@@ -135,20 +103,49 @@ final class MainWindowController                  : NSWindowController, NSWindow
   @IBAction func connectButton(_ sender: NSButton) {
     if sender.title == "Connect" {
       // find & open the default (if any)
-      findDefault(Defaults.defaultRadio)
+      findDefault()
     } else {
       if Api.sharedInstance.apiState != .disconnected { Api.sharedInstance.disconnect(reason: .normal) }
     }
   }
   
-  @IBAction func tnfButton(_ sender: NSButton) {
-    _radioMenu?.item(title: "Tnf On/Off")?.boolState = sender.boolState
-    Api.sharedInstance.radio!.tnfsEnabled = sender.boolState
+  @IBAction func cwxButton(_ sender: NSButton) {
+    Defaults.cwxViewOpen = sender.boolState
+  }
+  
+  @IBAction func fdxButton(_ sender: NSButton) {
+    Api.sharedInstance.radio!.fullDuplexEnabled = sender.boolState
+  }
+  
+  @IBAction func headphoneGainSlider(_ sender: NSSlider) {
+    Api.sharedInstance.radio!.headphoneGain = sender.integerValue
+  }
+  
+  @IBAction func headphoneMuteButton(_ sender: NSButton) {
+    Api.sharedInstance.radio!.headphoneMute = sender.boolState
+  }
+  
+  @IBAction func lineoutGainSlider(_ sender: NSSlider) {
+    Api.sharedInstance.radio!.lineoutGain = sender.integerValue
+  }
+  
+  @IBAction func lineoutMuteButton(_ sender: NSButton) {
+    Api.sharedInstance.radio!.lineoutMute = sender.boolState
+  }
+  
+  @IBAction func macAudioButton(_ sender: NSButton) {
+    Defaults.macAudioActive = sender.boolState
+    if sender.boolState { macAudioStart() } else { macAudioStop() }
   }
   
   @IBAction func markersButton(_ sender: NSButton) {
     _radioMenu?.item(title: "Markers On/Off")?.boolState = sender.boolState
     Defaults.markersEnabled = sender.boolState
+  }
+    @IBAction func panButton(_ sender: AnyObject) {
+    
+    // dimensions are dummy values; when created, will be resized to fit its view
+    Api.sharedInstance.radio?.requestPanadapter(CGSize(width: 50, height: 50))
   }
   
   @IBAction func sideButton(_ sender: NSButton) {
@@ -160,48 +157,67 @@ final class MainWindowController                  : NSWindowController, NSWindow
       closeSideView()
     }
   }
-  
-  @IBAction func fdxButton(_ sender: NSButton) {
-    Api.sharedInstance.radio!.fullDuplexEnabled = sender.boolState
-  }
-  
-  @IBAction func cwxButton(_ sender: NSButton) {
-    Defaults.cwxViewOpen = sender.boolState
-  }
-  
-  @IBAction func macAudioButton(_ sender: NSButton) {
-    Defaults.macAudioActive = sender.boolState
-    if sender.boolState { macAudioStart() } else { macAudioStop() }
-  }
-  
-  @IBAction func muteLineoutButton(_ sender: NSButton) {
-    Api.sharedInstance.radio!.lineoutMute = sender.boolState
-  }
-  
-  @IBAction func lineoutGainSlider(_ sender: NSSlider) {
-    Api.sharedInstance.radio!.lineoutGain = sender.integerValue
-  }
-  
-  @IBAction func headphoneGainSlider(_ sender: NSSlider) {
-    Api.sharedInstance.radio!.headphoneGain = sender.integerValue
-  }
-  
-  @IBAction func muteHeadphoneButton(_ sender: NSButton) {
-    Api.sharedInstance.radio!.headphoneMute = sender.boolState
-  }
-  
-  @IBAction func panButton(_ sender: AnyObject) {
-    
-    // dimensions are dummy values; when created, will be resized to fit its view
-    Api.sharedInstance.radio?.requestPanadapter(CGSize(width: 50, height: 50))
+
+  @IBAction func tnfButton(_ sender: NSButton) {
+    _radioMenu?.item(title: "Tnf On/Off")?.boolState = sender.boolState
+    Api.sharedInstance.radio!.tnfsEnabled = sender.boolState
   }
   
   // ----- Menus -----
+  
+  @IBAction func markersMenu(_ sender: NSMenuItem) {
+    sender.boolState.toggle()
+    Defaults.markersEnabled = sender.boolState
+    _markersButton.boolState = sender.boolState
+  }
+  
+  @IBAction func nextSliceMenu(_ sender: NSMenuItem) {
+    
+    if let slice = Api.sharedInstance.radio!.findActiveSlice() {
+      let slicesOnThisPan = Api.sharedInstance.radio!.slices.values.sorted { $0.frequency < $1.frequency }
+      var index = slicesOnThisPan.firstIndex(of: slice)!
+      
+      index = index + 1
+      index = index % slicesOnThisPan.count
+      
+      slice.active = false
+      slicesOnThisPan[index].active = true
+    }
+  }
+  
+  @IBAction func panMenu(_ sender: NSMenuItem) {
+    panButton(self)
+  }
+  
+  @IBAction func quitRadio(_ sender: Any) {
+    
+    // perform an orderly disconnect of all the components
+    if Api.sharedInstance.apiState != .disconnected { Api.sharedInstance.disconnect(reason: .normal) }
+    
+    _log("Application closed by user", .info,  #function, #file, #line)
+    DispatchQueue.main.async {
+      
+      // close the app
+      NSApp.terminate(sender)
+    }
+  }
   
   @IBAction func radioSelectionMenu(_ sender: AnyObject) {
     openRadioPicker()
   }
   
+  @IBAction func sideMenu(_ sender: NSMenuItem) {
+    sender.boolState.toggle()
+    Defaults.sideViewOpen = sender.boolState
+    _sideButton.boolState = sender.boolState
+
+    if sender.boolState {
+      openSideView()
+    } else {
+      closeSideView()
+    }
+  }
+
   @IBAction func smartLinkMenu(_ sender: NSMenuItem) {
     
     sender.boolState.toggle()
@@ -220,25 +236,17 @@ final class MainWindowController                  : NSWindowController, NSWindow
     Api.sharedInstance.radio!.tnfsEnabled = sender.boolState
   }
   
-  @IBAction func markersMenu(_ sender: NSMenuItem) {
-    sender.boolState.toggle()
-    Defaults.markersEnabled = sender.boolState
-    _markersButton.boolState = sender.boolState
+  @IBAction func terminate(_ sender: AnyObject) {
+    
+    quitRadio(self)
   }
   
-  @IBAction func sideMenu(_ sender: NSMenuItem) {
-    sender.boolState.toggle()
-    Defaults.sideViewOpen = sender.boolState
-    _sideButton.boolState = sender.boolState
-
-    if sender.boolState {
-      openSideView()
-    } else {
-      closeSideView()
-    }
-  }
+  // ----------------------------------------------------------------------------
+  // MARK: - Private methods
   
-  func openSideView() {
+  /// Open the Side view
+  ///
+  private func openSideView() {
     
     let sideStoryboard = NSStoryboard(name: "Side", bundle: nil)
     _sideViewController = sideStoryboard.instantiateController(withIdentifier: kSideIdentifier) as? SideViewController
@@ -251,8 +259,9 @@ final class MainWindowController                  : NSWindowController, NSWindow
       }
     }
   }
-
-  func closeSideView() {
+  /// Close the Side view (if open)
+  ///
+  private func closeSideView() {
     
     if _sideViewController != nil {
       
@@ -267,96 +276,39 @@ final class MainWindowController                  : NSWindowController, NSWindow
       }
     }
   }
-  
-  @IBAction func panMenu(_ sender: NSMenuItem) {
-    panButton(self)
-  }
-  
-  @IBAction func nextSliceMenu(_ sender: NSMenuItem) {
-    
-    if let slice = Api.sharedInstance.radio!.findActiveSlice() {
-      let slicesOnThisPan = Api.sharedInstance.radio!.slices.values.sorted { $0.frequency < $1.frequency }
-      var index = slicesOnThisPan.firstIndex(of: slice)!
-      
-      index = index + 1
-      index = index % slicesOnThisPan.count
-      
-      slice.active = false
-      slicesOnThisPan[index].active = true
-    }
-  }
-  
-  @IBAction func quitRadio(_ sender: Any) {
-    
-    // perform an orderly disconnect of all the components
-    if Api.sharedInstance.apiState != .disconnected { Api.sharedInstance.disconnect(reason: .normal) }
-    
-    _log("Application closed by user", .info,  #function, #file, #line)
-    DispatchQueue.main.async {
-      
-      // close the app
-      NSApp.terminate(sender)
-    }
-  }
-  
-  @IBAction func terminate(_ sender: AnyObject) {
-    
-    quitRadio(self)
-  }
-  
-  // ----------------------------------------------------------------------------
-  // MARK: - Private methods
-  
   /// Find and Open the Default Radio (if any) else the Radio Picker
   ///
-  /// - Parameter defaultRadio:   a String of the form <wan|local>.<serialNumber>
-  ///
-  private func findDefault( _ defaultRadio: String?) {
-    // embedded func to close sheet
-    func closeSheet(_ packet: DiscoveryPacket?) {
-      window!.endSheet(_pleaseWait.window)
-      if let packet = packet {
-        openSelectedRadio(packet)
-      } else {
-        openRadioPicker()
-      }
-    }
-    // is there a default?
-    if defaultRadio != nil {
-      // YES, create & show the "Please Wait" sheet
-      _pleaseWait = NSAlert()
-      _pleaseWait.messageText = ""
-      _pleaseWait.informativeText = "Searching for the Default Radio"
-      _pleaseWait.alertStyle = .informational
-      _pleaseWait.addButton(withTitle: "Cancel")
-      // Open the sheet (closes on Cancel, timeout or default found)
-      _pleaseWait.beginSheetModal(for: window!, completionHandler: { (response) in
-        if response == NSApplication.ModalResponse.alertFirstButtonReturn { self.openRadioPicker() }
-      })
-      // try to find the default radio
-      DispatchQueue.main.async {
-        let start = DispatchTime.now()
-        var packet : DiscoveryPacket?
-        while DispatchTime.now() < start + .seconds(MainWindowController.kSearchTime) {
-          // has the default Radio been found?
-          packet = Discovery.sharedInstance.defaultFound( Defaults.defaultRadio )
-          if packet != nil {
-            self._log("Default radio found, \(packet!.nickname) @ \(packet!.publicIp), serial \(packet!.serialNumber), isWan = \(packet!.isWan)", .info, #function, #file, #line)
-            break
-          } else {
-            usleep(MainWindowController.kSearchIncrements)
+  private func findDefault() {
+    
+    if Defaults.defaultRadio == nil {
+      openRadioPicker()
+    
+    } else {
+      checkLoop(interval: 1, wait: 4, condition: checkForDefault, completionHandler: { defaultFound in
+        if defaultFound {
+          self.openSelectedRadio(Discovery.sharedInstance.defaultFound( Defaults.defaultRadio )!)
+        } else {
+          DispatchQueue.main.async {
+            let alert = NSAlert()
+            alert.messageText = "Default Radio NOT found"
+            alert.alertStyle = .warning
+            alert.beginSheetModal(for: self.window!, completionHandler: { (response) in
+              self.openRadioPicker()
+            })
           }
         }
-        closeSheet(packet)
-      }
-    } else {
-      // NO Default
-      openRadioPicker()
+      })
     }
+  }
+  /// Check if the default radio is in DiscoveredRadios
+  /// - Returns: found / NOT found
+  ///
+  private func checkForDefault() -> Bool {
+    return Discovery.sharedInstance.defaultFound( Defaults.defaultRadio ) != nil
   }
   /// Open the Radio Picker as a sheet
   ///
-  func openRadioPicker() {
+  private func openRadioPicker() {
     let radioPickerStoryboard = NSStoryboard(name: "RadioPicker", bundle: nil)
     _radioPickerViewController = radioPickerStoryboard.instantiateController(withIdentifier: "RadioPicker") as? RadioPickerViewController
     _radioPickerViewController!.delegate = self
@@ -369,7 +321,7 @@ final class MainWindowController                  : NSWindowController, NSWindow
   /// Open the specified Radio
   /// - Parameter discoveryPacket: a DiscoveryPacket
   ///
-  func openRadio(_ packet: DiscoveryPacket) {
+  private func openRadio(_ packet: DiscoveryPacket) {
     
     _log("OpenRadio initiated: \(packet.nickname)", .debug, #function, #file, #line)
     
@@ -472,7 +424,7 @@ final class MainWindowController                  : NSWindowController, NSWindow
   }
   /// Close  a currently active connection
   ///
-  func closeRadio(_ discoveryPacket: DiscoveryPacket) {
+  private func closeRadio(_ discoveryPacket: DiscoveryPacket) {
     
     _log("CloseRadio initiated: \(discoveryPacket.nickname)", .debug, #function, #file, #line)
     
@@ -886,6 +838,8 @@ final class MainWindowController                  : NSWindowController, NSWindow
   // ----------------------------------------------------------------------------
   // MARK: - RadioPickerDelegate methods
   
+  var smartLinkEnabled : Bool { Defaults.smartLinkEnabled }
+  
   /// Open a Radio
   /// - Parameters:
   ///   - packet:       a DiscoveryPacket
@@ -956,6 +910,10 @@ final class MainWindowController                  : NSWindowController, NSWindow
   var smartLinkWasLoggedIn: Bool {
     set { Defaults.smartLinkWasLoggedIn = newValue }
     get { Defaults.smartLinkWasLoggedIn }
+  }
+  
+  func showRadioPicker() {
+    self.openRadioPicker()
   }
   
   func smartLinkTestResults(results: WanTestConnectionResults) {

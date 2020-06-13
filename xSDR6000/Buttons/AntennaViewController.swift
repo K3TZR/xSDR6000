@@ -28,10 +28,6 @@ final class AntennaViewController           : NSViewController, NSPopoverDelegat
   override func viewDidLoad() {
     super.viewDidLoad()
     
-    #if XDEBUG
-    Swift.print("\(#function) - \(URL(fileURLWithPath: #file).lastPathComponent.dropLast(6))")
-    #endif
-    
     switch Api.sharedInstance.radio!.radioType {
       
     case .flex6300:             _rfGainSlider.minValue = 0    ; _rfGainSlider.maxValue = 20 ; _rfGainSlider.numberOfTickMarks = 3
@@ -58,11 +54,6 @@ final class AntennaViewController           : NSViewController, NSPopoverDelegat
     _isDetached = true
     return true
   }
-  #if XDEBUG
-  deinit {
-    Swift.print("\(#function) - \(URL(fileURLWithPath: #file).lastPathComponent.dropLast(6))")
-  }
-  #endif
 
   // ----------------------------------------------------------------------------
   // MARK: - Action methods

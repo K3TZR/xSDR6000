@@ -16,6 +16,8 @@ import xLib6000
 
 protocol RadioPickerDelegate             : class {
   
+  var smartLinkEnabled : Bool {get}
+  
   /// Open the selected Radio
   /// - Parameters:
   ///   - packet:           a DIscoveryPacket
@@ -48,21 +50,21 @@ final class RadioPickerViewController : NSViewController, NSTableViewDelegate, N
   // ----------------------------------------------------------------------------
   // MARK: - Public properties
   
-  public weak var delegate                    : MainWindowController?
+  public weak var delegate                    : RadioPickerDelegate?
   
   @IBOutlet public weak var testIndicator     : NSButton!
 
   // ----------------------------------------------------------------------------
   // MARK: - Private properties
   
-  @IBOutlet private weak var _loginButton             : NSButton!
-  @IBOutlet private weak var _testButton              : NSButton!
-  @IBOutlet private weak var _nameLabel               : NSTextField!
-  @IBOutlet private weak var _callLabel               : NSTextField!
-  @IBOutlet private weak var _logonImage              : NSImageView!
+  @IBOutlet private weak var _loginButton     : NSButton!
+  @IBOutlet private weak var _testButton      : NSButton!
+  @IBOutlet private weak var _nameLabel       : NSTextField!
+  @IBOutlet private weak var _callLabel       : NSTextField!
+  @IBOutlet private weak var _logonImage      : NSImageView!
   
-  @IBOutlet private var _radioTable                   : NSTableView!
-  @IBOutlet private var _selectButton                 : NSButton!
+  @IBOutlet private var _radioTable           : NSTableView!
+  @IBOutlet private var _selectButton         : NSButton!
 
   private var _radios                         : [DiscoveryPacket] { Discovery.sharedInstance.discoveredRadios }
   private var _rightClick                     : NSClickGestureRecognizer!
@@ -78,12 +80,7 @@ final class RadioPickerViewController : NSViewController, NSTableViewDelegate, N
   ///
   override func viewDidLoad() {
     super.viewDidLoad()
-    
-    #if XDEBUG
-    Swift.print("\(#function) - \(URL(fileURLWithPath: #file).lastPathComponent.dropLast(6))")
-    #endif
-    
-    
+
     // setup Right Single Click recognizer
     _rightClick = NSClickGestureRecognizer(target: self, action: #selector(rightClick(_:)))
     _rightClick.buttonMask = 0x02
@@ -93,16 +90,12 @@ final class RadioPickerViewController : NSViewController, NSTableViewDelegate, N
     // allow the User to double-click the desired Radio
     _radioTable.doubleAction = #selector(RadioPickerViewController.selectButton(_:))
     
-    
-//  }
-//
-//  override func viewDidAppear() {
-//    super.viewDidAppear()
-    
+    _loginButton.isEnabled = delegate!.smartLinkEnabled
+
     addNotifications()
     addObservations()
   }
-  
+
   // ----------------------------------------------------------------------------
   // MARK: - Action methods
   
@@ -130,7 +123,7 @@ final class RadioPickerViewController : NSViewController, NSTableViewDelegate, N
     // Log In / Out of SmartLink
     
     if sender.title == kLogin {
-//      dismiss(self)
+      dismiss(self)
       delegate!.smartLinkLogin()
     } else {
       delegate!.smartLinkLogout()
@@ -228,20 +221,33 @@ final class RadioPickerViewController : NSViewController, NSTableViewDelegate, N
   /// Add observations of various properties
   ///
   private func addObservations() {
-    
+
+    let object = delegate as! MainWindowController
     _observations = [
-      delegate!.observe(\.smartLinkUser, options: [.initial, .new]) { [weak self] (object, change) in
+      object.observe(\.smartLinkUser, options: [.initial, .new]) { [weak self] (object, change) in
         DispatchQueue.main.async {
           self?._nameLabel.stringValue = object.smartLinkUser ?? ""
-          self?._loginButton.title = (object.smartLinkUser != nil ? "Log Out" : "Log In")
+          if object.smartLinkEnabled {
+            self?._loginButton.title = (object.smartLinkUser != nil ? "Log Out" : "Log In")
+          } else {
+            self?._loginButton.title = "Disabled"
+          }
         }},
-      delegate!.observe(\.smartLinkCall, options: [.initial, .new]) { [weak self] (object, change) in
+      object.observe(\.smartLinkCall, options: [.initial, .new]) { [weak self] (object, change) in
         DispatchQueue.main.async {
-          self?._callLabel.stringValue = object.smartLinkCall ?? ""
+          if object.smartLinkEnabled {
+            self?._callLabel.stringValue = object.smartLinkCall ?? ""
+          } else {
+            self?._callLabel.stringValue = ""
+          }
         }},
-      delegate!.observe(\.smartLinkImage, options: [.initial, .new]) { [weak self] (object, change) in
+      object.observe(\.smartLinkImage, options: [.initial, .new]) { [weak self] (object, change) in
         DispatchQueue.main.async {
-          self?._logonImage.image = object.smartLinkImage
+          if object.smartLinkEnabled {
+            self?._logonImage.image = object.smartLinkImage
+          } else {
+            self?._logonImage.image = nil
+          }
         }}
     ]
   }

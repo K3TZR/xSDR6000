@@ -42,8 +42,8 @@ Flex Radios can have one of four different version groups:
 *  v1.x.x, the v1 API - untested at this time
 *  v2.0.x thru v2.4.9, the v2 API <<-- CURRENTLY SUPPORTED
 *  v2.5.1 to less than v3.0.0, the v3 API without MultiFlex <<-- CURRENTLY SUPPORTED
-*  v3.0.0 thru v3.1.11, the v3 API with MultiFlex <<-- CURRENTLY SUPPORTED
-*  greater than v3.1.11 - untested at this time (may work ???)
+*  v3.0.0 thru v3.1.12, the v3 API with MultiFlex <<-- CURRENTLY SUPPORTED
+*  greater than v3.1.12 - untested at this time (may work ???)
 
 
 ## Credits
@@ -63,6 +63,19 @@ xLib6000 Package:
 OpusOSX, framework built from sources at:
 
 * https://opus-codec.org/downloads/
+
+
+## 1.2.4 Release Notes
+
+* corrections to Flag frequency field formatting
+* added "SmartLink enabled" to Radio menu (ability to disable SmartLink)
+* disable Login button on RadioPicker when SmartLink disabled
+* added Alert when default radio not found
+* refactored observations in Slice Flag
+* corrections to filter width by mode (thanks to Mario, DL3LSM)
+* corrected issue where Slice Flag moves but filter outline does not (thanks to Mario, DL3LSM)
+* corrected issue where frequency changes but displayed frequency does not (thanks to Manoj, VU2CPL)
+* many minor edits & code cleanup
 
 
 ## 1.2.3 Release Notes

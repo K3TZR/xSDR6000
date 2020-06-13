@@ -36,10 +36,6 @@ final class ControlsViewController: NSTabViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
 
-    #if XDEBUG
-    Swift.print("\(#function) - \(URL(fileURLWithPath: #file).lastPathComponent.dropLast(6))")
-    #endif
-    
     view.translatesAutoresizingMaskIntoConstraints = false
     
     view.isHidden = true
@@ -61,11 +57,6 @@ final class ControlsViewController: NSTabViewController {
     // give it a reference to the Slice
     tabViewItem?.viewController?.representedObject = _slice    
   }
-  #if XDEBUG
-  deinit {
-    Swift.print("\(#function) - \(URL(fileURLWithPath: #file).lastPathComponent.dropLast(6))")
-  }
-  #endif
 
   // ----------------------------------------------------------------------------
   // MARK: - Internal methods

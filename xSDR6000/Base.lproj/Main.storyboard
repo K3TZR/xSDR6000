@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="16097" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
     <dependencies>
-        <deployment identifier="macosx"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="16097"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -47,7 +46,7 @@
                                 <rect key="frame" x="20" y="61" width="800" height="219"/>
                                 <clipView key="contentView" drawsBackground="NO" copiesOnScroll="NO" id="H0x-n3-ggE">
                                     <rect key="frame" x="0.0" y="0.0" width="800" height="219"/>
-                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                    <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
                                         <textView importsGraphics="NO" richText="NO" verticallyResizable="YES" spellingCorrection="YES" smartInsertDelete="YES" id="lGC-Gb-Z9x">
                                             <rect key="frame" x="0.0" y="0.0" width="800" height="219"/>
@@ -550,7 +549,7 @@
                                             <font key="font" metaFont="label" size="13"/>
                                         </buttonCell>
                                         <connections>
-                                            <action selector="muteLineoutButton:" target="B8D-0N-5wS" id="pW1-ni-yPy"/>
+                                            <action selector="lineoutMuteButton:" target="B8D-0N-5wS" id="pW1-ni-yPy"/>
                                         </connections>
                                     </button>
                                 </toolbarItem>
@@ -566,7 +565,7 @@
                                             <font key="font" metaFont="label" size="13"/>
                                         </buttonCell>
                                         <connections>
-                                            <action selector="muteHeadphoneButton:" target="B8D-0N-5wS" id="y4S-t4-sUX"/>
+                                            <action selector="headphoneMuteButton:" target="B8D-0N-5wS" id="y4S-t4-sUX"/>
                                         </connections>
                                     </button>
                                 </toolbarItem>

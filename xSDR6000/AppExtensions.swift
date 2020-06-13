@@ -29,11 +29,10 @@ extension DefaultsKeys {
   var markersEnabled           : DefaultsKey<Bool>           { .init("markersEnabled", defaultValue: false)}
   var preferencesTabId         : DefaultsKey<String>         { .init("preferencesTabId", defaultValue: "radio")}
   var profileType              : DefaultsKey<String>         { .init("profileType", defaultValue: "global")}
-  var quickMode0               : DefaultsKey<String>         { .init("quickMode0", defaultValue: "USB")}
-  var quickMode1               : DefaultsKey<String>         { .init("quickMode1", defaultValue: "LSB")}
-  var quickMode2               : DefaultsKey<String>         { .init("quickMode2", defaultValue: "CW")}
-  var quickMode3               : DefaultsKey<String>         { .init("quickMode3", defaultValue: "AM")}
-//  var remoteViewOpen           : DefaultsKey<Bool>           { .init("remoteViewOpen", defaultValue: false)}
+  var quickMode0               : DefaultsKey<String>         { .init("quickMode0", defaultValue: "usb")}
+  var quickMode1               : DefaultsKey<String>         { .init("quickMode1", defaultValue: "lsb")}
+  var quickMode2               : DefaultsKey<String>         { .init("quickMode2", defaultValue: "cw")}
+  var quickMode3               : DefaultsKey<String>         { .init("quickMode3", defaultValue: "am")}
   var sideViewOpen             : DefaultsKey<Bool>           { .init("sideViewOpen", defaultValue: false)}
   var sideRxOpen               : DefaultsKey<Bool>           { .init("sideRxOpen", defaultValue: false)}
   var sideTxOpen               : DefaultsKey<Bool>           { .init("sideTxOpen", defaultValue: false)}
@@ -464,6 +463,85 @@ extension Double {
 
 // ----------------------------------------------------------------------------
 // MARK: - TOP-LEVEL FUNCTIONS
+
+/// Repeatedly perform a condition func until satisfied or a timeout
+/// - Parameters:
+///   - interval:           how offten to check the condition func (seconds)
+///   - wait:               how long until timeout (seconds)
+///   - condition:          a condition func ()->Bool
+///   - completionHandler:  a completion handler (wasCancelled)->()
+///
+func checkLoop(interval: Int, wait: TimeInterval, condition: @escaping ()->Bool, completionHandler: @escaping (Bool)->()) {
+  
+  // create the timer
+  let start = Date()
+  let timer = DispatchSource.makeTimerSource()
+  
+  timer.schedule(deadline: DispatchTime.now(), repeating: .seconds(interval))
+  timer.setEventHandler{
+    // timeout after "wait" seconds
+    if Date(timeIntervalSinceNow:0).timeIntervalSince(start) > wait {
+      // time out
+      timer.cancel()
+      completionHandler(false)
+    } else {
+      // not time out, check condition
+      if condition() {
+        timer.cancel()
+        completionHandler(true)
+      }
+    }
+  }
+  // start the timer
+  timer.resume()
+}
+
+/// Display an Alert sheet for a limited time or until some condition is met (whichever comes first)
+/// - Parameters:
+///   - message:            the message to display
+///   - window:             the window for the sheet
+///   - interval:           how offten to check the condition func (seconds)
+///   - wait:               how long until timeout (seconds)
+///   - condition:          a condition func ()->Bool
+///   - completionHandler:  a completion handler (wasCancelled)->()
+///
+func waitAlert(message: String, window: NSWindow, interval: Int, wait: TimeInterval, condition: @escaping ()->Bool, completionHandler: @escaping (Bool)->()) {
+
+  // create the timer
+  let start = Date()
+  let timer = DispatchSource.makeTimerSource()
+  let alert = NSAlert()
+
+  timer.schedule(deadline: DispatchTime.now(), repeating: .seconds(interval))
+  timer.setEventHandler{
+   // timeout after "wait" seconds
+    if Date(timeIntervalSinceNow:0).timeIntervalSince(start) > wait {
+      // time out
+      timer.cancel()
+      completionHandler(false)
+      DispatchQueue.main.async {
+        window.endSheet(alert.window)
+      }
+    } else {
+      // not time out, check condition
+      if condition() {
+        timer.cancel()
+        completionHandler(true)
+        DispatchQueue.main.async {
+          window.endSheet(alert.window)
+        }
+      }
+    }
+  }
+  alert.messageText = message
+  alert.alertStyle = .informational
+  alert.addButton(withTitle: "Cancel")
+  alert.beginSheetModal(for: window, completionHandler: { (response) in
+    if response == NSApplication.ModalResponse.alertFirstButtonReturn { timer.cancel() ; completionHandler(false) }
+  })
+  // start the timer
+  timer.resume()
+}
 
 func notImplemented(_ featureName: String) -> NSAlert {
   

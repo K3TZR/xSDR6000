@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="16096" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="16097" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="16096"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="16097"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -29,7 +29,7 @@
                                         </buttonCell>
                                         <color key="contentTintColor" red="1" green="0.1106421309" blue="0.02582195826" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         <connections>
-                                            <action selector="closeButton:" target="Lmw-yC-7qh" id="Vbc-9D-HKC"/>
+                                            <action selector="xButton:" target="Lmw-yC-7qh" id="Vbc-9D-HKC"/>
                                         </connections>
                                     </button>
                                     <popUpButton identifier="rxAnt" toolTip="Rx Ant" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Zp6-Oe-dIV" userLabel="RxAnt popup">
@@ -39,7 +39,7 @@
                                         </constraints>
                                         <popUpButtonCell key="cell" type="push" bezelStyle="rounded" alignment="center" lineBreakMode="truncatingTail" borderStyle="border" imageScaling="proportionallyDown" inset="2" arrowPosition="noArrow" id="y2d-I3-kg0">
                                             <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
-                                            <font key="font" metaFont="menu" size="11"/>
+                                            <font key="font" metaFont="message" size="11"/>
                                             <menu key="menu" id="NSV-Jw-Rca"/>
                                         </popUpButtonCell>
                                         <connections>
@@ -50,7 +50,7 @@
                                         <rect key="frame" x="63" y="-3" width="50" height="25"/>
                                         <popUpButtonCell key="cell" type="push" bezelStyle="rounded" alignment="center" lineBreakMode="truncatingTail" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" arrowPosition="noArrow" id="8lD-MP-8Gu">
                                             <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
-                                            <font key="font" metaFont="menu" size="11"/>
+                                            <font key="font" metaFont="message" size="11"/>
                                             <menu key="menu" id="ukX-h6-QYI"/>
                                         </popUpButtonCell>
                                         <connections>
@@ -208,7 +208,7 @@
                                                 </buttonCell>
                                                 <color key="contentTintColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                                 <connections>
-                                                    <action selector="alphaButton:" target="Lmw-yC-7qh" id="ldJ-CR-fpW"/>
+                                                    <action selector="sliceLetterButton:" target="Lmw-yC-7qh" id="ldJ-CR-fpW"/>
                                                 </connections>
                                             </button>
                                         </subviews>
@@ -229,18 +229,11 @@
                                             <constraint firstAttribute="width" constant="120" id="rzd-77-VLy"/>
                                         </constraints>
                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" refusesFirstResponder="YES" state="on" focusRingType="none" alignment="right" placeholderString="77.777.777" id="2eB-fm-ltp">
-                                            <numberFormatter key="formatter" formatterBehavior="custom10_4" localizesFormat="NO" allowsFloats="NO" usesGroupingSeparator="NO" formatWidth="-1" groupingSize="0" minimumIntegerDigits="1" maximumIntegerDigits="42" id="1Qs-Xv-Qq1" customClass="FrequencyFormatter" customModule="xSDR6000" customModuleProvider="target"/>
+                                            <numberFormatter key="formatter" formatterBehavior="custom10_4" usesGroupingSeparator="NO" formatWidth="-1" groupingSize="0" minimumIntegerDigits="1" maximumIntegerDigits="42" id="P1W-vU-y4m" customClass="FrequencyFormatter" customModule="xSDR6000" customModuleProvider="target"/>
                                             <font key="font" size="20" name="Monaco"/>
                                             <color key="textColor" red="0.66294466953821041" green="1" blue="0.99344896315395903" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                             <color key="backgroundColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                         </textFieldCell>
-                                        <connections>
-                                            <binding destination="Lmw-yC-7qh" name="value" keyPath="slice.frequency" id="oeM-cm-U2N">
-                                                <dictionary key="options">
-                                                    <string key="NSValueTransformerName">FrequencyTransformer</string>
-                                                </dictionary>
-                                            </binding>
-                                        </connections>
                                     </textField>
                                 </subviews>
                                 <visibilityPriorities>
@@ -316,7 +309,7 @@
                                         </constraints>
                                         <buttonCell key="cell" type="push" title="AUD" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="FNp-VC-Qj2">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
-                                            <font key="font" metaFont="menu" size="11"/>
+                                            <font key="font" metaFont="message" size="11"/>
                                         </buttonCell>
                                         <connections>
                                             <action selector="controlsButtons:" target="Lmw-yC-7qh" id="LUh-rm-Q6e"/>
@@ -326,7 +319,7 @@
                                         <rect key="frame" x="49" y="-7" width="67" height="32"/>
                                         <buttonCell key="cell" type="push" title="DSP" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="xSR-Pr-w8w">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
-                                            <font key="font" metaFont="menu" size="11"/>
+                                            <font key="font" metaFont="message" size="11"/>
                                         </buttonCell>
                                         <connections>
                                             <action selector="controlsButtons:" target="Lmw-yC-7qh" id="aJ8-gI-y58"/>
@@ -336,7 +329,7 @@
                                         <rect key="frame" x="104" y="-7" width="67" height="32"/>
                                         <buttonCell key="cell" type="push" title="MODE" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Ozc-FQ-Fen">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
-                                            <font key="font" metaFont="menu" size="11"/>
+                                            <font key="font" metaFont="message" size="11"/>
                                         </buttonCell>
                                         <connections>
                                             <action selector="controlsButtons:" target="Lmw-yC-7qh" id="SSM-dZ-d4N"/>
@@ -346,7 +339,7 @@
                                         <rect key="frame" x="159" y="-7" width="67" height="32"/>
                                         <buttonCell key="cell" type="push" title="XRIT" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="h65-Q6-0kR">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
-                                            <font key="font" metaFont="menu" size="11"/>
+                                            <font key="font" metaFont="message" size="11"/>
                                         </buttonCell>
                                         <connections>
                                             <action selector="controlsButtons:" target="Lmw-yC-7qh" id="Fn7-eV-EUi"/>
@@ -356,7 +349,7 @@
                                         <rect key="frame" x="214" y="-7" width="67" height="32"/>
                                         <buttonCell key="cell" type="push" title="DAX" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="7ir-zP-Xif">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
-                                            <font key="font" metaFont="menu" size="11"/>
+                                            <font key="font" metaFont="message" size="11"/>
                                         </buttonCell>
                                         <connections>
                                             <action selector="controlsButtons:" target="Lmw-yC-7qh" id="tmP-Hi-7TS"/>
@@ -665,7 +658,7 @@
                                         </constraints>
                                         <buttonCell key="cell" type="push" title="WNB" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="bLR-K0-azd">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
-                                            <font key="font" metaFont="menu" size="11"/>
+                                            <font key="font" metaFont="message" size="11"/>
                                         </buttonCell>
                                         <connections>
                                             <action selector="buttons:" target="Xq5-Es-VCO" id="bjn-Ea-SqG"/>
@@ -713,7 +706,7 @@
                                         </constraints>
                                         <buttonCell key="cell" type="push" title="NB" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Cuf-p4-y1T">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
-                                            <font key="font" metaFont="menu" size="11"/>
+                                            <font key="font" metaFont="message" size="11"/>
                                         </buttonCell>
                                         <connections>
                                             <action selector="buttons:" target="Xq5-Es-VCO" id="jaV-UW-KIB"/>
@@ -757,7 +750,7 @@
                                         </constraints>
                                         <buttonCell key="cell" type="push" title="NR" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="tbc-jH-v7N">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
-                                            <font key="font" metaFont="menu" size="11"/>
+                                            <font key="font" metaFont="message" size="11"/>
                                         </buttonCell>
                                         <connections>
                                             <action selector="buttons:" target="Xq5-Es-VCO" id="fJD-at-Dqa"/>
@@ -801,7 +794,7 @@
                                         </constraints>
                                         <buttonCell key="cell" type="push" title="ANF" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="pDV-II-2qz">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
-                                            <font key="font" metaFont="menu" size="11"/>
+                                            <font key="font" metaFont="message" size="11"/>
                                         </buttonCell>
                                         <connections>
                                             <action selector="buttons:" target="Xq5-Es-VCO" id="mhk-zx-v9z"/>

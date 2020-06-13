@@ -35,10 +35,6 @@ final class AudioViewController: NSViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
     
-    #if XDEBUG
-    Swift.print("\(#function) - \(URL(fileURLWithPath: #file).lastPathComponent.dropLast(6))")
-    #endif
-    
     view.translatesAutoresizingMaskIntoConstraints = false
     
     if Defaults.flagBorderEnabled {
@@ -59,11 +55,6 @@ final class AudioViewController: NSViewController {
     // set the background color of the Flag
     view.layer?.backgroundColor = ControlsViewController.kBackgroundColor
   }
-  #if XDEBUG
-  deinit {
-    Swift.print("\(#function) - \(URL(fileURLWithPath: #file).lastPathComponent.dropLast(6))")
-  }
-  #endif
 
   // ----------------------------------------------------------------------------
   // MARK: - Action methods

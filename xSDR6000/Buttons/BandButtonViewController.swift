@@ -73,10 +73,6 @@ final class BandButtonViewController              : NSViewController, NSPopoverD
   override func viewDidLoad() {
     super.viewDidLoad()
     
-    #if XDEBUG
-    Swift.print("\(#function) - \(URL(fileURLWithPath: #file).lastPathComponent.dropLast(6))")
-    #endif
-    
     var bandTitle = (representedObject as! Panadapter).band
     switch bandTitle {
     case "33":
@@ -105,11 +101,6 @@ final class BandButtonViewController              : NSViewController, NSPopoverD
     _isDetached = true
     return true
   }
-  #if XDEBUG
-  deinit {
-    Swift.print("\(#function) - \(URL(fileURLWithPath: #file).lastPathComponent.dropLast(6))")
-  }
-  #endif
 
   // ----------------------------------------------------------------------------
   // MARK: - Action methods

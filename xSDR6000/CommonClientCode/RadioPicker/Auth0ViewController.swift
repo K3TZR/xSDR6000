@@ -128,11 +128,7 @@ final class Auth0ViewController             : NSViewController, WKNavigationDele
   // ----------------------------------------------------------------------------
   // MARK: - Action methods
   
-  /// Respond to the Cancel button
-  ///
-  /// - Parameter sender:         the button
-  ///
-  @IBAction func cancelButton(_ sender: Any) {    
+  @IBAction func cancelButton(_ sender: Any) {
     DispatchQueue.main.async { [weak self] in
       self?.dismiss(self)
     }
@@ -172,12 +168,8 @@ final class Auth0ViewController             : NSViewController, WKNavigationDele
     // does the navigation action's request contain a URL?
     if let url = navigationAction.request.url {
       
-//      Swift.print("----->>>>> url = \(url)")
-      
       // YES, is there a token inside the url?
       if url.absoluteString.contains(kKeyIdToken) {
-        
-//        Swift.print("----->>>>> url contains \(kKeyIdToken)")
         
         // extract the tokens
         var responseParameters = [String: String]()
@@ -186,8 +178,6 @@ final class Auth0ViewController             : NSViewController, WKNavigationDele
         
         // did we extract both tokens?
         if let idToken = responseParameters[kKeyIdToken], let refreshToken = responseParameters[kKeyRefreshToken] {
-          
-//          Swift.print("----->>>>> Both tokens")
           
           // YES, pass them to our delegate
           delegate!.setTokens(idToken: idToken, refreshToken: refreshToken)

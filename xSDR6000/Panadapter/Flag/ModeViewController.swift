@@ -59,10 +59,6 @@ final class ModeViewController       : NSViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
     
-    #if XDEBUG
-    Swift.print("\(#function) - \(URL(fileURLWithPath: #file).lastPathComponent.dropLast(6))")
-    #endif
-    
     view.translatesAutoresizingMaskIntoConstraints = false
     
     if Defaults.flagBorderEnabled {
@@ -73,10 +69,10 @@ final class ModeViewController       : NSViewController {
     _modePopUp.addItems(withTitles: xLib6000.Slice.Mode.allCases.map {$0.rawValue} )
     
     // populate the Quick Mode buttons
-    _quickMode0.title = Defaults.quickMode0.uppercased()
-    _quickMode1.title = Defaults.quickMode1.uppercased()
-    _quickMode2.title = Defaults.quickMode2.uppercased()
-    _quickMode3.title = Defaults.quickMode3.uppercased()
+    _quickMode0.title = _slice.modeList.contains(Defaults.quickMode0.uppercased()) ? Defaults.quickMode0.uppercased() : "??"
+    _quickMode1.title = _slice.modeList.contains(Defaults.quickMode1.uppercased()) ? Defaults.quickMode1.uppercased() : "??"
+    _quickMode2.title = _slice.modeList.contains(Defaults.quickMode2.uppercased()) ? Defaults.quickMode2.uppercased() : "??"
+    _quickMode3.title = _slice.modeList.contains(Defaults.quickMode3.uppercased()) ? Defaults.quickMode3.uppercased() : "??"
 
     // start observing
     addObservations()
@@ -88,46 +84,10 @@ final class ModeViewController       : NSViewController {
     // set the background color of the Flag
     view.layer?.backgroundColor = ControlsViewController.kBackgroundColor
   }
-  #if XDEBUG
-  deinit {
-    Swift.print("\(#function) - \(URL(fileURLWithPath: #file).lastPathComponent.dropLast(6))")
-  }
-  #endif
 
   // ----------------------------------------------------------------------------
   // MARK: - Action methods
 
-  /// Respond to the Mode button
-  ///
-  /// - Parameter sender:         the button
-  ///
-  @IBAction func modePopUp(_ sender: NSPopUpButton) {
-    _slice.mode = sender.titleOfSelectedItem!
-  }
-  /// Respond to one of the Quick Mode buttons
-  ///
-  /// - Parameter sender:         the button
-  ///
-  @IBAction func quickModeButtons(_ sender: NSButton) {
-    
-    switch sender.tag {
-    case 0:
-      _slice.mode = Defaults.quickMode0.uppercased()
-    case 1:
-       _slice.mode = Defaults.quickMode1.uppercased()
-    case 2:
-       _slice.mode = Defaults.quickMode2.uppercased()
-    case 3:
-       _slice.mode = Defaults.quickMode3.uppercased()
-    default:
-      // unknown tag
-      break
-    }
-  }
-  /// Respond to one of the Filter buttons
-  ///
-  /// - Parameter sender:           the button
-  ///
   @IBAction func filterButtons(_ sender: NSButton) {
     
     // get the possible filters for the current mode
@@ -137,36 +97,70 @@ final class ModeViewController       : NSViewController {
     let filterValue = filters[sender.tag]
     
     // position the filter based on mode
-    switch xLib6000.Slice.Mode(rawValue:  _slice.mode)! {
-    case .RTTY, .DFM, .AM, .SAM:
-      _slice.filterLow = -filterValue/2
-      _slice.filterHigh = +filterValue/2
-    
-    case .CW, .USB, .DIGU:
-      _slice.filterLow = +100
-      _slice.filterHigh = +filterValue + 100
-    
-    case .LSB, .DIGL:
-      _slice.filterLow = -filterValue - 100
-      _slice.filterHigh = -100
-    
-    case .FM:
-      _slice.filterLow = -8_000
-      _slice.filterHigh = +8_000
-    
-    case .NFM:
-      _slice.filterLow = -5_500
-      _slice.filterHigh = +5_500
+    setFilterWidth(filterValue, forMode: _slice.mode, andSlice: _slice)
+  }
 
-    // FIXME: are these needed?
+  @IBAction func modePopUp(_ sender: NSPopUpButton) {
+    _slice.mode = sender.titleOfSelectedItem!
+  }
 
-//    case .dsb:
-//      break
-//    case .dstr:
-//      break
-//    case .fdv:
-//      break
+  @IBAction func quickModeButtons(_ sender: NSButton) {
+    
+    if _slice.modeList.contains(sender.title.uppercased()) {
+      _slice.mode = sender.title
     }
+  }
+  
+  // ----------------------------------------------------------------------------
+  // MARK: - Private methods
+
+  /// Calculate the filter values for a given mode
+  /// - Parameters:
+  ///   - width: the overall width
+  ///   - mode: the mode string
+  ///   - slice: a Slice reference
+  ///
+  private func setFilterWidth(_ width: Int, forMode mode: String, andSlice slice: xLib6000.Slice) {
+    
+    var hiCut = 0
+    var loCut = 0
+    
+    switch mode {
+    case "CW", "CWL", "CWU", "AM", "SAM":
+      loCut = -1 * width / 2
+      hiCut = +1 * width / 2
+    case "LSB":
+      hiCut = -100
+      loCut = hiCut - width
+    case "USB":
+      loCut = 100
+      hiCut = loCut + width
+    case "DIGL":
+      let offset = -1 * slice.digitalLowerOffset       // offset value from the slice is a positive value!
+      loCut = offset - (width / 2)
+      hiCut = offset + (width / 2)
+      if hiCut > 0 {
+        hiCut = 0
+        loCut = -1 * width
+      }
+    case "DIGU":
+      let offset = slice.digitalUpperOffset
+      loCut = offset - (width / 2)
+      hiCut = offset + (width / 2)
+      if loCut < 0 {
+        loCut = 0
+        hiCut = width
+      }
+    case "RTTY":
+      let shift = slice.rttyShift
+      let side = (width - shift) / 2
+      hiCut = side
+      loCut = -1 * (shift + side)
+    default:
+      return
+    }
+    slice.filterLow = loCut
+    slice.filterHigh = hiCut
   }
   /// Return a list of Filter Width strings
   ///
@@ -206,7 +200,7 @@ final class ModeViewController       : NSViewController {
     
     _observations = [
       _slice.observe(\.mode, options: [.initial, .new]) { [weak self] (slice, change) in
-        self?.sliceChange(slice, change)
+        self?.modeChange(slice, change)
       }
     ]
   }
@@ -216,7 +210,7 @@ final class ModeViewController       : NSViewController {
   ///   - object:                   the object being observed
   ///   - change:                   the change
   ///
-  private func sliceChange(_ slice: xLib6000.Slice, _ change: Any) {
+  private func modeChange(_ slice: xLib6000.Slice, _ change: Any) {
 
     switch slice.mode {
       

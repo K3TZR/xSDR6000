@@ -86,10 +86,6 @@ final class PanadapterViewController        : NSViewController, NSGestureRecogni
   override func viewDidLoad() {
     super.viewDidLoad()
     
-    #if XDEBUG
-    Swift.print("\(#function) - \(URL(fileURLWithPath: #file).lastPathComponent.dropLast(6))")
-    #endif
-    
     // determine how the various views are blended on screen
     _panadapterView.compositingFilter = kFilter
     _dbLegendView.compositingFilter = kFilter
@@ -161,11 +157,6 @@ final class PanadapterViewController        : NSViewController, NSGestureRecogni
       NSApp.terminate(self)
     }
   }
-  #if XDEBUG
-  deinit {
-    Swift.print("\(#function) - \(URL(fileURLWithPath: #file).lastPathComponent.dropLast(6))")
-  }
-  #endif
 
   // ----------------------------------------------------------------------------
   // MARK: - Internal methods
@@ -188,8 +179,8 @@ final class PanadapterViewController        : NSViewController, NSGestureRecogni
     createBaseObservations(&_baseObservations)
   }
   
-  // force a redraw of a view
-  
+  // force a redraw of one of the views
+  //
   func redrawFrequencyLegend() {
     _frequencyLegendView.redraw()
     positionFlags()
@@ -516,13 +507,13 @@ final class PanadapterViewController        : NSViewController, NSGestureRecogni
 
     observations = [
       
-      _panadapter!.observe(\Panadapter.bandwidth, options: [.initial, .new]) { [weak self] (object, change) in
+      _panadapter!.observe(\.bandwidth, options: [.initial, .new]) { [weak self] (object, change) in
         self?.redrawLegends() },
-      _panadapter!.observe(\Panadapter.center, options: [.initial, .new]) { [weak self] (object, change) in
+      _panadapter!.observe(\.center, options: [.initial, .new]) { [weak self] (object, change) in
         self?.redrawLegends() },
-      _radio!.observe(\Radio.tnfsEnabled, options: [.initial, .new]) { [weak self] (object, change) in
+      _radio!.observe(\.tnfsEnabled, options: [.initial, .new]) { [weak self] (object, change) in
         self?.redrawLegends() },
-      _panadapter!.observe(\Panadapter.fillLevel, options: [.initial, .new]) { [weak self] (object, change) in
+      _panadapter!.observe(\.fillLevel, options: [.initial, .new]) { [weak self] (object, change) in
         self?.fillLevel() },
     ]
     
@@ -564,13 +555,13 @@ final class PanadapterViewController        : NSViewController, NSGestureRecogni
   ///
   private func addTnfObservations(_ observations: inout [NSKeyValueObservation], tnf: Tnf ) {
 
-    observations.append( tnf.observe(\Tnf.frequency, options: [.initial, .new]) { [weak self] (_,_) in
+    observations.append( tnf.observe(\.frequency, options: [.initial, .new]) { [weak self] (_,_) in
       self?.redrawFrequencyLegend() })
-    observations.append( tnf.observe(\Tnf.depth, options: [.initial, .new]) { [weak self] (_,_) in
+    observations.append( tnf.observe(\.depth, options: [.initial, .new]) { [weak self] (_,_) in
       self?.redrawFrequencyLegend() })
-    observations.append( tnf.observe(\Tnf.width, options: [.initial, .new]) { [weak self] (_,_) in
+    observations.append( tnf.observe(\.width, options: [.initial, .new]) { [weak self] (_,_) in
       self?.redrawFrequencyLegend() })
-    observations.append( tnf.observe(\Tnf.permanent, options: [.initial, .new]) { [weak self] (_,_) in
+    observations.append( tnf.observe(\.permanent, options: [.initial, .new]) { [weak self] (_,_) in
       self?.redrawFrequencyLegend() })
   }
   /// Invalidate observations (optionally remove)
@@ -620,26 +611,6 @@ final class PanadapterViewController        : NSViewController, NSGestureRecogni
     _frequencyLegendView.redraw()
     _dbLegendView.redraw()
   }
-  /// Respond to observations requiring a redraw of the FrequencyLegend view
-  ///
-  /// - Parameters:
-  ///   - object:                       the object holding the properties
-  ///   - change:                       the change
-  ///
-//  private func redrawFrequencyLegend() {
-//
-//    _frequencyLegendView.redraw()
-//  }
-  /// Respond to observations requiring a redraw of the dbLegend view
-  ///
-  /// - Parameters:
-  ///   - object:                       the object holding the properties
-  ///   - change:                       the change
-  ///
-//  private func redrawDbLegend() {
-//
-//    _dbLegendView.redraw()
-//  }
 
   // ----------------------------------------------------------------------------
   // MARK: - Notification Methods

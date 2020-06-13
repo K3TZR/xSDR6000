@@ -33,7 +33,7 @@ protocol WanManagerDelegate : class {
   func smartLinkUserSettings(name: String?, call: String?)
   func smartLinkImage(image: NSImage?)
   
-  func openRadioPicker()
+  func showRadioPicker()
 }
 
 public final class WanManager : WanServerDelegate, Auth0Delegate {
@@ -355,8 +355,6 @@ public final class WanManager : WanServerDelegate, Auth0Delegate {
   func setTokens(idToken: String, refreshToken: String) {
     var expireDate = Date()
     
-//    Swift.print("----->>>>> IdToken = \(idToken)\n----->>>>> refreshToken = \(refreshToken)")
-
     do {
       
       // try to get the JSON Web Token
@@ -412,7 +410,7 @@ public final class WanManager : WanServerDelegate, Auth0Delegate {
   
     _ = smartLinkLogin(using: _delegate.auth0Email)
     
-    _delegate.openRadioPicker()
+    _delegate.showRadioPicker()
   }
   
   // ----------------------------------------------------------------------------
