@@ -4,6 +4,21 @@
 ## Mac Client for the FlexRadio (TM) 6000 series software defined radios.
 ###      (see Evolution below for radio versions that are supported)
 
+
+##         xSDR600 is starting to be useable for some even though it's far from complete.
+
+I want to focus on "stability" for the next few releases. I need feedback from users. If you see a bug or experience a crash, please take a minute to report it to:
+
+douglas.adams@me.com
+
+If possible, include a copy of the log(s) found in:
+
+~/Library/Application Support/net.k3tzr.xSDR6000/Logs/
+
+Thank you for your help! 👍
+
+
+
 ### Built on:
 
 *  macOS 10.15.5
