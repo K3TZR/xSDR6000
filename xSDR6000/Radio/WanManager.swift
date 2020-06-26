@@ -47,9 +47,10 @@ public final class WanManager : WanServerDelegate, Auth0Delegate {
   // ----------------------------------------------------------------------------
   // MARK: - Private properties
 
+  private weak var _delegate                : WanManagerDelegate!
+  private weak var _serverDelegate          : WanServerDelegate?
+
   private var _wanServer                    : WanServer?
-  private let _delegate                     : WanManagerDelegate!
-  private var _serverDelegate               : WanServerDelegate?
   private let _log                          = Logger.sharedInstance.logMessage
   private var _previousToken                : Token?
   private var _auth0ViewController          : Auth0ViewController?

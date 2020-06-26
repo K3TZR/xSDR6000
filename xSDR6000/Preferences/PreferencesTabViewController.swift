@@ -18,7 +18,7 @@ final class PreferencesTabViewController    : NSTabViewController {
   // MARK: - Private properties
   
   private let _autosaveName                 = "PreferencesWindow"
-  private let _log                          = Logger.sharedInstance
+  private let _log                          = Logger.sharedInstance.logMessage
 
   // ----------------------------------------------------------------------------
   // MARK: - Overridden methods
@@ -27,7 +27,7 @@ final class PreferencesTabViewController    : NSTabViewController {
     super.viewDidLoad()
     
     view.translatesAutoresizingMaskIntoConstraints = false
-    _log.logMessage("Preferences window opened", .debug, #function, #file, #line)
+    _log("Preferences window opened", .debug, #function, #file, #line)
   }
 
   override func viewWillAppear() {
@@ -63,7 +63,7 @@ final class PreferencesTabViewController    : NSTabViewController {
     }
   }
   deinit {
-    _log.logMessage("Preferences window closed", .debug, #function, #file, #line)
+    _log("Preferences window closed", .debug, #function, #file, #line)
   }
 }
 

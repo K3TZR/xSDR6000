@@ -13,19 +13,22 @@ import Quartz
 // MARK: - Help ViewController Class implementation
 // ------------------------------------------------------------------------------
 
-final class HelpViewController              : NSViewController {
+final class HelpViewController : NSViewController {
   
   // ----------------------------------------------------------------------------
   // MARK: - Private properties
   
-  private let kAutosaveName                 = "xSDR6000HelpWindow"        // AutoSave name for the window
-  
+  private let kAutosaveName       = "xSDR6000HelpWindow"
+  private let _log                = Logger.sharedInstance.logMessage
+
   // ----------------------------------------------------------------------------
   // MARK: - Overridden methods
   
   override func viewDidLoad() {
     super.viewDidLoad()
-    
+
+    _log("Help Viewer opened", .debug,  #function, #file, #line)
+
     // dispaly the help file
     if let url = Bundle.main.url(forResource: "xSDR6000", withExtension: "pdf") {
       
@@ -52,5 +55,7 @@ final class HelpViewController              : NSViewController {
     // save the position
     view.window!.saveFrame(usingName: kAutosaveName)
   }
-  
+  deinit {
+    _log("Help Viewer closed", .debug,  #function, #file, #line)
+  }
 }

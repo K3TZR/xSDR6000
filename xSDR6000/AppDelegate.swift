@@ -9,7 +9,7 @@
 import Cocoa
 
 @NSApplicationMain
-  final class AppDelegate                     : NSObject, NSApplicationDelegate, NSWindowDelegate {
+  final class AppDelegate                     : NSObject, NSApplicationDelegate {
   
   // ----------------------------------------------------------------------------
   // MARK: - Internal methods

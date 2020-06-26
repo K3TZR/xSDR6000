@@ -46,6 +46,7 @@ extension DefaultsKeys {
   var smartLinkWasLoggedIn     : DefaultsKey<Bool>           { .init("smartLinkWasLoggedIn", defaultValue: false)}
   var splitDistance            : DefaultsKey<Int>            { .init("splitDistance", defaultValue: 5_000)}
   var supportingApps           : DefaultsKey<[[String:Any]]> { .init("supportingApps", defaultValue:[])}
+  var showStartupMessage       : DefaultsKey<Bool>           { .init("showStartupMessage", defaultValue: true)}
   var tnfsEnabled              : DefaultsKey<Bool>           { .init("tnfsEnabled", defaultValue: false)}
   var spectrumFillLevel        : DefaultsKey<Int>            { .init("spectrumFillLevel", defaultValue: 0)}
   var spectrumIsFilled         : DefaultsKey<Bool>           { .init("spectrumIsFilled", defaultValue: false)}

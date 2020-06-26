@@ -16,11 +16,12 @@ public final class RadioManager : NSObject {
   // ----------------------------------------------------------------------------
   // MARK: - Private properties
   
+  private weak var _delegate                : WanManagerDelegate!
+
   private var _activity                     : NSObjectProtocol?
   private var _api                          = Api.sharedInstance
   private var _auth0ViewController          : Auth0ViewController?
   private var _clientId                     : String?
-  private var _delegate                     : WanManagerDelegate!
   private let _log                          = Logger.sharedInstance.logMessage
   private var _radioPickerViewController    : RadioPickerViewController?
   private var _wanManager                   : WanManager?
@@ -108,19 +109,16 @@ public final class RadioManager : NSObject {
   ///   - pendingDisconnect:    type, if any
   /// - Returns:                success / failure
   ///
-  func connectRadio(_ packet: DiscoveryPacket?, isGui: Bool = true, pendingDisconnect: Api.PendingDisconnect = .none) -> Bool {
-    
-    // exit if no Radio selected
-    guard let packet = packet else { return false }
+  func connectRadio(_ packet: DiscoveryPacket, isGui: Bool = true, pendingDisconnect: Api.PendingDisconnect = .none) {
     
     // connect to the radio
-    return _api.connect(packet,
-                        station           : Logger.kAppName,
-                        program           : Logger.kAppName,
-                        clientId          : _clientId,
-                        isGui             : isGui,
-                        wanHandle         : packet.wanHandle,
-                        pendingDisconnect : pendingDisconnect)
+    _api.connect(packet,
+                 station           : Logger.kAppName,
+                 program           : Logger.kAppName,
+                 clientId          : _clientId,
+                 isGui             : isGui,
+                 wanHandle         : packet.wanHandle,
+                 pendingDisconnect : pendingDisconnect)
   }
 
   // ----------------------------------------------------------------------------
@@ -181,34 +179,20 @@ public final class RadioManager : NSObject {
   @objc private func tcpDidDisconnect(_ note: Notification) {
     
     // get the reason
-    let reason = note.object as! Api.DisconnectReason
+    let reason = note.object as! String
     
     // TCP connection disconnected
-    var explanation: String = ""
-    switch reason {
+    if reason != "User Initiated" {
       
-    case .normal:
-      
-      // FIXME: ????
-      
-      //      closeRadio(_api.radio!.discoveryPacket)
-      return
-      
-    case .error(let errorMessage):
-      explanation = errorMessage
+      // alert if other than normal
+      DispatchQueue.main.sync {
+        let alert = NSAlert()
+        alert.alertStyle = .informational
+        alert.messageText = "xSDR6000 has been disconnected."
+        alert.informativeText = reason
+        alert.addButton(withTitle: "Ok")
+        alert.beginSheetModal(for: NSApplication.shared.mainWindow!, completionHandler: { (response) in })
+      }
     }
-    // alert if other than normal
-    DispatchQueue.main.sync {
-      let alert = NSAlert()
-      alert.alertStyle = .informational
-      alert.messageText = "xSDR6000 has been disconnected."
-      alert.informativeText = explanation
-      alert.addButton(withTitle: "Ok")
-      alert.beginSheetModal(for: NSApplication.shared.mainWindow!, completionHandler: { (response) in })
-      // perform an orderly disconnect of all the components
-      _api.disconnect(reason: .normal)
-    }
-
-    _api.disconnect()
   }
 }

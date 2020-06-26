@@ -148,7 +148,7 @@ final class RadioPickerViewController : NSViewController, NSTableViewDelegate, N
   @IBAction func quitRadio(_ sender: Any) {
     
     // perform an orderly disconnect of all the components
-    if Api.sharedInstance.apiState != .disconnected { Api.sharedInstance.disconnect(reason: .normal) }
+    if Api.sharedInstance.state != .clientDisconnected { Api.sharedInstance.disconnect(reason: "User Initiated") }
     
     dismiss(self)
     

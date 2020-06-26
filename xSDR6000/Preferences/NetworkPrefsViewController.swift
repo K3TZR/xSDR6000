@@ -89,7 +89,7 @@ final class NetworkPrefsViewController: NSViewController {
     sleep(1)
     
     // perform an orderly disconnect of all the components
-    Api.sharedInstance.disconnect(reason: .normal)
+    Api.sharedInstance.disconnect(reason: "Reboot")
   }
 
   // ----------------------------------------------------------------------------

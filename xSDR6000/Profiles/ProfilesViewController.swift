@@ -57,7 +57,7 @@ final class ProfilesViewController: NSViewController, NSTableViewDelegate, NSTab
   // MARK: - Private properties
 
   // state that could be sourced from a delegate
-  private let _log          = Logger.sharedInstance
+  private let _log          = Logger.sharedInstance.logMessage
   private let _api          = Api.sharedInstance
   private var _profiles     : [ProfileId: Profile] { _api.radio!.profiles}
   private var _profileType  : String {
@@ -80,6 +80,7 @@ final class ProfilesViewController: NSViewController, NSTableViewDelegate, NSTab
     super.viewDidLoad()
     
     view.translatesAutoresizingMaskIntoConstraints = false
+    _log("Profiles window opened", .debug, #function, #file, #line)
   }
   
   override func viewWillAppear() {
@@ -100,6 +101,10 @@ final class ProfilesViewController: NSViewController, NSTableViewDelegate, NSTab
     super.viewWillDisappear()
     
     view.window!.saveFrame(usingName: ProfilesViewController.autosaveName)
+  }
+  
+  deinit {
+    _log("Profiles window closed", .debug, #function, #file, #line)
   }
   
   // ----------------------------------------------------------------------------
@@ -146,9 +151,9 @@ final class ProfilesViewController: NSViewController, NSTableViewDelegate, NSTab
   @IBAction func quitRadio(_ sender: Any) {
     
     // perform an orderly disconnect of all the components
-    if _api.apiState != .disconnected { _api.disconnect(reason: .normal) }
+    if _api.state != .clientDisconnected { _api.disconnect(reason: "User Initiated") }
     
-    _log.logMessage("Application closed by user", .info,  #function, #file, #line)
+    _log("Application closed by user", .info,  #function, #file, #line)
     DispatchQueue.main.async {
 
       // close the app
@@ -212,7 +217,7 @@ final class ProfilesViewController: NSViewController, NSTableViewDelegate, NSTab
   // MARK: - Private methods that could be in a delegate
   
   private func loadProfile(_ type: String, name: String) {
-    _log.logMessage("Load profile: \(type)->\(name)", .debug, #function, #file, #line)
+    _log("Load profile: \(type)->\(name)", .debug, #function, #file, #line)
     _api.radio!.sendCommand("profile \(type) load \"" + "\(name)" + "\"")
   }
 
@@ -226,7 +231,7 @@ final class ProfilesViewController: NSViewController, NSTableViewDelegate, NSTab
     }
     guard cmd != "" else { return }
 
-    _log.logMessage("Create profile: \(type)->\(name)", .debug, #function, #file, #line)
+    _log("Create profile: \(type)->\(name)", .debug, #function, #file, #line)
     _api.radio!.sendCommand(cmd)
   }
 
@@ -240,7 +245,7 @@ final class ProfilesViewController: NSViewController, NSTableViewDelegate, NSTab
     }
     guard cmd != "" else { return }
 
-    _log.logMessage("Reset profile: \(type)->\(name)", .debug, #function, #file, #line)
+    _log("Reset profile: \(type)->\(name)", .debug, #function, #file, #line)
     _api.radio!.sendCommand(cmd)
   }
 
@@ -255,7 +260,7 @@ final class ProfilesViewController: NSViewController, NSTableViewDelegate, NSTab
     }
     guard cmd != "" else { return }
 
-    _log.logMessage("Delete profile: \(type)->\(name)", .debug, #function, #file, #line)
+    _log("Delete profile: \(type)->\(name)", .debug, #function, #file, #line)
     _api.radio!.sendCommand(cmd)
   }
 

@@ -87,6 +87,8 @@ final class MainWindowController                  : NSWindowController, NSWindow
     
     title()
     
+    startupMessage()
+    
     // create the Radio Manager
     _radioManager = RadioManager(delegate: self)
         
@@ -95,17 +97,25 @@ final class MainWindowController                  : NSWindowController, NSWindow
     findDefault()
   }
   
+  func windowShouldClose(_ sender: NSWindow) -> Bool {
+    
+    quitXsdr6000(sender)
+    return false
+  }
+  
   // ----------------------------------------------------------------------------
   // MARK: - Action methods
   
   // ----- Buttons -----
   
   @IBAction func connectButton(_ sender: NSButton) {
+
     if sender.title == "Connect" {
+      _connectButton.isEnabled = false
       // find & open the default (if any)
       findDefault()
     } else {
-      if Api.sharedInstance.apiState != .disconnected { Api.sharedInstance.disconnect(reason: .normal) }
+      if Api.sharedInstance.state != .clientDisconnected { Api.sharedInstance.disconnect(reason: "User Initiated") }
     }
   }
   
@@ -188,18 +198,9 @@ final class MainWindowController                  : NSWindowController, NSWindow
   @IBAction func panMenu(_ sender: NSMenuItem) {
     panButton(self)
   }
-  
-  @IBAction func quitRadio(_ sender: Any) {
     
-    // perform an orderly disconnect of all the components
-    if Api.sharedInstance.apiState != .disconnected { Api.sharedInstance.disconnect(reason: .normal) }
-    
-    _log("Application closed by user", .info,  #function, #file, #line)
-    DispatchQueue.main.async {
-      
-      // close the app
-      NSApp.terminate(sender)
-    }
+  @IBAction func quitxSDR6000Menu(_ sender: Any) {
+    quitXsdr6000(sender)
   }
   
   @IBAction func radioSelectionMenu(_ sender: AnyObject) {
@@ -236,14 +237,46 @@ final class MainWindowController                  : NSWindowController, NSWindow
     Api.sharedInstance.radio!.tnfsEnabled = sender.boolState
   }
   
-  @IBAction func terminate(_ sender: AnyObject) {
-    
-    quitRadio(self)
-  }
-  
   // ----------------------------------------------------------------------------
   // MARK: - Private methods
   
+  private func startupMessage() {
+    
+    if Defaults.showStartupMessage {
+      
+      DispatchQueue.main.async {
+        let alert = NSAlert()
+        alert.messageText = "Please help 👇"
+        alert.informativeText =
+        """
+        xSDR600 is starting to be useable for some even though it's far from complete.
+        
+        I want to focus on "stability" for the next few releases. I need feedback from users. If you see a bug or experience a crash, please take a minute to report it to:
+        
+        douglas.adams@me.com
+        
+        If possible, include a copy of the log(s) found in:
+        
+        ~/Library/Application Support/net.k3tzr.xSDR6000/Logs/
+        
+        Thank you for your help! 👍
+        """
+        alert.alertStyle = .informational
+        alert.showsSuppressionButton = true
+        alert.runModal()
+        Defaults.showStartupMessage = !alert.suppressionButton!.boolState
+      }
+    }
+  }
+  
+  private func quitXsdr6000(_ sender: Any) {
+    _log("Application closed by user", .info,  #function, #file, #line)
+
+    // perform an orderly disconnect of all the components
+    if Api.sharedInstance.state != .clientDisconnected { Api.sharedInstance.disconnect(reason: "User Initiated") }
+
+    NSApp.terminate(nil)
+  }
   /// Open the Side view
   ///
   private func openSideView() {
@@ -301,7 +334,7 @@ final class MainWindowController                  : NSWindowController, NSWindow
     }
   }
   /// Check if the default radio is in DiscoveredRadios
-  /// - Returns: found / NOT found
+  /// - Returns: Bool for found / NOT found
   ///
   private func checkForDefault() -> Bool {
     return Discovery.sharedInstance.defaultFound( Defaults.defaultRadio ) != nil
@@ -324,6 +357,7 @@ final class MainWindowController                  : NSWindowController, NSWindow
   private func openRadio(_ packet: DiscoveryPacket) {
     
     _log("OpenRadio initiated: \(packet.nickname)", .debug, #function, #file, #line)
+    DispatchQueue.main.async { self._connectButton.isEnabled = false }
     
     let status = packet.status.lowercased()
     let guiCount = packet.guiClients.count
@@ -336,7 +370,7 @@ final class MainWindowController                  : NSWindowController, NSWindow
     switch (isNewApi, status, guiCount) {
       
     case (false, kAvailable, _):          // oldApi, not connected to another client
-      _ = _radioManager.connectRadio(packet)
+      _radioManager.connectRadio(packet)
       
     case (false, kInUse, _):              // oldApi, connected to another client
       DispatchQueue.main.async {
@@ -353,7 +387,7 @@ final class MainWindowController                  : NSWindowController, NSWindow
           
           switch response {
           case NSApplication.ModalResponse.alertFirstButtonReturn:
-            _ = self._radioManager.connectRadio(packet, pendingDisconnect: .oldApi)
+            self._radioManager.connectRadio(packet, pendingDisconnect: .oldApi)
             sleep(1)
             self._api.disconnect()
             sleep(1)
@@ -365,7 +399,7 @@ final class MainWindowController                  : NSWindowController, NSWindow
         })}
       
     case (true, kAvailable, 0):           // newApi, not connected to another client
-      _ = _radioManager.connectRadio(packet)
+      _radioManager.connectRadio(packet)
       
     case (true, kAvailable, _):           // newApi, connected to another client
       DispatchQueue.main.async {
@@ -387,8 +421,8 @@ final class MainWindowController                  : NSWindowController, NSWindow
           // close the connected Radio if the YES button pressed
           
           switch response {
-          case NSApplication.ModalResponse.alertFirstButtonReturn:  _ = self._radioManager.connectRadio(packet, pendingDisconnect: .newApi(handle: handles[0]))
-          case NSApplication.ModalResponse.alertSecondButtonReturn: _ = self._radioManager.connectRadio(packet)
+          case NSApplication.ModalResponse.alertFirstButtonReturn:  self._radioManager.connectRadio(packet, pendingDisconnect: .newApi(handle: handles[0]))
+          case NSApplication.ModalResponse.alertSecondButtonReturn: self._radioManager.connectRadio(packet)
           default:  break
           }
         })}
@@ -412,8 +446,8 @@ final class MainWindowController                  : NSWindowController, NSWindow
         alert.beginSheetModal(for: NSApplication.shared.mainWindow!, completionHandler: { (response) in
           
           switch response {
-          case NSApplication.ModalResponse.alertFirstButtonReturn:  _ = self._radioManager.connectRadio(packet, pendingDisconnect: .newApi(handle: handles[0]))
-          case NSApplication.ModalResponse.alertSecondButtonReturn: _ = self._radioManager.connectRadio(packet, pendingDisconnect: .newApi(handle: handles[1]))
+          case NSApplication.ModalResponse.alertFirstButtonReturn:  self._radioManager.connectRadio(packet, pendingDisconnect: .newApi(handle: handles[0]))
+          case NSApplication.ModalResponse.alertSecondButtonReturn: self._radioManager.connectRadio(packet, pendingDisconnect: .newApi(handle: handles[1]))
           default:  break
           }
         })}
@@ -468,7 +502,7 @@ final class MainWindowController                  : NSWindowController, NSWindow
             // close the connected Radio if the YES button pressed
             
             switch response {
-            case NSApplication.ModalResponse.alertFirstButtonReturn:  self._api.disconnectClient( packet: discoveryPacket, handle: handles[0])
+            case NSApplication.ModalResponse.alertFirstButtonReturn:  self._api.requestClientDisconnect( packet: discoveryPacket, handle: handles[0])
             case NSApplication.ModalResponse.alertSecondButtonReturn: self.disconnectApplication()
             default:  break
             }
@@ -501,8 +535,8 @@ final class MainWindowController                  : NSWindowController, NSWindow
         alert.beginSheetModal(for: NSApplication.shared.mainWindow!, completionHandler: { (response) in
           
           switch response {
-          case NSApplication.ModalResponse.alertFirstButtonReturn:  self._api.disconnectClient( packet: discoveryPacket, handle: handles[0])
-          case NSApplication.ModalResponse.alertSecondButtonReturn: self._api.disconnectClient( packet: discoveryPacket, handle: handles[1])
+          case NSApplication.ModalResponse.alertFirstButtonReturn:  self._api.requestClientDisconnect( packet: discoveryPacket, handle: handles[0])
+          case NSApplication.ModalResponse.alertSecondButtonReturn: self._api.requestClientDisconnect( packet: discoveryPacket, handle: handles[1])
           case NSApplication.ModalResponse.alertThirdButtonReturn:  self.disconnectApplication()
           default:  break
           }
@@ -534,7 +568,7 @@ final class MainWindowController                  : NSWindowController, NSWindow
     // what API version?
     if _api.radio!.version.isNewApi {
       // NewApi
-      _api.radio!.remoteRxAudioStreamRemove(for: _api.connectionHandle!)
+      _api.radio!.removeRemoteRxAudioStream(for: _api.connectionHandle!)
     } else {
       // OldApi
       Api.sharedInstance.radio!.startStopOpusRxAudioStream(state: false)
@@ -545,7 +579,7 @@ final class MainWindowController                  : NSWindowController, NSWindow
   ///
   private func disconnectApplication() {
     // perform an orderly disconnect of all the components
-    _api.disconnect(reason: .normal)
+    _api.disconnect(reason: "User Initiated")
   }
   /// Set the Window's title
   ///
@@ -669,6 +703,8 @@ final class MainWindowController                  : NSWindowController, NSWindow
       self?._lineoutMuteButton.boolState      = radio.lineoutMute
       self?._headphoneGainSlider.integerValue = radio.headphoneGain
       self?._headphoneMuteButton.boolState    = radio.headphoneMute
+      
+      self?._connectButton.isEnabled = true
     }
   }
   
@@ -688,7 +724,7 @@ final class MainWindowController                  : NSWindowController, NSWindow
     NC.makeObserver(self, with: #selector(radioHasBeenRemoved(_:)), of: .radioHasBeenRemoved)
 
     NC.makeObserver(self, with: #selector(tcpPingFirstResponse(_:)), of: .tcpPingFirstResponse)
-    
+
     NC.makeObserver(self, with: #selector(opusAudioStreamHasBeenAdded(_:)), of: .opusAudioStreamHasBeenAdded)
     NC.makeObserver(self, with: #selector(opusAudioStreamWillBeRemoved(_:)), of: .opusAudioStreamWillBeRemoved)
     
@@ -705,11 +741,6 @@ final class MainWindowController                  : NSWindowController, NSWindow
     if let radio = note.object as? Radio {
       
       _log("Radio initialized: \(radio.nickname), v\(radio.packet.firmwareVersion)", .info,  #function, #file, #line)
-      
-//      enableButtons(true)
-//      setButtonState(radio)
-//      title()
-//      addObservations(of: radio)
     }
   }
   /// Process .radioWillBeRemoved Notification
@@ -725,7 +756,6 @@ final class MainWindowController                  : NSWindowController, NSWindow
       
       _firstPingResponse = false
       enableButtons(false)
-//      setButtonState(nil)
 
       if Defaults.sideViewOpen { closeSideView() }
       removeObservations()
@@ -752,22 +782,18 @@ final class MainWindowController                  : NSWindowController, NSWindow
     // receipt of the first Ping response indicates the Radio is fully initialized
     _firstPingResponse = true
     
-    // delay the opening of the side view (allows Slice(s) to be instantiated, if any)
-    DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + .seconds( kSideViewDelay )) { [weak self] in
+    if let radio = _api.radio {
+      enableButtons(true)
+      title()
       
-      if let radio = self?._api.radio {
-        self?.enableButtons(true)
-        self?.title()
-        
-        self?.addObservations(of: radio)
-        self?.setButtonState(radio)
-        
-        // show/hide the Side view
-        if Defaults.sideViewOpen { self?.openSideView() }
-        
-        // start audio if active
-        if Defaults.macAudioActive { self?.macAudioStart()}
-      }
+      addObservations(of: radio)
+      setButtonState(radio)
+      
+      // show/hide the Side view
+      if Defaults.sideViewOpen { openSideView() }
+      
+      // start audio if active
+      if Defaults.macAudioActive { macAudioStart()}
     }
   }
   /// Process .opusAudioStreamHasBeenAdded Notification
@@ -846,6 +872,8 @@ final class MainWindowController                  : NSWindowController, NSWindow
   ///
   func openSelectedRadio(_ packet: DiscoveryPacket) {
     
+    _connectButton.isEnabled = false
+
     if packet.isWan {
       _radioManager?.openWanRadio(packet)
     } else {

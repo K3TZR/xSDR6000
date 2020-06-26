@@ -321,9 +321,26 @@ final class WaterfallViewController               : NSViewController, NSGestureR
   ///
   private func addNotifications() {
 
-    // only receive removal Notifications sent by this Waterfall
+//    NC.makeObserver(self, with: #selector(radioWillBeRemoved(_:)), of: .radioWillBeRemoved, object: nil)
+    
+    // only receive removal Notifications sent by this view's Waterfall
     NC.makeObserver(self, with: #selector(waterfallWillBeRemoved(_:)), of: .waterfallWillBeRemoved, object: _waterfall!)
   }
+  /// Process .radioWillBeRemoved Notification
+  ///
+  /// - Parameter note:       a Notification instance
+  ///
+//  @objc private func radioWillBeRemoved(_ note: Notification) {
+//
+//    // stop processing this Waterfall's stream
+//    _waterfall!.delegate = nil
+//
+//    // YES, log the event
+//    _log.logMessage("Waterfall stream stopped: id = \(_waterfall!.id.hex)", .debug, #function, #file, #line)
+//
+//    // invalidate Base property observations
+//    invalidateObservations(&_baseObservations)
+//  }
   /// Process .waterfallWillBeRemoved Notification
   ///
   /// - Parameter note:         a Notification instance

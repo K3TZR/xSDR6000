@@ -622,8 +622,11 @@ final class PanadapterViewController        : NSViewController, NSGestureRecogni
     
     NC.makeObserver(self, with: #selector(frameDidChange(_:)), of: NSView.frameDidChangeNotification.rawValue, object: view)
 
-    NC.makeObserver(self, with: #selector(panadapterWillBeRemoved(_:)), of: .panadapterWillBeRemoved, object: _panadapter)
+//    NC.makeObserver(self, with: #selector(radioWillBeRemoved(_:)), of: .radioWillBeRemoved)
     
+    // only receive removal Notifications sent by this view's Panadapter
+    NC.makeObserver(self, with: #selector(panadapterWillBeRemoved(_:)), of: .panadapterWillBeRemoved, object: _panadapter)
+
     NC.makeObserver(self, with: #selector(tnfHasBeenAdded(_:)), of: .tnfHasBeenAdded)
     
     NC.makeObserver(self, with: #selector(tnfWillBeRemoved(_:)), of: .tnfWillBeRemoved)
@@ -636,7 +639,6 @@ final class PanadapterViewController        : NSViewController, NSGestureRecogni
   ///
   @objc private func frameDidChange(_ note: Notification) {
     
-
     // tell the Panadapter to tell the Radio the current dimensions
     _panadapter?.xPixels = view.frame.width
     _panadapter?.yPixels = view.frame.height
@@ -646,6 +648,21 @@ final class PanadapterViewController        : NSViewController, NSGestureRecogni
     
     positionFlags()
   }
+  /// Process .radioWillBeRemoved Notification
+  ///
+  /// - Parameter note:       a Notification instance
+  ///
+//  @objc private func radioWillBeRemoved(_ note: Notification) {
+//
+//    // stop processing this Panadapter's stream
+//    _panadapter!.delegate = nil
+//
+//    // YES, log the event
+//    _log.logMessage("Panadapter stream stopped: id = \(_panadapter!.id.hex)", .debug, #function, #file, #line)
+//
+//    // invalidate Base property observations
+//    invalidateObservations(&_baseObservations)
+//  }
   /// Process .panadapterWillBeRemoved Notification
   ///
   /// - Parameter note:       a Notification instance
@@ -655,7 +672,7 @@ final class PanadapterViewController        : NSViewController, NSGestureRecogni
     // does the Notification contain a Panadapter object?
     if let panadapter = note.object as? Panadapter {
       
-      // stop processing Panadapter streams
+      // stop processing this Panadapter's stream
       panadapter.delegate = nil
       
       // YES, log the event

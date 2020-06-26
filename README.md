@@ -53,10 +53,6 @@ Please send any bugs / comments / questions to douglas.adams@me.com
 
 ## Evolution
 
-Please see ChangeLog.txt for a running list of changes.
-
-This version currently supports Radios using the Flex v2 API. A Future version of this library will support all Radio versions.
-
 Flex Radios can have one of four different version groups:
 *  v1.x.x, the v1 API - untested at this time
 *  v2.0.x thru v2.4.9, the v2 API <<-- CURRENTLY SUPPORTED
@@ -82,6 +78,11 @@ xLib6000 Package:
 OpusOSX, framework built from sources at:
 
 * https://opus-codec.org/downloads/
+
+
+## 1.2.5 Release Notes
+
+*
 
 
 ## 1.2.4 Release Notes
