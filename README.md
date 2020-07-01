@@ -82,7 +82,9 @@ OpusOSX, framework built from sources at:
 
 ## 1.2.5 Release Notes
 
-*
+* added Startup Alert
+* updated Help
+* minor edits & code cleanup
 
 
 ## 1.2.4 Release Notes

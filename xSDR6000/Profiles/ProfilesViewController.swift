@@ -148,18 +148,19 @@ final class ProfilesViewController: NSViewController, NSTableViewDelegate, NSTab
     }
   }
 
-  @IBAction func quitRadio(_ sender: Any) {
-    
-    // perform an orderly disconnect of all the components
-    if _api.state != .clientDisconnected { _api.disconnect(reason: "User Initiated") }
-    
-    _log("Application closed by user", .info,  #function, #file, #line)
-    DispatchQueue.main.async {
-
-      // close the app
-      NSApp.terminate(sender)
-    }
-  }
+//  @IBAction func quitRadio(_ sender: Any) {
+//    
+//    // perform an orderly disconnect of all the components
+//    if _api.state != .clientDisconnected { _api.disconnect(reason: "User Initiated") }
+//    
+//    _log("Application closed by user", .info,  #function, #file, #line)
+//    DispatchQueue.main.async {
+//
+//      
+//      // close the app
+//      NSApp.terminate(sender)
+//    }
+//  }
 
   func controlTextDidChange(_ obj: Notification) {
     _createButton.isEnabled = (_nameTextField.stringValue != "")

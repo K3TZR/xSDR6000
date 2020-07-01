@@ -98,8 +98,9 @@ final class MainWindowController                  : NSWindowController, NSWindow
   }
   
   func windowShouldClose(_ sender: NSWindow) -> Bool {
+
+    DispatchQueue.main.async { self.quitApplication(sender) }
     
-    quitXsdr6000(sender)
     return false
   }
   
@@ -109,7 +110,6 @@ final class MainWindowController                  : NSWindowController, NSWindow
   // ----- Buttons -----
   
   @IBAction func connectButton(_ sender: NSButton) {
-
     if sender.title == "Connect" {
       _connectButton.isEnabled = false
       // find & open the default (if any)
@@ -152,8 +152,8 @@ final class MainWindowController                  : NSWindowController, NSWindow
     _radioMenu?.item(title: "Markers On/Off")?.boolState = sender.boolState
     Defaults.markersEnabled = sender.boolState
   }
-    @IBAction func panButton(_ sender: AnyObject) {
-    
+  
+  @IBAction func panButton(_ sender: AnyObject) {
     // dimensions are dummy values; when created, will be resized to fit its view
     Api.sharedInstance.radio?.requestPanadapter(CGSize(width: 50, height: 50))
   }
@@ -182,7 +182,6 @@ final class MainWindowController                  : NSWindowController, NSWindow
   }
   
   @IBAction func nextSliceMenu(_ sender: NSMenuItem) {
-    
     if let slice = Api.sharedInstance.radio!.findActiveSlice() {
       let slicesOnThisPan = Api.sharedInstance.radio!.slices.values.sorted { $0.frequency < $1.frequency }
       var index = slicesOnThisPan.firstIndex(of: slice)!
@@ -200,7 +199,7 @@ final class MainWindowController                  : NSWindowController, NSWindow
   }
     
   @IBAction func quitxSDR6000Menu(_ sender: Any) {
-    quitXsdr6000(sender)
+    quitApplication(sender)
   }
   
   @IBAction func radioSelectionMenu(_ sender: AnyObject) {
@@ -220,7 +219,6 @@ final class MainWindowController                  : NSWindowController, NSWindow
   }
 
   @IBAction func smartLinkMenu(_ sender: NSMenuItem) {
-    
     sender.boolState.toggle()
     Defaults.smartLinkEnabled = sender.boolState
     if sender.boolState == false {
@@ -269,8 +267,10 @@ final class MainWindowController                  : NSWindowController, NSWindow
     }
   }
   
-  private func quitXsdr6000(_ sender: Any) {
+  private func quitApplication(_ sender: Any) {
     _log("Application closed by user", .info,  #function, #file, #line)
+
+    usleep(50_000)
 
     // perform an orderly disconnect of all the components
     if Api.sharedInstance.state != .clientDisconnected { Api.sharedInstance.disconnect(reason: "User Initiated") }

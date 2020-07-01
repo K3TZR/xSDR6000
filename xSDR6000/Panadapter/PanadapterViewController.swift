@@ -86,6 +86,10 @@ final class PanadapterViewController        : NSViewController, NSGestureRecogni
   override func viewDidLoad() {
     super.viewDidLoad()
     
+    // configure the Metal view
+    _panadapterView.isPaused = (Defaults.panadapterEnabled == false)
+    _panadapterView.enableSetNeedsDisplay = false
+    
     // determine how the various views are blended on screen
     _panadapterView.compositingFilter = kFilter
     _dbLegendView.compositingFilter = kFilter
@@ -147,10 +151,10 @@ final class PanadapterViewController        : NSViewController, NSGestureRecogni
     } else {
       
       let alert = NSAlert()
-      alert.alertStyle = .warning
+      alert.alertStyle = .critical
       alert.messageText = "This Mac does not support Metal graphics."
       alert.informativeText = """
-      Metal is required by xSDR6000 for the Panadapter & Waterfall displays.
+      Metal is required for the Panadapter & Waterfall displays.
       """
       alert.addButton(withTitle: "Ok")
       alert.runModal()
@@ -376,35 +380,35 @@ final class PanadapterViewController        : NSViewController, NSGestureRecogni
     var current  : (isOnLeft: Bool, freqPosition: CGFloat) = (true, 0.0)
     var previous : (isOnLeft: Bool, freqPosition: CGFloat) = (true, 0.0)
 
-    // sort the Flags from left to right
-    for flagVc in _flags.values.sorted(by: {$0.slice!.frequency < $1.slice!.frequency}) {
-      
-      // calculate the frequency's position
-      current.freqPosition = CGFloat(flagVc.slice!.frequency - _start) / _hzPerUnit
-      
-      let flagWidth = flagVc.smallFlagDisplayed ? FlagViewController.kSmallFlagWidth : FlagViewController.kLargeFlagWidth
-      
-      // is there room for the Flag on the left?
-      if previous.isOnLeft {
-        current.isOnLeft = current.freqPosition - previous.freqPosition > flagWidth + FlagViewController.kFlagOffset
-      } else {
-        current.isOnLeft = current.freqPosition - previous.freqPosition > 2 * (flagWidth + FlagViewController.kFlagOffset) + FlagViewController.kFlagMinimumSeparation
-      }
+    DispatchQueue.main.async {
+      // sort the Flags from left to right
+      for flagVc in self._flags.values.sorted(by: {$0.slice!.frequency < $1.slice!.frequency}) {
+        
+        // calculate the frequency's position
+        current.freqPosition = CGFloat(flagVc.slice!.frequency - self._start) / self._hzPerUnit
+        
+        let flagWidth = flagVc.smallFlagDisplayed ? FlagViewController.kSmallFlagWidth : FlagViewController.kLargeFlagWidth
+        
+        // is there room for the Flag on the left?
+        if previous.isOnLeft {
+          current.isOnLeft = current.freqPosition - previous.freqPosition > flagWidth + FlagViewController.kFlagOffset
+        } else {
+          current.isOnLeft = current.freqPosition - previous.freqPosition > 2 * (flagWidth + FlagViewController.kFlagOffset) + FlagViewController.kFlagMinimumSeparation
+        }
         flagVc.isOnLeft = current.isOnLeft
         
         // Flag position based on room for it
         let flagPosition = (current.isOnLeft ? current.freqPosition - flagWidth - FlagViewController.kFlagOffset : current.freqPosition + FlagViewController.kFlagOffset)
-
-      DispatchQueue.main.async {
+        
         flagVc.flagXPositionConstraint?.isActive = false
         flagVc.flagXPositionConstraint?.constant = flagPosition
         flagVc.flagXPositionConstraint?.isActive = true
         
         // enable/disable the Split button on the Flag (a Split can't create another Split)
         flagVc.isaSplit = self.splitCheck(flagVc.slice!.id)
+        // make the current State the previous one
+        previous = current
       }
-      // make the current State the previous one
-      previous = current
     }
   }
 
@@ -674,7 +678,10 @@ final class PanadapterViewController        : NSViewController, NSGestureRecogni
       
       // stop processing this Panadapter's stream
       panadapter.delegate = nil
-      
+      _frequencyLegendView = nil
+      _dbLegendView = nil
+      _panadapterView = nil
+
       // YES, log the event
       _log.logMessage("Panadapter will be removed: id = \(panadapter.id.hex)", .info, #function, #file, #line)
       

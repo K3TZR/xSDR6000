@@ -355,6 +355,8 @@ extension WaterfallRenderer                 : StreamHandler {
     
     _isDrawing.wait()
     
+    if _constants.numberOfBufferLines != 0 {
+    
     // decrement the Top Line
     _constants.topLineIndex = (_constants.topLineIndex == 0 ? _constants.numberOfBufferLines - 1 : _constants.topLineIndex - 1)
 
@@ -373,10 +375,11 @@ extension WaterfallRenderer                 : StreamHandler {
     memcpy(_lineBuffer.contents().advanced(by: Int(_constants.topLineIndex) * MemoryLayout<Line>.stride), &firstBinFrequency, MemoryLayout<Float>.size)
     memcpy(_lineBuffer.contents().advanced(by: Int(_constants.topLineIndex) * MemoryLayout<Line>.stride + MemoryLayout<Float>.stride), &binBandWidth, MemoryLayout<Float>.size)
 
-    _waterDrawQ.async { [unowned self] in
-      autoreleasepool {
-        self._metalView.draw()
-      }
+//    _waterDrawQ.async { [unowned self] in
+//      autoreleasepool {
+//        self._metalView.draw()
+//      }
+//    }
     }
     _isDrawing.signal()
   }

@@ -28,11 +28,83 @@ public class Logger : LogHandler {
   
   private var logLevel : XCGLogger.Level = .debug
   
-  // lazy setup of the XCGLogger
-  lazy var log: XCGLogger = {
-    
-    // Create a logger object with no destinations
-    let log = XCGLogger(identifier: Logger.kLoggerName, includeDefaultDestinations: false)
+  private var _objectQ = DispatchQueue(label: "xSDR6000.Logger.objectQ", attributes: [.concurrent])
+  
+  var log : XCGLogger {
+    get { _objectQ.sync { _log } }
+    set { _objectQ.sync(flags: .barrier) {_log = newValue }}}
+
+  private var _log : XCGLogger = XCGLogger(identifier: Logger.kLoggerName, includeDefaultDestinations: false)
+  
+//  // lazy setup of the XCGLogger
+//  lazy var log: XCGLogger = {
+//
+//    // Create a logger object with no destinations
+//    let log = XCGLogger(identifier: Logger.kLoggerName, includeDefaultDestinations: false)
+//
+//    #if DEBUG
+//
+//    // for DEBUG only
+//    // Create a destination for the system console log (via NSLog)
+//    let systemDestination = AppleSystemLogDestination(identifier: Logger.kLoggerName + ".systemDestination")
+//
+//    // Optionally set some configuration options
+//    systemDestination.outputLevel           = logLevel
+//    systemDestination.showLogIdentifier     = false
+//    systemDestination.showFileName          = false
+//    systemDestination.showFunctionName      = false
+//    systemDestination.showThreadName        = false
+//    systemDestination.showLevel             = true
+//    systemDestination.showLineNumber        = false
+//
+//    // Add the destination to the logger
+//    log.add(destination: systemDestination)
+//
+//    #endif
+//
+//    // Create a file log destination
+//    let fileDestination = AutoRotatingFileDestination(writeToFile: URL.logs.appendingPathComponent(Logger.kLogFile), identifier: Logger.kLoggerName + ".autoRotatingFileDestination")
+//
+//    // Optionally set some configuration options
+//    fileDestination.targetMaxFileSize       = Logger.kMaxFileSize
+//    fileDestination.targetMaxLogFiles       = Logger.kMaxLogFiles
+//    fileDestination.outputLevel             = logLevel
+//    fileDestination.showLogIdentifier       = false
+//    fileDestination.showFileName            = false
+//    fileDestination.showFunctionName        = false
+//    fileDestination.showThreadName          = false
+//    fileDestination.showLevel               = true
+//    fileDestination.showLineNumber          = false
+//
+//    fileDestination.showDate                = true
+//
+//    // Process this destination in the background
+//    fileDestination.logQueue = XCGLogger.logQueue
+//
+//    // Add the destination to the logger
+//    log.add(destination: fileDestination)
+//
+//    // Add basic app info, version info etc, to the start of the logs
+//    log.logAppDetails()
+//
+//    // format the date (only effects the file logging)
+//    let dateFormatter = DateFormatter()
+//    dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss:SSS"
+//    dateFormatter.locale = Locale.current
+//    log.dateFormatter = dateFormatter
+//
+//    return log
+//  }()
+
+  
+  // ----------------------------------------------------------------------------
+  // MARK: - Singleton
+  
+  /// Provide access to the Logger singleton
+  ///
+  public static var sharedInstance = Logger()
+  
+  private init() {
     
     #if DEBUG
     
@@ -84,17 +156,7 @@ public class Logger : LogHandler {
     dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss:SSS"
     dateFormatter.locale = Locale.current
     log.dateFormatter = dateFormatter
-    
-    return log
-  }()
-
-  
-  // ----------------------------------------------------------------------------
-  // MARK: - Singleton
-  
-  /// Provide access to the Logger singleton
-  ///
-  public static var sharedInstance = Logger()
+  }
   
   // ----------------------------------------------------------------------------
   // MARK: - LogHandlerDelegate methods
@@ -111,26 +173,26 @@ public class Logger : LogHandler {
   public func logMessage(_ msg: String, _ level: MessageLevel, _ function: StaticString, _ file: StaticString, _ line: Int) -> Void {
     
     // Log Handler to support XCGLogger    
-    DispatchQueue.main.async { [weak self] in
+//    DispatchQueue.main.async { [weak self] in
       switch level {
       case .verbose:
-        self?.log.verbose(msg, functionName: function, fileName: file, lineNumber: line )
+        log.verbose(msg, functionName: function, fileName: file, lineNumber: line )
         
       case .debug:
-        self?.log.debug(msg, functionName: function, fileName: file, lineNumber: line)
+        log.debug(msg, functionName: function, fileName: file, lineNumber: line)
         
       case .info:
-        self?.log.info(msg, functionName: function, fileName: file, lineNumber: line)
+        log.info(msg, functionName: function, fileName: file, lineNumber: line)
         
       case .warning:
-        self?.log.warning(msg, functionName: function, fileName: file, lineNumber: line)
+        log.warning(msg, functionName: function, fileName: file, lineNumber: line)
         
       case .error:
-        self?.log.error(msg, functionName: function, fileName: file, lineNumber: line)
+        log.error(msg, functionName: function, fileName: file, lineNumber: line)
         
       case .severe:
-        self?.log.severe(msg, functionName: function, fileName: file, lineNumber: line)
+        log.severe(msg, functionName: function, fileName: file, lineNumber: line)
       }
-    }
+//    }
   }
 }

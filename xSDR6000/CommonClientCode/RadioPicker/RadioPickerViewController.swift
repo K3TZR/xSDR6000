@@ -145,18 +145,19 @@ final class RadioPickerViewController : NSViewController, NSTableViewDelegate, N
     // FIXME: Hide / Show Top of Picker
   }
   
-  @IBAction func quitRadio(_ sender: Any) {
-    
-    // perform an orderly disconnect of all the components
-    if Api.sharedInstance.state != .clientDisconnected { Api.sharedInstance.disconnect(reason: "User Initiated") }
-    
-    dismiss(self)
-    
-    DispatchQueue.main.async {
-      // close the app
-      NSApp.terminate(sender)
-    }
-  }
+//  @IBAction func quitRadio(_ sender: Any) {
+//    
+//    // perform an orderly disconnect of all the components
+//    if Api.sharedInstance.state != .clientDisconnected { Api.sharedInstance.disconnect(reason: "User Initiated") }
+//    
+//    dismiss(self)
+//    
+//    DispatchQueue.main.async {
+//      // close the app
+//      
+//      NSApp.terminate(sender)
+//    }
+//  }
 
   // ----------------------------------------------------------------------------
   // MARK: - Private methods

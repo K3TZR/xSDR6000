@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="16096" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="16097" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="16096"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="16097"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -212,8 +212,8 @@
             <objects>
                 <splitViewController identifier="Panafall View Controller" storyboardIdentifier="Panafall" id="cCR-9u-87r" userLabel="Panafall" customClass="PanafallViewController" customModule="xSDR6000" customModuleProvider="target" sceneMemberID="viewController">
                     <splitViewItems>
-                        <splitViewItem id="wXf-R0-54b"/>
-                        <splitViewItem id="dLv-AJ-50i"/>
+                        <splitViewItem id="zQO-dI-T06"/>
+                        <splitViewItem id="AEi-w2-Wai"/>
                     </splitViewItems>
                     <splitView key="splitView" identifier="Panafall Split view" autosaveName="Panafall" dividerStyle="thin" id="eSL-4j-ZUz">
                         <rect key="frame" x="0.0" y="0.0" width="450" height="300"/>
@@ -223,10 +223,10 @@
                         </connections>
                     </splitView>
                     <connections>
-                        <outlet property="_panadapterSplitViewItem" destination="wXf-R0-54b" id="DP3-uA-hAs"/>
+                        <outlet property="_panadapterSplitViewItem" destination="zQO-dI-T06" id="cn8-0E-ldy"/>
                         <outlet property="splitView" destination="eSL-4j-ZUz" id="gOi-si-VQa"/>
-                        <segue destination="ywe-lT-40r" kind="relationship" relationship="splitItems" id="Hyh-u7-Jvc"/>
-                        <segue destination="3e5-8Z-HZ9" kind="relationship" relationship="splitItems" id="4Z0-NF-j0f"/>
+                        <segue destination="ywe-lT-40r" kind="relationship" relationship="splitItems" id="34K-Ns-SGG"/>
+                        <segue destination="3e5-8Z-HZ9" kind="relationship" relationship="splitItems" id="Kxe-hF-FPU"/>
                     </connections>
                 </splitViewController>
                 <customObject id="Aag-md-jQQ" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>

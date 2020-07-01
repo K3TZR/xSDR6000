@@ -72,6 +72,10 @@ extension DefaultsKeys {
   var dbLegendSpacings         : DefaultsKey<[String]>       { .init("dbLegendSpacings", defaultValue: ["5","10","15","20"])}
   var timeLegendSpacing        : DefaultsKey<String>         { .init("timeLegendSpacing", defaultValue: "5")}
   var timeLegendSpacings       : DefaultsKey<[String]>       { .init("timeLegendSpacings", defaultValue: ["5","10","20","30","60"])}
+
+  // debug settings
+  var panadapterEnabled        : DefaultsKey<Bool>           { .init("panadapterEnabled", defaultValue: true)}
+  var waterfallEnabled         : DefaultsKey<Bool>           { .init("waterfallEnabled", defaultValue: true)}
 }
 
 

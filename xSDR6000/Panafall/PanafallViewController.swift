@@ -30,7 +30,7 @@ final class PanafallViewController          : NSSplitViewController, NSGestureRe
   private var _end                          : Int { _center + (_bandwidth/2) }
   private var _hzPerUnit                    : CGFloat { CGFloat(_end - _start) / view.frame.width }
   
-  private weak var _panadapterViewController  : PanadapterViewController? { return _panadapterSplitViewItem.viewController as? PanadapterViewController }
+  private weak var _panadapterViewController  : PanadapterViewController? { _panadapterSplitViewItem.viewController as? PanadapterViewController }
   
   private var _rightClick                   : NSClickGestureRecognizer!
   private let kLeftButton                   = 0x01                          // masks for Gesture Recognizers
@@ -59,8 +59,8 @@ final class PanafallViewController          : NSSplitViewController, NSGestureRe
     super.viewDidLoad()
     
     splitView.delegate = self
-    splitViewItems[0].minimumThickness = 20
-    splitViewItems[1].minimumThickness = 20
+    
+    splitViewItems.forEach {$0.minimumThickness = 20}
 
     // setup Right Single Click recognizer
     _rightClick = NSClickGestureRecognizer(target: self, action: #selector(rightClick(_:)))
@@ -175,10 +175,10 @@ final class PanafallViewController          : NSSplitViewController, NSGestureRe
       menu.insertItem(NSMenuItem.separator(), at: index)
 
       index += 1
-      item = menu.insertItem(withTitle: tnf.frequency.hzToMhz + " MHz", action: #selector(noAction(_:)), keyEquivalent: "", at: index)
+      item = menu.insertItem(withTitle: tnf.frequency.hzToMhz + " MHz", action: nil, keyEquivalent: "", at: index)
 
       index += 1
-      item = menu.insertItem(withTitle: "Width: \(tnf.width) Hz", action: #selector(noAction(_:)), keyEquivalent: "", at: index)
+      item = menu.insertItem(withTitle: "Width: \(tnf.width) Hz", action: nil, keyEquivalent: "", at: index)
 
       index += 1
       menu.insertItem(NSMenuItem.separator(), at: 4)
@@ -266,12 +266,6 @@ final class PanafallViewController          : NSSplitViewController, NSGestureRe
     default:
       break
     }
-  }
-  /// Perform the appropriate action
-  ///
-  /// - Parameter sender: a MenuItem
-  ///
-  @objc private func noAction(_ sender: NSMenuItem) {
   }
   /// Incr/decr the Slice frequency (scroll panafall at edges)
   ///

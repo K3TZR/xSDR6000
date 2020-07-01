@@ -77,27 +77,29 @@ final class WaterfallViewController               : NSViewController, NSGestureR
     super.viewDidLoad()
     
     _waterfallRenderer = WaterfallRenderer(view: _waterfallView, radio: Api.sharedInstance.radio!, panadapter: panadapter!)
-    
-    _waterfallView.isPaused = true
+
+    // configure the Metal view
+    _waterfallView.isPaused = (Defaults.waterfallEnabled == false)
     _waterfallView.enableSetNeedsDisplay = false
-    
+
     // setup
     if let device = makeDevice(for: _waterfallView) {
-      
+
       _waterfallRenderer.setConstants()
       _waterfallRenderer.setup(device: device)
-      
+
       _waterfallView.delegate = _waterfallRenderer
       _waterfallView.clearColor = Colors.clearColor
-      
+
       // setup the gradient texture
       _waterfallRenderer.setGradient( loadGradient(index: _waterfall!.gradientIndex) )
-      
+
       addObservations()
       addNotifications()
-      
+
       // make the Renderer the Stream Handler
-      DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + .seconds(3), execute: {  self._waterfall?.delegate = self._waterfallRenderer })
+//      DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + .seconds(3), execute: {  self._waterfall?.delegate = self._waterfallRenderer })
+      self._waterfall?.delegate = self._waterfallRenderer
     }
   }
 
@@ -117,7 +119,7 @@ final class WaterfallViewController               : NSViewController, NSGestureR
   ///
   /// - Parameter panadapter:               a Panadapter reference
   ///
-  func configure(panadapter: Panadapter, waterfall: Waterfall) {
+  func configure(panadapter: Panadapter?, waterfall: Waterfall?) {
     self.panadapter = panadapter
     self._waterfall = waterfall
   }

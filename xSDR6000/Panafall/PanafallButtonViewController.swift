@@ -34,12 +34,15 @@ final class PanafallButtonViewController    : NSViewController {
   private let kAntennaPopoverIdentifier     = "AntennaPopover"
   private let kDisplayPopoverIdentifier     = "DisplayPopover"
   private let kDaxPopoverIdentifier         = "DaxPopover"
-
-  private let kPanadapterSplitViewItem      = 0
-  private let kWaterfallSplitViewItem       = 1
   
   // ----------------------------------------------------------------------------
   // MARK: - Overridden methods
+  
+  override func awakeFromNib() {
+    super.awakeFromNib()
+    
+  }
+  
   
   /// Prepare to execute a Segue
   ///
@@ -55,22 +58,18 @@ final class PanafallButtonViewController    : NSViewController {
       
     case kPanafallEmbedIdentifier:                            // this will always occur first
       
-      // pass a copy of the Params
-      (segue.destinationController as! NSViewController).representedObject = representedObject
-      
       // save a reference to the Panafall view controller
       let panafallViewController = segue.destinationController as? PanafallViewController
-      
+
       // pass needed parameters
       panafallViewController!.configure(radio: _radio, panadapter: _panadapter)
-      
+            
       // save a reference to the panadapterViewController & waterfallViewController
-      let panadapterViewController = panafallViewController!.splitViewItems[kPanadapterSplitViewItem].viewController as? PanadapterViewController
-      let waterfallViewController = panafallViewController!.splitViewItems[kWaterfallSplitViewItem].viewController as? WaterfallViewController
-      
-      // pass needed parameters
+      let panadapterViewController = panafallViewController!.splitViewItems[0].viewController as? PanadapterViewController
       panadapterViewController!.configure(panadapter: _panadapter)
-      waterfallViewController!.configure(panadapter: _panadapter!, waterfall: _waterfall!)
+
+      let waterfallViewController = panafallViewController!.splitViewItems[1].viewController as? WaterfallViewController
+      waterfallViewController!.configure(panadapter: _panadapter, waterfall: _waterfall)
       
     case kDisplayPopoverIdentifier:
       

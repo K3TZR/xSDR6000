@@ -103,10 +103,6 @@ public final class PanadapterRenderer       : NSObject {
     
     _metalView = view
     
-    // configure the Metal view to be drawn on demand only
-    _metalView.isPaused = true
-    _metalView.enableSetNeedsDisplay = false
-    
     super.init()
     
     // set the Metal view Clear color
@@ -300,10 +296,10 @@ extension PanadapterRenderer                : StreamHandler {
     // put the Intensities into the current Spectrum Buffer
     _spectrumBuffers[_currentFrameIndex].contents().copyMemory(from: streamFrame.bins, byteCount: streamFrame.totalBins * MemoryLayout<ushort>.stride)
     
-    _panDrawQ.async { [unowned self] in
-      autoreleasepool {
-        self._metalView.draw()
-      }
-    }
+//    _panDrawQ.async { [unowned self] in
+//      autoreleasepool {
+//        self._metalView.draw()
+//      }
+//    }
   }
 }
