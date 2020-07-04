@@ -125,7 +125,6 @@
 		91534CB1244C9A3000F9895F /* RadioPickerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RadioPickerViewController.swift; sourceTree = "<group>"; };
 		91537D89245CEEDC000BE1C8 /* LogViewerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogViewerViewController.swift; sourceTree = "<group>"; };
 		916E98A6246196E700287335 /* WanManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WanManager.swift; sourceTree = "<group>"; };
-		9174EE1524A687B700845FD3 /* xLib6000 */ = {isa = PBXFileReference; lastKnownFileType = folder; name = xLib6000; path = ../xLib6000; sourceTree = "<group>"; };
 		919614F423D28DB50069AE94 /* xSDR6000-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "xSDR6000-Bridging-Header.h"; sourceTree = "<group>"; };
 		919614F523D28DB50069AE94 /* xSDR6000.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = xSDR6000.entitlements; sourceTree = "<group>"; };
 		919614F623D28F8F0069AE94 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
@@ -249,7 +248,6 @@
 		91E477E823B66661004DA6A7 = {
 			isa = PBXGroup;
 			children = (
-				9174EE1524A687B700845FD3 /* xLib6000 */,
 				91B1D24B241FC4DD00A7B5E4 /* project.xcworkspace */,
 				919614F623D28F8F0069AE94 /* README.md */,
 				91E4780523B666ED004DA6A7 /* OpusOSX.framework */,

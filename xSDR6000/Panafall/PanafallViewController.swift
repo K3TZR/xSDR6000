@@ -14,6 +14,9 @@ import xLib6000
 // --------------------------------------------------------------------------------
 
 final class PanafallViewController          : NSSplitViewController, NSGestureRecognizerDelegate {
+
+ // ----------------------------------------------------------------------------
+ // MARK: - Static properties
  
   static let kEdgeTolerance                 : CGFloat = 0.1                 // percent of bandwidth
 
@@ -22,22 +25,15 @@ final class PanafallViewController          : NSSplitViewController, NSGestureRe
   
   @IBOutlet private weak var _panadapterSplitViewItem: NSSplitViewItem!
   
-  private weak var _radio                   : Radio?
-  private weak var _panadapter              : Panadapter?
-  private var _center                       : Int { _panadapter!.center }
-  private var _bandwidth                    : Int { _panadapter!.bandwidth }
-  private var _start                        : Int { _center - (_bandwidth/2) }
-  private var _end                          : Int { _center + (_bandwidth/2) }
-  private var _hzPerUnit                    : CGFloat { CGFloat(_end - _start) / view.frame.width }
+  private var _p                            : Params {representedObject as! Params}
+  private var _hzPerUnit                    : CGFloat { CGFloat(_p.end - _p.start) / view.frame.width }
   
   private weak var _panadapterViewController  : PanadapterViewController? { _panadapterSplitViewItem.viewController as? PanadapterViewController }
   
   private var _rightClick                   : NSClickGestureRecognizer!
   private let kLeftButton                   = 0x01                          // masks for Gesture Recognizers
   private let kRightButton                  = 0x02
-
   private let kButtonViewWidth              : CGFloat = 75                  // Width of ButtonView when open
-  
   private let kCreateSlice                  = "Create Slice"                // Menu titles
   private let kRemoveSlice                  = "Remove Slice"
   private let kCreateTnf                    = "Create Tnf"
@@ -46,7 +42,6 @@ final class PanafallViewController          : NSSplitViewController, NSGestureRe
   private let kNormalTnf                    = "Normal"
   private let kDeepTnf                      = "Deep"
   private let kVeryDeepTnf                  = "Very Deep"
-
   private let kTnfFindWidth: CGFloat        = 0.01                          // * bandwidth = Tnf tolerance multiplier
   private let kSliceFindWidth: CGFloat      = 0.01                          // * bandwidth = Slice tolerance multiplier
 
@@ -60,7 +55,7 @@ final class PanafallViewController          : NSSplitViewController, NSGestureRe
     
     splitView.delegate = self
     
-    splitViewItems.forEach {$0.minimumThickness = 20}
+    splitViewItems.forEach { $0.minimumThickness = 20 }
 
     // setup Right Single Click recognizer
     _rightClick = NSClickGestureRecognizer(target: self, action: #selector(rightClick(_:)))
@@ -69,7 +64,7 @@ final class PanafallViewController          : NSSplitViewController, NSGestureRe
     splitView.addGestureRecognizer(_rightClick)
     
     // save the divider position
-    splitView.autosaveName = "Panadapter \(_panadapter?.id.hex ?? "0x99999999")"
+    splitView.autosaveName = "Panadapter \(_p.panadapter.id.hex)"
   }
 
   override func splitView(_ splitView: NSSplitView, canCollapseSubview subview: NSView) -> Bool {
@@ -88,7 +83,7 @@ final class PanafallViewController          : NSSplitViewController, NSGestureRe
     if theEvent.deltaY != 0 {
       
       // find the Active Slice
-      if let slice = Api.sharedInstance.radio!.findActiveSlice(on: _panadapter!.id) {
+      if let slice = Api.sharedInstance.radio!.findActiveSlice(on: _p.panadapter.id) {
         
         // use the Slice's step value, unless the Shift key is down
         var step = slice.step
@@ -118,19 +113,6 @@ final class PanafallViewController          : NSSplitViewController, NSGestureRe
   }
 
   // ----------------------------------------------------------------------------
-  // MARK: - Internal methods
-  
-  /// Configure needed parameters
-  ///
-  /// - Parameter panadapter:               a Panadapter reference
-  ///
-  func configure(radio: Radio?, panadapter: Panadapter?) {
-    
-    _radio = radio
-    _panadapter = panadapter
-  }
-
-  // ----------------------------------------------------------------------------
   // MARK: - Private methods  
   
   /// Respond to a Right Click gesture
@@ -148,10 +130,10 @@ final class PanafallViewController          : NSSplitViewController, NSGestureRe
     let menu = NSMenu(title: "Panadapter")
     
     // calculate the frequency
-    let mouseFrequency = Int(mouseLocation.x * _hzPerUnit) + _start
+    let mouseFrequency = Int(mouseLocation.x * _hzPerUnit) + _p.start
     
     // is the Frequency inside a Slice?
-    let slice = Api.sharedInstance.radio!.findSlice(on: _panadapter!.id, at: mouseFrequency, width: Int( CGFloat(_bandwidth) * kSliceFindWidth ))
+    let slice = Api.sharedInstance.radio!.findSlice(on: _p.panadapter.id, at: mouseFrequency, width: Int( CGFloat(_p.bandwidth) * kSliceFindWidth ))
     if let slice = slice {
       
       // YES, mouse is in a Slice
@@ -168,7 +150,7 @@ final class PanafallViewController          : NSSplitViewController, NSGestureRe
     }
     
     // is the Frequency inside a Tnf?
-    let tnf = Api.sharedInstance.radio!.findTnf(at: Hz(mouseFrequency), minWidth: Hz( CGFloat(_bandwidth) * kTnfFindWidth ))
+    let tnf = Api.sharedInstance.radio!.findTnf(at: Hz(mouseFrequency), minWidth: Hz( CGFloat(_p.bandwidth) * kTnfFindWidth ))
     if let tnf = tnf {
       // YES, mouse is in a TNF
       index += 1
@@ -238,14 +220,14 @@ final class PanafallViewController          : NSSplitViewController, NSGestureRe
       
     case kCreateSlice:        // tell the Radio to create a new Slice
       let freq = (sender.representedObject! as! NSNumber).intValue
-      _radio?.requestSlice(panadapter: _panadapter!, frequency: freq)
+      _p.radio.requestSlice(panadapter: _p.panadapter, frequency: freq)
       
     case kRemoveSlice:        // tell the Radio to remove the Slice
      (sender.representedObject as! xLib6000.Slice).remove()
       
     case kCreateTnf:          // tell the Radio to create a new Tnf
       let frequency = (sender.representedObject! as! NSNumber).intValue
-      _radio?.requestTnf(at: frequency)
+      _p.radio.requestTnf(at: frequency)
       
     case kRemoveTnf:          // tell the Radio to remove the Tnf
       let tnf = sender.representedObject as! Tnf
@@ -299,16 +281,16 @@ final class PanafallViewController          : NSSplitViewController, NSGestureRe
     // moving which way?
     if incr > 0 {
       // UP, too close to the high end?
-      isTooClose = center > _end - Int(PanafallViewController.kEdgeTolerance * CGFloat(_bandwidth))
+      isTooClose = center > _p.end - Int(PanafallViewController.kEdgeTolerance * CGFloat(_p.bandwidth))
 
     } else {
       // DOWN, too close to the low end?
-      isTooClose = center + incr < _start + Int(PanafallViewController.kEdgeTolerance * CGFloat(_bandwidth))
+      isTooClose = center + incr < _p.start + Int(PanafallViewController.kEdgeTolerance * CGFloat(_p.bandwidth))
     }
     // is the new freq too close to an edge?
     if isTooClose  {
       // YES, adjust the panafall center frequency (scroll the Panafall)
-      _panadapter!.center += incr
+      _p.panadapter.center += incr
 
       _panadapterViewController?.redrawFrequencyLegend()
     }

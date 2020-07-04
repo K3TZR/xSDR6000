@@ -18,9 +18,10 @@ final class AntennaViewController           : NSViewController, NSPopoverDelegat
   @IBOutlet private weak var _loopAButton   : NSButton!
   @IBOutlet private weak var _rfGainSlider  : NSSlider!
 
-  private var _panadapter                   : Panadapter { representedObject as! Panadapter }
-  
+  private var _inUse                        = false
   private var _isDetached                   = false
+  private var _p                            : Params!
+  private var _timer                        : DispatchSourceTimer!
 
   // ----------------------------------------------------------------------------
   // MARK: - Overridden methods
@@ -36,51 +37,59 @@ final class AntennaViewController           : NSViewController, NSPopoverDelegat
     case .flex6600, .flex6600m: _rfGainSlider.minValue = -8   ; _rfGainSlider.maxValue = 32 ; _rfGainSlider.numberOfTickMarks = 6
     case .flex6700:             _rfGainSlider.minValue = -10  ; _rfGainSlider.maxValue = 40 ; _rfGainSlider.numberOfTickMarks = 6
     case .none:                 _rfGainSlider.minValue = 0    ; _rfGainSlider.maxValue = 20 ; _rfGainSlider.numberOfTickMarks = 3
-      
     }
+    _rxAntPopUp.addItems(withTitles: _p.panadapter.antList)
     
-    _rxAntPopUp.addItems(withTitles: _panadapter.antList)
-    
-    // start observing
     addObservations()
-
-    // start the timer
-    DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + .seconds(PanafallButtonViewController.kTimeout)) {
-      if !self._isDetached { self.dismiss(nil) }
-    }
+    startTimer()
   }
   
   func popoverShouldDetach(_ popover: NSPopover) -> Bool {
     _isDetached = true
     return true
   }
+  
+  // ----------------------------------------------------------------------------
+  // MARK: - Internal methods
+  
+  func configure(params: Params) {
+    _p = params
+  }
+
+  func startTimer() {
+    // create and schedule a timer
+    _timer = DispatchSource.makeTimerSource(flags: [])
+    _timer.schedule(deadline: DispatchTime.now() + 5, repeating: .seconds(3), leeway: .seconds(1))
+    _timer.setEventHandler { [ unowned self] in
+      // dismiss if not detached or not in use
+      if !self._isDetached {
+        if self._inUse {
+          self._inUse = false
+        } else {
+          DispatchQueue.main.async { self.dismiss(nil) }
+        }
+      }
+    }
+    // start the timer
+    _timer.resume()
+  }
 
   // ----------------------------------------------------------------------------
   // MARK: - Action methods
   
-  /// Respond to the LoopA button
-  ///
-  /// - Parameter sender:         the button
-  ///
   @IBAction func loopAButton(_ sender: NSButton) {
-    
-    _panadapter.loopAEnabled = sender.boolState
+    _p.panadapter.loopAEnabled = sender.boolState
+    _inUse = true
   }
-  /// Respond to the rxAnt popup
-  ///
-  /// - Parameter sender:         the popup
-  ///
+
   @IBAction func rxAntPopUp(_ sender: NSPopUpButton) {
-  
-      _panadapter.rxAnt = sender.titleOfSelectedItem!
+    _p.panadapter.rxAnt = sender.titleOfSelectedItem!
+    _inUse = true
   }
-  /// Respond to the rfGain slider
-  ///
-  /// - Parameter sender:         the slider
-  ///
+
   @IBAction func rfGainSlider(_ sender: NSSlider) {
-    
-    _panadapter.rfGain = sender.integerValue
+    _p.panadapter.rfGain = sender.integerValue
+    _inUse = true
   }
 
   // ----------------------------------------------------------------------------
@@ -93,13 +102,13 @@ final class AntennaViewController           : NSViewController, NSPopoverDelegat
   private func addObservations() {
     
     _observations = [
-      _panadapter.observe(\.rxAnt, options: [.initial, .new]) { [weak self] (object, change) in
+      _p.panadapter.observe(\.rxAnt, options: [.initial, .new]) { [weak self] (object, change) in
         self?.changeHandler(object, change) },
       
-      _panadapter.observe(\.loopAEnabled, options: [.initial, .new]) { [weak self] (object, change) in
+      _p.panadapter.observe(\.loopAEnabled, options: [.initial, .new]) { [weak self] (object, change) in
         self?.changeHandler(object, change) },
       
-      _panadapter.observe(\.rfGain, options: [.initial, .new]) { [weak self] (object, change) in
+      _p.panadapter.observe(\.rfGain, options: [.initial, .new]) { [weak self] (object, change) in
         self?.changeHandler(object, change) }
     ]
   }

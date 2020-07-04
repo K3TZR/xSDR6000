@@ -46,17 +46,12 @@ final class PanadapterViewController        : NSViewController, NSGestureRecogni
   @IBOutlet private weak var _dbLegendView        : DbLegendView!
   @IBOutlet private weak var _panadapterView      : MTKView!
 
-  private weak var _radio                   = Api.sharedInstance.radio
-  private weak var _panadapter              : Panadapter?
+  private var _p                            : Params { representedObject as! Params}
+  private var _hzPerUnit                    : CGFloat { CGFloat(_p.end - _p.start) / _p.panadapter.xPixels }
+
   private var _flags                        = [SliceId:FlagViewController]()
   private var _panadapterRenderer           : PanadapterRenderer!
-  private let _log                          = Logger.sharedInstance
 
-  private var _center                       : Int { _panadapter!.center }
-  private var _bandwidth                    : Int { _panadapter!.bandwidth }
-  private var _start                        : Int { _center - (_bandwidth/2) }
-  private var _end                          : Int  { _center + (_bandwidth/2) }
-  private var _hzPerUnit                    : CGFloat { CGFloat(_end - _start) / _panadapter!.xPixels }
   
   // gesture recognizer related
   private var _clickLeft                    : NSClickGestureRecognizer!
@@ -99,12 +94,12 @@ final class PanadapterViewController        : NSViewController, NSGestureRecogni
     _panadapterRenderer = PanadapterRenderer(view: _panadapterView, clearColor: Defaults.spectrumBackground)
 
     // tell the Panadapter to tell the Radio the current dimensions
-    _panadapter?.xPixels = view.frame.width
-    _panadapter?.yPixels = view.frame.height
-    
+    _p.panadapter.xPixels = view.frame.width
+    _p.panadapter.yPixels = view.frame.height
+
     // setup
     if let device = makeDevice(view: _panadapterView) {
-    
+
       _panadapterRenderer.setConstants(size: view.frame.size)
       _panadapterRenderer.setup(device: device)
 
@@ -138,18 +133,18 @@ final class PanadapterViewController        : NSViewController, NSGestureRecogni
       _frequencyLegendView.addGestureRecognizer(_panBandwidth)
 
       // pass a reference to the Panadapter
-      _frequencyLegendView.configure(panadapter: _panadapter)
-      _dbLegendView.configure(panadapter: _panadapter)
+      _frequencyLegendView.configure(panadapter: _p.panadapter)
+      _dbLegendView.configure(panadapter: _p.panadapter)
 
       setupObservations()
-      
-      _panadapter?.fillLevel = Defaults.spectrumFillLevel
+
+      _p.panadapter.fillLevel = Defaults.spectrumFillLevel
 
       // make the Renderer the Stream Handler
-      _panadapter?.delegate = _panadapterRenderer
+      _p.panadapter.delegate = _panadapterRenderer
 
     } else {
-      
+
       let alert = NSAlert()
       alert.alertStyle = .critical
       alert.messageText = "This Mac does not support Metal graphics."
@@ -169,9 +164,12 @@ final class PanadapterViewController        : NSViewController, NSGestureRecogni
   ///
   /// - Parameter panadapter:               a Panadapter reference
   ///
-  func configure(panadapter: Panadapter?) {
-    self._panadapter = panadapter
-  }
+//  func configure(panadapter: Panadapter?) {
+//    self._panadapter = panadapter
+//  }
+//  func configure(params: Params) {
+//    _p = params
+//  }
   /// start observations & Notification
   ///
   private func setupObservations() {
@@ -237,7 +235,7 @@ final class PanadapterViewController        : NSViewController, NSGestureRecogni
 
       // calculate start's percent of width & it's frequency
       _dr.percent = _dr.current.x / view.frame.width
-      _dr.frequency = (_dr.percent * CGFloat(_bandwidth)) + CGFloat(_start)
+      _dr.frequency = (_dr.percent * CGFloat(_p.bandwidth)) + CGFloat(_p.start)
 
       _dr.object = nil
 
@@ -347,18 +345,19 @@ final class PanadapterViewController        : NSViewController, NSGestureRecogni
     let mouseLocation = gr.location(in: view)
 
     // calculate the frequency
-    let clickFrequency = (mouseLocation.x * _hzPerUnit) + CGFloat(_start)
+    let clickFrequency = (mouseLocation.x * _hzPerUnit) + CGFloat(_p.start)
 
     // is there a Slice at the clickFrequency?
     
     // is there a Slice at the indicated freq?
     if let slice = hitTestSlice(at: clickFrequency, thisPanOnly: true) {
-
+      // YES, make it active
       activateSlice(slice)
     
-    } else if let slice = Api.sharedInstance.radio!.findActiveSlice(on: _panadapter!.id) {
+    // is there a slice on this pan?
+    } else if let slice = Api.sharedInstance.radio!.findActiveSlice(on: _p.panadapter.id) {
         
-        // YES, force it to the nearest step value
+        // YES, move it to the nearest step value
         let delta = Int(clickFrequency) % slice.step
         if delta >= slice.step / 2 {
           
@@ -385,7 +384,7 @@ final class PanadapterViewController        : NSViewController, NSGestureRecogni
       for flagVc in self._flags.values.sorted(by: {$0.slice!.frequency < $1.slice!.frequency}) {
         
         // calculate the frequency's position
-        current.freqPosition = CGFloat(flagVc.slice!.frequency - self._start) / self._hzPerUnit
+        current.freqPosition = CGFloat(flagVc.slice!.frequency - self._p.start) / self._hzPerUnit
         
         let flagWidth = flagVc.smallFlagDisplayed ? FlagViewController.kSmallFlagWidth : FlagViewController.kLargeFlagWidth
         
@@ -445,12 +444,12 @@ final class PanadapterViewController        : NSViewController, NSGestureRecogni
     var hitSlice: xLib6000.Slice?
 
     // calculate a minimum width for hit testing
-    let effectiveWidth = Int( CGFloat(_bandwidth) * 0.01)
+    let effectiveWidth = Int( CGFloat(_p.bandwidth) * 0.01)
     
-    for (_, slice) in _radio!.slices {
+    for (_, slice) in _p.radio.slices {
       
       // only Slices on this Panadapter?
-      if thisPanOnly && slice.panadapterId != _panadapter!.id {
+      if thisPanOnly && slice.panadapterId != _p.panadapter.id {
         
         // YES, skip this Slice
         continue
@@ -472,10 +471,10 @@ final class PanadapterViewController        : NSViewController, NSGestureRecogni
   ///
   private func activateSlice(_ slice: xLib6000.Slice) {
 
-    // make the active Slice (if any) inactive
-    _radio!.slices.first(where: { $0.value.active} )?.value.active = false
+    // make all other Slices (if any) inactive
+    _p.radio.slices.forEach { $0.value.active = false }
 
-    // make the "hit" Slice active
+    // make the specified Slice active
     slice.active = true
   }
   /// Find the Tnf at or near a frequency (if any)
@@ -487,9 +486,9 @@ final class PanadapterViewController        : NSViewController, NSGestureRecogni
     var tnf: Tnf? = nil
     
     // calculate a minimum width for hit testing
-    let effectiveWidth = Hz( CGFloat(_bandwidth) * 0.01)
+    let effectiveWidth = Hz( CGFloat(_p.bandwidth) * 0.01)
     
-    _radio!.tnfs.forEach {
+    _p.radio.tnfs.forEach {
       let halfWidth = max(effectiveWidth, $0.value.width/2)
       if $0.value.frequency - halfWidth <= UInt(freq) && $0.value.frequency + halfWidth >= UInt(freq) {
         tnf = $0.value
@@ -511,13 +510,13 @@ final class PanadapterViewController        : NSViewController, NSGestureRecogni
 
     observations = [
       
-      _panadapter!.observe(\.bandwidth, options: [.initial, .new]) { [weak self] (object, change) in
+      _p.panadapter.observe(\.bandwidth, options: [.initial, .new]) { [weak self] (object, change) in
         self?.redrawLegends() },
-      _panadapter!.observe(\.center, options: [.initial, .new]) { [weak self] (object, change) in
+      _p.panadapter.observe(\.center, options: [.initial, .new]) { [weak self] (object, change) in
         self?.redrawLegends() },
-      _radio!.observe(\.tnfsEnabled, options: [.initial, .new]) { [weak self] (object, change) in
+      _p.radio.observe(\.tnfsEnabled, options: [.initial, .new]) { [weak self] (object, change) in
         self?.redrawLegends() },
-      _panadapter!.observe(\.fillLevel, options: [.initial, .new]) { [weak self] (object, change) in
+      _p.panadapter.observe(\.fillLevel, options: [.initial, .new]) { [weak self] (object, change) in
         self?.fillLevel() },
     ]
     
@@ -590,7 +589,7 @@ final class PanadapterViewController        : NSViewController, NSGestureRecogni
   ///
   private func defaultsObserver() {
 
-    _panadapterRenderer.updateColor(spectrumColor: Defaults.spectrum, fillLevel: _panadapter!.fillLevel, fillColor: Defaults.spectrum)
+    _panadapterRenderer.updateColor(spectrumColor: Defaults.spectrum, fillLevel: _p.panadapter.fillLevel, fillColor: Defaults.spectrum)
 
     // Panadapter background color
     _panadapterView.clearColor = Defaults.spectrumBackground.metalClearColor
@@ -599,7 +598,7 @@ final class PanadapterViewController        : NSViewController, NSGestureRecogni
   ///
   private func fillLevel() {
 
-    _panadapterRenderer.updateColor(spectrumColor: Defaults.spectrum, fillLevel: _panadapter!.fillLevel, fillColor: Defaults.spectrum)
+    _panadapterRenderer.updateColor(spectrumColor: Defaults.spectrum, fillLevel: _p.panadapter.fillLevel, fillColor: Defaults.spectrum)
 
     // Panadapter background color
     _panadapterView.clearColor = Defaults.spectrumBackground.metalClearColor
@@ -629,7 +628,7 @@ final class PanadapterViewController        : NSViewController, NSGestureRecogni
 //    NC.makeObserver(self, with: #selector(radioWillBeRemoved(_:)), of: .radioWillBeRemoved)
     
     // only receive removal Notifications sent by this view's Panadapter
-    NC.makeObserver(self, with: #selector(panadapterWillBeRemoved(_:)), of: .panadapterWillBeRemoved, object: _panadapter)
+    NC.makeObserver(self, with: #selector(panadapterWillBeRemoved(_:)), of: .panadapterWillBeRemoved, object: _p.panadapter)
 
     NC.makeObserver(self, with: #selector(tnfHasBeenAdded(_:)), of: .tnfHasBeenAdded)
     
@@ -644,8 +643,8 @@ final class PanadapterViewController        : NSViewController, NSGestureRecogni
   @objc private func frameDidChange(_ note: Notification) {
     
     // tell the Panadapter to tell the Radio the current dimensions
-    _panadapter?.xPixels = view.frame.width
-    _panadapter?.yPixels = view.frame.height
+    _p.panadapter.xPixels = view.frame.width
+    _p.panadapter.yPixels = view.frame.height
 
     // update the Constant values with the new size
     _panadapterRenderer.setConstants(size: view.frame.size)
@@ -676,6 +675,8 @@ final class PanadapterViewController        : NSViewController, NSGestureRecogni
     // does the Notification contain a Panadapter object?
     if let panadapter = note.object as? Panadapter {
       
+      _panadapterView.isPaused = true
+
       // stop processing this Panadapter's stream
       panadapter.delegate = nil
       _frequencyLegendView = nil
@@ -683,7 +684,7 @@ final class PanadapterViewController        : NSViewController, NSGestureRecogni
       _panadapterView = nil
 
       // YES, log the event
-      _log.logMessage("Panadapter will be removed: id = \(panadapter.id.hex)", .info, #function, #file, #line)
+      _p.log("Panadapter will be removed: id = \(panadapter.id.hex)", .info, #function, #file, #line)
       
       // invalidate Base property observations
       invalidateObservations(&_baseObservations)
@@ -699,16 +700,18 @@ final class PanadapterViewController        : NSViewController, NSGestureRecogni
     let slice = note.object as! xLib6000.Slice
     
     // YES, is the slice on this Panadapter?
-    if let panadapter = _panadapter, slice.panadapterId == panadapter.id {
+    if slice.panadapterId == _p.panadapter.id {
       
       // YES, log the event
-      _log.logMessage("Slice added: id = \(slice.id), Panadapter id = \(panadapter.id.hex), Frequency = \(slice.frequency.hzToMhz)", .info, #function, #file, #line)
+      _p.log("Slice added: id = \(slice.id), Panadapter id = \(_p.panadapter.id.hex), Frequency = \(slice.frequency.hzToMhz)", .info, #function, #file, #line)
 
       // observe removal of this Slice
       NC.makeObserver(self, with: #selector(sliceWillBeRemoved(_:)), of: .sliceWillBeRemoved, object: slice)
       
       // add a Flag for this Slice
-      sliceFlag(slice: slice, pan: panadapter, viewController: self)
+      sliceFlag(slice: slice, pan: _p.panadapter, viewController: self)
+      
+      activateSlice(slice)
       
       _frequencyLegendView.redraw()
       
@@ -727,10 +730,10 @@ final class PanadapterViewController        : NSViewController, NSGestureRecogni
     let slice = note.object as! xLib6000.Slice
     
     // YES, is the slice on this Panadapter?
-    if let panadapter = _panadapter, slice.panadapterId == panadapter.id  {
+    if slice.panadapterId == _p.panadapter.id  {
       
       // YES, log the event
-      _log.logMessage("Slice will be removed: id = \(slice.id), pan = \(panadapter.id.hex), freq = \(slice.frequency)", .info, #function, #file, #line)
+      _p.log("Slice will be removed: id = \(slice.id), pan = \(_p.panadapter.id.hex), freq = \(slice.frequency)", .info, #function, #file, #line)
 
       // remove the Flag & Observations of this Slice
       removeFlag(for: slice)
@@ -749,7 +752,7 @@ final class PanadapterViewController        : NSViewController, NSGestureRecogni
     let tnf = note.object as! Tnf
     
     // YES, log the event
-    _log.logMessage("Tnf added: Object id = \(tnf.id), frequency - \(tnf.frequency.hzToMhz)", .info, #function, #file, #line)
+    _p.log("Tnf added: Object id = \(tnf.id), frequency - \(tnf.frequency.hzToMhz)", .info, #function, #file, #line)
 
     // add observations for this Tnf
     addTnfObservations(&_tnfObservations, tnf: tnf)
@@ -767,13 +770,13 @@ final class PanadapterViewController        : NSViewController, NSGestureRecogni
     let tnfToRemove = note.object as! Tnf
     
     // YES, log the event
-    _log.logMessage("Tnf will be removed: id = \(tnfToRemove.id)", .info, #function, #file, #line)
+    _p.log("Tnf will be removed: id = \(tnfToRemove.id)", .info, #function, #file, #line)
 
     // invalidate & remove all of the Tnf observations
     invalidateObservations(&_tnfObservations)
     
     // put back all except the one being removed
-    _radio!.tnfs.forEach { if $0.value != tnfToRemove { addTnfObservations(&_tnfObservations, tnf: $0.value) } }
+    _p.radio.tnfs.forEach { if $0.value != tnfToRemove { addTnfObservations(&_tnfObservations, tnf: $0.value) } }
     
     // force a redraw
     _frequencyLegendView.redraw()
@@ -795,7 +798,7 @@ final class PanadapterViewController        : NSViewController, NSGestureRecogni
       self._flags[slice.id] = flagVc
 
       // determine the Flag x-position
-      let freqPosition = CGFloat(flagVc.slice!.frequency - self._start) / self._hzPerUnit
+      let freqPosition = CGFloat(flagVc.slice!.frequency - self._p.start) / self._hzPerUnit
       let flagPosition = freqPosition - FlagViewController.kLargeFlagWidth - FlagViewController.kFlagOffset
 
       // add the Flag to the view hierarchy

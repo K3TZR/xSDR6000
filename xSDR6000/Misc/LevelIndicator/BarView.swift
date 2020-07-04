@@ -19,7 +19,7 @@ final class BarView                       : NSView {
   // MARK: - Private properties
   
   private var _path                       = NSBezierPath()
-  private var _params                     : Params!
+  private var _params                     : IndicatorParams!
   private var _gradient                   : NSGradient!
   private var _viewType                   : Int!
   
@@ -32,7 +32,7 @@ final class BarView                       : NSView {
   ///   - frameRect:              the rect of the view
   ///   - params:                 a Params struct
   ///
-  convenience init(frame frameRect: NSRect, params: Params, viewType: Int, gradient: NSGradient) {
+  convenience init(frame frameRect: NSRect, params: IndicatorParams, viewType: Int, gradient: NSGradient) {
     
     self.init(frame: frameRect)
     _params = params

@@ -35,10 +35,10 @@ final class DisplayViewController                     : NSViewController, NSPopo
 
   @IBOutlet private weak var _gradientPopUp           : NSPopUpButton!
   
-  private var _panadapter                             : Panadapter?
-  private var _waterfall                              : Waterfall?
-  
+  private var _p                                      : Params!
+  private var _inUse                                  = false
   private var _isDetached                             = false
+  private var _timer                                  : DispatchSourceTimer!
 
   // ----------------------------------------------------------------------------
   // MARK: - Overridden methods
@@ -55,9 +55,7 @@ final class DisplayViewController                     : NSViewController, NSPopo
     addObservations()
 
     // start the timer
-    DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + .seconds(PanafallButtonViewController.kTimeout)) {
-      if !self._isDetached { self.dismiss(nil) }
-    }
+    startTimer()
   }
   
   func popoverShouldDetach(_ popover: NSPopover) -> Bool {
@@ -68,60 +66,70 @@ final class DisplayViewController                     : NSViewController, NSPopo
   // ----------------------------------------------------------------------------
   // MARK: - Internal methods
   
-  func configure(panadapter: Panadapter, waterfall: Waterfall) {
-    _panadapter = panadapter
-    _waterfall = waterfall
+  func configure(params: Params) {
+    _p = params
   }
 
+  func startTimer() {
+    // create and schedule a timer
+    _timer = DispatchSource.makeTimerSource(flags: [])
+    _timer.schedule(deadline: DispatchTime.now() + 5, repeating: .seconds(3), leeway: .seconds(1))
+    _timer.setEventHandler { [ unowned self] in
+      // dismiss if not detached or not in use
+      if !self._isDetached {
+        if self._inUse {
+          self._inUse = false
+        } else {
+          DispatchQueue.main.async { self.dismiss(nil) }
+        }
+      }
+    }
+    // start the timer
+    _timer.resume()
+  }
+  
   // ----------------------------------------------------------------------------
   // MARK: - Action methods
   
-  /// Respond to the Gradient popup
-  ///
-  /// - Parameter sender:         the popup
-  ///
   @IBAction func gradientPopUp(_ sender: NSPopUpButton) {
     
-    _waterfall?.gradientIndex = sender.indexOfSelectedItem
+    _p.waterfall.gradientIndex = sender.indexOfSelectedItem
+    _inUse = true
   }
-  /// Respond to the sliders
-  ///
-  /// - Parameter sender:         the slider
-  ///
+
   @IBAction func sliders(_ sender: NSSlider) {
 
     switch sender.identifier!.rawValue {
     case "average":
-      _panadapter?.average = sender.integerValue
+      _p.panadapter.average = sender.integerValue
     case "frames":
-      _panadapter?.fps = sender.integerValue
+      _p.panadapter.fps = sender.integerValue
     case "fill":
-      _panadapter?.fillLevel = sender.integerValue
+      _p.panadapter.fillLevel = sender.integerValue
       Defaults.spectrumFillLevel = sender.integerValue
     case "colorGain":
-      _waterfall?.colorGain = sender.integerValue
+      _p.waterfall.colorGain = sender.integerValue
     case "blackLevel":
-      _waterfall?.blackLevel = sender.integerValue
+      _p.waterfall.blackLevel = sender.integerValue
     case "lineDuration":
-      _waterfall?.lineDuration = sender.integerValue
+      _p.waterfall.lineDuration = sender.integerValue
     default:
       fatalError()
     }
+    _inUse = true
   }
-  /// Respond to the checkBoxes
-  ///
-  /// - Parameter sender:         the slider
-  ///
+
   @IBAction func checkBoxes(_ sender: NSButton) {
     
     switch sender.identifier!.rawValue {
     case "weightedAverage":
-      _panadapter?.weightedAverageEnabled = sender.boolState
+      _p.panadapter.weightedAverageEnabled = sender.boolState
     case "autoBlack":
-      _waterfall?.autoBlackEnabled = sender.boolState
+      _p.waterfall.autoBlackEnabled = sender.boolState
     default:
       fatalError()
     }
+    _inUse = true
   }
 
   // ----------------------------------------------------------------------------
@@ -130,28 +138,26 @@ final class DisplayViewController                     : NSViewController, NSPopo
   private var _observations                           = [NSKeyValueObservation]()
   private var _defaultsObservations                   = [DefaultsDisposable]()
 
-  /// Add observations of various properties used by the view
-  ///
   private func addObservations() {
     
     _observations = [
-      _panadapter!.observe(\.average, options: [.initial, .new]) { [weak self] (object, change) in
+      _p.panadapter.observe(\.average, options: [.initial, .new]) { [weak self] (object, change) in
         self?.changeHandler(object, change) },
-      _panadapter!.observe(\.fps, options: [.initial, .new]) { [weak self] (object, change) in
+      _p.panadapter.observe(\.fps, options: [.initial, .new]) { [weak self] (object, change) in
         self?.changeHandler(object, change) },
-      _panadapter!.observe(\.fillLevel, options: [.initial, .new]) { [weak self] (object, change) in
+      _p.panadapter.observe(\.fillLevel, options: [.initial, .new]) { [weak self] (object, change) in
         self?.changeHandler(object, change) },
-      _panadapter!.observe(\.weightedAverageEnabled, options: [.initial, .new]) { [weak self] (object, change) in
+      _p.panadapter.observe(\.weightedAverageEnabled, options: [.initial, .new]) { [weak self] (object, change) in
         self?.changeHandler(object, change) },
-      _waterfall!.observe(\.colorGain, options: [.initial, .new]) { [weak self] (object, change) in
+      _p.waterfall.observe(\.colorGain, options: [.initial, .new]) { [weak self] (object, change) in
         self?.changeHandler(object, change) },
-      _waterfall!.observe(\.blackLevel, options: [.initial, .new]) { [weak self] (object, change) in
+      _p.waterfall.observe(\.blackLevel, options: [.initial, .new]) { [weak self] (object, change) in
         self?.changeHandler(object, change) },
-      _waterfall!.observe(\.lineDuration, options: [.initial, .new]) { [weak self] (object, change) in
+      _p.waterfall.observe(\.lineDuration, options: [.initial, .new]) { [weak self] (object, change) in
         self?.changeHandler(object, change) },
-      _waterfall!.observe(\.autoBlackEnabled, options: [.initial, .new]) { [weak self] (object, change) in
+      _p.waterfall.observe(\.autoBlackEnabled, options: [.initial, .new]) { [weak self] (object, change) in
         self?.changeHandler(object, change) },      
-      _waterfall!.observe(\.gradientIndex, options: [.initial, .new]) { [weak self] (object, change) in
+      _p.waterfall.observe(\.gradientIndex, options: [.initial, .new]) { [weak self] (object, change) in
         self?.changeHandler(object, change) }
     ]
     

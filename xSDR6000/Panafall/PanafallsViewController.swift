@@ -9,13 +9,31 @@
 import Cocoa
 import xLib6000
 
+typealias LogFunction = (_ : String, _ : MessageLevel, _ : StaticString, _ : StaticString, _ : Int) -> Void
+
+public struct Params {
+  var api         : Api
+  var log         : LogFunction
+  var radio       : Radio
+  var panadapter  : Panadapter
+  var waterfall   : Waterfall
+  var center      : Int { panadapter.center }
+  var bandwidth   : Int { panadapter.bandwidth }
+  var start       : Int { center - (bandwidth/2) }
+  var end         : Int { center + (bandwidth/2) }
+}
+
 final class PanafallsViewController         : NSSplitViewController {
   
+  // ----------------------------------------------------------------------------
+  // MARK: - Public properties
+  
+
   // ----------------------------------------------------------------------------
   // MARK: - Private properties
   
   private weak var _radio                   : Radio? { Api.sharedInstance.radio }
-  private let _log                          = Logger.sharedInstance
+  private let _log                          = Logger.sharedInstance.logMessage
   private var _sb                           : NSStoryboard?
   private var _api                          = Api.sharedInstance
   
@@ -70,7 +88,7 @@ final class PanafallsViewController         : NSSplitViewController {
     // In V3, check is it for this Client
     if _radio!.version.isOldApi || _radio!.version.isNewApi && panadapter.clientHandle == _api.connectionHandle {
       // log the event
-      _log.logMessage("Panadapter added: id = \(panadapter.id.hex)", .info, #function, #file, #line)
+      _log("Panadapter added: id = \(panadapter.id.hex)", .info, #function, #file, #line)
     }
   }
   /// Process .waterfallHasBeenAdded Notification
@@ -86,7 +104,7 @@ final class PanafallsViewController         : NSSplitViewController {
     // In V3, check is it for this Client
     if  _radio!.version.isOldApi || _radio!.version.isNewApi && waterfall.clientHandle == _api.connectionHandle {
       // log the event
-      _log.logMessage("Waterfall added: id = \(waterfall.id.hex)", .info, #function, #file, #line)
+      _log("Waterfall added: id = \(waterfall.id.hex)", .info, #function, #file, #line)
       
       let panadapter = _api.radio!.panadapters[waterfall.panadapterId]!
       
@@ -97,9 +115,20 @@ final class PanafallsViewController         : NSSplitViewController {
         let panafallButtonVc = _sb!.instantiateController(withIdentifier: kPanafallButtonIdentifier) as! PanafallButtonViewController
         
         // pass needed parameters
-        panafallButtonVc.configure(radio: _api.radio!, panadapter: panadapter, waterfall: waterfall)
-        
+//        panafallButtonVc.configure(radio: _api.radio!, panadapter: panadapter, waterfall: waterfall)
+//        panafallButtonVc.configure(params: Params(api: _api,
+//                                                  log: _log,
+//                                                  radio: _radio!,
+//                                                  panadapter: panadapter,
+//                                                  waterfall: waterfall))
+        panafallButtonVc.representedObject = Params(api: _api,
+                                                    log: _log,
+                                                    radio: _radio!,
+                                                    panadapter: panadapter,
+                                                    waterfall: waterfall)
+
         self?.addSplitViewItem(NSSplitViewItem(viewController: panafallButtonVc))
+        self?.splitView.adjustSubviews()
       }
     }
   }

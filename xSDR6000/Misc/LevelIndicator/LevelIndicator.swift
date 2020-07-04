@@ -10,7 +10,7 @@ import Cocoa
 
 public typealias LegendTuple = (tick: Int?, label: String, fudge: CGFloat)
 
-struct Params {
+struct IndicatorParams {
   var style                 : Int
   var origin                : CGFloat
   var end                   : CGFloat
@@ -154,7 +154,7 @@ final class LevelIndicator                  : NSView {
     }
     
     // populate the parameters
-    let params = Params(
+    let params = IndicatorParams(
       style: _style,
       origin: _origin,
       end: _end,

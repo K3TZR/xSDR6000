@@ -16,10 +16,10 @@ final class DaxIqViewController             : NSViewController, NSPopoverDelegat
   
   @IBOutlet private weak var _daxIqPopUp    : NSPopUpButton!
   
-  private var _panadapter                   : Panadapter {
-    return representedObject as! Panadapter }
-
+  private var _inUse                        = false
   private var _isDetached                   = false
+  private var _p                            : Params!
+  private var _timer                        : DispatchSourceTimer!
 
   // ----------------------------------------------------------------------------
   // MARK: - Overridden methods
@@ -27,32 +27,48 @@ final class DaxIqViewController             : NSViewController, NSPopoverDelegat
   override func viewDidLoad() {
     super.viewDidLoad()
     
-    _daxIqPopUp.addItems(withTitles: _panadapter.daxIqChoices)
+    _daxIqPopUp.addItems(withTitles: _p.panadapter.daxIqChoices)
     
-    // start observing
     addObservations()
-
-    // start the timer
-    DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + .seconds(PanafallButtonViewController.kTimeout)) {
-      if !self._isDetached { self.dismiss(nil) }
-    }
+    startTimer()
   }
 
   func popoverShouldDetach(_ popover: NSPopover) -> Bool {
     _isDetached = true
     return true
   }
-
+  
+  // ----------------------------------------------------------------------------
+  // MARK: - Internal methods
+  
+  func configure(params: Params) {
+    _p = params
+  }
+  
+  func startTimer() {
+    // create and schedule a timer
+    _timer = DispatchSource.makeTimerSource(flags: [])
+    _timer.schedule(deadline: DispatchTime.now() + 5, repeating: .seconds(3), leeway: .seconds(1))
+    _timer.setEventHandler { [ unowned self] in
+      // dismiss if not detached or not in use
+      if !self._isDetached {
+        if self._inUse {
+          self._inUse = false
+        } else {
+          DispatchQueue.main.async { self.dismiss(nil) }
+        }
+      }
+    }
+    // start the timer
+    _timer.resume()
+  }
+  
   // ----------------------------------------------------------------------------
   // MARK: - Action methods
   
-  /// Respond to the rxAnt popup
-  ///
-  /// - Parameter sender:         the popup
-  ///
   @IBAction func daxIqPopUp(_ sender: NSPopUpButton) {
-    
-    _panadapter.daxIqChannel = sender.indexOfSelectedItem
+    _p.panadapter.daxIqChannel = sender.indexOfSelectedItem
+    _inUse = true
   }
   
   // ----------------------------------------------------------------------------
@@ -60,13 +76,12 @@ final class DaxIqViewController             : NSViewController, NSPopoverDelegat
   
   private var _observations                 = [NSKeyValueObservation]()
 
-  /// Add observations of various properties used by the view
-  ///
   private func addObservations() {
-    
     _observations = [
-      _panadapter.observe(\.daxIqChannel, options: [.initial, .new]) { [weak self] (object, change) in
-        self?.changeHandler(object, change) }
+      _p.panadapter.observe(\.daxIqChannel, options: [.initial, .new]) { [weak self] (panadapter, change) in
+        DispatchQueue.main.async { [weak self] in
+          self?._daxIqPopUp.selectItem(at: panadapter.daxIqChannel)
+        }}
     ]
   }
   /// Process observations

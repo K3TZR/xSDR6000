@@ -462,7 +462,11 @@ final class FlagViewController : NSViewController, NSTextFieldDelegate, NSGestur
         if let old = change.oldValue, let new = change.newValue {
           if old == false && new == true {
             self?._log.logMessage("Slice became active: slice \(slice.id )", .debug, #function, #file, #line)
-            NC.post(.sliceBecameActive, object: slice) }}},
+            NC.post(.sliceBecameActive, object: slice) }
+          else {
+            
+          }
+        }},
       
       slice.observe(\.mode, options: [.initial, .new]) { [weak self] (slice, change) in
         DispatchQueue.main.async { self?._modeButton.title = slice.mode }},

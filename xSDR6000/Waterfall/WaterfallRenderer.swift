@@ -11,8 +11,7 @@ import MetalKit
 import xLib6000
 
 public final class WaterfallRenderer: NSObject, MTKViewDelegate {
-  
-  
+    
   //  Vertices    v1  (-1, 1)     |     ( 1, 1)  v3       Texture     v1  ( 0, 0) |---------  ( 1, 0)  v3
   //  (-1 to +1)                  |                       (0 to 1)                |
   //                          ----|----                                           |
@@ -88,14 +87,15 @@ public final class WaterfallRenderer: NSObject, MTKViewDelegate {
   // ----------------------------------------------------------------------------
   // MARK: - Private properties
 
-  private weak var _radio                   : Radio?
-  private weak var _panadapter              : Panadapter?
-  private weak var _waterfall               : Waterfall? { _radio!.waterfalls[_panadapter!.waterfallId] }
-
-  private var _center                       : Hz { _panadapter!.center }
-  private var _bandwidth                    : Hz { _panadapter!.bandwidth }
-  private var _start                        : Hz { _center - (_bandwidth/2) }
-  private var _end                          : Hz  { _center + (_bandwidth/2) }
+  private var _p                            : Params!
+//  private weak var _radio                   : Radio?
+//  private weak var _panadapter              : Panadapter?
+//  private weak var _waterfall               : Waterfall? { _radio!.waterfalls[_panadapter!.waterfallId] }
+//
+//  private var _center                       : Hz { _panadapter!.center }
+//  private var _bandwidth                    : Hz { _panadapter!.bandwidth }
+//  private var _start                        : Hz { _center - (_bandwidth/2) }
+//  private var _end                          : Hz  { _center + (_bandwidth/2) }
   
   private var _metalView                    : MTKView!
   private var _commandQueue                 : MTLCommandQueue!
@@ -116,22 +116,6 @@ public final class WaterfallRenderer: NSObject, MTKViewDelegate {
   private let kVertexShader                 = "waterfall_vertex"
   private let kGradientSize                 = 256
 
-//  private var _visibleLineCount             = 0
-//  private var _sizeOfLine                   = 0
-//  private var _sizeOfIntensities            = 0
-//  private var _activeLines                  : UInt16 = 0
-//  private var _autoBlackLevel               : UInt32 = 0
-// arbitrary choice of a reasonable number of color gradations for the waterfall
-// in real waterfall these are properties that change
-//  static let kEndingBin                     = (kNumberOfBins - 1 - kStartingBin)  // last bin on screen
-//  static let kFrameHeight                   = 270                           // frame height (pixels)
-//  static let kFrameWidth                    = 480                           // frame width (pixels)
-//  static let kNumberOfBins                  = 2048                          // number of stream samples
-//  static let kStartingBin                   = (kNumberOfBins -  kFrameWidth)  / 2 // first bin on screen
-//  private var _numberOfVertices             = 0
-//  private var _first                        = true
-//  private var intensityTestData             = [Intensity]()
-  
   private var _changingSize                 : Bool {
     get { _waterQ.sync { __changingSize } }
     set { _waterQ.sync(flags: .barrier) { __changingSize = newValue } } }
@@ -139,10 +123,6 @@ public final class WaterfallRenderer: NSObject, MTKViewDelegate {
   private var _constants                    : Constants {
     get { _waterQ.sync { __constants } }
     set { _waterQ.sync(flags: .barrier) { __constants = newValue } } }
-
-//  private var _topLine                      : Int {
-//    get { _waterQ.sync { __topLine } }
-//    set { _waterQ.sync(flags: .barrier) { __topLine = newValue } } }
 
   // ----------------------------------------------------------------------------
   // *** Backing properties (Do NOT use) ***
@@ -154,11 +134,10 @@ public final class WaterfallRenderer: NSObject, MTKViewDelegate {
   // ----------------------------------------------------------------------------
   // MARK: - Initialization
   
-  init(view: MTKView, radio: Radio, panadapter: Panadapter) {
+  init(view: MTKView, params: Params) {
     
     _metalView = view
-    _radio = radio
-    _panadapter = panadapter
+    _p = params
     
     super.init()
   }
@@ -240,8 +219,8 @@ public final class WaterfallRenderer: NSObject, MTKViewDelegate {
       self._constants.numberOfBufferLines = UInt16(WaterfallRenderer.kMaxLines)
       self._constants.numberOfScreenLines = UInt16(self._metalView.frame.size.height)
       self._constants.topLineIndex        = UInt16(WaterfallRenderer.kMaxLines)
-      self._constants.startingFrequency   = Float(self._start)
-      self._constants.endingFrequency     = Float(self._end)
+      self._constants.startingFrequency   = Float(self._p.start)
+      self._constants.endingFrequency     = Float(self._p.end)
 
       self._isDrawing.signal()
     }
@@ -364,10 +343,10 @@ extension WaterfallRenderer                 : StreamHandler {
     memcpy(_intensityBuffer.contents().advanced(by: Int(_constants.topLineIndex) * MemoryLayout<Intensity>.stride * WaterfallRenderer.kMaxIntensities), &streamFrame.bins, streamFrame.numberOfBins * MemoryLayout<UInt16>.size)
     
     // update the constants
-    _constants.startingFrequency = Float(_start)
-    _constants.endingFrequency = Float(_end)
-    _constants.blackLevel = _waterfall!.autoBlackEnabled ? UInt16(streamFrame.autoBlackLevel) : UInt16( (Float(_waterfall!.blackLevel) / 100.0) * Float(UInt16.max) )
-    _constants.colorGain = UInt16(_waterfall!.colorGain)
+      _constants.startingFrequency = Float(_p.start)
+      _constants.endingFrequency = Float(_p.end)
+      _constants.blackLevel = _p.waterfall.autoBlackEnabled ? UInt16(streamFrame.autoBlackLevel) : UInt16( (Float(_p.waterfall.blackLevel) / 100.0) * Float(UInt16.max) )
+      _constants.colorGain = UInt16(_p.waterfall.colorGain)
 
     // copy the First Bin Frequency & Bin Bandwidth for this line
     var firstBinFrequency = Float(streamFrame.firstBinFreq)
