@@ -18,6 +18,15 @@
           "revision": "a9c4667b247928a29bdd41be2ec2c8d304215a54",
           "version": "7.0.1"
         }
+      },
+      {
+        "package": "xLib6000",
+        "repositoryURL": "https://github.com/K3TZR/xLib6000.git",
+        "state": {
+          "branch": null,
+          "revision": "79d74c2442ccef453681525de3c4d3101b40bef7",
+          "version": "1.3.5"
+        }
       }
     ]
   },

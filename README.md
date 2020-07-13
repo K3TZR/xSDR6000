@@ -25,7 +25,7 @@ Thank you for your help! 👍
 
 ### Built on:
 
-*  macOS 10.15.5
+*  macOS 10.15.6 Beta (19G46c)
 *  Xcode 11.5 (11E608c)
 *  Swift 5.2
 
@@ -82,9 +82,13 @@ OpusOSX, framework built from sources at:
 
 ## 1.2.5 Release Notes
 
-* added Startup Alert
+* added Startup Message and "showStartupMessage" Defaults key
 * updated Help
-* minor edits & code cleanup
+* changed Metal drawing (Panadapter & Waterfall) from "on demand" to "periodic"
+* corrected timeout of side button popovers
+* changed queue usage for Logging
+* corrected Waterfall (no longer restarts periodically)
+* minor edits, stability improvements & code cleanup
 
 
 ## 1.2.4 Release Notes
