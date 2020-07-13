@@ -115,17 +115,11 @@ final class PanafallsViewController         : NSSplitViewController {
         let panafallButtonVc = _sb!.instantiateController(withIdentifier: kPanafallButtonIdentifier) as! PanafallButtonViewController
         
         // pass needed parameters
-//        panafallButtonVc.configure(radio: _api.radio!, panadapter: panadapter, waterfall: waterfall)
-//        panafallButtonVc.configure(params: Params(api: _api,
-//                                                  log: _log,
-//                                                  radio: _radio!,
-//                                                  panadapter: panadapter,
-//                                                  waterfall: waterfall))
-        panafallButtonVc.representedObject = Params(api: _api,
-                                                    log: _log,
-                                                    radio: _radio!,
-                                                    panadapter: panadapter,
-                                                    waterfall: waterfall)
+        panafallButtonVc.configure(params: Params(api: _api,
+                                                  log: _log,
+                                                  radio: _radio!,
+                                                  panadapter: panadapter,
+                                                  waterfall: waterfall))
 
         self?.addSplitViewItem(NSSplitViewItem(viewController: panafallButtonVc))
         self?.splitView.adjustSubviews()

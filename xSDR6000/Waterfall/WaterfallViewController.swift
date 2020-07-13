@@ -39,7 +39,7 @@ final class WaterfallViewController               : NSViewController, NSGestureR
   
   private var _waterfallRenderer            : WaterfallRenderer!
   
-  private var _p                            : Params { representedObject as! Params }
+  private var _p                            : Params!
   private var _hzPerUnit                    : CGFloat { CGFloat(_p.end - _p.start) / _p.panadapter.xPixels }
   
   // constants
@@ -96,6 +96,10 @@ final class WaterfallViewController               : NSViewController, NSGestureR
   // ----------------------------------------------------------------------------
   // MARK: - Internal methods
   
+  func configure(params: Params) {
+    _p = params
+  }
+
   /// Load the gradient at the specified index
   ///
   func loadGradient(index: Int) -> [UInt8] {

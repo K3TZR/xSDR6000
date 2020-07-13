@@ -17,10 +17,13 @@ struct Intensity {                    // Intensity struct
   ushort  i;
 };
 
-struct Line {
+struct BinValue {
   float   firstBinFrequency;
   float   binBandwidth;
-  ushort  index;
+};
+
+struct Line {
+  ushort  index ;
 };
 
 struct Constants {
@@ -41,38 +44,39 @@ struct VertexOutput {
 // Waterfall vertex shader
 //
 //  - Parameters:
-//    - vertices:       an array of Vertex structs
+//    - intensities:    an array of Intensity structs
+//    - Line:           an array of Line struct
+//    - constants:      a Constants struct
 //    - vertexId:       a system generated vertex index
 //
 //  - Returns:          a VertexOutput struct
 //
 vertex VertexOutput waterfall_vertex(const device Intensity* intensities [[ buffer(0) ]],
-                                     const device Line &line [[ buffer(1) ]],
-                                     constant Constants &constants [[ buffer(2) ]],
+                                     const device BinValue &binValue [[ buffer(1) ]],
+                                     const device Line &line [[ buffer(2) ]],
+                                     constant Constants &constants [[ buffer(3) ]],
                                      unsigned int vertexId [[ vertex_id ]])
 
 {
   VertexOutput v_out;
   float  xCoord;
   float  yCoord;
-  ushort temp1;
   float  power;
   
   float startingBin;
   float endingBin;
   float deltaX;
   
-  startingBin = (constants.startingFrequency - line.firstBinFrequency) / line.binBandwidth;
-  endingBin = (constants.endingFrequency - line.firstBinFrequency) / line.binBandwidth;
+  startingBin = (constants.startingFrequency - binValue.firstBinFrequency) / binValue.binBandwidth;
+  endingBin = (constants.endingFrequency - binValue.firstBinFrequency) / binValue.binBandwidth;
   deltaX = 1.0 / (endingBin - startingBin);
 
   // calculate the x coordinate & normalize to clip space
   xCoord = ((float(vertexId - startingBin) * deltaX) * 2) - 1 ;
   
-  // calculate the y coordinate & normalize to clip space
-  temp1 = line.index - constants.topLineIndex;
-  yCoord = -(((float(temp1) / float(constants.numberOfScreenLines -1))  * 2.0) - 1.0);
-  
+  // normalize the y coordinate to clip space
+  yCoord = ( ( (float(line.index) / float(constants.numberOfScreenLines - 1)) * 2.0) - 1.0);
+
   // pass the vertex & texture coordinates to the Fragment shader
   v_out.coord = float4(xCoord, yCoord, 0.0, 1.0);
   

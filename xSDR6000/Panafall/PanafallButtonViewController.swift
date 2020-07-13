@@ -23,7 +23,7 @@ final class PanafallButtonViewController    : NSViewController {
 
   @IBOutlet private weak var buttonView     : PanafallButtonView!
   
-  private var _p                            : Params {representedObject as! Params}
+  private var _p                            : Params!
   private var _popover                      : NSPopover?
   
   private let kPanafallEmbedIdentifier      = "PanafallEmbed"
@@ -52,14 +52,14 @@ final class PanafallButtonViewController    : NSViewController {
       let panafallViewController = segue.destinationController as? PanafallViewController
 
       // pass needed parameters
-      panafallViewController!.representedObject = _p
+      panafallViewController!.configure(params: _p)
             
       // save a reference to the panadapterViewController & waterfallViewController
       let panadapterViewController = panafallViewController!.splitViewItems[0].viewController as? PanadapterViewController
-      panadapterViewController!.representedObject = _p
+      panadapterViewController!.configure(params: _p)
 
       let waterfallViewController = panafallViewController!.splitViewItems[1].viewController as? WaterfallViewController
-      waterfallViewController!.representedObject = _p
+      waterfallViewController!.configure(params: _p)
       
     case kDisplayPopoverIdentifier:
       // pass needed parameters
@@ -80,6 +80,13 @@ final class PanafallButtonViewController    : NSViewController {
     default:
       break
     }
+  }
+  
+  // ----------------------------------------------------------------------------
+  // MARK: - Internal methods
+  
+  func configure(params: Params) {
+    _p = params
   }
 
   // ----------------------------------------------------------------------------

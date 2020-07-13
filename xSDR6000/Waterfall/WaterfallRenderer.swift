@@ -48,16 +48,6 @@ public final class WaterfallRenderer: NSObject, MTKViewDelegate {
   // the writeIndex is initially set to = (array.count - 1)
   // after each write the writeIndex = (writeIndex - 1) % array.count
   //
-
-
-  
-  // ----------------------------------------------------------------------------
-  // MARK: - Static properties
-  
-  // values chosen to accomodate the largest possible waterfall
-  static let kMaxLines                      = 2048                          // must be >= max number of lines
-  static let kMaxIntensities                = 3360                          // must be >= max number of Bins
-
   
   // ----------------------------------------------------------------------------
   // MARK: - Public properties
@@ -69,9 +59,12 @@ public final class WaterfallRenderer: NSObject, MTKViewDelegate {
   }
   
   struct Line {
+    var index                               : UInt16 = 0
+  }
+
+  struct BinData {
     var firstBinFrequency                   : Float = 0.0
     var binBandwidth                        : Float = 0.0
-    var index                               : UInt16 = 0
   }
   
   struct Constants {
@@ -88,17 +81,14 @@ public final class WaterfallRenderer: NSObject, MTKViewDelegate {
   // MARK: - Private properties
 
   private var _p                            : Params!
-//  private weak var _radio                   : Radio?
-//  private weak var _panadapter              : Panadapter?
-//  private weak var _waterfall               : Waterfall? { _radio!.waterfalls[_panadapter!.waterfallId] }
-//
-//  private var _center                       : Hz { _panadapter!.center }
-//  private var _bandwidth                    : Hz { _panadapter!.bandwidth }
-//  private var _start                        : Hz { _center - (_bandwidth/2) }
-//  private var _end                          : Hz  { _center + (_bandwidth/2) }
   
+  // values chosen to accomodate the largest possible waterfall
+  private let kBufferLines                   = 2048                       // must be >= max number of lines
+  private let kMaxIntensities                = 3360                       // must be >= max number of Bins
+
   private var _metalView                    : MTKView!
   private var _commandQueue                 : MTLCommandQueue!
+  private var _binData                      = BinData()
   private var _line                         = Line()
   private var _device                       : MTLDevice!
 
@@ -106,8 +96,13 @@ public final class WaterfallRenderer: NSObject, MTKViewDelegate {
   private var _pipelineState                : MTLRenderPipelineState!
   private var _gradientSamplerState         : MTLSamplerState!
   private var _gradientTexture              : MTLTexture!
-  private var _lineBuffer                   : MTLBuffer!
+  private var _binDataBuffer                : MTLBuffer!
+  private var _lineIndexBuffer              : MTLBuffer!
+
   
+  private var _writeIndex                   = 0
+  private var _drawIndex                    = 0
+
   private let _waterQ                       = DispatchQueue(label: Logger.kAppName + ".waterQ", attributes: [.concurrent])
   private var _waterDrawQ                   = DispatchQueue(label: Logger.kAppName + ".waterDrawQ")
   private var _isDrawing                    : DispatchSemaphore = DispatchSemaphore(value: 1)
@@ -138,6 +133,7 @@ public final class WaterfallRenderer: NSObject, MTKViewDelegate {
     
     _metalView = view
     _p = params
+    _metalView.preferredFramesPerSecond = 30
     
     super.init()
   }
@@ -172,6 +168,8 @@ public final class WaterfallRenderer: NSObject, MTKViewDelegate {
     // create a Command Buffer & Encoder
     guard let buffer = _commandQueue.makeCommandBuffer() else { fatalError("Unable to create a Command Queue") }
     guard let desc = view.currentRenderPassDescriptor else { fatalError("Unable to create a Render Pass Descriptor") }
+    desc.colorAttachments[0].loadAction = .clear
+    desc.colorAttachments[0].storeAction = .dontCare
     guard let encoder = buffer.makeRenderCommandEncoder(descriptor: desc) else { fatalError("Unable to create a Command Encoder") }
 
     encoder.pushDebugGroup("Draw")
@@ -181,22 +179,28 @@ public final class WaterfallRenderer: NSObject, MTKViewDelegate {
     
     // bind the buffers
     encoder.setVertexBuffer(_intensityBuffer, offset: 0, index: 0)
-    encoder.setVertexBuffer(_lineBuffer, offset: 0, index: 1)
-    encoder.setVertexBytes(&_constants, length: MemoryLayout<Constants>.size, index: 2)
+    encoder.setVertexBuffer(_binDataBuffer, offset: 0, index: 1)
+    encoder.setVertexBuffer(_lineIndexBuffer, offset: 0, index: 2)
+    encoder.setVertexBytes(&_constants, length: MemoryLayout<Constants>.size, index: 3)
     
     // bind the Gradient texture & sampler
     encoder.setFragmentTexture(_gradientTexture, index: 0)
     encoder.setFragmentSamplerState(_gradientSamplerState, index: 0)
     
-    // Draw the visible line(s)
-    for i in 0..<Int(_constants.numberOfScreenLines - 1) {
-      let loc = (Int(_constants.topLineIndex) + i) % Int(_constants.numberOfBufferLines)
+    var bottom = Int(_constants.topLineIndex) - Int(_constants.numberOfScreenLines - 1)
+    if bottom < 0 { bottom = Int(_constants.numberOfBufferLines) + bottom }
+
+    // Draw as many lines as fit on the screen
+    for i in (0..<Int(_constants.numberOfScreenLines)) {
+      // find the offset of the line in the buffer
+      let offset = (bottom + i) % Int(_constants.numberOfBufferLines)
       
-      // move to the next set of Intensities & Line params
-      encoder.setVertexBufferOffset(loc * MemoryLayout<Intensity>.stride * WaterfallRenderer.kMaxIntensities, index: 0)
-      encoder.setVertexBufferOffset((loc * MemoryLayout<Line>.stride), index: 1)
-      // draw
-      encoder.drawPrimitives(type: .lineStrip, vertexStart: 0, vertexCount: WaterfallRenderer.kMaxIntensities)
+      // set the buffer offsets
+      encoder.setVertexBufferOffset(offset * MemoryLayout<Intensity>.stride * kMaxIntensities, index: 0)
+      encoder.setVertexBufferOffset((offset * MemoryLayout<BinData>.stride), index: 1)
+      encoder.setVertexBufferOffset(i * MemoryLayout<Line>.stride, index: 2)
+      // add the line to the drawing
+      encoder.drawPrimitives(type: .lineStrip, vertexStart: 0, vertexCount: kMaxIntensities)
     }
     
     // finish encoding commands
@@ -216,12 +220,14 @@ public final class WaterfallRenderer: NSObject, MTKViewDelegate {
     DispatchQueue.main.async { [unowned self] in
       self._isDrawing.wait()
       
-      self._constants.numberOfBufferLines = UInt16(WaterfallRenderer.kMaxLines)
+      self._constants.numberOfBufferLines = UInt16(self.kBufferLines)
       self._constants.numberOfScreenLines = UInt16(self._metalView.frame.size.height)
-      self._constants.topLineIndex        = UInt16(WaterfallRenderer.kMaxLines)
+      self._constants.topLineIndex        = UInt16(0)
       self._constants.startingFrequency   = Float(self._p.start)
       self._constants.endingFrequency     = Float(self._p.end)
-
+      
+      self._writeIndex = 0
+      
       self._isDrawing.signal()
     }
   }
@@ -231,7 +237,8 @@ public final class WaterfallRenderer: NSObject, MTKViewDelegate {
     
     _device = device
     makeIntensityBuffer(device: device)
-    makeLineBuffer(device: device)
+    makeBinDataBuffer(device: device)
+    makeLineIndexBuffer(device: device)
     makePipeline(device: device)
     makeGradient(device: device)
     makeCommandQueue(device: device)
@@ -243,22 +250,28 @@ public final class WaterfallRenderer: NSObject, MTKViewDelegate {
   
   private func makeIntensityBuffer(device: MTLDevice) {
     // create the buffer at it's maximum size
-    let size = WaterfallRenderer.kMaxLines * WaterfallRenderer.kMaxIntensities * MemoryLayout<Intensity>.stride
+    let size = kBufferLines * kMaxIntensities * MemoryLayout<Intensity>.stride
     _intensityBuffer = device.makeBuffer(length: size, options: [.storageModeShared])
   }
   
-  private func makeLineBuffer(device: MTLDevice) {
+  private func makeBinDataBuffer(device: MTLDevice) {
     // create the buffer at it's maximum size
-    let size = WaterfallRenderer.kMaxLines * MemoryLayout<Line>.stride
-    _lineBuffer = device.makeBuffer(length: size, options: [.storageModeShared])
+    let size = kBufferLines * MemoryLayout<BinData>.stride
+    _binDataBuffer = device.makeBuffer(length: size, options: [.storageModeShared])
+  }
+
+  private func makeLineIndexBuffer(device: MTLDevice) {
+    // create the buffer at it's maximum size
+    let size = kBufferLines * MemoryLayout<Line>.stride
+    _lineIndexBuffer = device.makeBuffer(length: size, options: [.storageModeShared])
 
     // number each entry with its index value
-    for i in 0..<WaterfallRenderer.kMaxLines {
+    for i in 0..<kBufferLines {
       _line.index = UInt16(i)
-      memcpy(_lineBuffer.contents().advanced(by: i * MemoryLayout<Line>.stride), &_line, MemoryLayout<Line>.size)
+      memcpy(_lineIndexBuffer.contents().advanced(by: i * MemoryLayout<Line>.stride), &_line, MemoryLayout<Line>.size)
     }
   }
-  
+
   private func makePipeline(device: MTLDevice) {
     // get the Library (contains all compiled .metal files in this project)
     let library = device.makeDefaultLibrary()
@@ -335,30 +348,25 @@ extension WaterfallRenderer                 : StreamHandler {
     _isDrawing.wait()
     
     if _constants.numberOfBufferLines != 0 {
-    
-    // decrement the Top Line
-    _constants.topLineIndex = (_constants.topLineIndex == 0 ? _constants.numberOfBufferLines - 1 : _constants.topLineIndex - 1)
-
-    // copy the Intensities into the Intensity buffer
-    memcpy(_intensityBuffer.contents().advanced(by: Int(_constants.topLineIndex) * MemoryLayout<Intensity>.stride * WaterfallRenderer.kMaxIntensities), &streamFrame.bins, streamFrame.numberOfBins * MemoryLayout<UInt16>.size)
-    
-    // update the constants
+      
+      _constants.topLineIndex = UInt16(_writeIndex)
+      
+      // copy the Intensities into the Intensity buffer
+      memcpy(_intensityBuffer.contents().advanced(by: _writeIndex * MemoryLayout<Intensity>.stride * kMaxIntensities), &streamFrame.bins, streamFrame.numberOfBins * MemoryLayout<UInt16>.size)
+      
+      // update the constants
       _constants.startingFrequency = Float(_p.start)
       _constants.endingFrequency = Float(_p.end)
       _constants.blackLevel = _p.waterfall.autoBlackEnabled ? UInt16(streamFrame.autoBlackLevel) : UInt16( (Float(_p.waterfall.blackLevel) / 100.0) * Float(UInt16.max) )
       _constants.colorGain = UInt16(_p.waterfall.colorGain)
-
-    // copy the First Bin Frequency & Bin Bandwidth for this line
-    var firstBinFrequency = Float(streamFrame.firstBinFreq)
-    var binBandWidth = Float(streamFrame.binBandwidth)
-    memcpy(_lineBuffer.contents().advanced(by: Int(_constants.topLineIndex) * MemoryLayout<Line>.stride), &firstBinFrequency, MemoryLayout<Float>.size)
-    memcpy(_lineBuffer.contents().advanced(by: Int(_constants.topLineIndex) * MemoryLayout<Line>.stride + MemoryLayout<Float>.stride), &binBandWidth, MemoryLayout<Float>.size)
-
-//    _waterDrawQ.async { [unowned self] in
-//      autoreleasepool {
-//        self._metalView.draw()
-//      }
-//    }
+      
+      // copy the First Bin Frequency & Bin Bandwidth for this line
+      var firstBinFrequency = Float(streamFrame.firstBinFreq)
+      var binBandWidth = Float(streamFrame.binBandwidth)
+      memcpy(_binDataBuffer.contents().advanced(by: _writeIndex * MemoryLayout<BinData>.stride), &firstBinFrequency, MemoryLayout<Float>.size)
+      memcpy(_binDataBuffer.contents().advanced(by: _writeIndex * MemoryLayout<BinData>.stride + MemoryLayout<Float>.stride), &binBandWidth, MemoryLayout<Float>.size)
+      
+      _writeIndex = (_writeIndex + 1) % kBufferLines
     }
     _isDrawing.signal()
   }

@@ -46,7 +46,7 @@ final class PanadapterViewController        : NSViewController, NSGestureRecogni
   @IBOutlet private weak var _dbLegendView        : DbLegendView!
   @IBOutlet private weak var _panadapterView      : MTKView!
 
-  private var _p                            : Params { representedObject as! Params}
+  private var _p                            : Params!
   private var _hzPerUnit                    : CGFloat { CGFloat(_p.end - _p.start) / _p.panadapter.xPixels }
 
   private var _flags                        = [SliceId:FlagViewController]()
@@ -160,16 +160,9 @@ final class PanadapterViewController        : NSViewController, NSGestureRecogni
   // ----------------------------------------------------------------------------
   // MARK: - Internal methods
   
-  /// Configure needed parameters
-  ///
-  /// - Parameter panadapter:               a Panadapter reference
-  ///
-//  func configure(panadapter: Panadapter?) {
-//    self._panadapter = panadapter
-//  }
-//  func configure(params: Params) {
-//    _p = params
-//  }
+  func configure(params: Params) {
+    _p = params
+  }
   /// start observations & Notification
   ///
   private func setupObservations() {

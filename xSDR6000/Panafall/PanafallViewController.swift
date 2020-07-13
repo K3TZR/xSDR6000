@@ -25,7 +25,7 @@ final class PanafallViewController          : NSSplitViewController, NSGestureRe
   
   @IBOutlet private weak var _panadapterSplitViewItem: NSSplitViewItem!
   
-  private var _p                            : Params {representedObject as! Params}
+  private var _p                            : Params!
   private var _hzPerUnit                    : CGFloat { CGFloat(_p.end - _p.start) / view.frame.width }
   
   private weak var _panadapterViewController  : PanadapterViewController? { _panadapterSplitViewItem.viewController as? PanadapterViewController }
@@ -110,6 +110,13 @@ final class PanafallViewController          : NSSplitViewController, NSGestureRe
         adjustSliceFrequency(slice, incr: incr)
       }
     }
+  }
+  
+  // ----------------------------------------------------------------------------
+  // MARK: - Internal methods
+  
+  func configure(params: Params) {
+    _p = params
   }
 
   // ----------------------------------------------------------------------------
