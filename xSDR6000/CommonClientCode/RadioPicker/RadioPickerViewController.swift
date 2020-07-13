@@ -16,8 +16,11 @@ import xLib6000
 
 protocol RadioPickerDelegate             : class {
   
-  var smartLinkEnabled : Bool {get}
-  
+  var smartLinkEnabled  : Bool {get}
+  var smartLinkUser     : String? {get}
+  var smartLinkCall     : String? {get}
+  var smartLinkImage    : NSImage? {get}
+
   /// Open the selected Radio
   /// - Parameters:
   ///   - packet:           a DIscoveryPacket
@@ -144,20 +147,6 @@ final class RadioPickerViewController : NSViewController, NSTableViewDelegate, N
     
     // FIXME: Hide / Show Top of Picker
   }
-  
-//  @IBAction func quitRadio(_ sender: Any) {
-//    
-//    // perform an orderly disconnect of all the components
-//    if Api.sharedInstance.state != .clientDisconnected { Api.sharedInstance.disconnect(reason: "User Initiated") }
-//    
-//    dismiss(self)
-//    
-//    DispatchQueue.main.async {
-//      // close the app
-//      
-//      NSApp.terminate(sender)
-//    }
-//  }
 
   // ----------------------------------------------------------------------------
   // MARK: - Private methods
@@ -217,40 +206,33 @@ final class RadioPickerViewController : NSViewController, NSTableViewDelegate, N
   // ----------------------------------------------------------------------------
   // MARK: - Observation methods
 
-  private var _observations                 = [NSKeyValueObservation]()
+  private var _observations = [NSKeyValueObservation]()
 
-  /// Add observations of various properties
-  ///
   private func addObservations() {
-
     let object = delegate as! MainWindowController
     _observations = [
       object.observe(\.smartLinkUser, options: [.initial, .new]) { [weak self] (object, change) in
-        DispatchQueue.main.async {
-          self?._nameLabel.stringValue = object.smartLinkUser ?? ""
-          if object.smartLinkEnabled {
-            self?._loginButton.title = (object.smartLinkUser != nil ? "Log Out" : "Log In")
-          } else {
-            self?._loginButton.title = "Disabled"
-          }
-        }},
+        self?.smartLinkFields(object)},
       object.observe(\.smartLinkCall, options: [.initial, .new]) { [weak self] (object, change) in
-        DispatchQueue.main.async {
-          if object.smartLinkEnabled {
-            self?._callLabel.stringValue = object.smartLinkCall ?? ""
-          } else {
-            self?._callLabel.stringValue = ""
-          }
-        }},
+        self?.smartLinkFields(object)},
       object.observe(\.smartLinkImage, options: [.initial, .new]) { [weak self] (object, change) in
-        DispatchQueue.main.async {
-          if object.smartLinkEnabled {
-            self?._logonImage.image = object.smartLinkImage
-          } else {
-            self?._logonImage.image = nil
-          }
-        }}
+        self?.smartLinkFields(object)}
     ]
+  }
+
+  private func smartLinkFields(_ object: RadioPickerDelegate) {
+    DispatchQueue.main.async { [unowned self] in
+      self._nameLabel.stringValue = object.smartLinkUser ?? ""
+      if object.smartLinkEnabled {
+        self._loginButton.title = (object.smartLinkUser != nil ? "Log Out" : "Log In")
+        self._callLabel.stringValue = object.smartLinkCall ?? ""
+        self._logonImage.image = object.smartLinkImage
+      } else {
+        self._loginButton.title = "Disabled"
+        self._callLabel.stringValue = ""
+        self._logonImage.image = nil
+      }
+    }
   }
 
   // ----------------------------------------------------------------------------
