@@ -111,10 +111,6 @@ public final class WaterfallRenderer: NSObject, MTKViewDelegate {
   private let kVertexShader                 = "waterfall_vertex"
   private let kGradientSize                 = 256
 
-  private var _changingSize                 : Bool {
-    get { _waterQ.sync { __changingSize } }
-    set { _waterQ.sync(flags: .barrier) { __changingSize = newValue } } }
-
   private var _constants                    : Constants {
     get { _waterQ.sync { __constants } }
     set { _waterQ.sync(flags: .barrier) { __constants = newValue } } }
@@ -122,7 +118,6 @@ public final class WaterfallRenderer: NSObject, MTKViewDelegate {
   // ----------------------------------------------------------------------------
   // *** Backing properties (Do NOT use) ***
   
-  private var __changingSize                = false
   private var __constants                   = Constants()
   private var __topLine                     = 0
 
@@ -149,14 +144,10 @@ public final class WaterfallRenderer: NSObject, MTKViewDelegate {
   ///
   public func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {
    
-    DispatchQueue.main.async { [unowned self] in 
-      self._changingSize = true
-
+    DispatchQueue.main.async { [unowned self] in
       self._isDrawing.wait()
       self._constants.numberOfScreenLines = UInt16(self._metalView.frame.size.height)
       self._isDrawing.signal()
-
-      self._changingSize = false
     }
   }
   /// Draw lines colored by the Gradient texture
@@ -168,7 +159,7 @@ public final class WaterfallRenderer: NSObject, MTKViewDelegate {
     // create a Command Buffer & Encoder
     guard let buffer = _commandQueue.makeCommandBuffer() else { fatalError("Unable to create a Command Queue") }
     guard let desc = view.currentRenderPassDescriptor else { fatalError("Unable to create a Render Pass Descriptor") }
-    desc.colorAttachments[0].loadAction = .clear
+    desc.colorAttachments[0].loadAction = .dontCare
     desc.colorAttachments[0].storeAction = .dontCare
     guard let encoder = buffer.makeRenderCommandEncoder(descriptor: desc) else { fatalError("Unable to create a Command Encoder") }
 

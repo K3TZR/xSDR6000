@@ -236,7 +236,6 @@ final class FlagViewController : NSViewController, NSTextFieldDelegate, NSGestur
         slice!.frequency = _previousFrequency
         field.doubleValue = _previousFrequency.intHzToDoubleMhz
       } else {
-        Swift.print("center = \(_center), frequency = \(_previousFrequency), new = \(slice!.frequency), field = \(field.doubleValue)")
         slice!.frequency = field.doubleValue.doubleMhzToIntHz
         
         repositionPanadapter(center: _center, frequency: _previousFrequency, newFrequency: slice!.frequency)
@@ -316,7 +315,12 @@ final class FlagViewController : NSViewController, NSTextFieldDelegate, NSGestur
     switch sender.identifier!.rawValue {
     case "nb":    slice?.nbEnabled = sender.boolState
     case "nr":    slice?.nrEnabled = sender.boolState
-    case "anf":   slice?.anfEnabled = sender.boolState
+    case "anf":
+      if slice?.mode == "USB" || slice?.mode == "LSB" {
+        slice?.anfEnabled = sender.boolState
+      } else if  slice?.mode == "CW" {
+        slice?.apfEnabled = sender.boolState
+      }
     case "qsk":   slice?.qskEnabled = sender.boolState
     case "lock":  slice?.locked = sender.boolState
     default:      break
@@ -463,32 +467,43 @@ final class FlagViewController : NSViewController, NSTextFieldDelegate, NSGestur
           if old == false && new == true {
             self?._log.logMessage("Slice became active: slice \(slice.id )", .debug, #function, #file, #line)
             NC.post(.sliceBecameActive, object: slice) }
-          else {
-            
+          else {            
           }
         }},
       
       slice.observe(\.mode, options: [.initial, .new]) { [weak self] (slice, change) in
-        DispatchQueue.main.async { self?._modeButton.title = slice.mode }},
+        DispatchQueue.main.async {
+          self?._modeButton.title = slice.mode
+          switch slice.mode {
+          case "USB", "LSB":
+            self?._anfButton.isEnabled = true
+            self?._anfButton.title = "ANF"
+            self?._anfButton.boolState = slice.anfEnabled
+          case "CW":
+            self?._anfButton.isEnabled = true
+            self?._anfButton.title = "APF"
+            self?._anfButton.boolState = slice.apfEnabled
+          default:
+            self?._anfButton.isEnabled = false
+            self?._anfButton.title = "---"
+          }
+        }},
       
       slice.observe(\.txEnabled, options: [.initial, .new]) { [weak self] (slice, change) in
         DispatchQueue.main.async {
           self?._txButton.attributedTitle = NSAttributedString(string: self!.kTxCaption, attributes: (slice.txEnabled ? self!.kTxOnAttr : self!.kTxOffAttr)) }},
       
       slice.observe(\.filterHigh, options: [.initial, .new]) { [weak self] (slice, change) in
-        if let panVc = self?._vc as? PanadapterViewController {
-          panVc.redrawFrequencyLegend()
-          DispatchQueue.main.async { self!._filterWidth.stringValue = self!.calcFilterWidth(slice, change) }}},
+        if let panVc = self?._vc as? PanadapterViewController { panVc.redrawFrequencyLegend() }
+          DispatchQueue.main.async { self!._filterWidth.stringValue = self!.calcFilterWidth(slice, change) }},
       
       slice.observe(\.filterLow, options: [.initial, .new]) { [weak self] (slice, change) in
-        if let panVc = self?._vc as? PanadapterViewController {
-          panVc.redrawFrequencyLegend()
-          DispatchQueue.main.async { self!._filterWidth.stringValue = self!.calcFilterWidth(slice, change) }}},
+        if let panVc = self?._vc as? PanadapterViewController { panVc.redrawFrequencyLegend() }
+          DispatchQueue.main.async { self!._filterWidth.stringValue = self!.calcFilterWidth(slice, change) }},
       
       slice.observe(\.frequency, options: [.initial, .new]) { [weak self] (slice, change) in
-        if let panVc = self?._vc as? PanadapterViewController {
-          panVc.redrawFrequencyLegend()
-          DispatchQueue.main.async { self?._frequencyField?.doubleValue = slice.frequency.intHzToDoubleMhz }}},
+        if let panVc = self?._vc as? PanadapterViewController { panVc.redrawFrequencyLegend() }
+          DispatchQueue.main.async { self?._frequencyField?.doubleValue = slice.frequency.intHzToDoubleMhz }},
       
       panadapter.observe(\.center, options: [.initial, .new]) { [weak self] (panadapter, change) in
         if let panVc = self?._vc as? PanadapterViewController {
@@ -507,7 +522,10 @@ final class FlagViewController : NSViewController, NSTextFieldDelegate, NSGestur
         DispatchQueue.main.async { self?._nrButton.boolState = slice.nrEnabled }},
       
       slice.observe(\.anfEnabled, options: [.initial, .new]) { [weak self] (slice, change) in
-        DispatchQueue.main.async { self?._anfButton.boolState = slice.anfEnabled }},
+        DispatchQueue.main.async { if slice.mode == "USB" || slice.mode == "LSB" { self?._anfButton.boolState = slice.anfEnabled } }},
+      
+      slice.observe(\.apfEnabled, options: [.initial, .new]) { [weak self] (slice, change) in
+        DispatchQueue.main.async { if slice.mode == "CW" { self?._anfButton.boolState = slice.apfEnabled } }},
       
       slice.observe(\.qskEnabled, options: [.initial, .new]) { [weak self] (slice, change) in
         DispatchQueue.main.async { self?._qskButton.boolState = slice.qskEnabled }},

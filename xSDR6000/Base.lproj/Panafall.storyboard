@@ -93,7 +93,7 @@
                                                     <font key="font" metaFont="systemBold"/>
                                                 </buttonCell>
                                                 <connections>
-                                                    <segue destination="AJ9-ZE-hlS" kind="popover" identifier="DaxPopover" popoverAnchorView="Rf4-7B-G4e" popoverBehavior="t" preferredEdge="minX" id="LC6-mx-itO"/>
+                                                    <segue destination="AJ9-ZE-hlS" kind="popover" popoverAnchorView="Rf4-7B-G4e" popoverBehavior="t" preferredEdge="maxY" id="9e6-JR-ar5"/>
                                                 </connections>
                                             </button>
                                         </subviews>
@@ -205,7 +205,7 @@
                 </viewController>
                 <customObject id="6qk-c1-DaT" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="898" y="190"/>
+            <point key="canvasLocation" x="925" y="190"/>
         </scene>
         <!--Panafall-->
         <scene sceneID="Bs3-gG-X1W">
@@ -354,7 +354,39 @@
                 <customObject id="ou9-Sf-u0B" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
                 <userDefaultsController id="BPQ-x3-geH"/>
             </objects>
-            <point key="canvasLocation" x="1818" y="260"/>
+            <point key="canvasLocation" x="1453" y="328"/>
+        </scene>
+        <!--Mini View Controller-->
+        <scene sceneID="3bg-Iy-HJX">
+            <objects>
+                <viewController id="dHA-rt-7aI" customClass="MiniViewController" customModule="xSDR6000" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" id="bv7-YS-S2D">
+                        <rect key="frame" x="0.0" y="0.0" width="311" height="90"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                        <subviews>
+                            <containerView translatesAutoresizingMaskIntoConstraints="NO" id="MMO-jB-u92">
+                                <rect key="frame" x="0.0" y="0.0" width="311" height="90"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="90" id="CZY-Lh-j1h"/>
+                                    <constraint firstAttribute="width" constant="311" id="cKc-wA-SI2"/>
+                                </constraints>
+                            </containerView>
+                        </subviews>
+                        <constraints>
+                            <constraint firstItem="MMO-jB-u92" firstAttribute="top" secondItem="bv7-YS-S2D" secondAttribute="top" id="5gF-rx-eHI"/>
+                            <constraint firstAttribute="bottom" secondItem="MMO-jB-u92" secondAttribute="bottom" id="GTB-As-cvd"/>
+                            <constraint firstItem="MMO-jB-u92" firstAttribute="leading" secondItem="bv7-YS-S2D" secondAttribute="leading" id="nfZ-EO-Ha7"/>
+                            <constraint firstAttribute="trailing" secondItem="MMO-jB-u92" secondAttribute="trailing" id="ugu-Pl-5up"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="_miniContainer" destination="bv7-YS-S2D" id="RN7-t3-cQh"/>
+                        <outlet property="_miniContainerHeight" destination="CZY-Lh-j1h" id="AtD-FI-39G"/>
+                    </connections>
+                </viewController>
+                <customObject id="qXD-qS-3J2" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1656" y="559"/>
         </scene>
         <!--Antenna-->
         <scene sceneID="TrX-ib-eyb">
@@ -448,7 +480,7 @@
                 </viewController>
                 <customObject id="51z-iy-sxc" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1796" y="102"/>
+            <point key="canvasLocation" x="1431" y="119"/>
         </scene>
         <!--Band-->
         <scene sceneID="Ndh-9L-ZDw">
@@ -741,7 +773,7 @@
                 </viewController>
                 <customObject id="4uy-Eh-Vd0" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1469" y="-71"/>
+            <point key="canvasLocation" x="1426" y="-135"/>
         </scene>
         <!--Display-->
         <scene sceneID="hjl-De-oN3">
@@ -1028,7 +1060,7 @@
                 <customObject id="TnM-x8-VlE" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
                 <userDefaultsController representsSharedInstance="YES" id="2bC-R8-ESr"/>
             </objects>
-            <point key="canvasLocation" x="1509" y="459"/>
+            <point key="canvasLocation" x="1776" y="214"/>
         </scene>
     </scenes>
     <resources>

@@ -14,18 +14,8 @@ import Cocoa
   // ----------------------------------------------------------------------------
   // MARK: - Internal methods
   
-  func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
-    
-    Swift.print("----->>>>> Last window closed <<<<<-----")
-    
+  func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {    
     return true
-  }
-  func applicationWillTerminate(_ notification: Notification) {
-    
-    
-    Swift.print("----->>>>> applicationWillTerminate <<<<<-----")
-//    CVDisplayLinkStop()
-    
   }
 }
 

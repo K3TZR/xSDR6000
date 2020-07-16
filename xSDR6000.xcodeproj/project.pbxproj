@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		91534CB2244C9A3000F9895F /* RadioPickerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91534CB1244C9A3000F9895F /* RadioPickerViewController.swift */; };
 		91537D8A245CEEDC000BE1C8 /* LogViewerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91537D89245CEEDC000BE1C8 /* LogViewerViewController.swift */; };
+		915B9A5B24BF9F2900BEC75B /* MiniViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 915B9A5A24BF9F2900BEC75B /* MiniViewController.swift */; };
 		9164EE5523DDDA6500086338 /* xLib6000 in Frameworks */ = {isa = PBXBuildFile; productRef = 9164EE5423DDDA6500086338 /* xLib6000 */; };
 		916E98A7246196E700287335 /* WanManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 916E98A6246196E700287335 /* WanManager.swift */; };
 		917AAA7A23D53FD90082FAEB /* ObjcExceptionBridging in Frameworks */ = {isa = PBXBuildFile; productRef = 917AAA7923D53FD90082FAEB /* ObjcExceptionBridging */; };
@@ -124,6 +125,7 @@
 /* Begin PBXFileReference section */
 		91534CB1244C9A3000F9895F /* RadioPickerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RadioPickerViewController.swift; sourceTree = "<group>"; };
 		91537D89245CEEDC000BE1C8 /* LogViewerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogViewerViewController.swift; sourceTree = "<group>"; };
+		915B9A5A24BF9F2900BEC75B /* MiniViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MiniViewController.swift; sourceTree = "<group>"; };
 		916E98A6246196E700287335 /* WanManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WanManager.swift; sourceTree = "<group>"; };
 		919614F423D28DB50069AE94 /* xSDR6000-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "xSDR6000-Bridging-Header.h"; sourceTree = "<group>"; };
 		919614F523D28DB50069AE94 /* xSDR6000.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = xSDR6000.entitlements; sourceTree = "<group>"; };
@@ -382,6 +384,7 @@
 				91E4783723B666EE004DA6A7 /* DisplayViewController.swift */,
 				91E4783823B666EE004DA6A7 /* AntennaViewController.swift */,
 				91E4783923B666EE004DA6A7 /* DaxIqViewController.swift */,
+				915B9A5A24BF9F2900BEC75B /* MiniViewController.swift */,
 			);
 			path = Buttons;
 			sourceTree = "<group>";
@@ -720,6 +723,7 @@
 				91E4789D23B666EE004DA6A7 /* GpsPrefsViewController.swift in Sources */,
 				91E478E423B666EE004DA6A7 /* HelpViewController.swift in Sources */,
 				91E4789523B666EE004DA6A7 /* OpusEncode.swift in Sources */,
+				915B9A5B24BF9F2900BEC75B /* MiniViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -920,7 +924,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
-				MARKETING_VERSION = 1.2.5;
+				MARKETING_VERSION = 1.2.6;
 				PRODUCT_BUNDLE_IDENTIFIER = net.k3tzr.xSDR6000;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "xSDR6000/xSDR6000-Bridging-Header.h";
@@ -950,7 +954,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
-				MARKETING_VERSION = 1.2.5;
+				MARKETING_VERSION = 1.2.6;
 				PRODUCT_BUNDLE_IDENTIFIER = net.k3tzr.xSDR6000;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "xSDR6000/xSDR6000-Bridging-Header.h";
@@ -987,7 +991,7 @@
 			repositoryURL = "https://github.com/K3TZR/xLib6000.git";
 			requirement = {
 				kind = exactVersion;
-				version = 1.3.5;
+				version = 1.3.6;
 			};
 		};
 		917AAA7823D53FD90082FAEB /* XCRemoteSwiftPackageReference "XCGLogger" */ = {

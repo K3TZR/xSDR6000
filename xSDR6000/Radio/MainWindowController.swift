@@ -41,7 +41,7 @@ final class MainWindowController                  : NSWindowController, NSWindow
   
   private var _radioPickerViewController    : RadioPickerViewController?
   
-  private var _firstPingResponse            = false
+  private var _pingResponse                 = false
   private var _api                          = Api.sharedInstance
   private let _log                          = Logger.sharedInstance.logMessage
   private var _observations                 = [NSKeyValueObservation]()
@@ -723,7 +723,7 @@ final class MainWindowController                  : NSWindowController, NSWindow
     NC.makeObserver(self, with: #selector(radioWillBeRemoved(_:)), of: .radioWillBeRemoved)
     NC.makeObserver(self, with: #selector(radioHasBeenRemoved(_:)), of: .radioHasBeenRemoved)
 
-    NC.makeObserver(self, with: #selector(tcpPingFirstResponse(_:)), of: .tcpPingFirstResponse)
+    NC.makeObserver(self, with: #selector(tcpPingResponse(_:)), of: .tcpPingResponse)
 
     NC.makeObserver(self, with: #selector(opusAudioStreamHasBeenAdded(_:)), of: .opusAudioStreamHasBeenAdded)
     NC.makeObserver(self, with: #selector(opusAudioStreamWillBeRemoved(_:)), of: .opusAudioStreamWillBeRemoved)
@@ -731,10 +731,7 @@ final class MainWindowController                  : NSWindowController, NSWindow
     NC.makeObserver(self, with: #selector(remoteRxAudioStreamHasBeenAdded(_:)), of: .remoteRxAudioStreamHasBeenAdded)
     NC.makeObserver(self, with: #selector(remoteRxAudioStreamWillBeRemoved(_:)), of: .remoteRxAudioStreamWillBeRemoved)
   }
-  /// Process .radioHasBeenAdded Notification
-  ///
-  /// - Parameter note:         a Notification instance
-  ///
+
   @objc private func radioHasBeenAdded(_ note: Notification) {
     
     // the Radio class has been initialized
@@ -743,10 +740,7 @@ final class MainWindowController                  : NSWindowController, NSWindow
       _log("Radio initialized: \(radio.nickname), v\(radio.packet.firmwareVersion)", .info,  #function, #file, #line)
     }
   }
-  /// Process .radioWillBeRemoved Notification
-  ///
-  /// - Parameter note:         a Notification instance
-  ///
+
   @objc private func radioWillBeRemoved(_ note: Notification) {
     
     // the Radio class is being removed
@@ -754,7 +748,7 @@ final class MainWindowController                  : NSWindowController, NSWindow
       
       _log("Radio will be removed: \(radio.nickname)", .info,  #function, #file, #line)
       
-      _firstPingResponse = false
+      _pingResponse = false
       enableButtons(false)
 
       if Defaults.sideViewOpen { closeSideView() }
@@ -763,24 +757,18 @@ final class MainWindowController                  : NSWindowController, NSWindow
       title()
     }
   }
-  /// Process .radioHasBeenRemoved Notification
-  ///
-  /// - Parameter note:         a Notification instance
-  ///
+
   @objc private func radioHasBeenRemoved(_ note: Notification) {
     if let name = note.object as? String {
       // the Radio class has been removed
       _log("Radio has been removed: \(name)", .info, #function, #file, #line)
     }
   }
-  /// Process .tcpPingFirstResponse Notification
-  ///
-  /// - Parameter note:         a Notification instance
-  ///
-  @objc private func tcpPingFirstResponse(_ note: Notification) {
+
+  @objc private func tcpPingResponse(_ note: Notification) {
     
-    // receipt of the first Ping response indicates the Radio is fully initialized
-    _firstPingResponse = true
+    // receipt of the first n Ping responses indicates the Radio is fully initialized
+    _pingResponse = true
     
     if let radio = _api.radio {
       enableButtons(true)
@@ -790,16 +778,13 @@ final class MainWindowController                  : NSWindowController, NSWindow
       setButtonState(radio)
       
       // show/hide the Side view
-      if Defaults.sideViewOpen { openSideView() }
+      if Defaults.sideViewOpen { DispatchQueue.main.async { self.openSideView() } }
       
       // start audio if active
       if Defaults.macAudioActive { macAudioStart()}
     }
   }
-  /// Process .opusAudioStreamHasBeenAdded Notification
-  ///
-  /// - Parameter note:         a Notification instance
-  ///
+
   @objc private func opusAudioStreamHasBeenAdded(_ note: Notification) {
     
     // the OpusAudioStream has been added
@@ -812,10 +797,7 @@ final class MainWindowController                  : NSWindowController, NSWindow
       opusAudioStream.delegate = _opusPlayer
     }
   }
-  /// Process .opusAudioStreamWillBeRemoved Notification
-  ///
-  /// - Parameter note:         a Notification instance
-  ///
+
   @objc private func opusAudioStreamWillBeRemoved(_ note: Notification) {
     
     // the OpusAudioStream is being removed
@@ -828,10 +810,7 @@ final class MainWindowController                  : NSWindowController, NSWindow
       _opusPlayer = nil
     }
   }
-  /// Process .remoteRxAudioStreamHasBeenAdded Notification
-  ///
-  /// - Parameter note:         a Notification instance
-  ///
+
   @objc private func remoteRxAudioStreamHasBeenAdded(_ note: Notification) {
     
     // the RemoteRxAudioStream class has been initialized
@@ -844,10 +823,7 @@ final class MainWindowController                  : NSWindowController, NSWindow
       remoteRxAudioStream.delegate = _opusPlayer
     }
   }
-  /// Process .remoteRxAudioStreamWillBeRemoved Notification
-  ///
-  /// - Parameter note:         a Notification instance
-  ///
+
   @objc private func remoteRxAudioStreamWillBeRemoved(_ note: Notification) {
     
     // the RemoteRxAudioStream is being removed

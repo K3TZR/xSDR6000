@@ -39,7 +39,7 @@
                                         </constraints>
                                         <popUpButtonCell key="cell" type="push" bezelStyle="rounded" alignment="center" lineBreakMode="truncatingTail" borderStyle="border" imageScaling="proportionallyDown" inset="2" arrowPosition="noArrow" id="y2d-I3-kg0">
                                             <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
-                                            <font key="font" metaFont="message" size="11"/>
+                                            <font key="font" metaFont="label" size="11"/>
                                             <menu key="menu" id="NSV-Jw-Rca"/>
                                         </popUpButtonCell>
                                         <connections>
@@ -50,7 +50,7 @@
                                         <rect key="frame" x="63" y="-3" width="50" height="25"/>
                                         <popUpButtonCell key="cell" type="push" bezelStyle="rounded" alignment="center" lineBreakMode="truncatingTail" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" arrowPosition="noArrow" id="8lD-MP-8Gu">
                                             <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
-                                            <font key="font" metaFont="message" size="11"/>
+                                            <font key="font" metaFont="label" size="11"/>
                                             <menu key="menu" id="ukX-h6-QYI"/>
                                         </popUpButtonCell>
                                         <connections>
@@ -309,7 +309,7 @@
                                         </constraints>
                                         <buttonCell key="cell" type="push" title="AUD" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="FNp-VC-Qj2">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
-                                            <font key="font" metaFont="message" size="11"/>
+                                            <font key="font" metaFont="label" size="11"/>
                                         </buttonCell>
                                         <connections>
                                             <action selector="controlsButtons:" target="Lmw-yC-7qh" id="LUh-rm-Q6e"/>
@@ -319,7 +319,7 @@
                                         <rect key="frame" x="49" y="-7" width="67" height="32"/>
                                         <buttonCell key="cell" type="push" title="DSP" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="xSR-Pr-w8w">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
-                                            <font key="font" metaFont="message" size="11"/>
+                                            <font key="font" metaFont="label" size="11"/>
                                         </buttonCell>
                                         <connections>
                                             <action selector="controlsButtons:" target="Lmw-yC-7qh" id="aJ8-gI-y58"/>
@@ -329,7 +329,7 @@
                                         <rect key="frame" x="104" y="-7" width="67" height="32"/>
                                         <buttonCell key="cell" type="push" title="MODE" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Ozc-FQ-Fen">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
-                                            <font key="font" metaFont="message" size="11"/>
+                                            <font key="font" metaFont="label" size="11"/>
                                         </buttonCell>
                                         <connections>
                                             <action selector="controlsButtons:" target="Lmw-yC-7qh" id="SSM-dZ-d4N"/>
@@ -339,7 +339,7 @@
                                         <rect key="frame" x="159" y="-7" width="67" height="32"/>
                                         <buttonCell key="cell" type="push" title="XRIT" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="h65-Q6-0kR">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
-                                            <font key="font" metaFont="message" size="11"/>
+                                            <font key="font" metaFont="label" size="11"/>
                                         </buttonCell>
                                         <connections>
                                             <action selector="controlsButtons:" target="Lmw-yC-7qh" id="Fn7-eV-EUi"/>
@@ -349,7 +349,7 @@
                                         <rect key="frame" x="214" y="-7" width="67" height="32"/>
                                         <buttonCell key="cell" type="push" title="DAX" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="7ir-zP-Xif">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
-                                            <font key="font" metaFont="message" size="11"/>
+                                            <font key="font" metaFont="label" size="11"/>
                                         </buttonCell>
                                         <connections>
                                             <action selector="controlsButtons:" target="Lmw-yC-7qh" id="tmP-Hi-7TS"/>
@@ -629,7 +629,7 @@
                         <outlet property="_agcModePopUp" destination="FEl-bw-dKr" id="7Vl-n8-i8a"/>
                         <outlet property="_agcThresholdSlider" destination="8T0-Ls-6Dh" id="lyE-hk-gb7"/>
                         <outlet property="_agcThresholdTextField" destination="a8w-aU-r2l" id="wa4-Al-Wby"/>
-                        <outlet property="_audioGainSlider" destination="nxC-80-uqM" id="tvX-Cc-vFH"/>
+                        <outlet property="_audioGainSlider" destination="nxC-80-uqM" id="Hvt-Tk-7x7"/>
                         <outlet property="_audioGainTextField" destination="c86-gH-j3N" id="efC-sI-aaK"/>
                         <outlet property="_audioMuteButton" destination="Ibz-Hr-qrU" id="4PX-Lz-VY9"/>
                         <outlet property="_audioPanSlider" destination="IQM-e9-DXN" id="OyB-hY-mrc"/>
@@ -658,7 +658,7 @@
                                         </constraints>
                                         <buttonCell key="cell" type="push" title="WNB" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="bLR-K0-azd">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
-                                            <font key="font" metaFont="message" size="11"/>
+                                            <font key="font" metaFont="label" size="11"/>
                                         </buttonCell>
                                         <connections>
                                             <action selector="buttons:" target="Xq5-Es-VCO" id="bjn-Ea-SqG"/>
@@ -706,7 +706,7 @@
                                         </constraints>
                                         <buttonCell key="cell" type="push" title="NB" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Cuf-p4-y1T">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
-                                            <font key="font" metaFont="message" size="11"/>
+                                            <font key="font" metaFont="label" size="11"/>
                                         </buttonCell>
                                         <connections>
                                             <action selector="buttons:" target="Xq5-Es-VCO" id="jaV-UW-KIB"/>
@@ -750,7 +750,7 @@
                                         </constraints>
                                         <buttonCell key="cell" type="push" title="NR" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="tbc-jH-v7N">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
-                                            <font key="font" metaFont="message" size="11"/>
+                                            <font key="font" metaFont="label" size="11"/>
                                         </buttonCell>
                                         <connections>
                                             <action selector="buttons:" target="Xq5-Es-VCO" id="fJD-at-Dqa"/>
@@ -794,7 +794,7 @@
                                         </constraints>
                                         <buttonCell key="cell" type="push" title="ANF" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="pDV-II-2qz">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
-                                            <font key="font" metaFont="message" size="11"/>
+                                            <font key="font" metaFont="label" size="11"/>
                                         </buttonCell>
                                         <connections>
                                             <action selector="buttons:" target="Xq5-Es-VCO" id="mhk-zx-v9z"/>

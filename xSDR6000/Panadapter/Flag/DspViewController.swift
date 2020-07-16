@@ -74,7 +74,11 @@ final class DspViewController: NSViewController {
     case "nrButton":
       _slice.nrEnabled = sender.boolState
     case "anfButton":
-      _slice.anfEnabled = sender.boolState
+      if _slice.mode == "USB" || _slice.mode == "LSB" {
+        _slice.anfEnabled = sender.boolState
+      } else if _slice.mode == "CW" {
+        _slice.apfEnabled = sender.boolState
+      }
     default:
       fatalError()
     }
@@ -93,7 +97,11 @@ final class DspViewController: NSViewController {
     case "nrSlider":
       _slice.nrLevel = sender.integerValue
     case "anfSlider":
-      _slice.anfLevel = sender.integerValue
+      if _slice.mode == "USB" || _slice.mode == "LSB" {
+        _slice.anfLevel = sender.integerValue
+      } else if _slice.mode == "CW" {
+        _slice.apfLevel = sender.integerValue
+      }
     default:
       fatalError()
     }
@@ -107,6 +115,9 @@ final class DspViewController: NSViewController {
   private func addObservations() {
     
     _observations = [
+      _slice.observe(\.mode, options: [.initial, .new]) { [weak self] (slice, change) in
+        self?.changeHandler(slice, change) },
+        
       _slice.observe(\.wnbEnabled, options: [.initial, .new]) { [weak self] (slice, change) in
         self?.changeHandler(slice, change) },
         
@@ -117,6 +128,9 @@ final class DspViewController: NSViewController {
         self?.changeHandler(slice, change) },
       
       _slice.observe(\.anfEnabled, options: [.initial, .new]) { [weak self] (slice, change) in
+        self?.changeHandler(slice, change) },
+      
+      _slice.observe(\.apfEnabled, options: [.initial, .new]) { [weak self] (slice, change) in
         self?.changeHandler(slice, change) },
       
       _slice.observe(\.wnbLevel, options: [.initial, .new]) { [weak self] (slice, change) in
@@ -130,6 +144,9 @@ final class DspViewController: NSViewController {
       
       _slice.observe(\.anfLevel, options: [.initial, .new]) { [weak self] (slice, change) in
         self?.changeHandler(slice, change) },
+
+      _slice.observe(\.apfLevel, options: [.initial, .new]) { [weak self] (slice, change) in
+        self?.changeHandler(slice, change) }
     ]
   }
   /// Process observations
@@ -141,20 +158,40 @@ final class DspViewController: NSViewController {
   private func changeHandler(_ slice: xLib6000.Slice, _ change: Any) {
 
     DispatchQueue.main.async { [weak self] in
+      
+      switch slice.mode {
+      case "USB", "LSB":
+        self?._anfButton.isEnabled = true
+        self?._anfSlider.isEnabled = true
+        self?._anfButton.title = "ANF"
+        self?._anfButton.boolState = slice.anfEnabled
+        self?._anfSlider.integerValue = slice.anfLevel
+        self?._anfTextField.integerValue = slice.anfLevel
+      case "CW":
+        self?._anfButton.isEnabled = true
+        self?._anfSlider.isEnabled = true
+        self?._anfButton.title = "APF"
+        self?._anfButton.boolState = slice.apfEnabled
+        self?._anfSlider.integerValue = slice.apfLevel
+        self?._anfTextField.integerValue = slice.apfLevel
+      default:
+        self?._anfButton.isEnabled = false
+        self?._anfSlider.isEnabled = false
+        self?._anfButton.title = "---"
+        self?._anfSlider.integerValue = 0
+        self?._anfTextField.stringValue = "---"
+      }
       self?._wnbButton.boolState = slice.wnbEnabled
       self?._nbButton.boolState = slice.nbEnabled
       self?._nrButton.boolState = slice.nrEnabled
-      self?._anfButton.boolState = slice.anfEnabled
 
       self?._wnbSlider.integerValue = slice.wnbLevel
       self?._nbSlider.integerValue = slice.nbLevel
       self?._nrSlider.integerValue = slice.nrLevel
-      self?._anfSlider.integerValue = slice.anfLevel
 
       self?._wnbTextField.integerValue = slice.wnbLevel
       self?._nbTextField.integerValue = slice.nbLevel
       self?._nrTextField.integerValue = slice.nrLevel
-      self?._anfTextField.integerValue = slice.anfLevel
     }
   }
 }

@@ -32,18 +32,18 @@
             <objects>
                 <tabViewController selectedTabViewItemIndex="9" id="f5E-4P-cEO" userLabel="Preference Tabs" customClass="PreferencesTabViewController" customModule="xSDR6000" customModuleProvider="target" sceneMemberID="viewController">
                     <tabViewItems>
-                        <tabViewItem identifier="Radio" id="VqQ-ZR-z6L">
+                        <tabViewItem identifier="radio" id="VqQ-ZR-z6L">
                             <nil key="label"/>
                         </tabViewItem>
-                        <tabViewItem identifier="Network" id="Ie8-pl-Nop"/>
-                        <tabViewItem identifier="Gps" id="SQc-wf-bHE"/>
-                        <tabViewItem identifier="Tx" id="1WM-Ti-q1Y"/>
-                        <tabViewItem identifier="Phone/Cw" id="g53-AL-t1Z"/>
-                        <tabViewItem identifier="Rx" id="JLc-Qe-boh"/>
-                        <tabViewItem identifier="Filters" id="EHF-3j-sVD"/>
-                        <tabViewItem identifier="Xvtr" id="Mu6-HH-9zb"/>
-                        <tabViewItem identifier="Colors" id="TqV-sj-8rV"/>
-                        <tabViewItem identifier="Info" id="mlb-8U-8kS"/>
+                        <tabViewItem identifier="network" id="Ie8-pl-Nop"/>
+                        <tabViewItem identifier="gps" id="SQc-wf-bHE"/>
+                        <tabViewItem identifier="tx" id="1WM-Ti-q1Y"/>
+                        <tabViewItem identifier="phone/cw" id="g53-AL-t1Z"/>
+                        <tabViewItem identifier="rx" id="JLc-Qe-boh"/>
+                        <tabViewItem identifier="filters" id="EHF-3j-sVD"/>
+                        <tabViewItem identifier="xvtr" id="Mu6-HH-9zb"/>
+                        <tabViewItem identifier="colors" id="TqV-sj-8rV"/>
+                        <tabViewItem identifier="info" id="mlb-8U-8kS"/>
                     </tabViewItems>
                     <viewControllerTransitionOptions key="transitionOptions"/>
                     <tabView key="tabView" autoresizesSubviews="NO" type="noTabsNoBorder" id="he4-CK-QQP">

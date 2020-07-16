@@ -80,6 +80,17 @@ OpusOSX, framework built from sources at:
 * https://opus-codec.org/downloads/
 
 
+## 1.2.6 Release Notes
+
+* corrected crash when opening if Side View was open on last execution
+* corrected Slice / Spectrum dragging in Panadapter
+* corrected issue with opening Preferences
+* corrected 1 Hz rounding errors in frequency
+* corrected ANF / APF in Flag->DSP tab
+* corrected Audio Gain on Flag->AUD tab
+* corrected missing frequency & filter values on Side View RX tab
+
+
 ## 1.2.5 Release Notes
 
 * added Startup Message and "showStartupMessage" Defaults key

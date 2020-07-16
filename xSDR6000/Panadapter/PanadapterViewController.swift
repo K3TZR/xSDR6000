@@ -434,10 +434,10 @@ final class PanadapterViewController        : NSViewController, NSGestureRecogni
   /// - Returns:              a slice or nil
   ///
   private func hitTestSlice(at freq: CGFloat, thisPanOnly: Bool = true) -> xLib6000.Slice? {
-    var hitSlice: xLib6000.Slice?
+    var hitSlice: xLib6000.Slice? = nil
 
     // calculate a minimum width for hit testing
-    let effectiveWidth = Int( CGFloat(_p.bandwidth) * 0.01)
+//    let effectiveWidth = Int( CGFloat(_p.bandwidth) * 0.01)
     
     for (_, slice) in _p.radio.slices {
       
@@ -447,14 +447,27 @@ final class PanadapterViewController        : NSViewController, NSGestureRecogni
         // YES, skip this Slice
         continue
       }
-      // is the Slice within the halfWidth?
-      let halfWidth = max(effectiveWidth, (slice.filterHigh - slice.filterLow)/2)
-      if slice.frequency - halfWidth <= Int(freq) && slice.frequency + halfWidth >= Int(freq) {
-        
-        // YES, save it and break out
-        hitSlice = slice
-        break
+//      let testWidth = max(effectiveWidth, (slice.filterHigh - slice.filterLow))
+      let testWidth = slice.filterHigh - slice.filterLow
+      // is the Slice within the testWidth?
+      switch slice.mode {
+      case "USB", "DIGU":               // upper-side only
+        if Int(freq) >= slice.frequency && Int(freq) <= slice.frequency + testWidth { hitSlice = slice }
+//        Swift.print("USB: \(Int(freq)) >= \(slice.frequency)  &&  <= \(slice.frequency + testWidth), \(hitSlice == nil ? "NO" : "YES")")
+     
+      case "LSB", "DIGL":                // lower-side only
+        if Int(freq) >= slice.frequency - testWidth && Int(freq) <= slice.frequency { hitSlice = slice }
+//        Swift.print("LSB: \(Int(freq)) >= \(slice.frequency - testWidth)  &&  <= \(slice.frequency), \(hitSlice == nil ? "NO" : "YES")")
+      
+      case "AM", "SAM", "FM","NFM":     // both sides
+        if Int(freq) >= slice.frequency - (testWidth/2) && Int(freq) <= slice.frequency + (testWidth/2) { hitSlice = slice }
+//        Swift.print("AM: \(Int(freq)) >= \(slice.frequency - (testWidth/2))  &&  <= \(slice.frequency + (testWidth/2)), \(hitSlice == nil ? "NO" : "YES")")
+      
+      default:                          // both sides
+        if Int(freq) >= slice.frequency - (testWidth/2) && Int(freq) <= slice.frequency + (testWidth/2) { hitSlice = slice }
+//        Swift.print("DEFAULT: \(Int(freq)) >= \(slice.frequency - (testWidth/2))  &&  <= \(slice.frequency + (testWidth/2)), \(hitSlice == nil ? "NO" : "YES")")
       }
+      if hitSlice != nil { break }
     }
     return hitSlice
   }
