@@ -30,7 +30,7 @@ class LogViewerViewController: NSViewController {
   // MARK: - Overriden methods
   
   override func viewDidLoad() {
-        super.viewDidLoad()
+    super.viewDidLoad()
 
     _log("Log Viewer opened", .debug,  #function, #file, #line)
 

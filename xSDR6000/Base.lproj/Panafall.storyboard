@@ -93,7 +93,7 @@
                                                     <font key="font" metaFont="systemBold"/>
                                                 </buttonCell>
                                                 <connections>
-                                                    <segue destination="AJ9-ZE-hlS" kind="popover" popoverAnchorView="Rf4-7B-G4e" popoverBehavior="t" preferredEdge="maxY" id="9e6-JR-ar5"/>
+                                                    <segue destination="AJ9-ZE-hlS" kind="popover" identifier="DaxPopover" popoverAnchorView="Rf4-7B-G4e" popoverBehavior="t" preferredEdge="minX" id="xzx-dj-gFn"/>
                                                 </connections>
                                             </button>
                                         </subviews>
@@ -355,38 +355,6 @@
                 <userDefaultsController id="BPQ-x3-geH"/>
             </objects>
             <point key="canvasLocation" x="1453" y="328"/>
-        </scene>
-        <!--Mini View Controller-->
-        <scene sceneID="3bg-Iy-HJX">
-            <objects>
-                <viewController id="dHA-rt-7aI" customClass="MiniViewController" customModule="xSDR6000" customModuleProvider="target" sceneMemberID="viewController">
-                    <view key="view" id="bv7-YS-S2D">
-                        <rect key="frame" x="0.0" y="0.0" width="311" height="90"/>
-                        <autoresizingMask key="autoresizingMask"/>
-                        <subviews>
-                            <containerView translatesAutoresizingMaskIntoConstraints="NO" id="MMO-jB-u92">
-                                <rect key="frame" x="0.0" y="0.0" width="311" height="90"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="90" id="CZY-Lh-j1h"/>
-                                    <constraint firstAttribute="width" constant="311" id="cKc-wA-SI2"/>
-                                </constraints>
-                            </containerView>
-                        </subviews>
-                        <constraints>
-                            <constraint firstItem="MMO-jB-u92" firstAttribute="top" secondItem="bv7-YS-S2D" secondAttribute="top" id="5gF-rx-eHI"/>
-                            <constraint firstAttribute="bottom" secondItem="MMO-jB-u92" secondAttribute="bottom" id="GTB-As-cvd"/>
-                            <constraint firstItem="MMO-jB-u92" firstAttribute="leading" secondItem="bv7-YS-S2D" secondAttribute="leading" id="nfZ-EO-Ha7"/>
-                            <constraint firstAttribute="trailing" secondItem="MMO-jB-u92" secondAttribute="trailing" id="ugu-Pl-5up"/>
-                        </constraints>
-                    </view>
-                    <connections>
-                        <outlet property="_miniContainer" destination="bv7-YS-S2D" id="RN7-t3-cQh"/>
-                        <outlet property="_miniContainerHeight" destination="CZY-Lh-j1h" id="AtD-FI-39G"/>
-                    </connections>
-                </viewController>
-                <customObject id="qXD-qS-3J2" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="1656" y="559"/>
         </scene>
         <!--Antenna-->
         <scene sceneID="TrX-ib-eyb">

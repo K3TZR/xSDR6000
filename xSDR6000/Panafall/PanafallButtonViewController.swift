@@ -31,7 +31,6 @@ final class PanafallButtonViewController    : NSViewController {
   private let kAntennaPopoverIdentifier     = "AntennaPopover"
   private let kDisplayPopoverIdentifier     = "DisplayPopover"
   private let kDaxPopoverIdentifier         = "DaxPopover"
-  private let kMiniPopoverIdentifier        = "MiniPopover"
 
   // ----------------------------------------------------------------------------
   // MARK: - Overridden methods
@@ -77,10 +76,6 @@ final class PanafallButtonViewController    : NSViewController {
     case kDaxPopoverIdentifier:
       // pass the Popovers a reference to the panadapter
       (segue.destinationController as! DaxIqViewController).configure(params: _p)
-
-//    case kMiniPopoverIdentifier:
-//      // pass the Popovers a reference to the panadapter
-//      (segue.destinationController as! MiniViewController).configure(params: _p)
 
     default:
       break

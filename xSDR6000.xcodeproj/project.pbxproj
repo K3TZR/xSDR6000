@@ -247,6 +247,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		915B9A5C24C3331A00BEC75B /* Mini */ = {
+			isa = PBXGroup;
+			children = (
+				915B9A5A24BF9F2900BEC75B /* MiniViewController.swift */,
+			);
+			path = Mini;
+			sourceTree = "<group>";
+		};
 		91E477E823B66661004DA6A7 = {
 			isa = PBXGroup;
 			children = (
@@ -277,6 +285,7 @@
 				91E4787423B666EE004DA6A7 /* Info.plist */,
 				91E4786F23B666EE004DA6A7 /* AppDelegate.swift */,
 				91E4787223B666EE004DA6A7 /* AppExtensions.swift */,
+				915B9A5C24C3331A00BEC75B /* Mini */,
 				91E4783223B666EE004DA6A7 /* Radio */,
 				91E4786A23B666EE004DA6A7 /* Panafall */,
 				91E4785C23B666EE004DA6A7 /* Panadapter */,
@@ -384,7 +393,6 @@
 				91E4783723B666EE004DA6A7 /* DisplayViewController.swift */,
 				91E4783823B666EE004DA6A7 /* AntennaViewController.swift */,
 				91E4783923B666EE004DA6A7 /* DaxIqViewController.swift */,
-				915B9A5A24BF9F2900BEC75B /* MiniViewController.swift */,
 			);
 			path = Buttons;
 			sourceTree = "<group>";
@@ -924,7 +932,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
-				MARKETING_VERSION = 1.2.6;
+				MARKETING_VERSION = 1.2.7;
 				PRODUCT_BUNDLE_IDENTIFIER = net.k3tzr.xSDR6000;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "xSDR6000/xSDR6000-Bridging-Header.h";
@@ -954,7 +962,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
-				MARKETING_VERSION = 1.2.6;
+				MARKETING_VERSION = 1.2.7;
 				PRODUCT_BUNDLE_IDENTIFIER = net.k3tzr.xSDR6000;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "xSDR6000/xSDR6000-Bridging-Header.h";

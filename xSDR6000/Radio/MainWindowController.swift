@@ -14,7 +14,7 @@ import SwiftyUserDefaults
 // MARK: - Main Window Controller class implementation
 // --------------------------------------------------------------------------------
 
-final class MainWindowController                  : NSWindowController, NSWindowDelegate, RadioPickerDelegate, WanManagerDelegate {
+final class MainWindowController : NSWindowController, NSWindowDelegate, RadioPickerDelegate, WanManagerDelegate, MiniViewDelegate {
   
   // ----------------------------------------------------------------------------
   // MARK: - Public properties
@@ -54,14 +54,16 @@ final class MainWindowController                  : NSWindowController, NSWindow
   private var _temperatureMeterAvailable    = false
   private var _voltageMeterAvailable        = false
   private var _pleaseWait                   : NSAlert!
+//  private var _xMini                        : MiniViewController?
+  private var _xMiniWindow                  : NSWindow?
   
   private enum WindowState {
     case open
     case close
   }
   
-  private lazy var _xSDR6000Menu = NSApplication.shared.mainMenu?.item(withTitle: "xSDR6000")
-  private lazy var _radioMenu = NSApplication.shared.mainMenu?.item(withTitle: "Radio")
+  private lazy var _xSDR6000Menu  = NSApplication.shared.mainMenu?.item(withTitle: "xSDR6000")
+  private lazy var _radioMenu     = NSApplication.shared.mainMenu?.item(withTitle: "Radio")
 
   private let kSideStoryboardName           = "Side"
   private let kSideIdentifier               = "Side"
@@ -81,11 +83,12 @@ final class MainWindowController                  : NSWindowController, NSWindow
     NSColorPanel.setPickerMask(NSColorPanel.Options.wheelModeMask)
     
     _radioMenu?.item(title: "SmartLink enabled")?.boolState = Defaults.smartLinkEnabled
-    
+
     // get my version
     Logger.sharedInstance.version = Version()
     
     title()
+    enableButtons(false)
     
     startupMessage()
     
@@ -98,9 +101,7 @@ final class MainWindowController                  : NSWindowController, NSWindow
   }
   
   func windowShouldClose(_ sender: NSWindow) -> Bool {
-
     DispatchQueue.main.async { self.quitApplication(sender) }
-    
     return false
   }
   
@@ -234,7 +235,30 @@ final class MainWindowController                  : NSWindowController, NSWindow
     _tnfButton.boolState = sender.boolState
     Api.sharedInstance.radio!.tnfsEnabled = sender.boolState
   }
-  
+
+  @IBAction func xMiniMenu(_ sender: NSMenuItem) {
+    sender.boolState.toggle()
+    
+    if sender.boolState {
+      // Show the Mini window and minitiarize the main window
+      if let radio = _api.radio, let slice = radio.findActiveSlice(), let pan = radio.panadapters[slice.panadapterId] {
+        
+        let sb = NSStoryboard(name: "Main", bundle: nil)
+        let xMini = sb.instantiateController(withIdentifier: "xmini") as? MiniViewController
+        xMini?.configure(delegate: self, slice: slice, pan: pan)
+        _xMiniWindow = NSWindow(contentViewController: xMini!)
+        _xMiniWindow!.makeKeyAndOrderFront(self)
+        
+        window!.miniaturize(self)
+        
+        NC.makeObserver(self, with: #selector(xMiniWindowWillClose(_:)), of: NSWindow.willCloseNotification.rawValue, object: _xMiniWindow!)
+      }
+   
+    } else {
+      closeMiniView()
+    }
+  }
+
   // ----------------------------------------------------------------------------
   // MARK: - Private methods
   
@@ -672,11 +696,13 @@ final class MainWindowController                  : NSWindowController, NSWindow
       
       self?._xSDR6000Menu?.item(title: "Preferences")?.isEnabled = state
       self?._xSDR6000Menu?.item(title: "Profiles")?.isEnabled = state
+
       self?._radioMenu?.item(title: "New Pan")?.isEnabled = state
       self?._radioMenu?.item(title: "Tnf On/Off")?.isEnabled = state
       self?._radioMenu?.item(title: "Markers On/Off")?.isEnabled = state
       self?._radioMenu?.item(title: "Side View On/Off")?.isEnabled = state
       self?._radioMenu?.item(title: "Next Slice")?.isEnabled = state
+      self?._radioMenu?.item(title: "xMini")?.isEnabled = state
     }
   }
   
@@ -716,12 +742,12 @@ final class MainWindowController                  : NSWindowController, NSWindow
   // ----------------------------------------------------------------------------
   // MARK: - Notification Methods
   
-  /// Add subscriptions to Notifications
-  ///
   private func addNotifications() {
     NC.makeObserver(self, with: #selector(radioHasBeenAdded(_:)), of: .radioHasBeenAdded)
     NC.makeObserver(self, with: #selector(radioWillBeRemoved(_:)), of: .radioWillBeRemoved)
     NC.makeObserver(self, with: #selector(radioHasBeenRemoved(_:)), of: .radioHasBeenRemoved)
+
+    NC.makeObserver(self, with: #selector(sliceWillBeRemoved(_:)), of: .sliceWillBeRemoved)
 
     NC.makeObserver(self, with: #selector(tcpPingResponse(_:)), of: .tcpPingResponse)
 
@@ -750,6 +776,8 @@ final class MainWindowController                  : NSWindowController, NSWindow
       
       _pingResponse = false
       enableButtons(false)
+      
+      closeMiniView()
 
       if Defaults.sideViewOpen { closeSideView() }
       removeObservations()
@@ -762,6 +790,14 @@ final class MainWindowController                  : NSWindowController, NSWindow
     if let name = note.object as? String {
       // the Radio class has been removed
       _log("Radio has been removed: \(name)", .info, #function, #file, #line)
+    }
+  }
+
+  @objc private func sliceWillBeRemoved(_ note: Notification) {
+    if let radio = _api.radio {
+      if radio.slices.count == 1 {
+        closeMiniView()
+      }
     }
   }
 
@@ -781,7 +817,7 @@ final class MainWindowController                  : NSWindowController, NSWindow
       if Defaults.sideViewOpen { DispatchQueue.main.async { self.openSideView() } }
       
       // start audio if active
-      if Defaults.macAudioActive { macAudioStart()}
+      if Defaults.macAudioActive { macAudioStart() }
     }
   }
 
@@ -835,6 +871,10 @@ final class MainWindowController                  : NSWindowController, NSWindow
       _opusPlayer?.stop()
       _opusPlayer = nil
     }
+  }
+
+  @objc private func xMiniWindowWillClose(_ note: Notification) {
+    window!.deminiaturize(self)
   }
 
   // ----------------------------------------------------------------------------
@@ -989,4 +1029,17 @@ final class MainWindowController                  : NSWindowController, NSWindow
     smartLinkImage = image
     didChangeValue(for: \.smartLinkImage)
   }
+  
+  // ----------------------------------------------------------------------------
+  // MARK: - MiniViewDelegate methods
+    
+  func closeMiniView() {
+    DispatchQueue.main.async { [weak self] in
+      self?._xMiniWindow?.performClose(self)
+      self?._xMiniWindow = nil
+      
+      self?.window!.deminiaturize(self)
+    }
+  }
+  
 }

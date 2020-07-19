@@ -342,6 +342,7 @@ final class FlagViewController : NSViewController, NSTextFieldDelegate, NSGestur
       controlsVc?.selectedTabViewItemIndex = sender.tag
 
       if _vc is SideViewController { (_vc as! SideViewController).setRxHeight(2 * FlagViewController.kLargeFlagHeight) }
+      if _vc is MiniViewController { (_vc as! MiniViewController).setMiniHeight(2 * FlagViewController.kLargeFlagHeight) }
 
       // unhide the controls
       controlsVc!.view.isHidden = false
@@ -352,6 +353,7 @@ final class FlagViewController : NSViewController, NSTextFieldDelegate, NSGestur
       controlsVc!.view.isHidden = true
 
       if _vc is SideViewController { (_vc as! SideViewController).setRxHeight( FlagViewController.kLargeFlagHeight) }
+      if _vc is MiniViewController { (_vc as! MiniViewController).setMiniHeight( FlagViewController.kLargeFlagHeight) }
     }
   }
   

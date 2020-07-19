@@ -80,6 +80,12 @@ OpusOSX, framework built from sources at:
 * https://opus-codec.org/downloads/
 
 
+## 1.2.7 Release Notes
+
+* fixed crash when selecting Dax button on Panadapter left side
+* added xMini and xMini entry in Radio menu
+
+
 ## 1.2.6 Release Notes
 
 * corrected crash when opening if Side View was open on last execution
