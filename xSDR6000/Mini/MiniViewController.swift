@@ -14,10 +14,16 @@ import xLib6000
 
 protocol MiniViewDelegate : class {
   
-  func closeMiniView()
+  func closeMiniWindows(_ item: AnyObject?)
 }
 
 final class MiniViewController : NSViewController {
+  
+  // ----------------------------------------------------------------------------
+  // MARK: - Internal properties
+  
+  var slice : xLib6000.Slice?
+  var pan   : Panadapter?
 
   // ----------------------------------------------------------------------------
   // MARK: - Private properties
@@ -25,11 +31,10 @@ final class MiniViewController : NSViewController {
   @IBOutlet private weak var _miniContainer       : NSView!
   @IBOutlet private weak var _miniContainerHeight : NSLayoutConstraint!
   
-  private var _delegate : MainWindowController?
+  private var _delegate     : MainWindowController?
   
-  private var _flagVc   : FlagViewController!
-  private var _slice    : xLib6000.Slice?
-  private var _pan      : Panadapter?
+  private var _autosaveName = ""
+  private var _flagVc       : FlagViewController!
   
   // ----------------------------------------------------------------------------
   // MARK: - Overridden methods
@@ -40,7 +45,7 @@ final class MiniViewController : NSViewController {
     addNotifications()
     
     // create a Flag with this popover as its parent
-    _flagVc = FlagViewController.createFlag(for: _slice!, and: _pan!, on: self)
+    _flagVc = FlagViewController.createFlag(for: slice!, and: pan!, on: self)
     
     // add the Flag to the view hierarchy
     FlagViewController.addFlag(_flagVc!,
@@ -52,21 +57,36 @@ final class MiniViewController : NSViewController {
     // make it visible
     _miniContainerHeight.constant = 90
   }
-
+  
   override func viewWillAppear() {
     super.viewWillAppear()
+        
+    _autosaveName = view.window!.title
     
     view.window!.level = .floating
     view.window!.styleMask.remove(.resizable)
     view.window!.styleMask.remove(.miniaturizable)
+
+    view.window!.setFrameUsingName(_autosaveName)
   }
   
+  override func viewWillDisappear() {
+    super.viewWillDisappear()
+    
+    view.window!.saveFrame(usingName: _autosaveName)
+  }
+  
+  deinit {
+    Swift.print("----->>>>> MiniViewController Deinit")
+    _flagVc.removeObservations()
+  }
+
   // ----------------------------------------------------------------------------
   // MARK: - Action methods
   
   @IBAction func xMiniMenu(_ sender: NSMenuItem) {
     sender.boolState = false
-    _delegate?.closeMiniView()
+    _delegate?.closeMiniWindows()
   }
 
   @IBAction func nextSliceMenu(_ sender: NSMenuItem) {
@@ -87,12 +107,16 @@ final class MiniViewController : NSViewController {
 
   func configure(delegate: MainWindowController, slice: Slice, pan: Panadapter) {
     _delegate = delegate
-    _slice = slice
-    _pan = pan
+    self.slice = slice
+    self.pan = pan
   }
   
   func setMiniHeight(_ height: CGFloat) {
     self._miniContainerHeight.constant = height
+  }
+  
+  func removeObservations() {
+    _flagVc.removeObservations()
   }
   
   // ----------------------------------------------------------------------------

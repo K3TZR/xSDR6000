@@ -497,11 +497,11 @@ final class FlagViewController : NSViewController, NSTextFieldDelegate, NSGestur
       
       slice.observe(\.filterHigh, options: [.initial, .new]) { [weak self] (slice, change) in
         if let panVc = self?._vc as? PanadapterViewController { panVc.redrawFrequencyLegend() }
-          DispatchQueue.main.async { self!._filterWidth.stringValue = self!.calcFilterWidth(slice, change) }},
+          DispatchQueue.main.async { self?._filterWidth.stringValue = self!.calcFilterWidth(slice, change) }},
       
       slice.observe(\.filterLow, options: [.initial, .new]) { [weak self] (slice, change) in
         if let panVc = self?._vc as? PanadapterViewController { panVc.redrawFrequencyLegend() }
-          DispatchQueue.main.async { self!._filterWidth.stringValue = self!.calcFilterWidth(slice, change) }},
+          DispatchQueue.main.async { self?._filterWidth.stringValue = self!.calcFilterWidth(slice, change) }},
       
       slice.observe(\.frequency, options: [.initial, .new]) { [weak self] (slice, change) in
         if let panVc = self?._vc as? PanadapterViewController { panVc.redrawFrequencyLegend() }

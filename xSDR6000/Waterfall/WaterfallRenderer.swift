@@ -159,7 +159,7 @@ public final class WaterfallRenderer: NSObject, MTKViewDelegate {
     // create a Command Buffer & Encoder
     guard let buffer = _commandQueue.makeCommandBuffer() else { fatalError("Unable to create a Command Queue") }
     guard let desc = view.currentRenderPassDescriptor else { fatalError("Unable to create a Render Pass Descriptor") }
-    desc.colorAttachments[0].loadAction = .dontCare
+    desc.colorAttachments[0].loadAction = .clear
     desc.colorAttachments[0].storeAction = .dontCare
     guard let encoder = buffer.makeRenderCommandEncoder(descriptor: desc) else { fatalError("Unable to create a Command Encoder") }
 

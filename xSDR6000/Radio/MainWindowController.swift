@@ -14,7 +14,7 @@ import SwiftyUserDefaults
 // MARK: - Main Window Controller class implementation
 // --------------------------------------------------------------------------------
 
-final class MainWindowController : NSWindowController, NSWindowDelegate, RadioPickerDelegate, WanManagerDelegate, MiniViewDelegate {
+final class MainWindowController : NSWindowController, NSWindowDelegate, RadioPickerDelegate, WanManagerDelegate, MiniViewDelegate {  
   
   // ----------------------------------------------------------------------------
   // MARK: - Public properties
@@ -54,8 +54,7 @@ final class MainWindowController : NSWindowController, NSWindowDelegate, RadioPi
   private var _temperatureMeterAvailable    = false
   private var _voltageMeterAvailable        = false
   private var _pleaseWait                   : NSAlert!
-//  private var _xMini                        : MiniViewController?
-  private var _xMiniWindow                  : NSWindow?
+  private var _xMiniWindows                 = [NSWindow]()
   
   private enum WindowState {
     case open
@@ -240,27 +239,39 @@ final class MainWindowController : NSWindowController, NSWindowDelegate, RadioPi
     sender.boolState.toggle()
     
     if sender.boolState {
-      // Show the Mini window and minitiarize the main window
-      if let radio = _api.radio, let slice = radio.findActiveSlice(), let pan = radio.panadapters[slice.panadapterId] {
+      // Show the Mini window(s) and minitiarize the main window
+      showMiniWindows()
+      window!.miniaturize(self)
+      
+    } else {
+      // Close the Mini window(s) and restore the main window
+      closeMiniWindows()
+    }
+  }
+  
+  // ----------------------------------------------------------------------------
+  // MARK: - Private methods
+  
+  private func showMiniWindows() {
+    // for each panadapter on this Station
+    for (id, pan) in _api.radio!.panadapters where _api.connectionHandle == pan.clientHandle {
+      // if there is a Slice
+      if let slice =  _api.radio!.findFirstSlice(on: id) {
         
+        // create a Mini, set its title, show it cascaded with others
         let sb = NSStoryboard(name: "Main", bundle: nil)
         let xMini = sb.instantiateController(withIdentifier: "xmini") as? MiniViewController
         xMini?.configure(delegate: self, slice: slice, pan: pan)
-        _xMiniWindow = NSWindow(contentViewController: xMini!)
-        _xMiniWindow!.makeKeyAndOrderFront(self)
+        let xMiniWindow = NSWindow(contentViewController: xMini!)
+        xMiniWindow.title = "xMini - \(pan.band)"
+        xMiniWindow.makeKeyAndOrderFront(self)
+        _xMiniWindows.append(xMiniWindow)
         
-        window!.miniaturize(self)
-        
-        NC.makeObserver(self, with: #selector(xMiniWindowWillClose(_:)), of: NSWindow.willCloseNotification.rawValue, object: _xMiniWindow!)
+        // observe its closing
+        NC.makeObserver(self, with: #selector(xMiniWindowWillClose(_:)), of: NSWindow.willCloseNotification.rawValue, object: xMiniWindow)
       }
-   
-    } else {
-      closeMiniView()
     }
   }
-
-  // ----------------------------------------------------------------------------
-  // MARK: - Private methods
   
   private func startupMessage() {
     
@@ -743,10 +754,14 @@ final class MainWindowController : NSWindowController, NSWindowDelegate, RadioPi
   // MARK: - Notification Methods
   
   private func addNotifications() {
+    
+    NC.makeObserver(self, with:#selector(didDeminiaturize(_:)), of: NSWindow.didDeminiaturizeNotification.rawValue)
+    
     NC.makeObserver(self, with: #selector(radioHasBeenAdded(_:)), of: .radioHasBeenAdded)
     NC.makeObserver(self, with: #selector(radioWillBeRemoved(_:)), of: .radioWillBeRemoved)
     NC.makeObserver(self, with: #selector(radioHasBeenRemoved(_:)), of: .radioHasBeenRemoved)
 
+    NC.makeObserver(self, with: #selector(panadapterWillBeRemoved(_:)), of: .panadapterWillBeRemoved)
     NC.makeObserver(self, with: #selector(sliceWillBeRemoved(_:)), of: .sliceWillBeRemoved)
 
     NC.makeObserver(self, with: #selector(tcpPingResponse(_:)), of: .tcpPingResponse)
@@ -777,7 +792,7 @@ final class MainWindowController : NSWindowController, NSWindowDelegate, RadioPi
       _pingResponse = false
       enableButtons(false)
       
-      closeMiniView()
+      closeMiniWindows()
 
       if Defaults.sideViewOpen { closeSideView() }
       removeObservations()
@@ -790,14 +805,6 @@ final class MainWindowController : NSWindowController, NSWindowDelegate, RadioPi
     if let name = note.object as? String {
       // the Radio class has been removed
       _log("Radio has been removed: \(name)", .info, #function, #file, #line)
-    }
-  }
-
-  @objc private func sliceWillBeRemoved(_ note: Notification) {
-    if let radio = _api.radio {
-      if radio.slices.count == 1 {
-        closeMiniView()
-      }
     }
   }
 
@@ -873,10 +880,27 @@ final class MainWindowController : NSWindowController, NSWindowDelegate, RadioPi
     }
   }
 
+  @objc private func panadapterWillBeRemoved(_ note: Notification) {
+    if let pan = note.object as? Panadapter {
+      closeMiniWindows( pan as AnyObject)
+    }
+  }
+  
+  @objc private func sliceWillBeRemoved(_ note: Notification) {
+    if let slice = note.object as? Slice {
+      closeMiniWindows( slice as AnyObject)
+    }
+  }
+
+
   @objc private func xMiniWindowWillClose(_ note: Notification) {
     window!.deminiaturize(self)
   }
 
+  @objc private func didDeminiaturize(_ note: Notification) {
+    closeMiniWindows()
+  }
+  
   // ----------------------------------------------------------------------------
   // MARK: - RadioPickerDelegate methods
   
@@ -1033,13 +1057,43 @@ final class MainWindowController : NSWindowController, NSWindowDelegate, RadioPi
   // ----------------------------------------------------------------------------
   // MARK: - MiniViewDelegate methods
     
-  func closeMiniView() {
-    DispatchQueue.main.async { [weak self] in
-      self?._xMiniWindow?.performClose(self)
-      self?._xMiniWindow = nil
-      
-      self?.window!.deminiaturize(self)
+  func closeMiniWindows(_ item: AnyObject? = nil) {
+
+    DispatchQueue.main.async { [unowned self] in
+      if item == nil {
+        // close them all
+        self._xMiniWindows.forEach { $0.performClose(self) }
+        // empty the array
+        self._xMiniWindows.removeAll()
+        // bring back the main window
+        self.window!.deminiaturize(self)
+        
+      } else {
+        if let pan = item as? Panadapter {
+          
+          for (i, window) in self._xMiniWindows.enumerated().reversed() {
+            if (window.contentViewController as! MiniViewController).pan == pan {
+              
+              (window.contentViewController as! MiniViewController).removeObservations()
+              self._xMiniWindows[i].performClose(self)
+              self._xMiniWindows.remove(at: i)
+            }
+          }
+          
+        } else if let slice = item as? xLib6000.Slice {
+          
+          for (i, window) in self._xMiniWindows.enumerated().reversed() {
+            if (window.contentViewController as! MiniViewController).slice == slice {
+
+              (window.contentViewController as! MiniViewController).removeObservations()
+              self._xMiniWindows[i].performClose(self)
+              self._xMiniWindows.remove(at: i)
+            }
+          }
+        }
+      }
+      if self._xMiniWindows.count == 0 { self._radioMenu?.item(title: "xMini")?.boolState = false
+      }
     }
   }
-  
 }

@@ -31,15 +31,15 @@
         <scene sceneID="KPf-3o-fQ2">
             <objects>
                 <viewController title="xMini" storyboardIdentifier="xmini" id="A2c-Nl-G4I" customClass="MiniViewController" customModule="xSDR6000" customModuleProvider="target" sceneMemberID="viewController">
-                    <view key="view" id="s5m-1m-z06">
-                        <rect key="frame" x="0.0" y="0.0" width="311" height="90"/>
+                    <view key="view" misplaced="YES" id="s5m-1m-z06">
+                        <rect key="frame" x="0.0" y="0.0" width="276" height="90"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
                             <containerView translatesAutoresizingMaskIntoConstraints="NO" id="3UF-d4-ghk">
-                                <rect key="frame" x="0.0" y="0.0" width="311" height="90"/>
+                                <rect key="frame" x="0.0" y="0.0" width="276" height="90"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="90" id="SzK-9I-8Uv"/>
-                                    <constraint firstAttribute="width" constant="311" id="xl2-Ka-aUd"/>
+                                    <constraint firstAttribute="width" constant="276" id="xl2-Ka-aUd"/>
                                 </constraints>
                             </containerView>
                         </subviews>

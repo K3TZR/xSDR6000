@@ -100,6 +100,12 @@ final class BandButtonViewController              : NSViewController, NSPopoverD
     return true
   }
   
+  deinit {
+    Swift.print("----->>>>> Deinit")
+    _timer.cancel()
+    _timer = nil
+  }
+  
   // ----------------------------------------------------------------------------
   // MARK: - Internal methods
   
@@ -111,15 +117,9 @@ final class BandButtonViewController              : NSViewController, NSPopoverD
     // create and schedule a timer
     _timer = DispatchSource.makeTimerSource(flags: [])
     _timer.schedule(deadline: DispatchTime.now() + 5, repeating: .seconds(3), leeway: .seconds(1))
-    _timer.setEventHandler { [ unowned self] in
+    _timer.setEventHandler { [ weak self] in
       // dismiss if not detached or not in use
-      if !self._isDetached {
-        if self._inUse {
-          self._inUse = false
-        } else {
-          DispatchQueue.main.async { self.dismiss(nil) }
-        }
-      }
+      self?.close()
     }
     // start the timer
     _timer.resume()
@@ -153,6 +153,15 @@ final class BandButtonViewController              : NSViewController, NSPopoverD
   
   // ----------------------------------------------------------------------------
   // MARK: - Private methods
+  
+  private func close() {
+    if !_isDetached || !_inUse {
+      _timer.cancel()
+      DispatchQueue.main.async{ [weak self] in
+        self?.dismiss(nil)
+      }
+    }
+  }
   
   private func loadButtons(_ titles: [String]) {
     
