@@ -77,7 +77,6 @@ final class MiniViewController : NSViewController {
   }
   
   deinit {
-    Swift.print("----->>>>> MiniViewController Deinit")
     _flagVc.removeObservations()
   }
 

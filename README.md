@@ -80,6 +80,16 @@ OpusOSX, framework built from sources at:
 * https://opus-codec.org/downloads/
 
 
+## 1.2.8 Release Notes
+
+* xMini enhanced to make multiple Mini's, one per Panadapter
+* made xMini background opaque
+* made xMIni remember window position (by band)
+* changed Panadapter & Waterfall load/store actions to .clear/.dontcare
+* revised BandButtons (prep for adding Xvtr bandbuttons)
+* corrected an error in panadapter fill level & color
+
+
 ## 1.2.7 Release Notes
 
 * fixed crash when selecting Dax button on Panadapter left side

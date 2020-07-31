@@ -210,8 +210,8 @@ final class FlagViewController : NSViewController, NSTextFieldDelegate, NSGestur
     super.viewWillAppear()
     
     // set the background color of the Flag
-    if _vc is SideViewController {
-      // make it opague if a Side view
+    if _vc is SideViewController || _vc is MiniViewController {
+      // make it opague if a Side or Mini view
       view.layer?.backgroundColor = NSColor.black.cgColor
     } else {
       // can be less opague as a Slice flag

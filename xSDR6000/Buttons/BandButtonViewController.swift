@@ -50,24 +50,7 @@ final class BandButtonViewController              : NSViewController, NSPopoverD
         _button15, _button16, _button17
       ]
   }
-  private let _hfPanel = [
-    "160", "80", "60",
-    "40", "30", "20",
-    "17", "15", "12",
-    "10", "6", "4",
-    "", "WWV", "GEN",
-    "2200", "6300", "XVTR"
-  ]
-  
-  private let _xvtrPanel =
-  [
-    "", "", "",
-    "", "", "",
-    "", "", "",
-    "", "", "",
-    "", "", "",
-    "", "", "HF"
-  ]
+
 
   // ----------------------------------------------------------------------------
   // MARK: - Overridden methods
@@ -75,21 +58,12 @@ final class BandButtonViewController              : NSViewController, NSPopoverD
   override func viewDidLoad() {
     super.viewDidLoad()
     
-    var bandTitle = _p.panadapter.band
-    switch bandTitle {
-    
-    case "33":  bandTitle = "WWV"
-    case "34":  bandTitle = "GEN"
-    default:    break
-    }
     // load the button titles
-    if _hfPanel.contains(bandTitle) { loadButtons(_hfPanel) }
-    if _xvtrPanel.contains(bandTitle) { loadButtons(_xvtrPanel) }
+    loadButtons( Band.hfList )
     
-    // handle the special cases
     // highlight the current band button
     for button in _buttons {
-      button.boolState = (bandTitle == button.title)
+      button.boolState = (Int(_p.panadapter.band) == button.tag)
     }
     // start the timer
     startTimer()
@@ -101,7 +75,7 @@ final class BandButtonViewController              : NSViewController, NSPopoverD
   }
   
   deinit {
-    Swift.print("----->>>>> Deinit")
+
     _timer.cancel()
     _timer = nil
   }
@@ -129,26 +103,27 @@ final class BandButtonViewController              : NSViewController, NSPopoverD
   // MARK: - Action methods
   
   @IBAction func buttonPush(_ sender: NSButton) {
-    var band = sender.title
-    
-    for button in _buttons {
-      button.boolState = (button == sender && sender.boolState)
-    }
-    
-    // handle the special cases
-    switch  band {
-      
-    case "WWV":     band = "33"
-    case "GEN":     band = "34"
-    case "XVTR":    loadAndSetButtons(_xvtrPanel) ; return
-    case "HF":      loadAndSetButtons(_hfPanel) ; return
-    case "":        return
-    default:        break
+    if sender.tag == 0 {
+      sender.boolState = false
+      return
     }
     _inUse = true
 
+    // handle the special cases
+    switch  sender.tag {
+
+    case -1:  loadAndSetButtons(Band.xvtrList) ; return
+    case -2:  loadAndSetButtons(Band.hfList) ; return
+    default:  break
+    }
+
+    // un-highlight the previous band button
+    for button in _buttons {
+      button.boolState = (sender.tag == button.tag)
+    }
+
     // tell the Panadapter
-    _p.panadapter.band = band
+    _p.panadapter.band = String(sender.tag, radix: 10)
   }
   
   // ----------------------------------------------------------------------------
@@ -163,15 +138,16 @@ final class BandButtonViewController              : NSViewController, NSPopoverD
     }
   }
   
-  private func loadButtons(_ titles: [String]) {
+  private func loadButtons(_ bands: [(number:Int,title:String)] ) {
     
     for(i, button) in _buttons.enumerated() {
-      button.title = titles[i]
+      button.title = bands[i].title
+      button.tag = bands[i].number
     }
   }
-  private func loadAndSetButtons(_ titles: [String]) {
+  private func loadAndSetButtons(_  bands: [(number:Int,title:String)] ) {
     
-    loadButtons(titles)
+    loadButtons(bands)
     
     for button in _buttons {
       button.boolState = (_p.panadapter.band == button.title)

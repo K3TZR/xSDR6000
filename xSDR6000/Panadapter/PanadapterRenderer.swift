@@ -62,6 +62,7 @@ public final class PanadapterRenderer       : NSObject {
   
   private let _panQ                         = DispatchQueue(label: Logger.kAppName + ".panQ", attributes: [.concurrent])
   private let _panDrawQ                     = DispatchQueue(label: Logger.kAppName + ".panDrawQ")
+  private var _isDrawing                    : DispatchSemaphore = DispatchSemaphore(value: 1)
 
   // ----- Backing properties - SHOULD NOT BE ACCESSED DIRECTLY -----------------------------------
   //
@@ -115,6 +116,8 @@ public final class PanadapterRenderer       : NSObject {
   // MARK: - Internal methods
   
   func setConstants(size: CGSize) {
+    self._isDrawing.wait()
+    
     // Constants struct mapping (bytes)
     //  <--- 4 ---> <--- 4 ---> <--- 4 ---> <-- empty -->              delta, height, maxNumberOfBins
     
@@ -122,9 +125,13 @@ public final class PanadapterRenderer       : NSObject {
     _constants.delta = Float(1.0 / (size.width - 1.0))
     _constants.height = Float(size.height)
     _constants.maxNumberOfBins = UInt32(_maxNumberOfBins)
+   
+    self._isDrawing.signal()
   }
   
   func updateColor(spectrumColor: NSColor, fillLevel: Int, fillColor: NSColor) {
+    self._isDrawing.wait()
+    
     // Color struct mapping
     //  <--------------------- 16 ---------------------->              spectrumColor
     
@@ -139,6 +146,8 @@ public final class PanadapterRenderer       : NSObject {
     // update the array
     _colorArray[kFillColor].spectrumColor = adjFillColor.float4Color
     _colorArray[kLineColor].spectrumColor = spectrumColor.float4Color
+    
+    self._isDrawing.signal()
   }
   /// Set the Metal view clear color
   ///
@@ -215,10 +224,15 @@ extension PanadapterRenderer                : MTKViewDelegate {
   ///
   public func draw(in view: MTKView) {
     
+    self._isDrawing.wait()
+    
     // obtain a Command buffer & a Render Pass descriptor
     guard let cmdBuffer = self._commandQueue.makeCommandBuffer(),
       let descriptor = view.currentRenderPassDescriptor else { return }
-    
+
+    descriptor.colorAttachments[0].loadAction = .clear
+    descriptor.colorAttachments[0].storeAction = .dontCare
+
     // Create a render encoder
     let encoder = cmdBuffer.makeRenderCommandEncoder(descriptor: descriptor)!
     
@@ -259,6 +273,8 @@ extension PanadapterRenderer                : MTKViewDelegate {
     
     // push the command buffer to the GPU
     cmdBuffer.commit()
+
+    self._isDrawing.signal()
   }
 }
 
@@ -287,6 +303,7 @@ extension PanadapterRenderer                : StreamHandler {
     
     guard let streamFrame = streamFrame as? PanadapterFrame else { return }
     
+    _isDrawing.wait()
     // move to using the next spectrumBuffer
     _currentFrameIndex = (_currentFrameIndex + 1) % PanadapterRenderer.kNumberSpectrumBuffers
     
@@ -295,6 +312,8 @@ extension PanadapterRenderer                : StreamHandler {
     
     // put the Intensities into the current Spectrum Buffer
     _spectrumBuffers[_currentFrameIndex].contents().copyMemory(from: streamFrame.bins, byteCount: streamFrame.totalBins * MemoryLayout<ushort>.stride)
+    
+    _isDrawing.signal()
     
 //    _panDrawQ.async { [unowned self] in
 //      autoreleasepool {

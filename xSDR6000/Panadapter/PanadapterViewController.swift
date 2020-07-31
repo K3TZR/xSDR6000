@@ -595,19 +595,24 @@ final class PanadapterViewController        : NSViewController, NSGestureRecogni
   ///
   private func defaultsObserver() {
 
-    _panadapterRenderer.updateColor(spectrumColor: Defaults.spectrum, fillLevel: _p.panadapter.fillLevel, fillColor: Defaults.spectrum)
-
-    // Panadapter background color
-    _panadapterView.clearColor = Defaults.spectrumBackground.metalClearColor
+    DispatchQueue.main.async { [unowned self] in
+      self._panadapterRenderer.updateColor(spectrumColor: Defaults.spectrum, fillLevel: self._p.panadapter.fillLevel, fillColor: Defaults.spectrum)
+      
+      // Panadapter background color
+      self._panadapterView.clearColor = Defaults.spectrumBackground.metalClearColor
+    }
   }
   /// Respond to Panadapter fillLevel observations
   ///
   private func fillLevel() {
 
-    _panadapterRenderer.updateColor(spectrumColor: Defaults.spectrum, fillLevel: _p.panadapter.fillLevel, fillColor: Defaults.spectrum)
-
-    // Panadapter background color
-    _panadapterView.clearColor = Defaults.spectrumBackground.metalClearColor
+    DispatchQueue.main.async { [unowned self] in
+      self._panadapterRenderer.updateColor(spectrumColor: Defaults.spectrum, fillLevel: self._p.panadapter.fillLevel, fillColor: Defaults.spectrum)
+      
+      // Panadapter background color
+      self._panadapterView.clearColor = Defaults.spectrumBackground.metalClearColor
+      
+    }
   }
   /// Respond to observations requiring a redraw of the entire Panadapter
   ///
