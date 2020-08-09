@@ -191,7 +191,8 @@ public final class RadioManager : NSObject {
         alert.messageText = "xSDR6000 has been disconnected."
         alert.informativeText = reason
         alert.addButton(withTitle: "Ok")
-        alert.beginSheetModal(for: NSApplication.shared.mainWindow!, completionHandler: { (response) in })
+//        alert.beginSheetModal(for: NSApplication.shared.mainWindow!, completionHandler: { (response) in })
+        alert.runModal()
       }
     }
   }

@@ -99,8 +99,7 @@ final class Auth0ViewController             : NSViewController, WKNavigationDele
     _customView.addSubview(myWebView)
     
     // anchor its position
-    [myWebView.heightAnchor.constraint(equalToConstant: 600.0),
-     myWebView.topAnchor.constraint(equalTo: _customView.topAnchor),
+    [myWebView.topAnchor.constraint(equalTo: _customView.topAnchor),
      myWebView.bottomAnchor.constraint(equalTo: _customView.bottomAnchor),
      myWebView.leftAnchor.constraint(equalTo: _customView.leftAnchor),
      myWebView.rightAnchor.constraint(equalTo: _customView.rightAnchor)].forEach {

@@ -11,7 +11,7 @@
 
 I want to focus on "stability" for the next few releases. I need feedback from users. If you see a bug or experience a crash, please take a minute to report it to:
 
-douglas.adams@me.com
+support@k3tzr.net
 
 If possible, include a copy of the log(s) found in:
 
@@ -25,10 +25,12 @@ Thank you for your help! 👍
 
 ### Built on:
 
-*  macOS 10.15.6 Beta (19G46c)
-*  Xcode 11.5 (11E608c)
-*  Swift 5.2
-
+*  macOS 10.15.6
+*  Xcode 12.0 beta 4 (12A8179i)
+*  Swift 5.3
+*  xLib6000 v1.3.8
+*  SwiftyUserDefaults 5.0.0
+*  XCGLogger 7.0.1
 
 ## Usage
 
@@ -38,18 +40,15 @@ Provides functionality similar to the FlexRadio (TM) SmartSDR (TM) app.
 
 Portions of this app do not work and changes may be added from time to time which will break all or part of this app.  
 
-
 ## Builds
 
 Compiled RELEASE builds will be created at relatively stable points, please use them.  
 
 If you require a DEBUG build you will have to build from sources. 
 
-
 ## Comments / Questions
 
-Please send any bugs / comments / questions to douglas.adams@me.com
-
+Please send any bugs / comments / questions to support@k3tzr.net
 
 ## Evolution
 
@@ -59,7 +58,6 @@ Flex Radios can have one of four different version groups:
 *  v2.5.1 to less than v3.0.0, the v3 API without MultiFlex <<-- CURRENTLY SUPPORTED
 *  v3.0.0 thru v3.1.12, the v3 API with MultiFlex <<-- CURRENTLY SUPPORTED
 *  greater than v3.1.12 - untested at this time (may work ???)
-
 
 ## Credits
 
@@ -78,6 +76,13 @@ xLib6000 Package:
 OpusOSX, framework built from sources at:
 
 * https://opus-codec.org/downloads/
+
+---
+## 1.2.9 Release Notes
+
+* corrected constraints on the Auth0 sheet (SmartLink logon)
+* changed disconnect alert to be runModal rather than beginSheetModal
+* changed all email references to new email (support@k3tzr.net)
 
 
 ## 1.2.8 Release Notes

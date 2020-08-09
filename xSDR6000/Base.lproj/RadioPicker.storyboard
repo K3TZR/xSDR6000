@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="16097" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="17140" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="16097"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="17140"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -11,11 +11,11 @@
             <objects>
                 <viewController title="Auth0 Login" storyboardIdentifier="Auth0Login" id="Wvy-ff-chK" customClass="Auth0ViewController" customModule="xSDR6000" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" id="u3n-qg-9gk">
-                        <rect key="frame" x="0.0" y="0.0" width="521" height="353"/>
+                        <rect key="frame" x="0.0" y="0.0" width="775" height="406"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
                             <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="k7q-9y-ZJa">
-                                <rect key="frame" x="220" y="13" width="82" height="32"/>
+                                <rect key="frame" x="347" y="13" width="82" height="32"/>
                                 <buttonCell key="cell" type="push" title="Cancel" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="JTb-SO-wUz">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                     <font key="font" metaFont="system"/>
@@ -28,15 +28,19 @@ Gw
                                 </connections>
                             </button>
                             <customView translatesAutoresizingMaskIntoConstraints="NO" id="wXP-ZW-aMn">
-                                <rect key="frame" x="0.0" y="61" width="521" height="292"/>
+                                <rect key="frame" x="0.0" y="61" width="775" height="345"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="400" id="IT2-ha-x0Q"/>
+                                    <constraint firstAttribute="height" constant="345" id="pQO-Fh-gRy"/>
+                                </constraints>
                             </customView>
                         </subviews>
                         <constraints>
                             <constraint firstItem="k7q-9y-ZJa" firstAttribute="top" secondItem="wXP-ZW-aMn" secondAttribute="bottom" constant="20" symbolic="YES" id="AgH-Ai-7Rg"/>
                             <constraint firstAttribute="bottom" secondItem="k7q-9y-ZJa" secondAttribute="bottom" constant="20" symbolic="YES" id="BcX-qe-EEJ"/>
                             <constraint firstItem="wXP-ZW-aMn" firstAttribute="top" secondItem="u3n-qg-9gk" secondAttribute="top" id="DwB-hJ-lS7"/>
-                            <constraint firstItem="wXP-ZW-aMn" firstAttribute="centerX" secondItem="k7q-9y-ZJa" secondAttribute="centerX" id="Ep2-i8-OVV"/>
                             <constraint firstItem="wXP-ZW-aMn" firstAttribute="leading" secondItem="u3n-qg-9gk" secondAttribute="leading" id="Olx-w2-0yx"/>
+                            <constraint firstItem="k7q-9y-ZJa" firstAttribute="centerX" secondItem="u3n-qg-9gk" secondAttribute="centerX" id="bJY-5w-pSU"/>
                             <constraint firstAttribute="trailing" secondItem="wXP-ZW-aMn" secondAttribute="trailing" id="cD3-jq-dmB"/>
                         </constraints>
                     </view>
@@ -46,7 +50,7 @@ Gw
                 </viewController>
                 <customObject id="qgD-l3-605" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-1228.5" y="-1011.5"/>
+            <point key="canvasLocation" x="-1211" y="-983"/>
         </scene>
         <!--RadioPicker-->
         <scene sceneID="Z7X-7s-hoH">

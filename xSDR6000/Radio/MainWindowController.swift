@@ -286,7 +286,7 @@ final class MainWindowController : NSWindowController, NSWindowDelegate, RadioPi
         
         I want to focus on "stability" for the next few releases. I need feedback from users. If you see a bug or experience a crash, please take a minute to report it to:
         
-        douglas.adams@me.com
+        support@k3tzr.net
         
         If possible, include a copy of the log(s) found in:
         

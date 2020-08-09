@@ -236,7 +236,7 @@ final class RadioPickerViewController : NSViewController, NSTableViewDelegate, N
   }
 
   // ----------------------------------------------------------------------------
-  // MARK: - Notification Methods
+  // MARK: - Notification methods
   
   /// Add subscriptions to Notifications
   ///
