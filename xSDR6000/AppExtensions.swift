@@ -437,8 +437,8 @@ extension URL {
   /// setup the Support folders
   ///
   static var appSupport : URL { return FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first! }
-  static var logs : URL { return createAsNeeded("net.k3tzr.xSDR6000/Logs") }
-  static var macros : URL { return createAsNeeded("net.k3tzr.xSDR6000/Macros") }
+  static var logs : URL { return createAsNeeded("net.k3tzr." + AppDelegate.kAppName + "/Logs") }
+  static var macros : URL { return createAsNeeded("net.k3tzr." + AppDelegate.kAppName + "/Macros") }
   
   static func createAsNeeded(_ folder: String) -> URL {
     let fileManager = FileManager.default

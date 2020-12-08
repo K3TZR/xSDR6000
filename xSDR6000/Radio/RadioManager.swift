@@ -82,7 +82,7 @@ public final class RadioManager : NSObject {
     
     if let email = Defaults.smartLinkAuth0Email {
       // remove the Keychain entry
-      Keychain.delete( Logger.kAppName + ".oauth-token", account: email)
+      Keychain.delete( AppDelegate.kAppName + ".oauth-token", account: email)
       Defaults.smartLinkAuth0Email = nil
     }
     Discovery.sharedInstance.removeSmartLinkRadios()
@@ -113,8 +113,8 @@ public final class RadioManager : NSObject {
     
     // connect to the radio
     _api.connect(packet,
-                 station           : Logger.kAppName,
-                 program           : Logger.kAppName,
+                 station           : AppDelegate.kAppName,
+                 program           : AppDelegate.kAppName,
                  clientId          : _clientId,
                  isGui             : isGui,
                  wanHandle         : packet.wanHandle,
@@ -188,7 +188,7 @@ public final class RadioManager : NSObject {
       DispatchQueue.main.sync {
         let alert = NSAlert()
         alert.alertStyle = .informational
-        alert.messageText = "xSDR6000 has been disconnected."
+        alert.messageText = AppDelegate.kAppName + " has been disconnected."
         alert.informativeText = reason
         alert.addButton(withTitle: "Ok")
 //        alert.beginSheetModal(for: NSApplication.shared.mainWindow!, completionHandler: { (response) in })

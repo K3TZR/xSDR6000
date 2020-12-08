@@ -79,7 +79,7 @@ public final class WanManager : WanServerDelegate, Auth0Delegate {
   private let kLogoutTitle                  = "Log Out"
   private let kPlatform                     = "macOS"
   private let kScope                        = "openid email given_name family_name picture"
-  private let kService                      = Logger.kAppName + kServiceName
+  private let kService                      = AppDelegate.kAppName + kServiceName
   private let kUpnpIdentifier               = "upnpSupported"
   
   // ----------------------------------------------------------------------------
@@ -104,7 +104,7 @@ public final class WanManager : WanServerDelegate, Auth0Delegate {
       _delegate!.smartLinkImage(image: getUserImage(tokenValue: tokenValue))
       
       // have a token, try to connect
-      return _wanServer!.connectToSmartLinkServer(appName: Logger.kAppName, platform: kPlatform, token: tokenValue, ping: true)
+      return _wanServer!.connectToSmartLinkServer(appName: AppDelegate.kAppName, platform: kPlatform, token: tokenValue, ping: true)
     }
     
     _log("Smartlink login: token NOT found", .debug, #function, #file, #line)
@@ -140,7 +140,7 @@ public final class WanManager : WanServerDelegate, Auth0Delegate {
   // ----------------------------------------------------------------------------
   // MARK: - Private methods
   
-  /// Obtain atoken
+  /// Obtain a token
   /// - Parameter auth0Email:     saved email (if any)
   /// - Returns:                  a Token (if any)
   ///

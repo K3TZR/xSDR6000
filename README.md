@@ -1,91 +1,56 @@
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://en.wikipedia.org/wiki/MIT_License)
+### xSDR6000 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://en.wikipedia.org/wiki/MIT_License)
 
-# xSDR6000
-## Mac Client for the FlexRadio (TM) 6000 series software defined radios.
-###      (see Evolution below for radio versions that are supported)
+#### Mac Client for the FlexRadio (TM) 6000 series software defined radios.
 
+##### Built on:
 
-
-
-##         xSDR600 is starting to be useable for some even though it's far from complete.
-
-I want to focus on "stability" for the next few releases. I need feedback from users. If you see a bug or experience a crash, please take a minute to report it to:
-
-support@k3tzr.net
-
-If possible, include a copy of the log(s) found in:
-
-~/Library/Application Support/net.k3tzr.xSDR6000/Logs/
-
-Thank you for your help! 👍
-
-
-
-
-
-### Built on:
-
-*  macOS 10.15.6
-*  Xcode 12.0 beta 4 (12A8179i)
+*  macOS 11.0.1
+*  Xcode 12.2 (12B45b)
 *  Swift 5.3
-*  xLib6000 v1.3.8
+*  xLib6000 v1.3.11
 *  SwiftyUserDefaults 5.0.0
 *  XCGLogger 7.0.1
 
-## Usage
+##### Runs on:
+* macOS 10.15 and higher
 
-Provides functionality similar to the FlexRadio (TM) SmartSDR (TM) app.
+##### Builds
+Compiled  [RELEASE builds](https://github.com/K3TZR/xSDR6000/releases) will be created at relatively stable points, please use them.  If you require a DEBUG build you will have to build from sources. 
 
-**NOTE: This app is a "work in progress" and is not fully functional**  
-
-Portions of this app do not work and changes may be added from time to time which will break all or part of this app.  
-
-## Builds
-
-Compiled RELEASE builds will be created at relatively stable points, please use them.  
-
-If you require a DEBUG build you will have to build from sources. 
-
-## Comments / Questions
-
+##### Comments / Questions
 Please send any bugs / comments / questions to support@k3tzr.net
 
-## Evolution
-
+##### Evolution
 Flex Radios can have one of four different version groups:
-*  v1.x.x, the v1 API - untested at this time
-*  v2.0.x thru v2.4.9, the v2 API <<-- CURRENTLY SUPPORTED
-*  v2.5.1 to less than v3.0.0, the v3 API without MultiFlex <<-- CURRENTLY SUPPORTED
-*  v3.0.0 thru v3.1.12, the v3 API with MultiFlex <<-- CURRENTLY SUPPORTED
+*  v1.x.x, the ***v1 API*** - untested at this time
+*  v2.0.x thru v2.4.9, the ***v2 API***<<-- CURRENTLY SUPPORTED
+*  v2.5.1 to less than v3.0.0, the ***v3 API without MultiFlex*** <<-- CURRENTLY SUPPORTED
+*  v3.0.0 thru v3.1.12, the ***v3 API with MultiFlex*** <<-- CURRENTLY SUPPORTED
 *  greater than v3.1.12 - untested at this time (may work ???)
 
-## Credits
+##### Credits
+[xLib6000](https://github.com/K3TZR/xLib6000.git)
+[SwiftyUserDefaults](https://github.com/sunshinejr/SwiftyUserDefaults.git)
+[XCGLogger](https://github.com/DaveWoodCom/XCGLogger.git)
+[Opus](https://opus-codec.org/downloads/)
 
-SwiftyUserDefaults Package:
-
-* https://github.com/sunshinejr/SwiftyUserDefaults.git
-
-XCGLogger Package:
-
-* https://github.com/DaveWoodCom/XCGLogger.git
-
-xLib6000 Package:
-
-* https://github.com/K3TZR/xLib6000.git
-
-OpusOSX, framework built from sources at:
-
-* https://opus-codec.org/downloads/
+##### Other software
+[![DL3LSM](https://img.shields.io/badge/DL3LSM-xDAX,_xCAT,_xKey-informational)](https://dl3lsm.blogspot.com) Mac versions of DAX and/or CAT and a Remote CW Keyer.  
+[![W6OP](https://img.shields.io/badge/W6OP-xVoiceKeyer,_xCW-informational)](https://w6op.com) A Mac-based Voice Keyer and a CW Keyer.  
 
 ---
-## 1.2.9 Release Notes
+##### 1.6.4 Release Notes
+
+
+
+##### 1.2.9 Release Notes
 
 * corrected constraints on the Auth0 sheet (SmartLink logon)
 * changed disconnect alert to be runModal rather than beginSheetModal
 * changed all email references to new email (support@k3tzr.net)
 
 
-## 1.2.8 Release Notes
+##### 1.2.8 Release Notes
 
 * xMini enhanced to make multiple Mini's, one per Panadapter
 * made xMini background opaque
@@ -95,13 +60,13 @@ OpusOSX, framework built from sources at:
 * corrected an error in panadapter fill level & color
 
 
-## 1.2.7 Release Notes
+##### 1.2.7 Release Notes
 
 * fixed crash when selecting Dax button on Panadapter left side
 * added xMini and xMini entry in Radio menu
 
 
-## 1.2.6 Release Notes
+##### 1.2.6 Release Notes
 
 * corrected crash when opening if Side View was open on last execution
 * corrected Slice / Spectrum dragging in Panadapter
@@ -112,7 +77,7 @@ OpusOSX, framework built from sources at:
 * corrected missing frequency & filter values on Side View RX tab
 
 
-## 1.2.5 Release Notes
+##### 1.2.5 Release Notes
 
 * added Startup Message and "showStartupMessage" Defaults key
 * updated Help
@@ -123,7 +88,7 @@ OpusOSX, framework built from sources at:
 * minor edits, stability improvements & code cleanup
 
 
-## 1.2.4 Release Notes
+##### 1.2.4 Release Notes
 
 * corrections to Flag frequency field formatting
 * added "SmartLink enabled" to Radio menu (ability to disable SmartLink)
@@ -136,12 +101,12 @@ OpusOSX, framework built from sources at:
 * many minor edits & code cleanup
 
 
-## 1.2.3 Release Notes
+##### 1.2.3 Release Notes
 
 * removed version warning (source of toolbar button issue)
 
 
-## 1.2.2 Release Notes
+##### 1.2.2 Release Notes
 
 * made width of parameter monitor fixed
 * delayed toolbar button enabling to firstPing Response
@@ -150,7 +115,7 @@ OpusOSX, framework built from sources at:
 * corrections to eliminate data races and main thread issues
 
 
-## 1.2.1 Release Notes
+##### 1.2.1 Release Notes
 
 * major refactor of RadioPicker / RadioViewController / WanManager / Auth0
 * refactor of Parameter Monitor
@@ -164,7 +129,7 @@ OpusOSX, framework built from sources at:
 * corrected Radio menu actions
 
 
-## 1.2.0 Release Notes
+##### 1.2.0 Release Notes
 
 * corrected crash on changing Pan fill level
 * corrected crash on Slice mode change
@@ -178,34 +143,29 @@ OpusOSX, framework built from sources at:
 
 * internal changes, major refactoring to simplify internal structure
 
-Known Issues
 
-* Application crashes (sometimes) when Waterfall resized
-* Xvtr preference panel not implemented
-* GPS preference panel not implemented
-
-## 1.1.10 Release Notes
+##### 1.1.10 Release Notes
 
 * corrected crash due to appFolder Logs 
 
-## 1.1.9 Release Notes
+##### 1.1.9 Release Notes
 
 * Corrected crash when connecting to v3.1.11 radio
 
-## 1.1.8 Release Notes
+##### 1.1.8 Release Notes
 
 * Location of logs changed to ~/Library/Application Support/net.k3tzr.xSDR6000/Logs
 * Log Viewer added to xSDR6000 Menu
 * various other corrections and stability improvements
 
-## 1.1.7 Release Notes
+##### 1.1.7 Release Notes
 
 * Fixed crash when selecting FM mode
 * Corrected preamp slider (now different for different Flex models)
 * Corrected TX profile entry on TX Preferences dialog
 * various other corrections and stability improvements
 
-## 1.1.3 Release Notes
+##### 1.1.3 Release Notes
 
 * Removed from Sandbox
 * Corrections to SmartLink log on/off

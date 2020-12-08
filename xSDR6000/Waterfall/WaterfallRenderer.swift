@@ -103,8 +103,8 @@ public final class WaterfallRenderer: NSObject, MTKViewDelegate {
   private var _writeIndex                   = 0
   private var _drawIndex                    = 0
 
-  private let _waterQ                       = DispatchQueue(label: Logger.kAppName + ".waterQ", attributes: [.concurrent])
-  private var _waterDrawQ                   = DispatchQueue(label: Logger.kAppName + ".waterDrawQ")
+  private let _waterQ                       = DispatchQueue(label: AppDelegate.kAppName + ".waterQ", attributes: [.concurrent])
+  private var _waterDrawQ                   = DispatchQueue(label: AppDelegate.kAppName + ".waterDrawQ")
   private var _isDrawing                    : DispatchSemaphore = DispatchSemaphore(value: 1)
   
   private let kFragmentShader               = "waterfall_fragment"
@@ -317,13 +317,16 @@ extension WaterfallRenderer                 : StreamHandler {
   
   //  frame Layout: (see xLib6000 WaterfallFrame)
   //
-  //  public var firstBinFreq   : CGFloat     // Frequency of first Bin in Hz
-  //  public var binBandwidth   : CGFloat     // Bandwidth of a single bin in Hz
-  //  public var lineDuration   : Int         // Duration of this line in ms (1 to 100)
-  //  public var lineHeight     : Int         // Height of frame in pixels (always 1)
-  //  public var autoBlackLevel : UInt32      // Auto black level
-  //  public var numberOfBins   : Int         // Number of bins
-  //  public var bins           : [UInt16]    // Array of bin values
+  //  public private(set) var firstBinFreq      : CGFloat   = 0.0               // Frequency of first Bin (Hz)
+  //  public private(set) var binBandwidth      : CGFloat   = 0.0               // Bandwidth of a single bin (Hz)
+  //  public private(set) var lineDuration      = 0                             // Duration of this line (ms)
+  //  public private(set) var numberOfBins      = 0                             // Number of bins
+  //  public private(set) var height            = 0                             // Height of frame (pixels)
+  //  public private(set) var receivedFrame     = 0                             // Time code
+  //  public private(set) var autoBlackLevel    : UInt32 = 0                    // Auto black level
+  //  public private(set) var totalBins         = 0                             //
+  //  public private(set) var startingBin       = 0                             //
+  //  public var bins                           = [UInt16]()                    // Array of bin values
   //
   
   /// Process the UDP Stream Data for the Waterfall

@@ -61,7 +61,7 @@ final class MainWindowController : NSWindowController, NSWindowDelegate, RadioPi
     case close
   }
   
-  private lazy var _xSDR6000Menu  = NSApplication.shared.mainMenu?.item(withTitle: "xSDR6000")
+  private lazy var _xSDR6000Menu  = NSApplication.shared.mainMenu?.item(withTitle: AppDelegate.kAppName)
   private lazy var _radioMenu     = NSApplication.shared.mainMenu?.item(withTitle: "Radio")
 
   private let kSideStoryboardName           = "Side"
@@ -394,15 +394,8 @@ final class MainWindowController : NSWindowController, NSWindowDelegate, RadioPi
     _log("OpenRadio initiated: \(packet.nickname)", .debug, #function, #file, #line)
     DispatchQueue.main.async { self._connectButton.isEnabled = false }
     
-    let status = packet.status.lowercased()
-    let guiCount = packet.guiClients.count
-    let isNewApi = Version(packet.firmwareVersion).isNewApi
-    
-    let handles = [Handle](packet.guiClients.keys)
-    let clients = [GuiClient](packet.guiClients.values)
-    
     // CONNECT, is the selected radio connected to another client?
-    switch (isNewApi, status, guiCount) {
+    switch (Version(packet.firmwareVersion).isNewApi, packet.status.lowercased(), packet.guiClients.count) {
       
     case (false, kAvailable, _):          // oldApi, not connected to another client
       _radioManager.connectRadio(packet)
@@ -440,9 +433,9 @@ final class MainWindowController : NSWindowController, NSWindowDelegate, RadioPi
       DispatchQueue.main.async {
         let alert = NSAlert()
         alert.alertStyle = .warning
-        alert.messageText = "Radio is connected to Station: \(clients[0].station)"
+        alert.messageText = "Radio is connected to Station: \(packet.guiClients[0].station)"
         alert.informativeText = "Close the Station . . Or . . Connect using Multiflex . . Or . . use Remote Control"
-        alert.addButton(withTitle: "Close \(clients[0].station)")
+        alert.addButton(withTitle: "Close \(packet.guiClients[0].station)")
         alert.addButton(withTitle: "Multiflex Connect")
         alert.addButton(withTitle: "Remote Control")
         alert.addButton(withTitle: "Cancel")
@@ -456,7 +449,7 @@ final class MainWindowController : NSWindowController, NSWindowDelegate, RadioPi
           // close the connected Radio if the YES button pressed
           
           switch response {
-          case NSApplication.ModalResponse.alertFirstButtonReturn:  self._radioManager.connectRadio(packet, pendingDisconnect: .newApi(handle: handles[0]))
+          case NSApplication.ModalResponse.alertFirstButtonReturn:  self._radioManager.connectRadio(packet, pendingDisconnect: .newApi(handle: packet.guiClients[0].handle))
           case NSApplication.ModalResponse.alertSecondButtonReturn: self._radioManager.connectRadio(packet)
           default:  break
           }
@@ -468,8 +461,8 @@ final class MainWindowController : NSWindowController, NSWindowDelegate, RadioPi
         alert.alertStyle = .warning
         alert.messageText = "Radio is connected to multiple Stations"
         alert.informativeText = "Close one of the Stations . . Or . . use Remote Control"
-        alert.addButton(withTitle: "Close \(clients[0].station)")
-        alert.addButton(withTitle: "Close \(clients[1].station)")
+        alert.addButton(withTitle: "Close \(packet.guiClients[0].station)")
+        alert.addButton(withTitle: "Close \(packet.guiClients[1].station)")
         alert.addButton(withTitle: "Remote Control")
         alert.addButton(withTitle: "Cancel")
         
@@ -481,8 +474,8 @@ final class MainWindowController : NSWindowController, NSWindowDelegate, RadioPi
         alert.beginSheetModal(for: NSApplication.shared.mainWindow!, completionHandler: { (response) in
           
           switch response {
-          case NSApplication.ModalResponse.alertFirstButtonReturn:  self._radioManager.connectRadio(packet, pendingDisconnect: .newApi(handle: handles[0]))
-          case NSApplication.ModalResponse.alertSecondButtonReturn: self._radioManager.connectRadio(packet, pendingDisconnect: .newApi(handle: handles[1]))
+          case NSApplication.ModalResponse.alertFirstButtonReturn:  self._radioManager.connectRadio(packet, pendingDisconnect: .newApi(handle: packet.guiClients[0].handle))
+          case NSApplication.ModalResponse.alertSecondButtonReturn: self._radioManager.connectRadio(packet, pendingDisconnect: .newApi(handle: packet.guiClients[1].handle))
           default:  break
           }
         })}
@@ -493,26 +486,19 @@ final class MainWindowController : NSWindowController, NSWindowDelegate, RadioPi
   }
   /// Close  a currently active connection
   ///
-  private func closeRadio(_ discoveryPacket: DiscoveryPacket) {
+  private func closeRadio(_ packet: DiscoveryPacket) {
     
-    _log("CloseRadio initiated: \(discoveryPacket.nickname)", .debug, #function, #file, #line)
-    
-    let status = discoveryPacket.status.lowercased()
-    let guiCount = discoveryPacket.guiClients.count
-    let isNewApi = Version(discoveryPacket.firmwareVersion).isNewApi
-    
-    let handles = [Handle](discoveryPacket.guiClients.keys)
-    let clients = [GuiClient](discoveryPacket.guiClients.values)
+    _log("CloseRadio initiated: \(packet.nickname)", .debug, #function, #file, #line)
     
     // CONNECT, is the selected radio connected to another client?
-    switch (isNewApi, status, guiCount) {
+    switch (Version(packet.firmwareVersion).isNewApi, packet.status.lowercased(), packet.guiClients.count) {
       
     case (false, _, _):                   // oldApi
       self.disconnectApplication()
       
     case (true, kAvailable, 1):           // newApi, 1 client
       // am I the client?
-      if handles[0] == _api.connectionHandle {
+      if packet.guiClients[0].handle == _api.connectionHandle {
         // YES, disconnect me
         self.disconnectApplication()
         
@@ -525,19 +511,19 @@ final class MainWindowController : NSWindowController, NSWindowDelegate, RadioPi
           let alert = NSAlert()
           alert.alertStyle = .informational
           alert.messageText = "Radio is connected to one Station"
-          alert.informativeText = "Close the Station . . Or . . Disconnect " + Logger.kAppName
-          alert.addButton(withTitle: "Close \(clients[0].station)")
-          alert.addButton(withTitle: "Disconnect " + Logger.kAppName)
+          alert.informativeText = "Close the Station . . Or . . Disconnect " + AppDelegate.kAppName
+          alert.addButton(withTitle: "Close \(packet.guiClients[0].station)")
+          alert.addButton(withTitle: "Disconnect " + AppDelegate.kAppName)
           alert.addButton(withTitle: "Cancel")
           
-          alert.buttons[0].isEnabled = clients[0].station != Logger.kAppName
+          alert.buttons[0].isEnabled = packet.guiClients[0].station != AppDelegate.kAppName
           
           // ignore if not confirmed by the user
           alert.beginSheetModal(for: NSApplication.shared.mainWindow!, completionHandler: { (response) in
             // close the connected Radio if the YES button pressed
             
             switch response {
-            case NSApplication.ModalResponse.alertFirstButtonReturn:  self._api.requestClientDisconnect( packet: discoveryPacket, handle: handles[0])
+            case NSApplication.ModalResponse.alertFirstButtonReturn:  self._api.requestClientDisconnect( packet: packet, handle: packet.guiClients[0].handle)
             case NSApplication.ModalResponse.alertSecondButtonReturn: self.disconnectApplication()
             default:  break
             }
@@ -549,29 +535,29 @@ final class MainWindowController : NSWindowController, NSWindowDelegate, RadioPi
         let alert = NSAlert()
         alert.alertStyle = .informational
         alert.messageText = "Radio is connected to multiple Stations"
-        alert.informativeText = "Close a Station . . Or . . Disconnect "  + Logger.kAppName
-        if clients[0].station != Logger.kAppName {
-          alert.addButton(withTitle: "Close \(clients[0].station)")
+        alert.informativeText = "Close a Station . . Or . . Disconnect "  + AppDelegate.kAppName
+        if packet.guiClients[0].station != AppDelegate.kAppName {
+          alert.addButton(withTitle: "Close \(packet.guiClients[0].station)")
         } else {
           alert.addButton(withTitle: "---")
         }
-        if clients[1].station != Logger.kAppName {
-          alert.addButton(withTitle: "Close \(clients[1].station)")
+        if packet.guiClients[1].station != AppDelegate.kAppName {
+          alert.addButton(withTitle: "Close \(packet.guiClients[1].station)")
         } else {
           alert.addButton(withTitle: "---")
         }
-        alert.addButton(withTitle: "Disconnect " + Logger.kAppName)
+        alert.addButton(withTitle: "Disconnect " + AppDelegate.kAppName)
         alert.addButton(withTitle: "Cancel")
         
-        alert.buttons[0].isEnabled = clients[0].station != Logger.kAppName
-        alert.buttons[1].isEnabled = clients[1].station != Logger.kAppName
+        alert.buttons[0].isEnabled = packet.guiClients[0].station != AppDelegate.kAppName
+        alert.buttons[1].isEnabled = packet.guiClients[1].station != AppDelegate.kAppName
         
         // ignore if not confirmed by the user
         alert.beginSheetModal(for: NSApplication.shared.mainWindow!, completionHandler: { (response) in
           
           switch response {
-          case NSApplication.ModalResponse.alertFirstButtonReturn:  self._api.requestClientDisconnect( packet: discoveryPacket, handle: handles[0])
-          case NSApplication.ModalResponse.alertSecondButtonReturn: self._api.requestClientDisconnect( packet: discoveryPacket, handle: handles[1])
+          case NSApplication.ModalResponse.alertFirstButtonReturn:  self._api.requestClientDisconnect( packet: packet, handle: packet.guiClients[0].handle)
+          case NSApplication.ModalResponse.alertSecondButtonReturn: self._api.requestClientDisconnect( packet: packet, handle: packet.guiClients[1].handle)
           case NSApplication.ModalResponse.alertThirdButtonReturn:  self.disconnectApplication()
           default:  break
           }
@@ -626,11 +612,11 @@ final class MainWindowController : NSWindowController, NSWindowDelegate, RadioPi
       // are we connected?
       if let radio = Api.sharedInstance.radio {
         // YES, format and set the window title
-        title = "\(radio.packet.nickname) v\(radio.version.longString) \(radio.packet.isWan ? "SmartLink" : "Local")         \(Logger.kAppName) v\(Logger.sharedInstance.version.string)"
+        title = "\(radio.packet.nickname) v\(radio.version.longString) \(radio.packet.isWan ? "SmartLink" : "Local")         \(AppDelegate.kAppName) v\(Logger.sharedInstance.version.string)"
         
       } else {
         // NO, show App & Api only
-        title = "\(Logger.kAppName) v\(Logger.sharedInstance.version.string)"
+        title = "\(AppDelegate.kAppName) v\(Logger.sharedInstance.version.string)"
       }
       self.window?.title = title
     }
@@ -950,22 +936,22 @@ final class MainWindowController : NSWindowController, NSWindowDelegate, RadioPi
   /// Logout of SmartLink
   ///
   func smartLinkLogout() {
-      _log("SmartLink logout requested", .info, #function, #file, #line)
-
-      Discovery.sharedInstance.removeSmartLinkRadios()
-
+    _log("SmartLink logout requested", .info, #function, #file, #line)
+    
+    Discovery.sharedInstance.removeSmartLinkRadios()
+    
     _radioManager?.smartLinkLogout()
-      willChangeValue(for: \.smartLinkUser)
-      smartLinkUser = nil
-      didChangeValue(for: \.smartLinkUser)
-
-      willChangeValue(for: \.smartLinkCall)
-      smartLinkCall = nil
-      didChangeValue(for: \.smartLinkCall)
-
-      willChangeValue(for: \.smartLinkImage)
-      smartLinkImage = nil
-      didChangeValue(for: \.smartLinkImage)
+    willChangeValue(for: \.smartLinkUser)
+    smartLinkUser = nil
+    didChangeValue(for: \.smartLinkUser)
+    
+    willChangeValue(for: \.smartLinkCall)
+    smartLinkCall = nil
+    didChangeValue(for: \.smartLinkCall)
+    
+    willChangeValue(for: \.smartLinkImage)
+    smartLinkImage = nil
+    didChangeValue(for: \.smartLinkImage)
   }
   
   // ----------------------------------------------------------------------------
@@ -1030,8 +1016,8 @@ final class MainWindowController : NSWindowController, NSWindowDelegate, RadioPi
   
   func smartLinkConnectionReady(handle: String, serial: String) {
     
-    for packet in Discovery.sharedInstance.discoveredRadios where packet.serialNumber == serial && packet.isWan {
-      packet.wanHandle = handle
+    for (i, packet) in Discovery.sharedInstance.discoveryPackets.enumerated() where packet.serialNumber == serial && packet.isWan {
+      Discovery.sharedInstance.discoveryPackets[i].wanHandle = handle
       openRadio(packet)
     }
   }

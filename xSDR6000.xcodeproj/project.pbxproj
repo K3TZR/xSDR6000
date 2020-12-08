@@ -25,7 +25,6 @@
 		91E4789123B666EE004DA6A7 /* Filters.xml in Resources */ = {isa = PBXBuildFile; fileRef = 91E4781823B666EE004DA6A7 /* Filters.xml */; };
 		91E4789323B666EE004DA6A7 /* LevelIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91E4781B23B666EE004DA6A7 /* LevelIndicator.swift */; };
 		91E4789423B666EE004DA6A7 /* BarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91E4781C23B666EE004DA6A7 /* BarView.swift */; };
-		91E4789523B666EE004DA6A7 /* OpusEncode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91E4781D23B666EE004DA6A7 /* OpusEncode.swift */; };
 		91E4789623B666EE004DA6A7 /* BandSegments.plist in Resources */ = {isa = PBXBuildFile; fileRef = 91E4781E23B666EE004DA6A7 /* BandSegments.plist */; };
 		91E4789723B666EE004DA6A7 /* Filters.plist in Resources */ = {isa = PBXBuildFile; fileRef = 91E4781F23B666EE004DA6A7 /* Filters.plist */; };
 		91E4789823B666EE004DA6A7 /* OpusPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91E4782023B666EE004DA6A7 /* OpusPlayer.swift */; };
@@ -95,10 +94,6 @@
 		91E478E123B666EE004DA6A7 /* Auth0ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91E4788223B666EE004DA6A7 /* Auth0ViewController.swift */; };
 		91E478E423B666EE004DA6A7 /* HelpViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91E4788623B666EE004DA6A7 /* HelpViewController.swift */; };
 		91E4790323B667BE004DA6A7 /* SwiftyUserDefaults in Frameworks */ = {isa = PBXBuildFile; productRef = 91E4790223B667BE004DA6A7 /* SwiftyUserDefaults */; };
-		91E4791723B68C7D004DA6A7 /* RingBuffer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 91E4791123B68C7D004DA6A7 /* RingBuffer.mm */; };
-		91E4791823B68C7D004DA6A7 /* CARingBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 91E4791423B68C7D004DA6A7 /* CARingBuffer.cpp */; };
-		91E4791A23B691B0004DA6A7 /* OpusOSX.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 91E4780523B666ED004DA6A7 /* OpusOSX.framework */; };
-		91E4791B23B691B0004DA6A7 /* OpusOSX.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 91E4780523B666ED004DA6A7 /* OpusOSX.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		91E4792E23B69A2A004DA6A7 /* Preferences.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 91E4792023B69A2A004DA6A7 /* Preferences.storyboard */; };
 		91E4792F23B69A2A004DA6A7 /* Panafall.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 91E4792223B69A2A004DA6A7 /* Panafall.storyboard */; };
 		91E4793023B69A2A004DA6A7 /* Side.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 91E4792423B69A2A004DA6A7 /* Side.storyboard */; };
@@ -115,7 +110,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				91E4791B23B691B0004DA6A7 /* OpusOSX.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -134,19 +128,16 @@
 		91B1D24B241FC4DD00A7B5E4 /* project.xcworkspace */ = {isa = PBXFileReference; lastKnownFileType = wrapper.workspace; name = project.xcworkspace; path = xSDR6000.xcodeproj/project.xcworkspace; sourceTree = "<group>"; };
 		91E2430D246D8DD500AECEC1 /* RadioManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadioManager.swift; sourceTree = "<group>"; };
 		91E477F123B66661004DA6A7 /* xSDR6000.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = xSDR6000.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		91E4780523B666ED004DA6A7 /* OpusOSX.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = OpusOSX.framework; sourceTree = "<group>"; };
 		91E4780923B666EE004DA6A7 /* AudioHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AudioHelper.swift; sourceTree = "<group>"; };
 		91E4780C23B666EE004DA6A7 /* TPCircularBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TPCircularBuffer.h; sourceTree = "<group>"; };
 		91E4780D23B666EE004DA6A7 /* TPCircularBuffer+AudioBufferList.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "TPCircularBuffer+AudioBufferList.c"; sourceTree = "<group>"; };
 		91E4780F23B666EE004DA6A7 /* README.markdown */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.markdown; sourceTree = "<group>"; };
 		91E4781023B666EE004DA6A7 /* TPCircularBuffer.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = TPCircularBuffer.c; sourceTree = "<group>"; };
-		91E4781123B666EE004DA6A7 /* CARingBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CARingBuffer.h; sourceTree = "<group>"; };
 		91E4781523B666EE004DA6A7 /* TPCircularBuffer+AudioBufferList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "TPCircularBuffer+AudioBufferList.h"; sourceTree = "<group>"; };
 		91E4781723B666EE004DA6A7 /* Band.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Band.swift; sourceTree = "<group>"; };
 		91E4781823B666EE004DA6A7 /* Filters.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = Filters.xml; sourceTree = "<group>"; };
 		91E4781B23B666EE004DA6A7 /* LevelIndicator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LevelIndicator.swift; sourceTree = "<group>"; };
 		91E4781C23B666EE004DA6A7 /* BarView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BarView.swift; sourceTree = "<group>"; };
-		91E4781D23B666EE004DA6A7 /* OpusEncode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpusEncode.swift; sourceTree = "<group>"; };
 		91E4781E23B666EE004DA6A7 /* BandSegments.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = BandSegments.plist; sourceTree = "<group>"; };
 		91E4781F23B666EE004DA6A7 /* Filters.plist */ = {isa = PBXFileReference; lastKnownFileType = file.bplist; path = Filters.plist; sourceTree = "<group>"; };
 		91E4782023B666EE004DA6A7 /* OpusPlayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpusPlayer.swift; sourceTree = "<group>"; };
@@ -216,12 +207,6 @@
 		91E4788023B666EE004DA6A7 /* URLSessionExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = URLSessionExtensions.swift; sourceTree = "<group>"; };
 		91E4788223B666EE004DA6A7 /* Auth0ViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Auth0ViewController.swift; sourceTree = "<group>"; };
 		91E4788623B666EE004DA6A7 /* HelpViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HelpViewController.swift; sourceTree = "<group>"; };
-		91E4791123B68C7D004DA6A7 /* RingBuffer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RingBuffer.mm; sourceTree = "<group>"; };
-		91E4791223B68C7D004DA6A7 /* CABitOperations.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CABitOperations.h; sourceTree = "<group>"; };
-		91E4791323B68C7D004DA6A7 /* CAAtomic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CAAtomic.h; sourceTree = "<group>"; };
-		91E4791423B68C7D004DA6A7 /* CARingBuffer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CARingBuffer.cpp; sourceTree = "<group>"; };
-		91E4791523B68C7D004DA6A7 /* RingBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RingBuffer.h; sourceTree = "<group>"; };
-		91E4791623B68C7D004DA6A7 /* CAAutoDisposer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CAAutoDisposer.h; sourceTree = "<group>"; };
 		91E4792123B69A2A004DA6A7 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Preferences.storyboard; sourceTree = "<group>"; };
 		91E4792323B69A2A004DA6A7 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Panafall.storyboard; sourceTree = "<group>"; };
 		91E4792523B69A2A004DA6A7 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Side.storyboard; sourceTree = "<group>"; };
@@ -236,7 +221,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				91E4791A23B691B0004DA6A7 /* OpusOSX.framework in Frameworks */,
 				91E4790323B667BE004DA6A7 /* SwiftyUserDefaults in Frameworks */,
 				917AAA7A23D53FD90082FAEB /* ObjcExceptionBridging in Frameworks */,
 				917AAA7C23D53FD90082FAEB /* XCGLogger in Frameworks */,
@@ -260,7 +244,6 @@
 			children = (
 				91B1D24B241FC4DD00A7B5E4 /* project.xcworkspace */,
 				919614F623D28F8F0069AE94 /* README.md */,
-				91E4780523B666ED004DA6A7 /* OpusOSX.framework */,
 				91E4780723B666EE004DA6A7 /* xSDR6000 */,
 				91E477F223B66661004DA6A7 /* Products */,
 				91E4790823B6683C004DA6A7 /* Frameworks */,
@@ -310,7 +293,6 @@
 				91E4781723B666EE004DA6A7 /* Band.swift */,
 				91E4781823B666EE004DA6A7 /* Filters.xml */,
 				91E4781A23B666EE004DA6A7 /* LevelIndicator */,
-				91E4781D23B666EE004DA6A7 /* OpusEncode.swift */,
 				91E4781E23B666EE004DA6A7 /* BandSegments.plist */,
 				91E4781F23B666EE004DA6A7 /* Filters.plist */,
 				91E4782023B666EE004DA6A7 /* OpusPlayer.swift */,
@@ -324,17 +306,10 @@
 		91E4780A23B666EE004DA6A7 /* RingBuffer */ = {
 			isa = PBXGroup;
 			children = (
-				91E4791323B68C7D004DA6A7 /* CAAtomic.h */,
-				91E4791623B68C7D004DA6A7 /* CAAutoDisposer.h */,
-				91E4791223B68C7D004DA6A7 /* CABitOperations.h */,
-				91E4791423B68C7D004DA6A7 /* CARingBuffer.cpp */,
-				91E4791523B68C7D004DA6A7 /* RingBuffer.h */,
-				91E4791123B68C7D004DA6A7 /* RingBuffer.mm */,
 				91E4780C23B666EE004DA6A7 /* TPCircularBuffer.h */,
 				91E4780D23B666EE004DA6A7 /* TPCircularBuffer+AudioBufferList.c */,
 				91E4780F23B666EE004DA6A7 /* README.markdown */,
 				91E4781023B666EE004DA6A7 /* TPCircularBuffer.c */,
-				91E4781123B666EE004DA6A7 /* CARingBuffer.h */,
 				91E4781523B666EE004DA6A7 /* TPCircularBuffer+AudioBufferList.h */,
 			);
 			path = RingBuffer;
@@ -666,7 +641,6 @@
 				91E478A723B666EE004DA6A7 /* MainWindowController.swift in Sources */,
 				91E478B623B666EE004DA6A7 /* WaterfallShaders.metal in Sources */,
 				91E478DB23B666EE004DA6A7 /* JWT.swift in Sources */,
-				91E4791823B68C7D004DA6A7 /* CARingBuffer.cpp in Sources */,
 				91E478AC23B666EE004DA6A7 /* DaxIqViewController.swift in Sources */,
 				91E478D323B666EE004DA6A7 /* PanafallsViewController.swift in Sources */,
 				91E478D923B666EE004DA6A7 /* Keychain.swift in Sources */,
@@ -721,7 +695,6 @@
 				91E478CA23B666EE004DA6A7 /* ModeViewController.swift in Sources */,
 				91E4789823B666EE004DA6A7 /* OpusPlayer.swift in Sources */,
 				91E478A223B666EE004DA6A7 /* PreferencesTabViewController.swift in Sources */,
-				91E4791723B68C7D004DA6A7 /* RingBuffer.mm in Sources */,
 				91E478E123B666EE004DA6A7 /* Auth0ViewController.swift in Sources */,
 				91E478A123B666EE004DA6A7 /* FiltersPrefsViewController.swift in Sources */,
 				91E478AD23B666EE004DA6A7 /* WaterfallRenderer.swift in Sources */,
@@ -730,7 +703,6 @@
 				91E4789323B666EE004DA6A7 /* LevelIndicator.swift in Sources */,
 				91E4789D23B666EE004DA6A7 /* GpsPrefsViewController.swift in Sources */,
 				91E478E423B666EE004DA6A7 /* HelpViewController.swift in Sources */,
-				91E4789523B666EE004DA6A7 /* OpusEncode.swift in Sources */,
 				915B9A5B24BF9F2900BEC75B /* MiniViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -933,8 +905,8 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.11;
-				MARKETING_VERSION = 1.2.9;
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				MARKETING_VERSION = 1.6.4;
 				PRODUCT_BUNDLE_IDENTIFIER = net.k3tzr.xSDR6000;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "xSDR6000/xSDR6000-Bridging-Header.h";
@@ -963,8 +935,8 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.11;
-				MARKETING_VERSION = 1.2.9;
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				MARKETING_VERSION = 1.6.4;
 				PRODUCT_BUNDLE_IDENTIFIER = net.k3tzr.xSDR6000;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "xSDR6000/xSDR6000-Bridging-Header.h";
@@ -1001,7 +973,7 @@
 			repositoryURL = "https://github.com/K3TZR/xLib6000.git";
 			requirement = {
 				kind = exactVersion;
-				version = 1.3.8;
+				version = 1.3.11;
 			};
 		};
 		917AAA7823D53FD90082FAEB /* XCRemoteSwiftPackageReference "XCGLogger" */ = {

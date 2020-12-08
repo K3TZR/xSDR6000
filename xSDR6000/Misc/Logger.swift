@@ -12,11 +12,9 @@ import SwiftyUserDefaults
 import xLib6000
 
 public class Logger : LogHandler {
-  
-  public static let kAppName                = "xSDR6000"
-  
+    
   // Log parameters
-  static let kLoggerName                    = kAppName
+  static let kLoggerName                    = AppDelegate.kAppName
   static let kLogFile                       = kLoggerName + ".log"
   static let kMaxLogFiles                   : UInt8 = 5
   static let kMaxFileSize                   : UInt64 = 20_000_000
@@ -35,67 +33,6 @@ public class Logger : LogHandler {
     set { _objectQ.sync(flags: .barrier) {_log = newValue }}}
 
   private var _log : XCGLogger = XCGLogger(identifier: Logger.kLoggerName, includeDefaultDestinations: false)
-  
-//  // lazy setup of the XCGLogger
-//  lazy var log: XCGLogger = {
-//
-//    // Create a logger object with no destinations
-//    let log = XCGLogger(identifier: Logger.kLoggerName, includeDefaultDestinations: false)
-//
-//    #if DEBUG
-//
-//    // for DEBUG only
-//    // Create a destination for the system console log (via NSLog)
-//    let systemDestination = AppleSystemLogDestination(identifier: Logger.kLoggerName + ".systemDestination")
-//
-//    // Optionally set some configuration options
-//    systemDestination.outputLevel           = logLevel
-//    systemDestination.showLogIdentifier     = false
-//    systemDestination.showFileName          = false
-//    systemDestination.showFunctionName      = false
-//    systemDestination.showThreadName        = false
-//    systemDestination.showLevel             = true
-//    systemDestination.showLineNumber        = false
-//
-//    // Add the destination to the logger
-//    log.add(destination: systemDestination)
-//
-//    #endif
-//
-//    // Create a file log destination
-//    let fileDestination = AutoRotatingFileDestination(writeToFile: URL.logs.appendingPathComponent(Logger.kLogFile), identifier: Logger.kLoggerName + ".autoRotatingFileDestination")
-//
-//    // Optionally set some configuration options
-//    fileDestination.targetMaxFileSize       = Logger.kMaxFileSize
-//    fileDestination.targetMaxLogFiles       = Logger.kMaxLogFiles
-//    fileDestination.outputLevel             = logLevel
-//    fileDestination.showLogIdentifier       = false
-//    fileDestination.showFileName            = false
-//    fileDestination.showFunctionName        = false
-//    fileDestination.showThreadName          = false
-//    fileDestination.showLevel               = true
-//    fileDestination.showLineNumber          = false
-//
-//    fileDestination.showDate                = true
-//
-//    // Process this destination in the background
-//    fileDestination.logQueue = XCGLogger.logQueue
-//
-//    // Add the destination to the logger
-//    log.add(destination: fileDestination)
-//
-//    // Add basic app info, version info etc, to the start of the logs
-//    log.logAppDetails()
-//
-//    // format the date (only effects the file logging)
-//    let dateFormatter = DateFormatter()
-//    dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss:SSS"
-//    dateFormatter.locale = Locale.current
-//    log.dateFormatter = dateFormatter
-//
-//    return log
-//  }()
-
   
   // ----------------------------------------------------------------------------
   // MARK: - Singleton

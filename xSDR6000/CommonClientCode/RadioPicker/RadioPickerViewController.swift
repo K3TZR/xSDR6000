@@ -69,7 +69,7 @@ final class RadioPickerViewController : NSViewController, NSTableViewDelegate, N
   @IBOutlet private var _radioTable           : NSTableView!
   @IBOutlet private var _selectButton         : NSButton!
 
-  private var _radios                         : [DiscoveryPacket] { Discovery.sharedInstance.discoveredRadios }
+  private var _radios                         : [DiscoveryPacket] { Discovery.sharedInstance.discoveryPackets }
   private var _rightClick                     : NSClickGestureRecognizer!
   
   private let kConnectTitle                   = "Connect"

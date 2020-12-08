@@ -3,7 +3,7 @@
 //
 
 // RingBuffer C++ Wrapper
-#import "RingBuffer.h"
+//#import "RingBuffer.h"
 
 #import "TPCircularBuffer.h"
 #import "TPCircularBuffer+AudioBufferList.h"

@@ -10,7 +10,9 @@ import Cocoa
 
 @NSApplicationMain
   final class AppDelegate                     : NSObject, NSApplicationDelegate {
-  
+
+  static let kAppName = "xSDR6000"
+    
   // ----------------------------------------------------------------------------
   // MARK: - Internal methods
   

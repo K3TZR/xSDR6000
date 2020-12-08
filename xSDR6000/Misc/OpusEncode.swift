@@ -44,7 +44,7 @@ public final class OpusEncode               : NSObject {
   private var _tapBufferSize                : AVAudioFrameCount = 0
   private var _encoderOutput                = [UInt8](repeating: 0, count: RemoteTxAudioStream.frameCount)
   
-  private var _ringBuffer                   = RingBuffer()
+//  private var _ringBuffer                   = RingBuffer()
   private var _bufferInput                  : AVAudioPCMBuffer!
   private var _bufferOutput                 : AVAudioPCMBuffer!
   private var _bufferSemaphore              : DispatchSemaphore!
@@ -89,7 +89,7 @@ public final class OpusEncode               : NSObject {
   }
   
   deinit {
-    _ringBuffer?.deallocate()
+//    _ringBuffer?.deallocate()
   }
 
   // ----------------------------------------------------------------------------
@@ -212,9 +212,9 @@ public final class OpusEncode               : NSObject {
   private func createBuffers() {
     
     // create the Ring buffer
-    _ringBuffer!.allocate(UInt32(RemoteTxAudioStream.channelCount),
-                          bytesPerFrame: UInt32(MemoryLayout<Float>.size * Int(kConverterOutputFormat.channelCount)),
-                          capacityFrames: UInt32(kConverterOutputFrameCount * kRingBufferSlots))
+//    _ringBuffer!.allocate(UInt32(RemoteTxAudioStream.channelCount),
+//                          bytesPerFrame: UInt32(MemoryLayout<Float>.size * Int(kConverterOutputFormat.channelCount)),
+//                          capacityFrames: UInt32(kConverterOutputFrameCount * kRingBufferSlots))
     
     // create a buffer for output from the AudioConverter (input to the ring buffer)
     _bufferInput = AVAudioPCMBuffer(pcmFormat: kConverterOutputFormat,

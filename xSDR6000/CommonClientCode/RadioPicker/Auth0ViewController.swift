@@ -83,7 +83,7 @@ final class Auth0ViewController             : NSViewController, WKNavigationDele
     &response_type=\(Auth0ViewController.kResponseType)\
     &scope=\(Auth0ViewController.kScope)\
     &state=\(_state)\
-    &device=\(Logger.kAppName)
+    &device=\(AppDelegate.kAppName)
     """
     
     // create a URLRequest for the SmartLink URL
@@ -110,6 +110,8 @@ final class Auth0ViewController             : NSViewController, WKNavigationDele
       
       _log("Auth0 web view failed to load", .error, #function, #file, #line)
     }
+    
+    print(request)
   }
   
   override func viewWillAppear() {
