@@ -1,6 +1,0 @@
-framework module OpusOSX {
-  umbrella header "OpusOSX.h"
-
-  export *
-  module * { export * }
-}
