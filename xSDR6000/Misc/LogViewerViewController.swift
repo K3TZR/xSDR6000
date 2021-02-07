@@ -15,16 +15,16 @@ class LogViewerViewController: NSViewController {
   // ----------------------------------------------------------------------------
   // MARK: - Private properties
   
-  @IBOutlet private var _textView                 : NSTextView!
-  @IBOutlet private weak var _logLevelPopUp       : NSPopUpButton!
-  @IBOutlet private weak var _limitToPopUp        : NSPopUpButton!
-  @IBOutlet private weak var _limitValueTextField : NSTextField!
+  @IBOutlet private var _textView: NSTextView!
+  @IBOutlet private weak var _logLevelPopUp: NSPopUpButton!
+  @IBOutlet private weak var _limitToPopUp: NSPopUpButton!
+  @IBOutlet private weak var _limitValueTextField: NSTextField!
   
-  private let _log                = Logger.sharedInstance.logMessage
-  private var _openFileUrl        : URL?
-  private var _logEntries         : String!
-  private var _filteredLines      = [String.SubSequence]()
-  private lazy var _lines         = _textView.string.split(separator: "\n")
+  private let _log = Logger.sharedInstance.logMessage
+  private var _openFileUrl: URL?
+  private var _logEntries: String!
+  private var _filteredLines = [String.SubSequence]()
+  private lazy var _lines = _textView.string.split(separator: "\n")
   
   // ----------------------------------------------------------------------------
   // MARK: - Overriden methods
@@ -32,7 +32,7 @@ class LogViewerViewController: NSViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
 
-    _log("Log Viewer opened", .debug,  #function, #file, #line)
+    _log("Log Viewer opened", .debug, #function, #file, #line)
 
     view.window?.windowController?.windowFrameAutosaveName = "LogViewerWindow"
 
@@ -58,7 +58,7 @@ class LogViewerViewController: NSViewController {
   }
   
   deinit {
-    _log("Log Viewer closed", .debug,  #function, #file, #line)
+    _log("Log Viewer closed", .debug, #function, #file, #line)
   }
 
   // ----------------------------------------------------------------------------
@@ -68,14 +68,14 @@ class LogViewerViewController: NSViewController {
     let limit = sender.titleOfSelectedItem ?? "None"
     filterLog(level: _logLevelPopUp.titleOfSelectedItem ?? "Debug", limit: limit)
     
-    _log("Log limit changed to: \(limit)", .debug,  #function, #file, #line)
+    _log("Log limit changed to: \(limit)", .debug, #function, #file, #line)
   }
   
   @IBAction func limitToTextField(_ sender: NSTextField) {
     
     filterLog(level: _logLevelPopUp.titleOfSelectedItem ?? "Debug", limit: _limitToPopUp.titleOfSelectedItem ?? "None")
 
-    _log("Log limit text changed to: \(sender.stringValue)", .debug,  #function, #file, #line)
+    _log("Log limit text changed to: \(sender.stringValue)", .debug, #function, #file, #line)
   }
 
   @IBAction func loadButton(_ sender: Any) {
@@ -99,7 +99,7 @@ class LogViewerViewController: NSViewController {
           self?._textView.string = logString
           self?._openFileUrl = openPanel.url!
 
-          self?._log("Log loaded: \(openPanel.url!)", .debug,  #function, #file, #line)
+          self?._log("Log loaded: \(openPanel.url!)", .debug, #function, #file, #line)
 
         } catch {
           let alert = NSAlert()
@@ -108,7 +108,7 @@ class LogViewerViewController: NSViewController {
           alert.alertStyle = .critical
           alert.addButton(withTitle: "Ok")
           
-          let _ = alert.runModal()
+          _ = alert.runModal()
         }
       }
     }
@@ -119,7 +119,7 @@ class LogViewerViewController: NSViewController {
     filterLog(level: level, limit: _limitToPopUp.titleOfSelectedItem ?? "None")
     Defaults.logLevel = level
 
-    _log("Log level changed to: \(level)", .debug,  #function, #file, #line)
+    _log("Log level changed to: \(level)", .debug, #function, #file, #line)
   }
   
   @IBAction func saveButton(_ sender: Any) {
@@ -141,7 +141,7 @@ class LogViewerViewController: NSViewController {
         do {
           try self?._textView.string.write(to: savePanel.url!, atomically: true, encoding: .ascii)
 
-          self?._log("Log \(savePanel.nameFieldStringValue) saved to: \(savePanel.url!)", .debug,  #function, #file, #line)
+          self?._log("Log \(savePanel.nameFieldStringValue) saved to: \(savePanel.url!)", .debug, #function, #file, #line)
 
         } catch {
           let alert = NSAlert()
@@ -150,7 +150,7 @@ class LogViewerViewController: NSViewController {
           alert.alertStyle = .critical
           alert.addButton(withTitle: "Ok")
           
-          let _ = alert.runModal()
+          _ = alert.runModal()
         }
       }
     }
@@ -170,7 +170,7 @@ class LogViewerViewController: NSViewController {
         _logEntries = try String(contentsOf: defaultLogUrl, encoding: .ascii)
         _textView.string = _logEntries
         _openFileUrl = defaultLogUrl
-        _log("Default Log loaded: \(defaultLogUrl)", .debug,  #function, #file, #line)
+        _log("Default Log loaded: \(defaultLogUrl)", .debug, #function, #file, #line)
 
       } catch {
         let alert = NSAlert()
@@ -179,7 +179,7 @@ class LogViewerViewController: NSViewController {
         alert.alertStyle = .critical
         alert.addButton(withTitle: "Ok")
         
-        let _ = alert.runModal()
+        _ = alert.runModal()
       }
   }
   /// Filter the displayed Log

@@ -9,7 +9,7 @@
 import Cocoa
 
 @NSApplicationMain
-  final class AppDelegate                     : NSObject, NSApplicationDelegate {
+  final class AppDelegate: NSObject, NSApplicationDelegate {
 
   static let kAppName = "xSDR6000"
     
@@ -20,5 +20,3 @@ import Cocoa
     return true
   }
 }
-
-

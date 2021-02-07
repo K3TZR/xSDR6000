@@ -8,424 +8,296 @@
 
 import Cocoa
 import xLib6000
-
-public struct Token {
-  
-  var value         : String
-  var expiresAt     : Date
-  
-  public func isValidAtDate(_ date: Date) -> Bool {
-    return (date < self.expiresAt)
-  }
-}
+import JWTDecode
 
 // --------------------------------------------------------------------------------
 // MARK: - WanManager Delegate protocol
 // --------------------------------------------------------------------------------
 
-protocol WanManagerDelegate : class {
-  
-  var auth0Email            : String?   {get set}
-  var smartLinkWasLoggedIn  : Bool      {get set}
-  
-  func smartLinkTestResults(results: WanTestConnectionResults)
-  func smartLinkConnectionReady(handle: String, serial: String)
-  func smartLinkUserSettings(name: String?, call: String?)
-  func smartLinkImage(image: NSImage?)
-  
-  func showRadioPicker()
+protocol WanManagerDelegate: class {
+    // swiftlint:disable colon
+    
+    var userEmail               : String? { get set}
+    var smartLinkWasLoggedIn    : Bool { get set}
+    var smartLinkIsLoggedIn     : Bool { get set}
+    
+    func smartLinkTestResults(results: WanTestConnectionResults)
+    func smartLinkConnectionReady(handle: String, serial: String)
+    func smartLinkUserSettings(name: String?, call: String?)
+    func smartLinkImage(image: NSImage?)
+    
+    func showRadioPicker()
+    // swiftlint:enable colon
 }
 
-public final class WanManager : WanServerDelegate, Auth0Delegate {
-
-  // ----------------------------------------------------------------------------
-  // MARK: - Static properties
-  
-  static let kServiceName                   = ".oauth-token"
-  static let testTimeout                    : TimeInterval = 0.1
-  
-  // ----------------------------------------------------------------------------
-  // MARK: - Private properties
-
-  private weak var _delegate                : WanManagerDelegate!
-  private weak var _serverDelegate          : WanServerDelegate?
-
-  private var _wanServer                    : WanServer?
-  private let _log                          = Logger.sharedInstance.logMessage
-  private var _previousToken                : Token?
-  private var _auth0ViewController          : Auth0ViewController?
-  private var _mainWindow                   : NSWindow { NSApplication.shared.mainWindow! }
-  
-  // constants
-  private let kApplicationJson              = "application/json"
-  private let kAuth0Delegation              = "https://frtest.auth0.com/delegation"
-  private let kClaimEmail                   = "email"
-  private let kClaimPicture                 = "picture"
-  private let kConnectTitle                 = "Connect"
-  private let kDisconnectTitle              = "Disconnect"
-  private let kGrantType                    = "urn:ietf:params:oauth:grant-type:jwt-bearer"
-  private let kHttpHeaderField              = "content-type"
-  private let kHttpPost                     = "POST"
-  
-  private let kKeyClientId                  = "client_id"                   // dictionary keys
-  private let kKeyGrantType                 = "grant_type"
-  private let kKeyIdToken                   = "id_token"
-  private let kKeyRefreshToken              = "refresh_token"
-  private let kKeyScope                     = "scope"
-  private let kKeyTarget                    = "target"
-  
-  private let kLowBWTitle                   = "Low BW Connect"
-  private let kLoginTitle                   = "Log In"
-  private let kLogoutTitle                  = "Log Out"
-  private let kPlatform                     = "macOS"
-  private let kScope                        = "openid email given_name family_name picture"
-  private let kService                      = AppDelegate.kAppName + kServiceName
-  private let kUpnpIdentifier               = "upnpSupported"
-  
-  // ----------------------------------------------------------------------------
-  // MARK: - Initialization
-
-  init(delegate: WanManagerDelegate) {
-    _delegate = delegate
+public final class WanManager: WanServerDelegate, Auth0Delegate {
     
-    _wanServer = WanServer(delegate: self)
-  }
-  
-  // ----------------------------------------------------------------------------
-  // MARK: - Public methods
-  
-  /// SmartLink log in
-  /// - Parameter auth0Email:     saved email (if any)
-  ///
-  public func smartLinkLogin(using auth0Email: String?) -> Bool {
+    // swiftlint:disable colon
+    // ----------------------------------------------------------------------------
+    // MARK: - Static properties
     
-    if let tokenValue = getToken(using: auth0Email) {
-      
-      _delegate!.smartLinkImage(image: getUserImage(tokenValue: tokenValue))
-      
-      // have a token, try to connect
-      return _wanServer!.connectToSmartLinkServer(appName: AppDelegate.kAppName, platform: kPlatform, token: tokenValue, ping: true)
+    static let kServiceName             = ".oauth-token"
+    
+    // ----------------------------------------------------------------------------
+    // MARK: - Private properties
+    
+    private weak var _delegate          : WanManagerDelegate!
+    
+    private var _auth0ViewController    : Auth0ViewController?
+    private let _log                    = Logger.sharedInstance.logMessage
+    private var _previousIdToken        : IdToken = nil
+    private var _wanServer              : WanServer?
+    
+    // constants
+    private let kService                = AppDelegate.kAppName + kServiceName
+    
+    // swiftlint:enable colon
+    // ----------------------------------------------------------------------------
+    // MARK: - Initialization
+    
+    init(delegate: WanManagerDelegate) {
+        _delegate = delegate
+        _wanServer = WanServer(delegate: self)
     }
     
-    _log("Smartlink login: token NOT found", .debug, #function, #file, #line)
-    return false
-  }
-  /// SmartLink log out
-  ///
-  public func smartLinkLogout() {
-    _wanServer?.disconnectFromSmartLinkServer()
-    _wanServer = nil
-  }
-  
-  public func validateAuth0Credentials() {
-    // show the Auth0 sheet
-    let auth0Storyboard = NSStoryboard(name: "RadioPicker", bundle: nil)
-    _auth0ViewController = auth0Storyboard.instantiateController(withIdentifier: "Auth0Login") as? Auth0ViewController
-    _auth0ViewController!.delegate = self
-    _mainWindow.contentViewController!.presentAsSheet(_auth0ViewController!)
-  }
-
-  public func openRadio(_ packet: DiscoveryPacket) {
-    _wanServer?.sendConnectMessage(for: packet)
-  }
-  
-  public func closeRadio(_ packet: DiscoveryPacket) {
-    _wanServer?.sendDisconnectMessage(for: packet)
-  }
-  
-  public func testConnection(_ packet: DiscoveryPacket) {
-    _wanServer?.sendTestConnection(for: packet)
-  }
-  
-  // ----------------------------------------------------------------------------
-  // MARK: - Private methods
-  
-  /// Obtain a token
-  /// - Parameter auth0Email:     saved email (if any)
-  /// - Returns:                  a Token (if any)
-  ///
-  private func getToken(using auth0Email: String?) -> String? {
-    var tokenValue : String? = nil
+    // ----------------------------------------------------------------------------
+    // MARK: - Public methods
     
-    // is there a saved Auth0 token which has not expired?
-    if let previousToken = _previousToken, previousToken.isValidAtDate( Date()) {
-      // YES, we can log into SmartLink, use the saved token
-      tokenValue = previousToken.value
-      
-      _log("Smartlink login: previous token is unexpired", .debug, #function, #file, #line)
-
-    } else if auth0Email != nil {
-      // there is a saved email, use it to obtain a refresh token from Keychain
-      if let refreshToken = Keychain.get(kService, account: auth0Email!) {
-        
-        // can we get a Token Value from the Refresh Token?
-        if let value = getTokenValue(from: refreshToken) {
-          // YES, we can use the saved token to Log in
-          tokenValue = value
-
-          _log("Smartlink login: token obtained from refresh token", .debug, #function, #file, #line)
-
-        } else {
-          // NO, the Keychain entry is no longer valid, delete it
-          Keychain.delete(kService, account: auth0Email!)
-          
-          _log("Smartlink login: refresh token invalid", .debug, #function, #file, #line)
+    /// Open a connection to the SmartLink server using existing credentials
+    /// - Parameter auth0Email:     saved email (if any)
+    ///
+    public func smartLinkLogin(_ userEmail: String?) -> Bool {
+        // is there an Id Token available?
+        if let idToken = getIdToken(userEmail) {
+            // YES, save the ID Token
+            _previousIdToken = idToken
+            
+            _log("WanManager, Smartlink login: saved/refreshed ID Token found", .debug, #function, #file, #line)
+            
+            // try to connect
+            return _wanServer!.connect(appName: AppDelegate.kAppName, platform: "macOS", idToken: idToken)
         }
-      } else {
-
-        _log("Smartlink login: refresh token not found", .debug, #function, #file, #line)
-      }
-      
-    } else {
-      _log("Smartlink login: refresh email empty", .debug, #function, #file, #line)
-    }
-    return tokenValue
-  }
-  /// Given a Refresh Token attempt to get a Token
-  ///
-  /// - Parameter refreshToken:         a Refresh Token
-  /// - Returns:                        a Token (if any)
-  ///
-  private func getTokenValue(from refreshToken: String) -> String? {
-    
-    // guard that the token isn't empty
-    guard refreshToken != "" else { return nil }
-    
-    // build a URL Request
-    let url = URL(string: kAuth0Delegation)
-    var urlRequest = URLRequest(url: url!)
-    urlRequest.httpMethod = kHttpPost
-    urlRequest.addValue(kApplicationJson, forHTTPHeaderField: kHttpHeaderField)
-    
-    // guard that body data was created
-    guard let bodyData = createBodyData(refreshToken: refreshToken) else { return "" }
-    
-    // update the URL Request and retrieve the data
-    urlRequest.httpBody = bodyData
-    let (responseData, _, error) = URLSession.shared.synchronousDataTask(with: urlRequest)
-    
-    // guard that the data isn't empty and that no error occurred
-    guard let data = responseData, error == nil else {
-      
-      _log("SmartLink login: error retrieving token, \(error?.localizedDescription ?? "")", .error, #function, #file, #line)
-      return nil
+        // NO, user will need to reenter Auth0 user/pwd to authenticate (i.e. obtain credentials)
+        _log("WanManager, Smartlink login: saved/refreshed ID Token NOT found", .debug, #function, #file, #line)
+        return false
     }
     
-    // is there a Token?
-    if let token = parseTokenResponse(data: data) {
-      do {
-        
-        let jwt = try decode(jwt: token)
-        
-        // validate id token; see https://auth0.com/docs/tokens/id-token#validate-an-id-token
-        if !isJWTValid(jwt) {
-          // log the error
-          _log("SmartLink login: token invalid", .error, #function, #file, #line)
-          
-          return nil
+    /// Close the connection to the SmartLink server
+    ///
+    public func smartLinkLogout() {
+        _delegate.smartLinkIsLoggedIn = false
+        _wanServer?.disconnect()
+        _wanServer = nil
+    }
+    
+    /// Open the Auth0 Sheet
+    ///
+    public func presentAuth0Sheet() {
+        if let window = NSApplication.shared.mainWindow {
+            let auth0Storyboard = NSStoryboard(name: "RadioPicker", bundle: nil)
+            _auth0ViewController = auth0Storyboard.instantiateController(withIdentifier: "Auth0Login") as? Auth0ViewController
+            _auth0ViewController!.delegate = self
+            window.contentViewController!.presentAsSheet(_auth0ViewController!)
         }
-        
-      } catch let error as NSError {
-        // log the error
-        _log("SmartLink login: error decoding token, \(error.localizedDescription)", .error, #function, #file, #line)
-        
+    }
+    
+    /// Open a SmartLink connection to a Radio
+    /// - Parameters:
+    ///   - serialNumber:       the serial number of the Radio
+    ///   - holePunchPort:      the negotiated Hole Punch port number
+    ///
+    public func openRadio(_ serialNumber: String, holePunchPort: Int) {
+        _wanServer?.sendConnectMessage(for: serialNumber, holePunchPort: holePunchPort)
+    }
+    
+    /// Close the SmartLink connection to a Radio
+    /// - Parameter serialNumber:     serial number of the Radio
+    ///
+    public func closeRadio(_ serialNumber: String) {
+        _wanServer?.sendDisconnectMessage(for: serialNumber)
+    }
+    
+    /// Test the connection to the SmartLink server
+    /// - Parameter serialNumber:     serial number of the Radio
+    ///
+    public func testConnection(_ serialNumber: String) {
+        _wanServer?.sendTestConnection(for: serialNumber)
+    }
+    
+    // ----------------------------------------------------------------------------
+    // MARK: - Private methods
+    
+    /// Obtain an Id Token from previous credentials
+    /// - Parameter userEmail:      saved email (if any)
+    /// - Returns:                  an ID Token (if any)
+    ///
+    private func getIdToken(_ userEmail: String?) -> IdToken {
+        // is there a saved Auth0 token which has not expired?
+        if let previousToken = _previousIdToken, isValidIdToken(previousToken) {
+            // YES, use the saved token
+            return previousToken
+            
+        } else if userEmail != nil {
+            // use it to obtain a refresh token from Keychain
+            if let refreshToken = Keychain.get(kService, account: userEmail!) {
+                
+                // can we get an ID Token using the Refresh Token?
+                if let idToken = requestIdToken(from: refreshToken) {
+                    // YES,
+                    return idToken
+                    
+                } else {
+                    // NO, the Keychain entry is no longer valid, delete it
+                    Keychain.delete(kService, account: userEmail!)
+                }
+            }
+        }
         return nil
-      }
-      return token
     }
-    // NO token
-    return nil
-  }
-  /// Get the Logon Image
-  /// - Parameter token:    a token value
-  /// - Returns:            the image or nil
-  ///
-  private func getUserImage( tokenValue: String) -> NSImage? {
     
-    // try to get the JSON Web Token
-    if let jwt = try? decode(jwt: tokenValue) {
-      
-      // get the Log On image (if any) from the token
-      let claim = jwt.claim(name: kClaimPicture)
-      if let gravatar = claim.string, let url = URL(string: gravatar) {
-        // get the image
-        if let data = try? Data(contentsOf: url) {
-          return NSImage(data: data)
+    /// Given a Refresh Token, perform a URLRequest for an ID Token
+    ///
+    /// - Parameter refreshToken:     a Refresh Token
+    /// - Returns:                    the Data (if created)
+    ///
+    private func requestIdToken(from refreshToken: String) -> IdToken {
+        // build a URL Request
+        let url = URL(string: "https://frtest.auth0.com/delegation")
+        var urlRequest = URLRequest(url: url!)
+        urlRequest.httpMethod = "POST"
+        urlRequest.addValue("application/json", forHTTPHeaderField: "content-type")
+        
+        // create & populate the dictionary
+        var dict = [String: String]()
+        dict["client_id"] = Auth0ViewController.kClientId
+        dict["grant_type"] = "urn:ietf:params:oauth:grant-type:jwt-bearer"
+        dict["refresh_token"] = refreshToken
+        dict["target"] = Auth0ViewController.kClientId
+        dict["scope"] = "openid email given_name family_name picture"
+        
+        // try to obtain the data
+        do {
+            let data = try JSONSerialization.data(withJSONObject: dict)
+            urlRequest.httpBody = data
+            // update the URL Request and retrieve the data
+            let (responseData, error) = URLSession.shared.synchronousDataTask(with: urlRequest)
+            
+            guard let jsonData = responseData, error == nil else {
+                _log("WanManager, Error retrieving ID Token from Refresh Token: \(error?.localizedDescription ?? "")", .error, #function, #file, #line)
+                return nil
+            }
+            do {
+                // try to parse
+                if let object = try JSONSerialization.jsonObject(with: jsonData, options: []) as? [String: Any] {
+                    // YES, does it have a Token?
+                    if let  idToken = object["id_token"] as? String {
+                        // YES, validate it
+                        if isValidIdToken(idToken) { return idToken }
+                        return nil  // invalid token
+                    }
+                }
+                _log("WanManager, Unable to parse Refresh Token response", .error, #function, #file, #line)
+                return nil          // unable to parse
+            } catch _ {
+                _log("WanManager, Unable to parse Refresh Token response", .error, #function, #file, #line)
+                return nil          // parse error
+            }
+        } catch {
+            fatalError("WanManager: failed to create JSON data")
         }
-      }
     }
-    return nil
-  }
-  /// Create the Body Data for use in a URLSession
-  ///
-  /// - Parameter refreshToken:     a Refresh Token
-  /// - Returns:                    the Data (if created)
-  ///
-  private func createBodyData(refreshToken: String) -> Data? {
     
-    // guard that the Refresh Token isn't empty
-    guard refreshToken != "" else { return nil }
-    
-    // create & populate the dictionary
-    var dict = [String : String]()
-    dict[kKeyClientId] = Auth0ViewController.kClientId
-    dict[kKeyGrantType] = kGrantType
-    dict[kKeyRefreshToken] = refreshToken
-    dict[kKeyTarget] = Auth0ViewController.kClientId
-    dict[kKeyScope] = kScope
-    
-    // try to obtain the data
-    do {
-      
-      let data = try JSONSerialization.data(withJSONObject: dict)
-      // success
-      return data
-      
-    } catch _ {
-      // failure
-      return nil
-    }
-  }
-  /// Parse the URLSession data
-  ///
-  /// - Parameter data:               a Data
-  /// - Returns:                      a Token (if any)
-  ///
-  private func parseTokenResponse(data: Data) -> String? {
-    
-    do {
-      // try to parse
-      let myJSON = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
-      
-      // was something returned?
-      if let parseJSON = myJSON {
+    /// Validate an Id Token
+    /// - Parameter idToken:        the Id Token
+    /// - Returns:                  nil if valid, else a ValidationError
+    ///
+    private func isValidIdToken(_ idToken: IdToken) -> Bool {
+        guard idToken != nil else { return false }
         
-        // YES, does it have a Token?
-        if let  idToken = parseJSON[kKeyIdToken] as? String {
-          // YES, retutn it
-          return idToken
+        do {
+            // attempt to decode it
+            let jwt = try decode(jwt: idToken!)
+            // is it valid?
+            let result = IDTokenValidation(issuer: Auth0ViewController.kAuth0Domain, audience: Auth0ViewController.kClientId).validate(jwt)
+            if result == nil {
+                // YES, is there an email?
+                if let email = jwt.claim(name: "email").string {
+                    // YES, save it
+                    _delegate.userEmail = email
+                }
+                // is there a picture?
+                if let gravatar = jwt.claim(name: "picture").string, let url = URL(string: gravatar) {
+                    // YES, get the image
+                    if let data = try? Data(contentsOf: url) {
+                        _delegate.smartLinkImage(image: NSImage(data: data))
+                    }
+                }
+                return true
+                
+            } else {
+                var explanation = ""
+                
+                switch result {
+                case .expired:                  explanation = "expired"
+                case .invalidClaim(let claim):  explanation = "invalid claim - \(claim)"
+                case .nonce:                    explanation = "nonce"
+                case .none:                     explanation = "nil token"
+                }
+                _log("WanManager, SmartLink login: Id Token INVALID: \(explanation)", .error, #function, #file, #line)
+                return false
+            }
+        } catch {
+            _log("WanManager, error decoding Id Token", .error, #function, #file, #line)
+            return false
         }
-      }
-      // nothing returned
-      return nil
-      
-    } catch _ {
-      // parse error
-      return nil
     }
-  }
-  /// check if a JWT token is valid
-  ///
-  /// - Parameter jwt:                  a JWT token
-  /// - Returns:                        valid / invalid
-  ///
-  private func isJWTValid(_ jwt: JWT) -> Bool {
-    // see: https://auth0.com/docs/tokens/id-token#validate-an-id-token
-    // validate only the claims
     
-    // 1.
-    // Token expiration: The current date/time must be before the expiration date/time listed in the exp claim (which
-    // is a Unix timestamp).
-    guard let expiresAt = jwt.expiresAt, Date() < expiresAt else { return false }
+    // ----------------------------------------------------------------------------
+    // MARK: - Auth0Delegate methods
     
-    // 2.
-    // Token issuer: The iss claim denotes the issuer of the JWT. The value must match the the URL of your Auth0
-    // tenant. For JWTs issued by Auth0, iss holds your Auth0 domain with a https:// prefix and a / suffix:
-    // https://YOUR_AUTH0_DOMAIN/.
-    var claim = jwt.claim(name: "iss")
-    guard let domain = claim.string, domain == Auth0ViewController.kAuth0Domain else { return false }
-    
-    // 3.
-    // Token audience: The aud claim identifies the recipients that the JWT is intended for. The value must match the
-    // Client ID of your Auth0 Client.
-    claim = jwt.claim(name: "aud")
-    guard let clientId = claim.string, clientId == Auth0ViewController.kClientId else { return false }
-    
-    return true
-  }
-  
-  // ----------------------------------------------------------------------------
-  // MARK: - Auth0Delegate methods
-  
-  /// Set the id and refresh token
-  ///
-  /// - Parameters:
-  ///   - idToken:        id Token string
-  ///   - refreshToken:   refresh Token string
-  ///
-  func setTokens(idToken: String, refreshToken: String) {
-    var expireDate = Date()
-    
-    do {
-      
-      // try to get the JSON Web Token
-      let jwt = try decode(jwt: idToken)
-      
-      // validate id token; see https://auth0.com/docs/tokens/id-token#validate-an-id-token
-      if !isJWTValid(jwt) {
-        
-        _log("SmartLink login: token INVALID", .error, #function, #file, #line)
-        
-        return
-      }
-      // save the Log On email (if any)
-      var claim = jwt.claim(name: kClaimEmail)
-      if let email = claim.string {
-        
-        // YES, save in user defaults
-        _delegate.auth0Email = email
-        
-        // save refresh token in keychain
-        Keychain.set(kService, account: email, data: refreshToken)
-      }
-      
-      // save the Log On picture (if any)
-      claim = jwt.claim(name: kClaimPicture)
-      if let gravatar = claim.string, let url = URL(string: gravatar) {
-        // get the image
-        if let data = try? Data(contentsOf: url) {
-          _delegate.smartLinkImage(image: NSImage(data: data))
+    /// Set the id and refresh token
+    ///
+    /// - Parameters:
+    ///   - idToken:        id Token string
+    ///   - refreshToken:   refresh Token string
+    ///
+    func setTokens(idToken: String, refreshToken: String) {
+        if isValidIdToken(idToken) {
+            
+            // save the Refresh Token (in Keychain)
+            Keychain.set(kService, account: _delegate.userEmail!, data: refreshToken)
+            
+            // save Id Token & note that we are logged in
+            _previousIdToken = idToken
+            _log("WanManager, SmartLink login: tokens received", .error, #function, #file, #line)
+            
+            if _wanServer!.connect(appName: AppDelegate.kAppName, platform: "macOS", idToken: idToken) {
+                _delegate.smartLinkWasLoggedIn = true
+                _delegate.smartLinkIsLoggedIn = true
+            }
         }
-      }
-      // get the expiry date (if any)
-      if let expiresAt = jwt.expiresAt {
-        expireDate = expiresAt
-      }
-      
-    } catch let error as NSError {
-      
-      // log the error & exit
-      _log("SmartLink login: error decoding token, \(error.localizedDescription)", .error, #function, #file, #line)
-      
-      return
     }
-    // save id token with expiry date
-    _previousToken = Token(value: idToken, expiresAt: expireDate)
     
-    _delegate.smartLinkWasLoggedIn = true
-  }
-
-  func closeAuth0() {
+    func dismissAuth0Sheet() {
+        _auth0ViewController!.dismiss(nil)
+        _auth0ViewController = nil
+        _log("WanManager, Auth0 view unloaded", .error, #function, #file, #line)
+        
+        _delegate.showRadioPicker()
+    }
     
-    _auth0ViewController!.dismiss(nil)
-  
-    _ = smartLinkLogin(using: _delegate.auth0Email)
+    // ----------------------------------------------------------------------------
+    // MARK: - WanServerDelegate methods
     
-    _delegate.showRadioPicker()
-  }
-  
-  // ----------------------------------------------------------------------------
-  // MARK: - WanServerDelegate methods
-  
-  public func wanUserSettings(name: String, call: String) {
-    _delegate.smartLinkUserSettings(name: name, call: call)
-  }
-  
-  public func wanRadioConnectReady(handle: String, serial: String) {
-    _delegate.smartLinkConnectionReady(handle: handle, serial: serial)
-  }
-  
-  public func wanTestResultsReceived(results: WanTestConnectionResults) {
-    _delegate.smartLinkTestResults(results: results)
-  }
+    public func wanUserSettings(name: String, call: String) {
+        _delegate.smartLinkUserSettings(name: name, call: call)
+    }
+    
+    public func wanRadioConnectReady(handle: String, serial: String) {
+        _delegate.smartLinkConnectionReady(handle: handle, serial: serial)
+    }
+    
+    public func wanTestResultsReceived(results: WanTestConnectionResults) {
+        _delegate.smartLinkTestResults(results: results)
+    }
 }

@@ -13,7 +13,7 @@ import Security
 final class Keychain {
   
   static func set(_ service: String, account: String, data: String) {
-    var item: SecKeychainItem? = nil
+    var item: SecKeychainItem?
     
     var status = SecKeychainFindGenericPassword(
       nil,
@@ -51,7 +51,7 @@ final class Keychain {
   
   static func get(_ service: String, account: String) -> String? {
     var passwordLength: UInt32 = 0
-    var password: UnsafeMutableRawPointer? = nil
+    var password: UnsafeMutableRawPointer?
     
     let status = SecKeychainFindGenericPassword(
       nil,
@@ -74,7 +74,7 @@ final class Keychain {
   }
   
   static func delete(_ service: String, account: String) {
-    var item: SecKeychainItem? = nil
+    var item: SecKeychainItem?
     
     var status = SecKeychainFindGenericPassword(
       nil,

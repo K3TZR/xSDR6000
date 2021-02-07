@@ -14,80 +14,82 @@ import xLib6000
 // --------------------------------------------------------------------------------
 
 final class ControlsViewController: NSTabViewController {
-
-  static let kControlsHeight                : CGFloat = 90  
-  static let kBackgroundColor               = NSColor.black.withAlphaComponent(0.3).cgColor
-  
-  // ----------------------------------------------------------------------------
-  // MARK: - Internal properties
-  
-  var leadingConstraint                     : NSLayoutConstraint?
-  var trailingConstraint                    : NSLayoutConstraint?
-  var topConstraint                         : NSLayoutConstraint?
-
-  // ----------------------------------------------------------------------------
-  // MARK: - Private properties
-  
-  private weak var _slice                   : xLib6000.Slice?
-
-  // ----------------------------------------------------------------------------
-  // MARK: - Overridden methods
-
-  override func viewDidLoad() {
-    super.viewDidLoad()
-
-    view.translatesAutoresizingMaskIntoConstraints = false
     
-    view.isHidden = true
-  }
-
-  override func viewWillAppear() {
-    super.viewWillAppear()
+    // swiftlint:disable colon
+    static let kControlsHeight                : CGFloat = 90
+    static let kBackgroundColor               = NSColor.black.withAlphaComponent(0.3).cgColor
     
-    // set the background color of the Flag
-    view.layer?.backgroundColor = ControlsViewController.kBackgroundColor
-  }
-  ///
-  /// - Parameters:
-  ///   - tabView:                  the TabView
-  ///   - tabViewItem:              the Item being selected
-  ///
-  override func tabView(_ tabView: NSTabView, willSelect tabViewItem: NSTabViewItem?) {
+    // ----------------------------------------------------------------------------
+    // MARK: - Internal properties
     
-    // give it a reference to the Slice
-    tabViewItem?.viewController?.representedObject = _slice    
-  }
-
-  // ----------------------------------------------------------------------------
-  // MARK: - Internal methods
-  
-  /// Configure needed parameters
-  ///
-  /// - Parameters:
-  ///   - slice:                    a Slice reference
-  ///   - slice:                    a Slice reference
-  ///
-  func configure(slice: xLib6000.Slice?) {
-    _slice = slice!
+    var leadingConstraint                     : NSLayoutConstraint?
+    var trailingConstraint                    : NSLayoutConstraint?
+    var topConstraint                         : NSLayoutConstraint?
     
-    tabViewItems[0].viewController!.representedObject = _slice
-  }
-
-  // ----------------------------------------------------------------------------
-  // MARK: - Action methods
-  
-  /// Respond to the 0 button for Rit
-  ///
-  /// - Parameter sender:           a button
-  ///
-  @IBAction func zeroRit(_ sender: NSButton) {
-    _slice?.ritOffset = 0
-  }
-  /// Respond to the 0 button for Xit
-  ///
-  /// - Parameter sender:           a button
-  ///
-  @IBAction func zeroXit(_ sender: NSButton) {
-    _slice?.xitOffset = 0
-  }
+    // ----------------------------------------------------------------------------
+    // MARK: - Private properties
+    
+    private weak var _slice                   : xLib6000.Slice?
+    
+    // swiftlint:enable colon
+    // ----------------------------------------------------------------------------
+    // MARK: - Overridden methods
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        view.translatesAutoresizingMaskIntoConstraints = false
+        
+        view.isHidden = true
+    }
+    
+    override func viewWillAppear() {
+        super.viewWillAppear()
+        
+        // set the background color of the Flag
+        view.layer?.backgroundColor = ControlsViewController.kBackgroundColor
+    }
+    ///
+    /// - Parameters:
+    ///   - tabView:                  the TabView
+    ///   - tabViewItem:              the Item being selected
+    ///
+    override func tabView(_ tabView: NSTabView, willSelect tabViewItem: NSTabViewItem?) {
+        
+        // give it a reference to the Slice
+        tabViewItem?.viewController?.representedObject = _slice
+    }
+    
+    // ----------------------------------------------------------------------------
+    // MARK: - Internal methods
+    
+    /// Configure needed parameters
+    ///
+    /// - Parameters:
+    ///   - slice:                    a Slice reference
+    ///   - slice:                    a Slice reference
+    ///
+    func configure(slice: xLib6000.Slice?) {
+        _slice = slice!
+        
+        tabViewItems[0].viewController!.representedObject = _slice
+    }
+    
+    // ----------------------------------------------------------------------------
+    // MARK: - Action methods
+    
+    /// Respond to the 0 button for Rit
+    ///
+    /// - Parameter sender:           a button
+    ///
+    @IBAction func zeroRit(_ sender: NSButton) {
+        _slice?.ritOffset = 0
+    }
+    /// Respond to the 0 button for Xit
+    ///
+    /// - Parameter sender:           a button
+    ///
+    @IBAction func zeroXit(_ sender: NSButton) {
+        _slice?.xitOffset = 0
+    }
 }

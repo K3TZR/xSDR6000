@@ -7,11 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		910BF87C25C39467000BE180 /* BandSegments.plist in Resources */ = {isa = PBXBuildFile; fileRef = 910BF87B25C39467000BE180 /* BandSegments.plist */; };
 		91534CB2244C9A3000F9895F /* RadioPickerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91534CB1244C9A3000F9895F /* RadioPickerViewController.swift */; };
 		91537D8A245CEEDC000BE1C8 /* LogViewerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91537D89245CEEDC000BE1C8 /* LogViewerViewController.swift */; };
 		915B9A5B24BF9F2900BEC75B /* MiniViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 915B9A5A24BF9F2900BEC75B /* MiniViewController.swift */; };
 		9164EE5523DDDA6500086338 /* xLib6000 in Frameworks */ = {isa = PBXBuildFile; productRef = 9164EE5423DDDA6500086338 /* xLib6000 */; };
 		916E98A7246196E700287335 /* WanManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 916E98A6246196E700287335 /* WanManager.swift */; };
+		9179C6DC25BC7845008EDFE1 /* JWTDecode in Frameworks */ = {isa = PBXBuildFile; productRef = 9179C6DB25BC7845008EDFE1 /* JWTDecode */; };
 		917AAA7A23D53FD90082FAEB /* ObjcExceptionBridging in Frameworks */ = {isa = PBXBuildFile; productRef = 917AAA7923D53FD90082FAEB /* ObjcExceptionBridging */; };
 		917AAA7C23D53FD90082FAEB /* XCGLogger in Frameworks */ = {isa = PBXBuildFile; productRef = 917AAA7B23D53FD90082FAEB /* XCGLogger */; };
 		919614F723D28F8F0069AE94 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 919614F623D28F8F0069AE94 /* README.md */; };
@@ -25,7 +27,6 @@
 		91E4789123B666EE004DA6A7 /* Filters.xml in Resources */ = {isa = PBXBuildFile; fileRef = 91E4781823B666EE004DA6A7 /* Filters.xml */; };
 		91E4789323B666EE004DA6A7 /* LevelIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91E4781B23B666EE004DA6A7 /* LevelIndicator.swift */; };
 		91E4789423B666EE004DA6A7 /* BarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91E4781C23B666EE004DA6A7 /* BarView.swift */; };
-		91E4789623B666EE004DA6A7 /* BandSegments.plist in Resources */ = {isa = PBXBuildFile; fileRef = 91E4781E23B666EE004DA6A7 /* BandSegments.plist */; };
 		91E4789723B666EE004DA6A7 /* Filters.plist in Resources */ = {isa = PBXBuildFile; fileRef = 91E4781F23B666EE004DA6A7 /* Filters.plist */; };
 		91E4789823B666EE004DA6A7 /* OpusPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91E4782023B666EE004DA6A7 /* OpusPlayer.swift */; };
 		91E4789923B666EE004DA6A7 /* ParameterMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91E4782123B666EE004DA6A7 /* ParameterMonitor.swift */; };
@@ -84,13 +85,6 @@
 		91E478D623B666EE004DA6A7 /* ProfilesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91E4787123B666EE004DA6A7 /* ProfilesViewController.swift */; };
 		91E478D723B666EE004DA6A7 /* AppExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91E4787223B666EE004DA6A7 /* AppExtensions.swift */; };
 		91E478D923B666EE004DA6A7 /* Keychain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91E4787723B666EE004DA6A7 /* Keychain.swift */; };
-		91E478DA23B666EE004DA6A7 /* JWTDecode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91E4787923B666EE004DA6A7 /* JWTDecode.swift */; };
-		91E478DB23B666EE004DA6A7 /* JWT.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91E4787A23B666EE004DA6A7 /* JWT.swift */; };
-		91E478DC23B666EE004DA6A7 /* Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91E4787B23B666EE004DA6A7 /* Errors.swift */; };
-		91E478DD23B666EE004DA6A7 /* DictionaryExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91E4787D23B666EE004DA6A7 /* DictionaryExtensions.swift */; };
-		91E478DE23B666EE004DA6A7 /* DataExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91E4787E23B666EE004DA6A7 /* DataExtensions.swift */; };
-		91E478DF23B666EE004DA6A7 /* StringExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91E4787F23B666EE004DA6A7 /* StringExtensions.swift */; };
-		91E478E023B666EE004DA6A7 /* URLSessionExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91E4788023B666EE004DA6A7 /* URLSessionExtensions.swift */; };
 		91E478E123B666EE004DA6A7 /* Auth0ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91E4788223B666EE004DA6A7 /* Auth0ViewController.swift */; };
 		91E478E423B666EE004DA6A7 /* HelpViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91E4788623B666EE004DA6A7 /* HelpViewController.swift */; };
 		91E4790323B667BE004DA6A7 /* SwiftyUserDefaults in Frameworks */ = {isa = PBXBuildFile; productRef = 91E4790223B667BE004DA6A7 /* SwiftyUserDefaults */; };
@@ -117,6 +111,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		910BF87B25C39467000BE180 /* BandSegments.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = BandSegments.plist; sourceTree = "<group>"; };
 		91534CB1244C9A3000F9895F /* RadioPickerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RadioPickerViewController.swift; sourceTree = "<group>"; };
 		91537D89245CEEDC000BE1C8 /* LogViewerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogViewerViewController.swift; sourceTree = "<group>"; };
 		915B9A5A24BF9F2900BEC75B /* MiniViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MiniViewController.swift; sourceTree = "<group>"; };
@@ -138,7 +133,6 @@
 		91E4781823B666EE004DA6A7 /* Filters.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = Filters.xml; sourceTree = "<group>"; };
 		91E4781B23B666EE004DA6A7 /* LevelIndicator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LevelIndicator.swift; sourceTree = "<group>"; };
 		91E4781C23B666EE004DA6A7 /* BarView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BarView.swift; sourceTree = "<group>"; };
-		91E4781E23B666EE004DA6A7 /* BandSegments.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = BandSegments.plist; sourceTree = "<group>"; };
 		91E4781F23B666EE004DA6A7 /* Filters.plist */ = {isa = PBXFileReference; lastKnownFileType = file.bplist; path = Filters.plist; sourceTree = "<group>"; };
 		91E4782023B666EE004DA6A7 /* OpusPlayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpusPlayer.swift; sourceTree = "<group>"; };
 		91E4782123B666EE004DA6A7 /* ParameterMonitor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ParameterMonitor.swift; sourceTree = "<group>"; };
@@ -198,13 +192,6 @@
 		91E4787223B666EE004DA6A7 /* AppExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppExtensions.swift; sourceTree = "<group>"; };
 		91E4787423B666EE004DA6A7 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		91E4787723B666EE004DA6A7 /* Keychain.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Keychain.swift; sourceTree = "<group>"; };
-		91E4787923B666EE004DA6A7 /* JWTDecode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JWTDecode.swift; sourceTree = "<group>"; };
-		91E4787A23B666EE004DA6A7 /* JWT.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JWT.swift; sourceTree = "<group>"; };
-		91E4787B23B666EE004DA6A7 /* Errors.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Errors.swift; sourceTree = "<group>"; };
-		91E4787D23B666EE004DA6A7 /* DictionaryExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DictionaryExtensions.swift; sourceTree = "<group>"; };
-		91E4787E23B666EE004DA6A7 /* DataExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataExtensions.swift; sourceTree = "<group>"; };
-		91E4787F23B666EE004DA6A7 /* StringExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StringExtensions.swift; sourceTree = "<group>"; };
-		91E4788023B666EE004DA6A7 /* URLSessionExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = URLSessionExtensions.swift; sourceTree = "<group>"; };
 		91E4788223B666EE004DA6A7 /* Auth0ViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Auth0ViewController.swift; sourceTree = "<group>"; };
 		91E4788623B666EE004DA6A7 /* HelpViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HelpViewController.swift; sourceTree = "<group>"; };
 		91E4792123B69A2A004DA6A7 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Preferences.storyboard; sourceTree = "<group>"; };
@@ -224,6 +211,7 @@
 				91E4790323B667BE004DA6A7 /* SwiftyUserDefaults in Frameworks */,
 				917AAA7A23D53FD90082FAEB /* ObjcExceptionBridging in Frameworks */,
 				917AAA7C23D53FD90082FAEB /* XCGLogger in Frameworks */,
+				9179C6DC25BC7845008EDFE1 /* JWTDecode in Frameworks */,
 				9164EE5523DDDA6500086338 /* xLib6000 in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -288,12 +276,12 @@
 		91E4780823B666EE004DA6A7 /* Misc */ = {
 			isa = PBXGroup;
 			children = (
+				910BF87B25C39467000BE180 /* BandSegments.plist */,
 				91E4780923B666EE004DA6A7 /* AudioHelper.swift */,
 				91E4780A23B666EE004DA6A7 /* RingBuffer */,
 				91E4781723B666EE004DA6A7 /* Band.swift */,
 				91E4781823B666EE004DA6A7 /* Filters.xml */,
 				91E4781A23B666EE004DA6A7 /* LevelIndicator */,
-				91E4781E23B666EE004DA6A7 /* BandSegments.plist */,
 				91E4781F23B666EE004DA6A7 /* Filters.plist */,
 				91E4782023B666EE004DA6A7 /* OpusPlayer.swift */,
 				91E4782123B666EE004DA6A7 /* ParameterMonitor.swift */,
@@ -460,7 +448,6 @@
 			isa = PBXGroup;
 			children = (
 				91E4787623B666EE004DA6A7 /* Misc */,
-				91E4787C23B666EE004DA6A7 /* Extensions */,
 				91E4788123B666EE004DA6A7 /* RadioPicker */,
 			);
 			path = CommonClientCode;
@@ -470,30 +457,8 @@
 			isa = PBXGroup;
 			children = (
 				91E4787723B666EE004DA6A7 /* Keychain.swift */,
-				91E4787823B666EE004DA6A7 /* JWTDecode */,
 			);
 			path = Misc;
-			sourceTree = "<group>";
-		};
-		91E4787823B666EE004DA6A7 /* JWTDecode */ = {
-			isa = PBXGroup;
-			children = (
-				91E4787923B666EE004DA6A7 /* JWTDecode.swift */,
-				91E4787A23B666EE004DA6A7 /* JWT.swift */,
-				91E4787B23B666EE004DA6A7 /* Errors.swift */,
-			);
-			path = JWTDecode;
-			sourceTree = "<group>";
-		};
-		91E4787C23B666EE004DA6A7 /* Extensions */ = {
-			isa = PBXGroup;
-			children = (
-				91E4787D23B666EE004DA6A7 /* DictionaryExtensions.swift */,
-				91E4787E23B666EE004DA6A7 /* DataExtensions.swift */,
-				91E4787F23B666EE004DA6A7 /* StringExtensions.swift */,
-				91E4788023B666EE004DA6A7 /* URLSessionExtensions.swift */,
-			);
-			path = Extensions;
 			sourceTree = "<group>";
 		};
 		91E4788123B666EE004DA6A7 /* RadioPicker */ = {
@@ -545,6 +510,7 @@
 				91E477EE23B66661004DA6A7 /* Frameworks */,
 				91E477EF23B66661004DA6A7 /* Resources */,
 				91E4791C23B691B0004DA6A7 /* Embed Frameworks */,
+				91A7ED3325BF79A1003C24D0 /* SwiftLint */,
 			);
 			buildRules = (
 			);
@@ -556,6 +522,7 @@
 				917AAA7923D53FD90082FAEB /* ObjcExceptionBridging */,
 				917AAA7B23D53FD90082FAEB /* XCGLogger */,
 				9164EE5423DDDA6500086338 /* xLib6000 */,
+				9179C6DB25BC7845008EDFE1 /* JWTDecode */,
 			);
 			productName = xSDR6000;
 			productReference = 91E477F123B66661004DA6A7 /* xSDR6000.app */;
@@ -589,6 +556,7 @@
 				91E4790123B667BE004DA6A7 /* XCRemoteSwiftPackageReference "SwiftyUserDefaults" */,
 				917AAA7823D53FD90082FAEB /* XCRemoteSwiftPackageReference "XCGLogger" */,
 				9164EE5323DDDA6500086338 /* XCRemoteSwiftPackageReference "xLib6000" */,
+				9179C6DA25BC7845008EDFE1 /* XCRemoteSwiftPackageReference "JWTDecode.swift" */,
 			);
 			productRefGroup = 91E477F223B66661004DA6A7 /* Products */;
 			projectDirPath = "";
@@ -617,9 +585,9 @@
 				91E4792E23B69A2A004DA6A7 /* Preferences.storyboard in Resources */,
 				91E4789A23B666EE004DA6A7 /* xSDR6000.pages in Resources */,
 				91E478AE23B666EE004DA6A7 /* Grayscale.tex in Resources */,
-				91E4789623B666EE004DA6A7 /* BandSegments.plist in Resources */,
 				91E4788C23B666EE004DA6A7 /* README.markdown in Resources */,
 				91E478B423B666EE004DA6A7 /* Tritanopia.tex in Resources */,
+				910BF87C25C39467000BE180 /* BandSegments.plist in Resources */,
 				91E4793423B69A2A004DA6A7 /* Profiles.storyboard in Resources */,
 				91E478AF23B666EE004DA6A7 /* Dark.tex in Resources */,
 				91E4792F23B69A2A004DA6A7 /* Panafall.storyboard in Resources */,
@@ -629,6 +597,27 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		91A7ED3325BF79A1003C24D0 /* SwiftLint */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = SwiftLint;
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if which swiftlint >/dev/null; then\n  swiftlint\nelse\n  echo \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		91E477ED23B66661004DA6A7 /* Sources */ = {
@@ -640,7 +629,6 @@
 				91E4789423B666EE004DA6A7 /* BarView.swift in Sources */,
 				91E478A723B666EE004DA6A7 /* MainWindowController.swift in Sources */,
 				91E478B623B666EE004DA6A7 /* WaterfallShaders.metal in Sources */,
-				91E478DB23B666EE004DA6A7 /* JWT.swift in Sources */,
 				91E478AC23B666EE004DA6A7 /* DaxIqViewController.swift in Sources */,
 				91E478D323B666EE004DA6A7 /* PanafallsViewController.swift in Sources */,
 				91E478D923B666EE004DA6A7 /* Keychain.swift in Sources */,
@@ -660,7 +648,6 @@
 				91E478C623B666EE004DA6A7 /* FlagViewController.swift in Sources */,
 				91E478BC23B666EE004DA6A7 /* TxViewController.swift in Sources */,
 				919F57DC24109324001956B0 /* Logger.swift in Sources */,
-				91E478DF23B666EE004DA6A7 /* StringExtensions.swift in Sources */,
 				91E478B923B666EE004DA6A7 /* CWViewController.swift in Sources */,
 				91E478A923B666EE004DA6A7 /* BandButtonViewController.swift in Sources */,
 				91E478A523B666EE004DA6A7 /* NetworkPrefsViewController.swift in Sources */,
@@ -669,13 +656,11 @@
 				91E4789C23B666EE004DA6A7 /* PCWPrefsViewController.swift in Sources */,
 				91E478D223B666EE004DA6A7 /* PanafallViewController.swift in Sources */,
 				91E478C723B666EE004DA6A7 /* AudioViewController.swift in Sources */,
-				91E478DE23B666EE004DA6A7 /* DataExtensions.swift in Sources */,
 				91E478CC23B666EE004DA6A7 /* DbLegendView.swift in Sources */,
 				91E4788B23B666EE004DA6A7 /* TPCircularBuffer+AudioBufferList.c in Sources */,
 				91E478A623B666EE004DA6A7 /* TXPrefsViewController.swift in Sources */,
 				91534CB2244C9A3000F9895F /* RadioPickerViewController.swift in Sources */,
 				91E478D523B666EE004DA6A7 /* AppDelegate.swift in Sources */,
-				91E478DA23B666EE004DA6A7 /* JWTDecode.swift in Sources */,
 				91E4789923B666EE004DA6A7 /* ParameterMonitor.swift in Sources */,
 				91E478C523B666EE004DA6A7 /* DspViewController.swift in Sources */,
 				91E4789E23B666EE004DA6A7 /* RxPrefsViewController.swift in Sources */,
@@ -683,9 +668,6 @@
 				91E478D723B666EE004DA6A7 /* AppExtensions.swift in Sources */,
 				91E478CE23B666EE004DA6A7 /* FrequencyLegendView.swift in Sources */,
 				91E478BD23B666EE004DA6A7 /* PhoneViewController.swift in Sources */,
-				91E478E023B666EE004DA6A7 /* URLSessionExtensions.swift in Sources */,
-				91E478DD23B666EE004DA6A7 /* DictionaryExtensions.swift in Sources */,
-				91E478DC23B666EE004DA6A7 /* Errors.swift in Sources */,
 				91E478AA23B666EE004DA6A7 /* DisplayViewController.swift in Sources */,
 				91E478A023B666EE004DA6A7 /* XvtrPrefsViewController.swift in Sources */,
 				91E478B523B666EE004DA6A7 /* WaterfallViewController.swift in Sources */,
@@ -906,7 +888,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
-				MARKETING_VERSION = 1.2.9;
+				MARKETING_VERSION = 1.2.10;
 				PRODUCT_BUNDLE_IDENTIFIER = net.k3tzr.xSDR6000;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "xSDR6000/xSDR6000-Bridging-Header.h";
@@ -936,7 +918,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
-				MARKETING_VERSION = 1.2.9;
+				MARKETING_VERSION = 1.2.10;
 				PRODUCT_BUNDLE_IDENTIFIER = net.k3tzr.xSDR6000;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "xSDR6000/xSDR6000-Bridging-Header.h";
@@ -972,8 +954,16 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/K3TZR/xLib6000.git";
 			requirement = {
-				kind = exactVersion;
-				version = 1.3.11;
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.6.15;
+			};
+		};
+		9179C6DA25BC7845008EDFE1 /* XCRemoteSwiftPackageReference "JWTDecode.swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/auth0/JWTDecode.swift.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.5.0;
 			};
 		};
 		917AAA7823D53FD90082FAEB /* XCRemoteSwiftPackageReference "XCGLogger" */ = {
@@ -999,6 +989,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 9164EE5323DDDA6500086338 /* XCRemoteSwiftPackageReference "xLib6000" */;
 			productName = xLib6000;
+		};
+		9179C6DB25BC7845008EDFE1 /* JWTDecode */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 9179C6DA25BC7845008EDFE1 /* XCRemoteSwiftPackageReference "JWTDecode.swift" */;
+			productName = JWTDecode;
 		};
 		917AAA7923D53FD90082FAEB /* ObjcExceptionBridging */ = {
 			isa = XCSwiftPackageProductDependency;

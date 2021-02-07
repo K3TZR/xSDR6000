@@ -12,12 +12,11 @@ import Cocoa
 // MARK: - Radio View Controller class implementation
 // --------------------------------------------------------------------------------
 
-final class RadioViewController             : NSSplitViewController {
+final class RadioViewController: NSSplitViewController {
   
   // ----------------------------------------------------------------------------
   // MARK: - Private properties
-  
-  
+    
   // ----------------------------------------------------------------------------
   // MARK: - Overriden methods
   

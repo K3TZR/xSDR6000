@@ -14,193 +14,228 @@ import xLib6000
 // MARK: - Radio View Controller class implementation
 // --------------------------------------------------------------------------------
 
-final class EqViewController                : NSViewController {
-  
-  // ----------------------------------------------------------------------------
-  // MARK: - Private properties
-  
-  @IBOutlet private weak var onButton       : NSButton!                     // buttons
-  @IBOutlet private weak var rxButton       : NSButton!
-  @IBOutlet private weak var txButton       : NSButton!
-  @IBOutlet private weak var slider0        : NSSlider!                     // sliders
-  @IBOutlet private weak var slider1        : NSSlider!
-  @IBOutlet private weak var slider2        : NSSlider!
-  @IBOutlet private weak var slider3        : NSSlider!
-  @IBOutlet private weak var slider4        : NSSlider!
-  @IBOutlet private weak var slider5        : NSSlider!
-  @IBOutlet private weak var slider6        : NSSlider!
-  @IBOutlet private weak var slider7        : NSSlider!
-  
-  private var _radio                        : Radio? { Api.sharedInstance.radio }
-  
-  private var _equalizerRx                  : Equalizer!                    // Rx Equalizer
-  private var _equalizerTx                  : Equalizer!                    // Tx Equalizer
-  private var _eq                           : Equalizer!                    // Current Equalizer
-  
-  // ----------------------------------------------------------------------------
-  // MARK: - Overriden methods
-  
-  override func viewDidLoad() {
-    super.viewDidLoad()
+final class EqViewController: NSViewController {
     
-    view.translatesAutoresizingMaskIntoConstraints = false
+    // swiftlint:disable colon
+    // ----------------------------------------------------------------------------
+    // MARK: - Private properties
     
-    // get a reference to each equalizer
-    _equalizerRx = _radio!.equalizers[.rxsc]!
-    _equalizerTx = _radio!.equalizers[.txsc]!
-
-    // save a reference to the selected Equalizer
-    _eq = (Defaults.eqRxSelected ? _equalizerRx : _equalizerTx)
-
-    // begin observing parameters
-    addObservations()
-  }
-
-  // ----------------------------------------------------------------------------
-  // MARK: - Action methods
-  
-  /// Respond to the buttons
-  ///
-  /// - Parameter sender:           the button
-  ///
-  @IBAction func buttons(_ sender: NSButton) {
+    @IBOutlet private weak var onButton       : NSButton!
+    @IBOutlet private weak var rxButton       : NSButton!
+    @IBOutlet private weak var txButton       : NSButton!
+    @IBOutlet private weak var slider0        : NSSlider!
+    @IBOutlet private weak var slider1        : NSSlider!
+    @IBOutlet private weak var slider2        : NSSlider!
+    @IBOutlet private weak var slider3        : NSSlider!
+    @IBOutlet private weak var slider4        : NSSlider!
+    @IBOutlet private weak var slider5        : NSSlider!
+    @IBOutlet private weak var slider6        : NSSlider!
+    @IBOutlet private weak var slider7        : NSSlider!
     
-    switch sender.identifier!.rawValue {
-      
-    case "EqOn":
-      // set the displayed Equalizer On / Off
-      _eq!.eqEnabled = onButton.boolState
+    private var _radio                        : Radio? { Api.sharedInstance.radio }
+    
+    private var _equalizerRx                  : Equalizer?
+    private var _equalizerTx                  : Equalizer?
+    private var _currentEqualizer             : Equalizer?
+    
+    // swiftlint:enable colon
+    // ----------------------------------------------------------------------------
+    // MARK: - Overriden methods
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()        
+        view.translatesAutoresizingMaskIntoConstraints = false
+                
+        // check if a radio is connected
+        if let radio = _radio { setupObservations(with: radio) }
 
-    case "EqRx":
-      // select the Rx equalizer
-      _eq = _equalizerRx
-      Defaults.eqRxSelected = sender.boolState
+        addNotifications()
+    }
+    
+    // ----------------------------------------------------------------------------
+    // MARK: - Action methods
+    
+    /// Respond to the buttons
+    ///
+    /// - Parameter sender:           the button
+    ///
+    @IBAction func buttons(_ sender: NSButton) {
+        switch sender.identifier!.rawValue {
+        
+        case "EqOn":    _currentEqualizer?.eqEnabled = onButton.boolState
+        case "EqRx":    _currentEqualizer = _equalizerRx ; Defaults.eqRxSelected = sender.boolState
+        case "EqTx":    _currentEqualizer = _equalizerTx ; Defaults.eqRxSelected = !sender.boolState
+        default:        fatalError()
+        }
+        // populate the controls of the selected Equalizer
+        if _currentEqualizer != nil { eqChange( _currentEqualizer!, 0) }
+    }
+    /// Respond to changes in a slider value
+    ///
+    /// - Parameter sender:           the slider
+    ///
+    @IBAction func sliders(_ sender: NSSlider) {
+        if let equ = _currentEqualizer {
+            // tell the Radio to change the Eq setting
+            switch sender.identifier!.rawValue {
+            
+            case "Level63Hz":   equ.level63Hz = sender.integerValue
+            case "Level125Hz":  equ.level125Hz = sender.integerValue
+            case "Level250Hz":  equ.level250Hz = sender.integerValue
+            case "Level500Hz":  equ.level500Hz = sender.integerValue
+            case "Level1000Hz": equ.level1000Hz = sender.integerValue
+            case "Level2000Hz": equ.level2000Hz = sender.integerValue
+            case "Level4000Hz": equ.level4000Hz = sender.integerValue
+            case "Level8000Hz": equ.level8000Hz = sender.integerValue
+            default:            fatalError()
+            }
+        }
+    }
 
-    case "EqTx":
-      // select the Tx equalizer
-      _eq = _equalizerTx
-      Defaults.eqRxSelected = !sender.boolState
-      
-    default:
-      fatalError()
+    // ----------------------------------------------------------------------------
+    // MARK: - Private methods
+    
+    private func setStatus(status: Bool) {
+        DispatchQueue.main.async { [self] in
+            onButton.isEnabled  = status
+            rxButton.isEnabled  = status
+            txButton.isEnabled  = status
+            slider0.isEnabled   = status
+            slider1.isEnabled   = status
+            slider2.isEnabled   = status
+            slider3.isEnabled   = status
+            slider4.isEnabled   = status
+            slider5.isEnabled   = status
+            slider6.isEnabled   = status
+            slider7.isEnabled   = status
+        }
+    }
+
+    private func setupObservations(with radio: Radio) {
+        // get a reference to each equalizer
+        _equalizerRx = radio.equalizers[.rxsc]!
+        _equalizerTx = radio.equalizers[.txsc]!
+        
+        // save a reference to the selected Equalizer
+        _currentEqualizer = (Defaults.eqRxSelected ? _equalizerRx : _equalizerTx)
+        addObservations()
+        setStatus(status: true)
+    }
+    
+    // ----------------------------------------------------------------------------
+    // MARK: - Observation methods
+    
+    private var _observations                 = [NSKeyValueObservation]()
+    
+    /// Add observations of parameters
+    ///
+    private func addObservations() {
+        if let rxEq = _equalizerRx {
+            // Rx Equalizer parameters
+            _observations.append( rxEq.observe(\.level63Hz, options: [.initial, .new]) { [weak self] (equalizer, change) in
+                                    self?.eqChange(equalizer, change) })
+            _observations.append( rxEq.observe(\.level125Hz, options: [.initial, .new]) { [weak self] (equalizer, change) in
+                                    self?.eqChange(equalizer, change) })
+            _observations.append( rxEq.observe(\.level250Hz, options: [.initial, .new]) { [weak self] (equalizer, change) in
+                                    self?.eqChange(equalizer, change) })
+            _observations.append( rxEq.observe(\.level500Hz, options: [.initial, .new]) { [weak self] (equalizer, change) in
+                                    self?.eqChange(equalizer, change) })
+            _observations.append( rxEq.observe(\.level1000Hz, options: [.initial, .new]) { [weak self] (equalizer, change) in
+                                    self?.eqChange(equalizer, change) })
+            _observations.append( rxEq.observe(\.level2000Hz, options: [.initial, .new]) { [weak self] (equalizer, change) in
+                                    self?.eqChange(equalizer, change) })
+            _observations.append( rxEq.observe(\.level4000Hz, options: [.initial, .new]) { [weak self] (equalizer, change) in
+                                    self?.eqChange(equalizer, change) })
+            _observations.append( rxEq.observe(\.level8000Hz, options: [.initial, .new]) { [weak self] (equalizer, change) in
+                                    self?.eqChange(equalizer, change) })
+            _observations.append( rxEq.observe(\.eqEnabled, options: [.initial, .new]) { [weak self] (equalizer, change) in
+                                    self?.eqChange(equalizer, change) })
+        }
+        
+        if let txEq = _equalizerTx {
+            // Tx Equalizer parameters
+            _observations.append( txEq.observe(\.level63Hz, options: [.initial, .new]) { [weak self] (equalizer, change) in
+                                    self?.eqChange(equalizer, change) })
+            _observations.append( txEq.observe(\.level125Hz, options: [.initial, .new]) { [weak self] (equalizer, change) in
+                                    self?.eqChange(equalizer, change) })
+            _observations.append( txEq.observe(\.level250Hz, options: [.initial, .new]) { [weak self] (equalizer, change) in
+                                    self?.eqChange(equalizer, change) })
+            _observations.append( txEq.observe(\.level500Hz, options: [.initial, .new]) { [weak self] (equalizer, change) in
+                                    self?.eqChange(equalizer, change) })
+            _observations.append( txEq.observe(\.level1000Hz, options: [.initial, .new]) { [weak self] (equalizer, change) in
+                                    self?.eqChange(equalizer, change) })
+            _observations.append( txEq.observe(\.level2000Hz, options: [.initial, .new]) { [weak self] (equalizer, change) in
+                                    self?.eqChange(equalizer, change) })
+            _observations.append( txEq.observe(\.level4000Hz, options: [.initial, .new]) { [weak self] (equalizer, change) in
+                                    self?.eqChange(equalizer, change) })
+            _observations.append( txEq.observe(\.level8000Hz, options: [.initial, .new]) { [weak self] (equalizer, change) in
+                                    self?.eqChange(equalizer, change) })
+            _observations.append( txEq.observe(\.eqEnabled, options: [.initial, .new]) { [weak self] (equalizer, change) in
+                                    self?.eqChange(equalizer, change) })
+        }
     }    
-    // populate the controls of the selected Equalizer
-    eqChange( _eq, 0)
-  }
-  /// Respond to changes in a slider value
-  ///
-  /// - Parameter sender:           the slider
-  ///
-  @IBAction func sliders(_ sender: NSSlider) {
     
-    // tell the Radio to change the Eq setting
-    switch sender.identifier!.rawValue {
-    case "Level63Hz":
-      _eq.level63Hz = sender.integerValue
-    case "Level125Hz":
-      _eq.level125Hz = sender.integerValue
-    case "Level250Hz":
-      _eq.level250Hz = sender.integerValue
-    case "Level500Hz":
-      _eq.level500Hz = sender.integerValue
-    case "Level1000Hz":
-      _eq.level1000Hz = sender.integerValue
-    case "Level2000Hz":
-      _eq.level2000Hz = sender.integerValue
-    case "Level4000Hz":
-      _eq.level4000Hz = sender.integerValue
-    case "Level8000Hz":
-      _eq.level8000Hz = sender.integerValue
-    default:
-      fatalError()
-    }
-  }
-
-  // ----------------------------------------------------------------------------
-  // MARK: - Observation methods
-
-  private var _observations                 = [NSKeyValueObservation]()
-
-  /// Add observations of parameters
-  ///
-  private func addObservations() {
-    
-    if let rx = _equalizerRx {
-      
-      // Rx Equalizer parameters
-      _observations.append( rx.observe(\.level63Hz, options: [.initial, .new]) { [weak self] (eq, change) in
-        self?.eqChange(eq, change) })
-      _observations.append( rx.observe(\.level125Hz, options: [.initial, .new]) { [weak self] (eq, change) in
-        self?.eqChange(eq, change) })
-      _observations.append( rx.observe(\.level250Hz, options: [.initial, .new]) { [weak self] (eq, change) in
-        self?.eqChange(eq, change) })
-      _observations.append( rx.observe(\.level500Hz, options: [.initial, .new]) { [weak self] (eq, change) in
-        self?.eqChange(eq, change) })
-      _observations.append( rx.observe(\.level1000Hz, options: [.initial, .new]) { [weak self] (eq, change) in
-        self?.eqChange(eq, change) })
-      _observations.append( rx.observe(\.level2000Hz, options: [.initial, .new]) { [weak self] (eq, change) in
-        self?.eqChange(eq, change) })
-      _observations.append( rx.observe(\.level4000Hz, options: [.initial, .new]) { [weak self] (eq, change) in
-        self?.eqChange(eq, change) })
-      _observations.append( rx.observe(\.level8000Hz, options: [.initial, .new]) { [weak self] (eq, change) in
-        self?.eqChange(eq, change) })
-      _observations.append( rx.observe(\.eqEnabled, options: [.initial, .new]) { [weak self] (eq, change) in
-        self?.eqChange(eq, change) })
-    }
-    
-    if let tx = _equalizerTx {
-
-      // Tx Equalizer parameters
-      _observations.append( tx.observe(\.level63Hz, options: [.initial, .new]) { [weak self] (eq, change) in
-        self?.eqChange(eq, change) })
-      _observations.append( tx.observe(\.level125Hz, options: [.initial, .new]) { [weak self] (eq, change) in
-        self?.eqChange(eq, change) })
-      _observations.append( tx.observe(\.level250Hz, options: [.initial, .new]) { [weak self] (eq, change) in
-        self?.eqChange(eq, change) })
-      _observations.append( tx.observe(\.level500Hz, options: [.initial, .new]) { [weak self] (eq, change) in
-        self?.eqChange(eq, change) })
-      _observations.append( tx.observe(\.level1000Hz, options: [.initial, .new]) { [weak self] (eq, change) in
-        self?.eqChange(eq, change) })
-      _observations.append( tx.observe(\.level2000Hz, options: [.initial, .new]) { [weak self] (eq, change) in
-        self?.eqChange(eq, change) })
-      _observations.append( tx.observe(\.level4000Hz, options: [.initial, .new]) { [weak self] (eq, change) in
-        self?.eqChange(eq, change) })
-      _observations.append( tx.observe(\.level8000Hz, options: [.initial, .new]) { [weak self] (eq, change) in
-        self?.eqChange(eq, change) })
-      _observations.append( tx.observe(\.eqEnabled, options: [.initial, .new]) { [weak self] (eq, change) in
-        self?.eqChange(eq, change) })
-    }
-  }
-  /// Respond to changes in parameters
-  ///
-  /// - Parameters:
-  ///   - object:                       an Equalizer
-  ///   - change:                       the change
-  ///
-  private func eqChange(_ eq: Equalizer, _ change: Any) {
-    
-    // update the Equalizer if currently displayed
-    if eq == _eq {
-      
-      DispatchQueue.main.async { [weak self] in
+    /// Remove oall bservations
+    ///
+    func removeObservations() {
+        // invalidate Radio observation
+        _observations.forEach { $0.invalidate() }
         
-        // enable the appropriate Equalizer
-        self?.rxButton.boolState = Defaults.eqRxSelected
-        self?.txButton.boolState = !Defaults.eqRxSelected
-        
-        // set the ON button state
-        self?.onButton.boolState = eq.eqEnabled
-        
-        // set the slider values
-        self?.slider0.integerValue = eq.level63Hz
-        self?.slider1.integerValue = eq.level125Hz
-        self?.slider2.integerValue = eq.level250Hz
-        self?.slider3.integerValue = eq.level500Hz
-        self?.slider4.integerValue = eq.level1000Hz
-        self?.slider5.integerValue = eq.level2000Hz
-        self?.slider6.integerValue = eq.level4000Hz
-        self?.slider7.integerValue = eq.level8000Hz
-      }
+        // remove the tokens
+        _observations.removeAll()
     }
-  }
+
+    /// Respond to changes in parameters
+    ///
+    /// - Parameters:
+    ///   - object:                       an Equalizer
+    ///   - change:                       the change
+    ///
+    private func eqChange(_ equalizer: Equalizer, _ change: Any) {
+        
+        // update the Equalizer if currently displayed
+        if equalizer == _currentEqualizer {
+            
+            DispatchQueue.main.async { [weak self] in
+                
+                // enable the appropriate Equalizer
+                self?.rxButton.boolState = Defaults.eqRxSelected
+                self?.txButton.boolState = !Defaults.eqRxSelected
+                
+                // set the ON button state
+                self?.onButton.boolState = equalizer.eqEnabled
+                
+                // set the slider values
+                self?.slider0.integerValue = equalizer.level63Hz
+                self?.slider1.integerValue = equalizer.level125Hz
+                self?.slider2.integerValue = equalizer.level250Hz
+                self?.slider3.integerValue = equalizer.level500Hz
+                self?.slider4.integerValue = equalizer.level1000Hz
+                self?.slider5.integerValue = equalizer.level2000Hz
+                self?.slider6.integerValue = equalizer.level4000Hz
+                self?.slider7.integerValue = equalizer.level8000Hz
+            }
+        }
+    }
+    
+    // ----------------------------------------------------------------------------
+    // MARK: - Notification Methods
+    
+    /// Add subsciptions to Notifications
+    ///
+    private func addNotifications() {
+        NCtr.makeObserver(self, with: #selector(radioHasBeenAdded(_:)), of: .radioHasBeenAdded)
+        NCtr.makeObserver(self, with: #selector(radioWillBeRemoved(_:)), of: .radioWillBeRemoved)
+    }
+    
+    @objc private func radioHasBeenAdded(_ note: Notification) {
+        if let radio = note.object as? Radio {
+            setupObservations(with: radio)
+        }
+    }
+    
+    @objc private func radioWillBeRemoved(_ note: Notification) {
+        removeObservations()
+        setStatus(status: false)
+    }
 }

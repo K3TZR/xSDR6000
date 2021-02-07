@@ -11,28 +11,28 @@ import XCGLogger
 import SwiftyUserDefaults
 import xLib6000
 
-public class Logger : LogHandler {
+public class Logger: LogHandler {
     
   // Log parameters
-  static let kLoggerName                    = AppDelegate.kAppName
-  static let kLogFile                       = kLoggerName + ".log"
-  static let kMaxLogFiles                   : UInt8 = 5
-  static let kMaxFileSize                   : UInt64 = 20_000_000
+  static let kLoggerName = AppDelegate.kAppName
+  static let kLogFile = kLoggerName + ".log"
+  static let kMaxLogFiles: UInt8 = 5
+  static let kMaxFileSize: UInt64 = 20_000_000
 
-  public var version                        : Version!
+  public var version: Version!
   
   // ----------------------------------------------------------------------------
   // MARK: - Internal properties
   
-  private var logLevel : XCGLogger.Level = .debug
+  private var logLevel: XCGLogger.Level = .debug
   
   private var _objectQ = DispatchQueue(label: "xSDR6000.Logger.objectQ", attributes: [.concurrent])
   
-  var log : XCGLogger {
+  var log: XCGLogger {
     get { _objectQ.sync { _log } }
     set { _objectQ.sync(flags: .barrier) {_log = newValue }}}
 
-  private var _log : XCGLogger = XCGLogger(identifier: Logger.kLoggerName, includeDefaultDestinations: false)
+  private var _log: XCGLogger = XCGLogger(identifier: Logger.kLoggerName, includeDefaultDestinations: false)
   
   // ----------------------------------------------------------------------------
   // MARK: - Singleton
@@ -64,7 +64,8 @@ public class Logger : LogHandler {
     #endif
     
     // Create a file log destination
-    let fileDestination = AutoRotatingFileDestination(writeToFile: URL.logs.appendingPathComponent(Logger.kLogFile), identifier: Logger.kLoggerName + ".autoRotatingFileDestination")
+    let fileDestination = AutoRotatingFileDestination(writeToFile: URL.logs.appendingPathComponent(Logger.kLogFile),
+                                                      identifier: Logger.kLoggerName + ".autoRotatingFileDestination")
     
     // Optionally set some configuration options
     fileDestination.targetMaxFileSize       = Logger.kMaxFileSize
@@ -107,7 +108,7 @@ public class Logger : LogHandler {
   ///   - file:       the name of the file containing the function
   ///   - line:       the line number creating the msg
   ///
-  public func logMessage(_ msg: String, _ level: MessageLevel, _ function: StaticString, _ file: StaticString, _ line: Int) -> Void {
+  public func logMessage(_ msg: String, _ level: MessageLevel, _ function: StaticString, _ file: StaticString, _ line: Int) {
     
     // Log Handler to support XCGLogger    
 //    DispatchQueue.main.async { [weak self] in

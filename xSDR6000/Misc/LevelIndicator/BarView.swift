@@ -8,20 +8,20 @@
 
 import Cocoa
 
-final class BarView                       : NSView {
+final class BarView: NSView {
   
   // ----------------------------------------------------------------------------
   // MARK: - Public properties
   
-  public var level                        : CGFloat = 0.0
+  public var level: CGFloat = 0.0
   
   // ----------------------------------------------------------------------------
   // MARK: - Private properties
   
-  private var _path                       = NSBezierPath()
-  private var _params                     : IndicatorParams!
-  private var _gradient                   : NSGradient!
-  private var _viewType                   : Int!
+  private var _path = NSBezierPath()
+  private var _params: IndicatorParams!
+  private var _gradient: NSGradient!
+  private var _viewType: Int!
   
   // ----------------------------------------------------------------------------
   // MARK: - Initialization

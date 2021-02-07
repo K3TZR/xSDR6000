@@ -39,6 +39,17 @@ Flex Radios can have one of four different version groups:
 [![W6OP](https://img.shields.io/badge/W6OP-xVoiceKeyer,_xCW-informational)](https://w6op.com) A Mac-based Voice Keyer and a CW Keyer.  
 
 ---
+##### 1.2.10 Release Notes
+* corrected disconnection process 
+* corrected ATU usage in TXViewController.swift
+* in PanafallViewController.swift added ability to double-click waterfall to change / move slice
+* in AudioViewController.swift corrected agcMode == off
+* in AntennaViewController.swift made rfGain controller respond continuously
+* corrected the constraints in the Rx Side view to close up when controls are closed
+* major rework of all the Side controllers & their observations
+* code formatting changes throughout
+* changes to MacAudio operation to try to reduce occasional "buzz"
+
 ##### 1.2.9 Release Notes
 
 * corrected constraints on the Auth0 sheet (SmartLink logon)

@@ -18,14 +18,14 @@ class ParameterMonitor: NSToolbarItem {
   // ----------------------------------------------------------------------------
   // MARK: - Private properties
   
-  @IBOutlet private var _topField     : NSTextField!
-  @IBOutlet private var _bottomField  : NSTextField!
+  @IBOutlet private var _topField: NSTextField!
+  @IBOutlet private var _bottomField: NSTextField!
 
-  private var _fields                 : [NSTextField]!
+  private var _fields: [NSTextField]!
 
-  private let _shortNames             = [Meter.ShortName.voltageAfterFuse.rawValue, Meter.ShortName.temperaturePa.rawValue]
-  private let _units                  = ["v", "c"]
-  private let _formatString           = "%0.2f"
+  private let _shortNames = [Meter.ShortName.voltageAfterFuse.rawValue, Meter.ShortName.temperaturePa.rawValue]
+  private let _units = ["v", "c"]
+  private let _formatString = "%0.2f"
 
   // ----------------------------------------------------------------------------
   // MARK: - Initialization
@@ -43,8 +43,8 @@ class ParameterMonitor: NSToolbarItem {
   /// Add subscriptions to Notifications
   ///
   private func addNotifications() {
-    NC.makeObserver(self, with: #selector(radioWillBeRemoved(_:)), of: .radioWillBeRemoved)
-    NC.makeObserver(self, with: #selector(paramMeterUpdated(_:)), of: .paramMeterUpdated)
+    NCtr.makeObserver(self, with: #selector(radioWillBeRemoved(_:)), of: .radioWillBeRemoved)
+    NCtr.makeObserver(self, with: #selector(paramMeterUpdated(_:)), of: .paramMeterUpdated)
   }
   /// Process .radioWillBeRemoved Notification
   ///
@@ -85,7 +85,7 @@ class ParameterMonitor: NSToolbarItem {
           field.backgroundColor = NSColor.controlBackgroundColor
         }
         // set the field value
-        field.stringValue = String(format: self._formatString + " \(units)" , meter.value)
+        field.stringValue = String(format: self._formatString + " \(units)", meter.value)
       }
     }
 

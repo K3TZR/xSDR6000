@@ -13,7 +13,7 @@ import CoreAudio
 // MARK: - AudioHelper Class implementation
 // ------------------------------------------------------------------------------
 
-//public typealias DeviceID = UInt32
+// public typealias DeviceID = UInt32
 
 public final class AudioHelper {
   
@@ -25,11 +25,11 @@ public final class AudioHelper {
     case output = "Output"
   }
   
-  public static var inputDevices            : [AHAudioDevice] { return getDeviceList(for: .input) }
-  public static var inputDeviceNames        : [String] { return inputDevices.map  { $0.name! } }
+  public static var inputDevices: [AHAudioDevice] { return getDeviceList(for: .input) }
+  public static var inputDeviceNames: [String] { return inputDevices.map { $0.name! } }
   
-  public static var outputDevices           : [AHAudioDevice] { return getDeviceList(for: .output) }
-  public static var outputDeviceNames       : [String] { return outputDevices.map  { $0.name! } }
+  public static var outputDevices: [AHAudioDevice] { return getDeviceList(for: .output) }
+  public static var outputDeviceNames: [String] { return outputDevices.map { $0.name! } }
 
   // ----------------------------------------------------------------------------
   // MARK: - Public class methods
@@ -121,7 +121,7 @@ public final class AudioHelper {
   /// - Returns:              .input / .output
   ///
   private class func directionOf(_ deviceID: AudioDeviceID) -> Direction {
-    var size : UInt32 = 0
+    var size: UInt32 = 0
     
     // setup for the specified direction
     var propertyAddress = AudioObjectPropertyAddress(mSelector: kAudioDevicePropertyStreams,
@@ -147,13 +147,13 @@ public struct AHAudioDevice {
   // ----------------------------------------------------------------------------
   // MARK: - Public properties
   
-  public var id                             : AudioDeviceID
-  public var direction                      : AudioHelper.Direction
+  public var id: AudioDeviceID
+  public var direction: AudioHelper.Direction
 
-  public var asbd                           : AudioStreamBasicDescription? = nil
-  public var isDefault                      : Bool { return isDefaultDevice() }
-  public var name                           : String? = nil
-  public var uniqueID                       : String? = nil
+  public var asbd: AudioStreamBasicDescription?
+  public var isDefault: Bool { return isDefaultDevice() }
+  public var name: String?
+  public var uniqueID: String?
 
   // ----------------------------------------------------------------------------
   // MARK: - Initialization
@@ -220,7 +220,7 @@ public struct AHAudioDevice {
   ///
   private func isDefaultDevice() -> Bool {
     var size = UInt32(MemoryLayout<AudioDeviceID>.size)
-    var deviceID : UInt32 = 0
+    var deviceID: UInt32 = 0
     var property = AudioObjectPropertyAddress(mSelector: direction == .input ? kAudioHardwarePropertyDefaultInputDevice : kAudioHardwarePropertyDefaultOutputDevice,
                                               mScope: kAudioObjectPropertyScopeGlobal,
                                               mElement: kAudioObjectPropertyElementMaster)

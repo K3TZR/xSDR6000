@@ -13,49 +13,45 @@ import Quartz
 // MARK: - Help ViewController Class implementation
 // ------------------------------------------------------------------------------
 
-final class HelpViewController : NSViewController {
-  
-  // ----------------------------------------------------------------------------
-  // MARK: - Private properties
-  
-  private let kAutosaveName       = "xSDR6000HelpWindow"
-  private let _log                = Logger.sharedInstance.logMessage
-
-  // ----------------------------------------------------------------------------
-  // MARK: - Overridden methods
-  
-  override func viewDidLoad() {
-    super.viewDidLoad()
-
-    _log("Help Viewer opened", .debug,  #function, #file, #line)
-
-    // dispaly the help file
-    if let url = Bundle.main.url(forResource: "xSDR6000", withExtension: "pdf") {
-      
-      let pdf = PDFDocument(url: url)
-      
-      let view = self.view as! PDFView
-      
-      view.document = pdf
+final class HelpViewController: NSViewController {
+    
+    // ----------------------------------------------------------------------------
+    // MARK: - Private properties
+    
+    private let kAutosaveName       = "xSDR6000HelpWindow"
+    private let _log                = Logger.sharedInstance.logMessage
+    
+    // ----------------------------------------------------------------------------
+    // MARK: - Overridden methods
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        _log("Help Viewer opened", .debug, #function, #file, #line)
+        
+        // dispaly the help file
+        if let url = Bundle.main.url(forResource: "xSDR6000", withExtension: "pdf") {
+            let pdf = PDFDocument(url: url)
+            if let view = self.view as? PDFView {
+                view.document = pdf
+            }
+        }
     }
-  }
-  
-  override func viewWillAppear() {
     
-    super.viewWillAppear()
+    override func viewWillAppear() {
+        super.viewWillAppear()
+        
+        // restore the position
+        view.window!.setFrameUsingName(kAutosaveName)
+    }
     
-    // restore the position
-    view.window!.setFrameUsingName(kAutosaveName)
-  }
-  
-  override func viewWillDisappear() {
-    
-    super.viewWillDisappear()
-    
-    // save the position
-    view.window!.saveFrame(usingName: kAutosaveName)
-  }
-  deinit {
-    _log("Help Viewer closed", .debug,  #function, #file, #line)
-  }
+    override func viewWillDisappear() {        
+        super.viewWillDisappear()
+        
+        // save the position
+        view.window!.saveFrame(usingName: kAutosaveName)
+    }
+    deinit {
+        _log("Help Viewer closed", .debug, #function, #file, #line)
+    }
 }

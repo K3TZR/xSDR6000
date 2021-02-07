@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="17156" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="17701" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="17156"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="17701"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -76,17 +76,17 @@
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
                             <scrollView borderType="none" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" translatesAutoresizingMaskIntoConstraints="NO" id="LBv-sT-TlG">
-                                <rect key="frame" x="20" y="61" width="800" height="219"/>
+                                <rect key="frame" x="20" y="60" width="800" height="220"/>
                                 <clipView key="contentView" drawsBackground="NO" copiesOnScroll="NO" id="H0x-n3-ggE">
-                                    <rect key="frame" x="0.0" y="0.0" width="800" height="219"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="800" height="220"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <textView importsGraphics="NO" richText="NO" verticallyResizable="YES" spellingCorrection="YES" smartInsertDelete="YES" id="lGC-Gb-Z9x">
-                                            <rect key="frame" x="0.0" y="0.0" width="800" height="219"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="800" height="220"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
-                                            <size key="minSize" width="800" height="219"/>
+                                            <size key="minSize" width="800" height="220"/>
                                             <size key="maxSize" width="962" height="10000000"/>
                                             <color key="insertionPointColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                         </textView>
@@ -100,12 +100,12 @@
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
                                 <scroller key="verticalScroller" wantsLayer="YES" verticalHuggingPriority="750" horizontal="NO" id="w9V-ZQ-Zlr">
-                                    <rect key="frame" x="784" y="0.0" width="16" height="219"/>
+                                    <rect key="frame" x="784" y="0.0" width="16" height="220"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
                             </scrollView>
                             <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="mBJ-Dz-qdA">
-                                <rect key="frame" x="658" y="13" width="70" height="32"/>
+                                <rect key="frame" x="673" y="13" width="64" height="32"/>
                                 <buttonCell key="cell" type="push" title="Load" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="oEF-Fe-PQO">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                     <font key="font" metaFont="system"/>
@@ -115,7 +115,7 @@
                                 </connections>
                             </button>
                             <popUpButton verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="kSp-ja-Ebf" userLabel="Log Level">
-                                <rect key="frame" x="18" y="17" width="125" height="25"/>
+                                <rect key="frame" x="17" y="16" width="127" height="25"/>
                                 <constraints>
                                     <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="120" id="X68-NE-fMD"/>
                                 </constraints>
@@ -138,7 +138,7 @@
                                 </connections>
                             </popUpButton>
                             <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="cY6-Se-xPI">
-                                <rect key="frame" x="756" y="13" width="70" height="32"/>
+                                <rect key="frame" x="763" y="13" width="64" height="32"/>
                                 <buttonCell key="cell" type="push" title="Save" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="48K-aa-OQQ">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                     <font key="font" metaFont="system"/>
@@ -148,9 +148,9 @@
                                 </connections>
                             </button>
                             <popUpButton verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="QyJ-zT-gLO" userLabel="Limit">
-                                <rect key="frame" x="223" y="17" width="105" height="25"/>
+                                <rect key="frame" x="222" y="16" width="107" height="25"/>
                                 <constraints>
-                                    <constraint firstAttribute="width" constant="100" id="TTR-Si-xnz"/>
+                                    <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="100" id="TTR-Si-xnz"/>
                                 </constraints>
                                 <popUpButtonCell key="cell" type="push" title="None" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="0Hf-rR-uZ9" id="xSw-g0-i1p">
                                     <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
@@ -190,6 +190,7 @@
                             <constraint firstAttribute="bottom" secondItem="kSp-ja-Ebf" secondAttribute="bottom" constant="20" id="292-aT-Q27"/>
                             <constraint firstAttribute="bottom" secondItem="cY6-Se-xPI" secondAttribute="bottom" constant="20" id="2Oy-Tk-5H8"/>
                             <constraint firstAttribute="trailing" secondItem="LBv-sT-TlG" secondAttribute="trailing" constant="20" symbolic="YES" id="3Nb-Ol-WYy"/>
+                            <constraint firstItem="mBJ-Dz-qdA" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="Adu-fS-etr" secondAttribute="trailing" constant="186" id="BGJ-1u-Pn2"/>
                             <constraint firstAttribute="bottom" secondItem="QyJ-zT-gLO" secondAttribute="bottom" constant="20" id="KwG-zt-Q9f"/>
                             <constraint firstAttribute="trailing" secondItem="cY6-Se-xPI" secondAttribute="trailing" constant="20" id="R7v-dE-znj"/>
                             <constraint firstItem="LBv-sT-TlG" firstAttribute="leading" secondItem="oNZ-nH-T2I" secondAttribute="leading" constant="20" symbolic="YES" id="REJ-LZ-Hbn"/>
@@ -404,12 +405,10 @@
                         <rect key="screenRect" x="0.0" y="0.0" width="2560" height="1440"/>
                         <toolbar key="toolbar" implicitIdentifier="A44065CE-0360-4C00-A5E5-D3890B0E4516" explicitIdentifier="toolbar" displayMode="iconAndLabel" sizeMode="regular" id="C1P-Np-CDr">
                             <allowedToolbarItems>
-                                <toolbarItem implicitItemIdentifier="E9ACE623-0962-48CD-82CD-F785533B6DE6" explicitItemIdentifier="addPan" label="Add Pan" paletteLabel="Add Pan" toolTip="Add a Panadapter" id="SRQ-Qz-auw">
-                                    <size key="minSize" width="47" height="28"/>
-                                    <size key="maxSize" width="68" height="32"/>
+                                <toolbarItem implicitItemIdentifier="E9ACE623-0962-48CD-82CD-F785533B6DE6" explicitItemIdentifier="addPan" label="Add Pan" paletteLabel="Add Pan" toolTip="Add a Panadapter" sizingBehavior="auto" id="SRQ-Qz-auw">
                                     <button key="view" verticalHuggingPriority="750" id="nXv-bQ-NeI">
-                                        <rect key="frame" x="0.0" y="14" width="62" height="28"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                        <rect key="frame" x="6" y="14" width="40" height="23"/>
+                                        <autoresizingMask key="autoresizingMask"/>
                                         <buttonCell key="cell" type="roundTextured" title="Pan" bezelStyle="texturedRounded" alignment="center" lineBreakMode="truncatingTail" enabled="NO" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="HD6-PD-Pou">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="system"/>
@@ -421,12 +420,10 @@
                                         </connections>
                                     </button>
                                 </toolbarItem>
-                                <toolbarItem implicitItemIdentifier="CFC52F3D-8BFA-4108-A08F-468E2891B581" explicitItemIdentifier="tnfsEnabled" label="Tnf On/Off" paletteLabel="Tnf On/Off" toolTip="Tnf On/Off" tag="1" id="HTE-sv-0bk">
-                                    <size key="minSize" width="47" height="25"/>
-                                    <size key="maxSize" width="62" height="32"/>
+                                <toolbarItem implicitItemIdentifier="CFC52F3D-8BFA-4108-A08F-468E2891B581" explicitItemIdentifier="tnfsEnabled" label="Tnf On/Off" paletteLabel="Tnf On/Off" toolTip="Tnf On/Off" tag="1" sizingBehavior="auto" id="HTE-sv-0bk">
                                     <button key="view" verticalHuggingPriority="750" tag="1" id="588-fP-5FQ">
-                                        <rect key="frame" x="1" y="14" width="62" height="25"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                        <rect key="frame" x="14" y="14" width="36" height="23"/>
+                                        <autoresizingMask key="autoresizingMask"/>
                                         <buttonCell key="cell" type="roundTextured" title="Tnf" bezelStyle="texturedRounded" alignment="center" lineBreakMode="truncatingTail" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Jeg-wc-uw3">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
                                             <font key="font" metaFont="system"/>
@@ -438,12 +435,10 @@
                                         </connections>
                                     </button>
                                 </toolbarItem>
-                                <toolbarItem implicitItemIdentifier="111CF6C6-C149-4BA3-B5E8-F31B191875E4" explicitItemIdentifier="markersEnabled" label="Markers On/Off" paletteLabel="Markers On/Off" toolTip="Markers On/Off" tag="2" id="JhY-lZ-UVg">
-                                    <size key="minSize" width="47" height="25"/>
-                                    <size key="maxSize" width="62" height="32"/>
+                                <toolbarItem implicitItemIdentifier="111CF6C6-C149-4BA3-B5E8-F31B191875E4" explicitItemIdentifier="markersEnabled" label="Markers On/Off" paletteLabel="Markers On/Off" toolTip="Markers On/Off" tag="2" sizingBehavior="auto" id="JhY-lZ-UVg">
                                     <button key="view" verticalHuggingPriority="750" tag="2" id="svQ-GW-lJt">
-                                        <rect key="frame" x="13" y="14" width="62" height="25"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                        <rect key="frame" x="20" y="14" width="48" height="23"/>
+                                        <autoresizingMask key="autoresizingMask"/>
                                         <buttonCell key="cell" type="roundTextured" title="Mark" bezelStyle="texturedRounded" alignment="center" lineBreakMode="truncatingTail" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="NQM-xK-XcC">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
                                             <font key="font" metaFont="system"/>
@@ -455,37 +450,31 @@
                                         </connections>
                                     </button>
                                 </toolbarItem>
-                                <toolbarItem implicitItemIdentifier="C355D4F0-EB4B-4EA9-8A84-BD70841561C1" explicitItemIdentifier="lineoutGain" label="Lineout Gain" paletteLabel="Lineout Gain" toolTip="Speaker Gain" tag="4" id="SL3-P9-twB">
-                                    <size key="minSize" width="96" height="21"/>
-                                    <size key="maxSize" width="96" height="21"/>
+                                <toolbarItem implicitItemIdentifier="C355D4F0-EB4B-4EA9-8A84-BD70841561C1" explicitItemIdentifier="lineoutGain" label="Lineout Gain" paletteLabel="Lineout Gain" toolTip="Speaker Gain" tag="4" sizingBehavior="auto" id="SL3-P9-twB">
                                     <slider key="view" verticalHuggingPriority="750" tag="4" id="hjS-Bh-5By">
-                                        <rect key="frame" x="0.0" y="14" width="96" height="21"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                        <rect key="frame" x="0.0" y="14" width="100" height="28"/>
+                                        <autoresizingMask key="autoresizingMask"/>
                                         <sliderCell key="cell" continuous="YES" enabled="NO" state="on" alignment="left" maxValue="100" doubleValue="50" tickMarkPosition="above" sliderType="linear" id="xYg-2C-oMt"/>
                                         <connections>
                                             <action selector="lineoutGainSlider:" target="B8D-0N-5wS" id="ZJr-Ez-6hu"/>
                                         </connections>
                                     </slider>
                                 </toolbarItem>
-                                <toolbarItem implicitItemIdentifier="38BC3D7C-9854-4E3B-80F2-59FE9C93983E" explicitItemIdentifier="headphoneGain" label="Headphone Gain" paletteLabel="Headphone Gain" toolTip="Headphone Gain" tag="6" id="AHs-Na-iad">
-                                    <size key="minSize" width="96" height="21"/>
-                                    <size key="maxSize" width="96" height="21"/>
+                                <toolbarItem implicitItemIdentifier="38BC3D7C-9854-4E3B-80F2-59FE9C93983E" explicitItemIdentifier="headphoneGain" label="Headphone Gain" paletteLabel="Headphone Gain" toolTip="Headphone Gain" tag="6" sizingBehavior="auto" id="AHs-Na-iad">
                                     <slider key="view" verticalHuggingPriority="750" tag="6" id="l0h-rt-Rcg">
-                                        <rect key="frame" x="0.0" y="14" width="96" height="21"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                        <rect key="frame" x="0.0" y="14" width="100" height="28"/>
+                                        <autoresizingMask key="autoresizingMask"/>
                                         <sliderCell key="cell" continuous="YES" enabled="NO" state="on" alignment="left" maxValue="100" doubleValue="50" tickMarkPosition="above" sliderType="linear" id="ZiO-iG-BDi"/>
                                         <connections>
                                             <action selector="headphoneGainSlider:" target="B8D-0N-5wS" id="RtZ-xu-H7a"/>
                                         </connections>
                                     </slider>
                                 </toolbarItem>
-                                <toolbarItem implicitItemIdentifier="66FEEF35-D9FD-4BEB-8572-F41E95491D3A" explicitItemIdentifier="sideEnabled" label="Side On/Off" paletteLabel="Side On/Off" toolTip="Sidebar On/Off" tag="7" autovalidates="NO" id="PJI-AR-W8E">
-                                    <size key="minSize" width="47" height="25"/>
-                                    <size key="maxSize" width="62" height="32"/>
+                                <toolbarItem implicitItemIdentifier="66FEEF35-D9FD-4BEB-8572-F41E95491D3A" explicitItemIdentifier="sideEnabled" label="Side On/Off" paletteLabel="Side On/Off" toolTip="Sidebar On/Off" tag="7" sizingBehavior="auto" autovalidates="NO" id="PJI-AR-W8E">
                                     <button key="view" verticalHuggingPriority="750" tag="7" id="q5v-Kd-Um5">
-                                        <rect key="frame" x="4" y="14" width="62" height="25"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                        <buttonCell key="cell" type="roundTextured" title="Side" bezelStyle="texturedRounded" alignment="center" lineBreakMode="truncatingTail" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="RAZ-57-8JZ">
+                                        <rect key="frame" x="13" y="14" width="44" height="23"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <buttonCell key="cell" type="roundTextured" title="Side" bezelStyle="texturedRounded" alignment="center" lineBreakMode="truncatingTail" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="RAZ-57-8JZ">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
                                             <font key="font" metaFont="system"/>
                                             <string key="keyEquivalent">s</string>
@@ -501,13 +490,11 @@
                                 </toolbarItem>
                                 <toolbarItem implicitItemIdentifier="NSToolbarFlexibleSpaceItem" id="qnV-ol-DRw"/>
                                 <toolbarItem implicitItemIdentifier="NSToolbarSpaceItem" id="b3x-Xh-oFv"/>
-                                <toolbarItem implicitItemIdentifier="AE697A3C-2CBB-449E-ADBE-94E5A8F088C6" explicitItemIdentifier="macAudioEnabled" label="Mac Audio" paletteLabel="Mac Audio" tag="8" id="z4t-r2-UAf">
+                                <toolbarItem implicitItemIdentifier="AE697A3C-2CBB-449E-ADBE-94E5A8F088C6" explicitItemIdentifier="macAudioEnabled" label="Mac Audio" paletteLabel="Mac Audio" tag="8" sizingBehavior="auto" id="z4t-r2-UAf">
                                     <nil key="toolTip"/>
-                                    <size key="minSize" width="47" height="25"/>
-                                    <size key="maxSize" width="80" height="32"/>
                                     <button key="view" toolTip="Rx Audio to Mac" verticalHuggingPriority="750" tag="8" id="Jch-IC-yYb">
-                                        <rect key="frame" x="0.0" y="14" width="80" height="28"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                        <rect key="frame" x="0.0" y="14" width="80" height="23"/>
+                                        <autoresizingMask key="autoresizingMask"/>
                                         <buttonCell key="cell" type="roundTextured" title="Mac Audio" bezelStyle="texturedRounded" alignment="center" lineBreakMode="truncatingTail" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="MyA-4v-4Q1">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
                                             <font key="font" metaFont="system"/>
@@ -529,9 +516,6 @@
                                         <subviews>
                                             <textField toolTip="Voltage" horizontalHuggingPriority="251" verticalHuggingPriority="750" allowsCharacterPickerTouchBarItem="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ss6-7M-DK0">
                                                 <rect key="frame" x="0.0" y="2" width="52" height="16"/>
-                                                <constraints>
-                                                    <constraint firstAttribute="width" constant="52" id="zDM-YB-Cg2"/>
-                                                </constraints>
                                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" drawsBackground="YES" id="uEU-Zi-vP8">
                                                     <font key="font" metaFont="system"/>
                                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -540,9 +524,6 @@
                                             </textField>
                                             <textField toolTip="PA Temp" horizontalHuggingPriority="251" verticalHuggingPriority="750" allowsCharacterPickerTouchBarItem="YES" translatesAutoresizingMaskIntoConstraints="NO" id="8dx-Bg-ocC">
                                                 <rect key="frame" x="52" y="2" width="52" height="16"/>
-                                                <constraints>
-                                                    <constraint firstAttribute="width" constant="52" id="yOw-ov-SXc"/>
-                                                </constraints>
                                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" drawsBackground="YES" id="piH-Kq-rNe">
                                                     <font key="font" metaFont="system"/>
                                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -564,13 +545,11 @@
                                         <outlet property="_topField" destination="ss6-7M-DK0" id="ETn-KA-7HF"/>
                                     </connections>
                                 </toolbarItem>
-                                <toolbarItem implicitItemIdentifier="C5A6541A-00BD-423E-B387-A0AE1EB58540" explicitItemIdentifier="lineoutMute" label="Mute" paletteLabel="Mute Lineout" tag="3" image="NSStatusAvailable" id="pp9-nf-Tmj">
+                                <toolbarItem implicitItemIdentifier="C5A6541A-00BD-423E-B387-A0AE1EB58540" explicitItemIdentifier="lineoutMute" label="Mute" paletteLabel="Mute Lineout" tag="3" image="NSStatusAvailable" sizingBehavior="auto" id="pp9-nf-Tmj">
                                     <nil key="toolTip"/>
-                                    <size key="minSize" width="21" height="21"/>
-                                    <size key="maxSize" width="21" height="21"/>
                                     <button key="view" toolTip="Mute Lineout" verticalHuggingPriority="750" tag="3" id="Bvj-ys-C6i">
-                                        <rect key="frame" x="28" y="14" width="21" height="21"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                        <rect key="frame" x="30" y="14" width="16" height="16"/>
+                                        <autoresizingMask key="autoresizingMask"/>
                                         <buttonCell key="cell" type="smallSquare" bezelStyle="smallSquare" image="NSStatusAvailable" imagePosition="overlaps" alignment="center" alternateImage="NSStatusUnavailable" lineBreakMode="truncatingTail" enabled="NO" state="on" imageScaling="proportionallyDown" inset="2" id="66T-fb-IQ2">
                                             <behavior key="behavior" pushIn="YES" changeContents="YES" lightByContents="YES"/>
                                             <font key="font" metaFont="system"/>
@@ -580,13 +559,11 @@
                                         </connections>
                                     </button>
                                 </toolbarItem>
-                                <toolbarItem implicitItemIdentifier="94FCD323-E28C-4171-82B7-AF7182C4EC26" explicitItemIdentifier="headphoneMute" label="Mute" paletteLabel="Mute Headphone" tag="5" image="NSStatusAvailable" id="MD2-zq-j4r">
+                                <toolbarItem implicitItemIdentifier="94FCD323-E28C-4171-82B7-AF7182C4EC26" explicitItemIdentifier="headphoneMute" label="Mute" paletteLabel="Mute Headphone" tag="5" image="NSStatusAvailable" sizingBehavior="auto" id="MD2-zq-j4r">
                                     <nil key="toolTip"/>
-                                    <size key="minSize" width="21" height="21"/>
-                                    <size key="maxSize" width="21" height="21"/>
                                     <button key="view" toolTip="Mute Headphones" verticalHuggingPriority="750" tag="5" id="UGS-Cq-w2K">
-                                        <rect key="frame" x="38" y="14" width="21" height="21"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                        <rect key="frame" x="41" y="14" width="16" height="16"/>
+                                        <autoresizingMask key="autoresizingMask"/>
                                         <buttonCell key="cell" type="smallSquare" bezelStyle="smallSquare" image="NSStatusAvailable" imagePosition="overlaps" alignment="center" alternateImage="NSStatusUnavailable" lineBreakMode="truncatingTail" enabled="NO" state="on" imageScaling="proportionallyDown" inset="2" id="QVM-6g-KBJ">
                                             <behavior key="behavior" pushIn="YES" changeContents="YES" lightByContents="YES"/>
                                             <font key="font" metaFont="system"/>
@@ -596,12 +573,10 @@
                                         </connections>
                                     </button>
                                 </toolbarItem>
-                                <toolbarItem implicitItemIdentifier="DEEDC29B-D1E9-4A60-BBE3-577FC2873C04" explicitItemIdentifier="fdxEnabled" label="FDX On/Off" paletteLabel="FDX On/Off" toolTip="FDX On/Off" tag="2" id="bSr-nw-2sZ">
-                                    <size key="minSize" width="47" height="25"/>
-                                    <size key="maxSize" width="62" height="32"/>
+                                <toolbarItem implicitItemIdentifier="DEEDC29B-D1E9-4A60-BBE3-577FC2873C04" explicitItemIdentifier="fdxEnabled" label="FDX On/Off" paletteLabel="FDX On/Off" toolTip="FDX On/Off" tag="2" sizingBehavior="auto" id="bSr-nw-2sZ">
                                     <button key="view" verticalHuggingPriority="750" tag="2" id="lSI-pj-GOM">
-                                        <rect key="frame" x="3" y="14" width="62" height="25"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                        <rect key="frame" x="13" y="14" width="42" height="23"/>
+                                        <autoresizingMask key="autoresizingMask"/>
                                         <buttonCell key="cell" type="roundTextured" title="FDX" bezelStyle="texturedRounded" alignment="center" lineBreakMode="truncatingTail" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="XzU-Mb-mUg">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
                                             <font key="font" metaFont="system"/>
@@ -613,12 +588,10 @@
                                         </connections>
                                     </button>
                                 </toolbarItem>
-                                <toolbarItem implicitItemIdentifier="0DE5B23D-2F26-469E-9BF4-92EE46B481AA" explicitItemIdentifier="cwxEnabled" label="CWX On/Off" paletteLabel="CWX On/Off" toolTip="CWX On/Off" tag="2" id="fPm-lX-g4y">
-                                    <size key="minSize" width="47" height="25"/>
-                                    <size key="maxSize" width="62" height="32"/>
+                                <toolbarItem implicitItemIdentifier="0DE5B23D-2F26-469E-9BF4-92EE46B481AA" explicitItemIdentifier="cwxEnabled" label="CWX On/Off" paletteLabel="CWX On/Off" toolTip="CWX On/Off" tag="2" sizingBehavior="auto" id="fPm-lX-g4y">
                                     <button key="view" verticalHuggingPriority="750" tag="2" id="Yu1-bq-afA">
-                                        <rect key="frame" x="5" y="14" width="62" height="25"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                        <rect key="frame" x="12" y="14" width="48" height="23"/>
+                                        <autoresizingMask key="autoresizingMask"/>
                                         <buttonCell key="cell" type="roundTextured" title="CWX" bezelStyle="texturedRounded" alignment="center" lineBreakMode="truncatingTail" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="d4z-xR-ZpC">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
                                             <font key="font" metaFont="system"/>
@@ -630,12 +603,10 @@
                                         </connections>
                                     </button>
                                 </toolbarItem>
-                                <toolbarItem implicitItemIdentifier="90CAF1B5-DFB3-45D7-8CDD-2DE4259903EE" label="" paletteLabel="" toolTip="Add a Panadapter" id="5eM-lI-HAj">
-                                    <size key="minSize" width="47" height="28"/>
-                                    <size key="maxSize" width="85" height="32"/>
+                                <toolbarItem implicitItemIdentifier="90CAF1B5-DFB3-45D7-8CDD-2DE4259903EE" label="" paletteLabel="" toolTip="Connect / Disconnect" sizingBehavior="auto" id="5eM-lI-HAj">
                                     <button key="view" verticalHuggingPriority="750" id="3Nf-D2-vuD" userLabel="Connect Button">
-                                        <rect key="frame" x="0.0" y="14" width="85" height="28"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                        <rect key="frame" x="0.0" y="14" width="68" height="23"/>
+                                        <autoresizingMask key="autoresizingMask"/>
                                         <buttonCell key="cell" type="roundTextured" title="Connect" bezelStyle="texturedRounded" alignment="center" lineBreakMode="truncatingTail" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="0FJ-lO-Dfk">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="system"/>
@@ -740,7 +711,7 @@
         </scene>
     </scenes>
     <resources>
-        <image name="NSMenuOnStateTemplate" width="12" height="12"/>
+        <image name="NSMenuOnStateTemplate" width="15" height="13"/>
         <image name="NSStatusAvailable" width="16" height="16"/>
         <image name="NSStatusUnavailable" width="16" height="16"/>
     </resources>
