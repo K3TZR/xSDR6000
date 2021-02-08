@@ -4,12 +4,9 @@
 
 ##### Built on:
 
-*  macOS 11.0.1
-*  Xcode 12.2 (12B45b)
+*  macOS 11.2
+*  Xcode 12.4 (12D4e)
 *  Swift 5.3
-*  xLib6000 v1.3.11
-*  SwiftyUserDefaults 5.0.0
-*  XCGLogger 7.0.1
 
 ##### Runs on:
 * macOS 10.15 and higher
@@ -30,9 +27,15 @@ Flex Radios can have one of four different version groups:
 
 ##### Credits
 [xLib6000](https://github.com/K3TZR/xLib6000.git)
+
 [SwiftyUserDefaults](https://github.com/sunshinejr/SwiftyUserDefaults.git)
+
 [XCGLogger](https://github.com/DaveWoodCom/XCGLogger.git)
+
 [Opus](https://opus-codec.org/downloads/)
+
+[TpCircularBuffer](https://github.com/michaeltyson/TPCircularBuffer)
+
 
 ##### Other software
 [![DL3LSM](https://img.shields.io/badge/DL3LSM-xDAX,_xCAT,_xKey-informational)](https://dl3lsm.blogspot.com) Mac versions of DAX and/or CAT and a Remote CW Keyer.  
