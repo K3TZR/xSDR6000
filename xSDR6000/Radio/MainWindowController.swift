@@ -14,7 +14,7 @@ import SwiftyUserDefaults
 // MARK: - Main Window Controller class implementation
 // --------------------------------------------------------------------------------
 
-final class MainWindowController: NSWindowController, NSWindowDelegate, RadioPickerDelegate, WanManagerDelegate, MiniViewDelegate {
+final class MainWindowController: NSWindowController, NSWindowDelegate {
     
     // swiftlint:disable colon
     // ----------------------------------------------------------------------------
@@ -56,7 +56,10 @@ final class MainWindowController: NSWindowController, NSWindowDelegate, RadioPic
     private var _voltageMeterAvailable          = false
     private var _pleaseWait                     : NSAlert!
     private var _xMiniWindows                   = [NSWindow]()
-    
+
+    var smartLinkEnabled: Bool { Defaults.smartLinkEnabled }
+    var smartLinkIsLoggedIn = false
+
     private enum WindowState {
         case open
         case close
@@ -248,6 +251,40 @@ final class MainWindowController: NSWindowController, NSWindowDelegate, RadioPic
         } else {
             // Close the Mini window(s) and restore the main window
             closeMiniWindows()
+        }
+    }
+    
+    /// Deccrement the active slice's frequency (by the step value)
+    /// - Parameter sender:     a menu item
+    ///
+    @IBAction func decrFrequency(_ sender: Any) {
+        if let slice = Api.sharedInstance.radio!.findActiveSlice() {
+            // change the frequency
+            slice.frequency -= slice.step
+            // move the panadapter to keep the slice in the same relative position
+            if let pan = Api.sharedInstance.radio?.panadapters[slice.panadapterId] {
+                pan.center -= slice.step
+            }
+        }
+    }
+    
+    /// Increment the active slice's frequency (by the step value)
+    /// - Parameter sender:     a menu item
+    ///
+    @IBAction func incrFrequency(_ sender: Any) {
+        if let slice = Api.sharedInstance.radio!.findActiveSlice() {
+            // change the frequency
+            slice.frequency += slice.step
+            // move the panadapter to keep the slice in the same relative position
+            if let pan = Api.sharedInstance.radio?.panadapters[slice.panadapterId] {
+                pan.center += slice.step
+            }
+        }
+    }
+    
+    @IBAction func toggleXmit(_ sender: Any) {
+        if let slice = Api.sharedInstance.radio!.findActiveSlice() {
+            slice.txEnabled.toggle()
         }
     }
     
@@ -632,6 +669,9 @@ final class MainWindowController: NSWindowController, NSWindowDelegate, RadioPic
             self.window?.title = title
         }
     }
+}
+
+extension MainWindowController {
     
     // ----------------------------------------------------------------------------
     // MARK: - Observation methods
@@ -639,7 +679,6 @@ final class MainWindowController: NSWindowController, NSWindowDelegate, RadioPic
     /// Add observations of various properties used by the Panadapter
     ///
     private func addObservations(of radio: Radio) {
-        
         _observations = [
             radio.observe(\.tnfsEnabled, options: [.initial, .new]) { [weak self] (_, _) in
                 DispatchQueue.main.async { self?._tnfButton.boolState = radio[keyPath: \.tnfsEnabled]} },
@@ -670,7 +709,6 @@ final class MainWindowController: NSWindowController, NSWindowDelegate, RadioPic
     ///   - state:       enable / disable
     ///
     private func enableButtons(_ state: Bool) {
-        
         DispatchQueue.main.async { [weak self] in
             
             self?._log("EnableButtons: state = \(state)", .debug, #function, #file, #line)
@@ -679,7 +717,6 @@ final class MainWindowController: NSWindowController, NSWindowDelegate, RadioPic
             self?._macAudioButton.isEnabled       = state
             self?._tnfButton.isEnabled            = state
             self?._markersButton.isEnabled        = state
-//            self?._sideButton.isEnabled           = state
             self?._fdxButton.isEnabled            = state
             self?._cwxButton.isEnabled            = state
             self?._lineoutGainSlider.isEnabled    = state
@@ -702,7 +739,6 @@ final class MainWindowController: NSWindowController, NSWindowDelegate, RadioPic
     }
     
     private func setButtonState(_ radio: Radio) {
-        
         DispatchQueue.main.async { [weak self] in
             
             self?._log("setButtonState: radio = \(String(describing: radio))", .debug, #function, #file, #line)
@@ -738,7 +774,6 @@ final class MainWindowController: NSWindowController, NSWindowDelegate, RadioPic
     // MARK: - Notification Methods
     
     private func addNotifications() {
-        
         NCtr.makeObserver(self, with: #selector(didDeminiaturize(_:)), of: NSWindow.didDeminiaturizeNotification.rawValue)
         
         NCtr.makeObserver(self, with: #selector(radioHasBeenAdded(_:)), of: .radioHasBeenAdded)
@@ -881,11 +916,12 @@ final class MainWindowController: NSWindowController, NSWindowDelegate, RadioPic
     @objc private func didDeminiaturize(_ note: Notification) {
         closeMiniWindows()
     }
+}
+
+extension MainWindowController: MiniViewDelegate, RadioPickerDelegate, WanManagerDelegate {
     
     // ----------------------------------------------------------------------------
     // MARK: - RadioPickerDelegate methods
-    
-    var smartLinkEnabled: Bool { Defaults.smartLinkEnabled }
     
     /// Open a Radio
     /// - Parameters:
@@ -960,7 +996,6 @@ final class MainWindowController: NSWindowController, NSWindowDelegate, RadioPic
         get { Defaults.smartLinkWasLoggedIn }
         set { Defaults.smartLinkWasLoggedIn = newValue }
     }
-    var smartLinkIsLoggedIn = false
     
     func showRadioPicker() {
         self.openRadioPicker()

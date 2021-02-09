@@ -14,14 +14,12 @@ import SwiftyUserDefaults
 
 final class PreferencesTabViewController: NSTabViewController {
     
-    // swiftlint:disable colon
     // ----------------------------------------------------------------------------
     // MARK: - Private properties
     
-    private let _autosaveName                 = "PreferencesWindow"
-    private let _log                          = Logger.sharedInstance.logMessage
+    private let _autosaveName   = "PreferencesWindow"
+    private let _log            = Logger.sharedInstance.logMessage
     
-    // swiftlint:enable colon
     // ----------------------------------------------------------------------------
     // MARK: - Overridden methods
     

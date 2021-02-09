@@ -19,66 +19,41 @@ final class PanadapterViewController: NSViewController, NSGestureRecognizerDeleg
     
     // swiftlint:disable colon
     // ----------------------------------------------------------------------------
-    // MARK: - Internal properties
-    
-    enum DragType {
-        case dbm        // +/- Panadapter dbm upper/lower level
-        case frequency  // +/- Panadapter bandwidth
-        case slice      // +/- Slice frequency/width
-        case spectrum   // +/- Panadapter center frequency
-        case tnf        // +/- Tnf frequency/width
-    }
-    
-    struct Dragable {
-        var type        = DragType.spectrum
-        var original    = NSPoint(x: 0.0, y: 0.0)
-        var previous    = NSPoint(x: 0.0, y: 0.0)
-        var current     = NSPoint(x: 0.0, y: 0.0)
-        var percent     : CGFloat = 0.0
-        var frequency   : CGFloat = 0.0
-        var cursor      : NSCursor!
-        var object      : Any?
-    }
-    
-    // ----------------------------------------------------------------------------
     // MARK: - Private properties
     
     @IBOutlet private weak var _frequencyLegendView : FrequencyLegendView!
     @IBOutlet private weak var _dbLegendView        : DbLegendView!
     @IBOutlet private weak var _panadapterView      : MTKView!
     
-    private var _params                       : Params!
-    private var _hzPerUnit                    : CGFloat { CGFloat(_params.end - _params.start) / _params.panadapter.xPixels }
+    private var _params                 : Params!
+    private var _hzPerUnit              : CGFloat { CGFloat(_params.end - _params.start) / _params.panadapter.xPixels }
     
-    private var _flags                        = [SliceId:FlagViewController]()
-    private var _panadapterRenderer           : PanadapterRenderer!
+    private var _flags                  = [SliceId:FlagViewController]()
+    private var _panadapterRenderer     : PanadapterRenderer!
     
     // gesture recognizer related
-    private var _clickLeft                    : NSClickGestureRecognizer!
-    private var _clickRight                   : NSClickGestureRecognizer!
-    private var _panCenter                    : NSPanGestureRecognizer!
-    private var _panBandwidth                 : NSPanGestureRecognizer!
-    private var _panRightButton               : NSPanGestureRecognizer!
-    private var _panStart                     : NSPoint?
-    private var _slice                        : xLib6000.Slice?
-    private var _panTnf                       : Tnf?
-    private var _dbmTop                       = false
-    private var _newCursor                    : NSCursor?
-    private var _dbLegendSpacings             = [String]()                  // Db spacing choices
-    private var _dragable                     = Dragable()
-    
-    private let kLeftButton                   = 0x01                        // button masks
-    private let kRightButton                  = 0x02
-    private let kDbLegendWidth                : CGFloat = 40                // width of Db legend
-    private let kFrequencyLegendHeight        : CGFloat = 20                // height of the Frequency legend
-    private let kFilter                       = CIFilter(name: "CIDifferenceBlendMode")
+    private var _leftDoubleClick        : NSClickGestureRecognizer!
+    private var _rightSingleClick       : NSClickGestureRecognizer!
+    private var _dragLeftButton         : NSPanGestureRecognizer!
+    private var _panRightButton         : NSPanGestureRecognizer!
+    private var _newCursor              : NSCursor?
+    private var _dbLegendSpacings       = [String]()                  // Db spacing choices
+    private var _dragable               = PanafallViewController.Dragable()
+
+    private var _baseObservations       = [NSKeyValueObservation]()
+    private var _defaultsObservations   = [DefaultsDisposable]()
+    private var _tnfObservations        = [NSKeyValueObservation]()
+
+    private let kLeftButton             = 0x01                        // button masks
+    private let kRightButton            = 0x02
+    private let kDbLegendWidth          : CGFloat = 40                // width of Db legend
+    private let kFrequencyLegendHeight  : CGFloat = 20                // height of the Frequency legend
+    private let kFilter                 = CIFilter(name: "CIDifferenceBlendMode")
     
     // swiftlint:enable colon
     // ----------------------------------------------------------------------------
     // MARK: - Overridden methods
     
-    /// the View has loaded
-    ///
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -100,38 +75,31 @@ final class PanadapterViewController: NSViewController, NSGestureRecognizerDeleg
         
         // setup
         if let device = makeDevice(view: _panadapterView) {
-            
             _panadapterRenderer.setConstants(size: view.frame.size)
             _panadapterRenderer.setup(device: device)
             
             // get the list of possible Db level spacings
             _dbLegendSpacings = Defaults.dbLegendSpacings
             
-//            // Click, LEFT in panadapter
-//            _clickLeft = NSClickGestureRecognizer(target: self, action: #selector(clickLeft(_:)))
-//            _clickLeft.buttonMask = kLeftButton
-//            _clickLeft.numberOfClicksRequired = 2
-//            _clickLeft.delegate = self
-//            _dbLegendView.addGestureRecognizer(_clickLeft)
+            // Left-Button, Double-Click - make new slice or activate existing slice
+            _leftDoubleClick = NSClickGestureRecognizer(target: self, action: #selector(leftDoubleClick(_:)))
+            _leftDoubleClick.buttonMask = kLeftButton
+            _leftDoubleClick.numberOfClicksRequired = 2
+            _leftDoubleClick.delegate = self
+            _dbLegendView.addGestureRecognizer(_leftDoubleClick)
             
-            // Click, RIGHT in panadapter
-            _clickRight = NSClickGestureRecognizer(target: self, action: #selector(clickRight(_:)))
-            _clickRight.buttonMask = kRightButton
-            _clickRight.numberOfClicksRequired = 1
-            _clickRight.delegate = self
-            _dbLegendView.addGestureRecognizer(_clickRight)
+            // Right-Button, Single-Click - change dbm scale
+            _rightSingleClick = NSClickGestureRecognizer(target: self, action: #selector(rightSingleClick(_:)))
+            _rightSingleClick.buttonMask = kRightButton
+            _rightSingleClick.numberOfClicksRequired = 1
+            _rightSingleClick.delegate = self
+            _dbLegendView.addGestureRecognizer(_rightSingleClick)
             
-            // Pan, LEFT in panadapter
-            _panCenter = NSPanGestureRecognizer(target: self, action: #selector(panLeft(_:)))
-            _panCenter.buttonMask = kLeftButton
-            _panCenter.delegate = self
-            _dbLegendView.addGestureRecognizer(_panCenter)
-            
-            // Pan, LEFT in Frequency legend
-            _panBandwidth = NSPanGestureRecognizer(target: self, action: #selector(panLeft(_:)))
-            _panBandwidth.buttonMask = kLeftButton
-            _panBandwidth.delegate = self
-            _frequencyLegendView.addGestureRecognizer(_panBandwidth)
+            // Left-Button, Drag - change bandwidth
+            _dragLeftButton = NSPanGestureRecognizer(target: self, action: #selector(dragLeftButton(_:)))
+            _dragLeftButton.buttonMask = kLeftButton
+            _dragLeftButton.delegate = self
+            _frequencyLegendView.addGestureRecognizer(_dragLeftButton)
             
             // pass a reference to the Panadapter
             _frequencyLegendView.configure(panadapter: _params.panadapter)
@@ -145,13 +113,12 @@ final class PanadapterViewController: NSViewController, NSGestureRecognizerDeleg
             _params.panadapter.delegate = _panadapterRenderer
             
         } else {
-            
             let alert = NSAlert()
             alert.alertStyle = .critical
             alert.messageText = "This Mac does not support Metal graphics."
             alert.informativeText = """
-      Metal is required for the Panadapter & Waterfall displays.
-      """
+                                    Metal is required for the Panadapter & Waterfall displays.
+                                    """
             alert.addButton(withTitle: "Ok")
             alert.runModal()
             NSApp.terminate(self)
@@ -164,10 +131,10 @@ final class PanadapterViewController: NSViewController, NSGestureRecognizerDeleg
     func configure(params: Params) {
         _params = params
     }
+    
     /// start observations & Notification
     ///
     private func setupObservations() {
-        
         // add notification subscriptions
         addNotifications()
         
@@ -175,47 +142,60 @@ final class PanadapterViewController: NSViewController, NSGestureRecognizerDeleg
         createBaseObservations(&_baseObservations)
     }
     
-    // force a redraw of one of the views
-    //
     func redrawFrequencyLegend() {
         _frequencyLegendView.redraw()
         positionFlags()
     }
+    
     func redrawDbLegend() {
         _dbLegendView.redraw()
     }
+    
     func redrawTnfs() {
         _frequencyLegendView.redraw()
     }
+    
     func redrawSlices() {
         _frequencyLegendView.redraw()
     }
-    /// Respond to Pan gesture (left mouse down)
-    ///
+    
+    func updateDbmLevel(dragable: PanafallViewController.Dragable) {
+        _dbLegendView.updateDbmLevel(dragable: dragable)
+    }
+
+    func updateBandwidth(dragable: PanafallViewController.Dragable) {
+        _frequencyLegendView.updateBandwidth(dragable: dragable)
+    }
+
+    func updateSlice(dragable: PanafallViewController.Dragable) {
+        _frequencyLegendView.updateSlice(dragable: dragable)
+    }
+
+    func updateCenter(dragable: PanafallViewController.Dragable) {
+        _frequencyLegendView.updateCenter(dragable: dragable)
+    }
+
+    func updateTnf(dragable: PanafallViewController.Dragable) {
+        _frequencyLegendView.updateTnf(dragable: dragable)
+    }
+
+    /// Respond to Drag gesture (left mouse down)
     /// - Parameter gr:         the Pan Gesture Recognizer
     ///
-    @objc func panLeft(_ gestureRecognizer: NSPanGestureRecognizer) {
+    @objc func dragLeftButton(_ gestureRecognizer: NSPanGestureRecognizer) {
         
         // ----------------------------------------------------------------------------
         // nested function to update layers
-        func update(_ dragable: Dragable) {
-            
+        func update(_ dragable: PanafallViewController.Dragable) {            
             // call the appropriate function on the appropriate layer
             switch dragable.type {
-            case .dbm:
-                _dbLegendView.updateDbmLevel(dragable: dragable)
-                
-            case .frequency:
-                _frequencyLegendView.updateBandwidth(dragable: dragable)
-                
-            case .slice:
-                _frequencyLegendView.updateSlice(dragable: dragable)
-                
-            case .spectrum:
-                _frequencyLegendView.updateCenter(dragable: dragable)
-                
-            case .tnf:
-                _frequencyLegendView.updateTnf(dragable: dragable)
+
+            case .dbm:          updateDbmLevel(dragable: dragable)
+            case .frequency:    updateBandwidth(dragable: dragable)
+            case .slice:        updateSlice(dragable: dragable)
+            case .spectrum:     updateCenter(dragable: dragable)
+            case .tnf:          updateTnf(dragable: dragable)
+            case .none:         break
             }
         }
         // ----------------------------------------------------------------------------
@@ -297,78 +277,75 @@ final class PanadapterViewController: NSViewController, NSGestureRecognizerDeleg
             break
         }
     }
+    
     /// Prevent the Right Click recognizer from responding when the mouse is not over the Legend
-    ///
     /// - Parameters:
     ///   - gr:           the Gesture Recognizer
     ///   - event:        the Event
     /// - Returns:        True = allow, false = ignore
     ///
     func gestureRecognizer(_ gestureRecognizer: NSGestureRecognizer, shouldAttemptToRecognizeWith event: NSEvent) -> Bool {
-        
         // is it a right click?
-        if gestureRecognizer.action == #selector(clickRight(_:)) {
+        if gestureRecognizer.action == #selector(rightSingleClick(_:)) {
             
             // Right-Click, process it here if over the legend, otherwise push it up the responder chain
-            let processHere = view.convert(event.locationInWindow, from: nil).x >= view.frame.width - kDbLegendWidth
-            return processHere
+            return view.convert(event.locationInWindow, from: nil).x >= view.frame.width - kDbLegendWidth
             
         } else {
             
-            // NOT Right-CLick, process it here
+            // NOT Right-Click, process it here
             return true
         }
     }
+    
     /// Respond to Right-Click gesture
     ///     NOTE: will only receive events in db legend (see gestureRecognizer method above)
     ///
     /// - Parameter gr:         the Click Gesture Recognizer
     ///
-    @objc func clickRight(_ gestureRecognizer: NSClickGestureRecognizer) {
-        
+    @objc func rightSingleClick(_ gestureRecognizer: NSClickGestureRecognizer) {
         // update the Db Legend spacings
         _dbLegendView.updateLegendSpacing(gestureRecognizer: gestureRecognizer, in: view)
     }
     
-//    /// Respond to Click-Left gesture
-//    ///
-//    /// - Parameter gr:         the Click Gesture Recognizer
-//    ///
-//    @objc func clickLeft(_ gestureRecognizer: NSClickGestureRecognizer) {
-//        // get the coordinates and convert to this View
-//        let mouseLocation = gestureRecognizer.location(in: view)
-//        
-//        // calculate the frequency
-//        let clickFrequency = (mouseLocation.x * _hzPerUnit) + CGFloat(_params.start)
-//        
-//        // is there a Slice at the clickFrequency?
-//        
-//        // is there a Slice at the indicated freq?
-//        if let slice = hitTestSlice(at: clickFrequency, thisPanOnly: true) {
-//            // YES, make it active
-//            activateSlice(slice)
-//            
-//            // is there a slice on this pan?
-//        } else if let slice = Api.sharedInstance.radio!.findActiveSlice(on: _params.panadapter.id) {
-//            
-//            // YES, move it to the nearest step value
-//            let delta = Int(clickFrequency) % slice.step
-//            if delta >= slice.step / 2 {
-//                // move it to the step value above the click
-//                slice.frequency = Int(clickFrequency) + (slice.step - delta)
-//                
-//            } else {
-//                
-//                // move it to the step value below the click
-//                slice.frequency = Int(clickFrequency) - delta
-//            }
-//        }
-//        // redraw
-//        redrawSlices()
-//    }
+    /// Respond to Click-Left gesture
+    /// - Parameter gr:         the Click Gesture Recognizer
+    ///
+    @objc func leftDoubleClick(_ gestureRecognizer: NSClickGestureRecognizer) {
+        // get the coordinates and convert to this View
+        let mouseLocation = gestureRecognizer.location(in: view)
+        
+        // calculate the frequency
+        let clickFrequency = (mouseLocation.x * _hzPerUnit) + CGFloat(_params.start)
+        
+        // is there a Slice at the clickFrequency?
+        
+        // is there a Slice at the indicated freq?
+        if let slice = hitTestSlice(at: clickFrequency, thisPanOnly: true) {
+            // YES, make it active
+            activateSlice(slice)
+            
+            // is there a slice on this pan?
+        } else if let slice = Api.sharedInstance.radio!.findActiveSlice(on: _params.panadapter.id) {
+            
+            // YES, move it to the nearest step value
+            let delta = Int(clickFrequency) % slice.step
+            if delta >= slice.step / 2 {
+                // move it to the step value above the click
+                slice.frequency = Int(clickFrequency) + (slice.step - delta)
+                
+            } else {
+                
+                // move it to the step value below the click
+                slice.frequency = Int(clickFrequency) - delta
+            }
+        }
+        // redraw
+        redrawSlices()
+    }
     
-    // Position Slice flags
-    //
+    /// Position Slice flags
+    ///
     func positionFlags() {
         var current  : (isOnLeft: Bool, freqPosition: CGFloat) = (true, 0.0)
         var previous : (isOnLeft: Bool, freqPosition: CGFloat) = (true, 0.0)
@@ -405,8 +382,11 @@ final class PanadapterViewController: NSViewController, NSGestureRecognizerDeleg
         }
     }
     
+    /// Determine if the Slice is part of a Split
+    /// - Parameter sliceId:    the Id of the Slice
+    /// - Returns:              true / false
+    ///
     func splitCheck(_ sliceId: SliceId) -> Bool {
-        
         for flag in _flags where flag.value.splitId == sliceId {
             return true
         }
@@ -504,14 +484,13 @@ final class PanadapterViewController: NSViewController, NSGestureRecognizerDeleg
         }
         return tnf
     }
+}
+
+extension PanadapterViewController {
     
     // ----------------------------------------------------------------------------
     // MARK: - Observation methods
-    
-    private var _baseObservations       = [NSKeyValueObservation]()
-    private var _defaultsObservations   = [DefaultsDisposable]()
-    private var _tnfObservations        = [NSKeyValueObservation]()
-    
+        
     /// Add observations of various properties used by the Panadapter
     ///
     private func createBaseObservations(_ observations: inout [NSKeyValueObservation]) {
@@ -700,8 +679,9 @@ final class PanadapterViewController: NSViewController, NSGestureRecognizerDeleg
                 NCtr.makeObserver(self, with: #selector(sliceWillBeRemoved(_:)), of: .sliceWillBeRemoved, object: slice)
                 
                 // add a Flag for this Slice
+//                sliceFlag(slice: slice, pan: _params.panadapter, viewController: self)
                 sliceFlag(slice: slice, pan: _params.panadapter, viewController: self)
-                
+
                 activateSlice(slice)
                 
                 _frequencyLegendView.redraw()

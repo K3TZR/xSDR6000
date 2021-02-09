@@ -50,58 +50,61 @@ final class FlagViewController: NSViewController, NSTextFieldDelegate, NSGesture
     // ----------------------------------------------------------------------------
     // MARK: - Private properties
     
-    @IBOutlet private weak var _alphaButton   : NSButton!
-    @IBOutlet private weak var _filterWidth   : NSTextField!
-    @IBOutlet private weak var _rxAntPopUp    : NSPopUpButton!
-    @IBOutlet private weak var _txAntPopUp    : NSPopUpButton!
+    @IBOutlet private weak var _alphaButton : NSButton!
+    @IBOutlet private weak var _filterWidth : NSTextField!
+    @IBOutlet private weak var _rxAntPopUp  : NSPopUpButton!
+    @IBOutlet private weak var _txAntPopUp  : NSPopUpButton!
     
-    @IBOutlet private weak var _lockButton    : NSButton!
-    @IBOutlet private weak var _nbButton      : NSButton!
-    @IBOutlet private weak var _nrButton      : NSButton!
-    @IBOutlet private weak var _anfButton     : NSButton!
-    @IBOutlet private weak var _qskButton     : NSButton!
-    @IBOutlet private weak var _splitButton   : NSButton!
+    @IBOutlet private weak var _lockButton  : NSButton!
+    @IBOutlet private weak var _nbButton    : NSButton!
+    @IBOutlet private weak var _nrButton    : NSButton!
+    @IBOutlet private weak var _anfButton   : NSButton!
+    @IBOutlet private weak var _qskButton   : NSButton!
+    @IBOutlet private weak var _splitButton : NSButton!
     
-    @IBOutlet private var _frequencyField     : NSTextField!
-    @IBOutlet private var _sMeter             : LevelIndicator!
-    @IBOutlet private var _sMeterText         : NSTextField!
+    @IBOutlet private var _frequencyField   : NSTextField!
+    @IBOutlet private var _sMeter           : LevelIndicator!
+    @IBOutlet private var _sMeterText       : NSTextField!
     
-    @IBOutlet private var _audButton          : NSButton!
-    @IBOutlet private var _dspButton          : NSButton!
-    @IBOutlet private var _modeButton         : NSButton!
-    @IBOutlet private var _xritButton         : NSButton!
-    @IBOutlet private var _daxButton          : NSButton!
-    @IBOutlet private var _txButton           : NSButton!
+    @IBOutlet private var _audButton        : NSButton!
+    @IBOutlet private var _dspButton        : NSButton!
+    @IBOutlet private var _modeButton       : NSButton!
+    @IBOutlet private var _xritButton       : NSButton!
+    @IBOutlet private var _daxButton        : NSButton!
+    @IBOutlet private var _txButton         : NSButton!
     
-    private weak var _panadapter              : Panadapter?
-    private weak var _viewController          : NSViewController?
+    private weak var _panadapter            : Panadapter?
+    private weak var _viewController        : NSViewController?
     
-    private weak var _radio                   = Api.sharedInstance.radio
-    private var _center                       : Int {return _panadapter!.center }
-    private var _bandwidth                    : Int { return _panadapter!.bandwidth }
-    private var _start                        : Int { return _center - (_bandwidth/2) }
-    private var _end                          : Int { return _center + (_bandwidth/2) }
-    private var _hzPerUnit                    : CGFloat { return CGFloat(_end - _start) / _panadapter!.xPixels }
+    private weak var _radio                 = Api.sharedInstance.radio
+    private var _center                     : Int {return _panadapter!.center }
+    private var _bandwidth                  : Int { return _panadapter!.bandwidth }
+    private var _start                      : Int { return _center - (_bandwidth/2) }
+    private var _end                        : Int { return _center + (_bandwidth/2) }
+    private var _hzPerUnit                  : CGFloat { return CGFloat(_end - _start) / _panadapter!.xPixels }
     
-    private var _previousFrequency            = 0
-    private var _beginEditing                 = false
-    private var _darkMode                     = false
+    private var _previousFrequency          = 0
+    private var _beginEditing               = false
+    private var _darkMode                   = false
     
-    private let _log                          = Logger.sharedInstance
+    private var _observations               = [NSKeyValueObservation]()
+    private var _meterObservations          = [NSKeyValueObservation]()
     
-    private let kFlagPixelOffset              : CGFloat = 15.0/2.0
+    private let _log                        = Logger.sharedInstance
     
-    private let kSplitCaption                 = "SPLIT"
-    private let kSplitOnAttr                  = [NSAttributedString.Key.foregroundColor : NSColor.systemRed]
-    private let kSplitOffAttr                 = [NSAttributedString.Key.foregroundColor : NSColor.lightGray]
+    private let kFlagPixelOffset            : CGFloat = 15.0/2.0
     
-    private let kLetterAttr                   = [NSAttributedString.Key.foregroundColor : NSColor.systemYellow]
+    private let kSplitCaption               = "SPLIT"
+    private let kSplitOnAttr                = [NSAttributedString.Key.foregroundColor : NSColor.systemRed]
+    private let kSplitOffAttr               = [NSAttributedString.Key.foregroundColor : NSColor.lightGray]
     
-    private let kTxCaption                    = "TX"
-    private let kTxOnAttr                     = [NSAttributedString.Key.foregroundColor : NSColor.systemRed]
-    private let kTxOffAttr                    = [NSAttributedString.Key.foregroundColor : NSColor.lightGray]
+    private let kLetterAttr                 = [NSAttributedString.Key.foregroundColor : NSColor.systemYellow]
     
-    private let kSplitDistance                = 5_000
+    private let kTxCaption                  = "TX"
+    private let kTxOnAttr                   = [NSAttributedString.Key.foregroundColor : NSColor.systemRed]
+    private let kTxOffAttr                  = [NSAttributedString.Key.foregroundColor : NSColor.lightGray]
+    
+    private let kSplitDistance              = 5_000
     
     // swiftlint:enable colon
     // ----------------------------------------------------------------------------
@@ -354,7 +357,7 @@ final class FlagViewController: NSViewController, NSTextFieldDelegate, NSGesture
             controlsVc?.view.isHidden = true
             
             if let sideViewController = _viewController as? SideViewController { sideViewController.setRxHeight(FlagViewController.kLargeFlagHeight) }
-            if let miniViewController = _viewController as? MiniViewController { miniViewController.setMiniHeight(2 * FlagViewController.kLargeFlagHeight) }
+            if let miniViewController = _viewController as? MiniViewController { miniViewController.setMiniHeight(FlagViewController.kLargeFlagHeight) }
         }
     }
     
@@ -414,11 +417,6 @@ final class FlagViewController: NSViewController, NSTextFieldDelegate, NSGesture
         }
     }
     
-    @IBAction func txButton(_ sender: NSButton) {
-        
-        slice?.txEnabled = !sender.boolState
-    }
-    
     @IBAction func xButton(_ sender: NSButton) {
         slice!.remove()
     }
@@ -453,11 +451,12 @@ final class FlagViewController: NSViewController, NSTextFieldDelegate, NSGesture
             splitId = reply.objectId
         }
     }
+}
+
+extension FlagViewController {
     
     // ----------------------------------------------------------------------------
     // MARK: - Observation methods
-    
-    private var _observations = [NSKeyValueObservation]()
     
     /// Add observers for properties used by the Flag
     ///
@@ -614,9 +613,7 @@ final class FlagViewController: NSViewController, NSTextFieldDelegate, NSGesture
         
         NCtr.makeObserver(self, with: #selector(sliceMeterUpdated(_:)), of: .sliceMeterUpdated)
     }
-    private var _meterObservations    = [NSKeyValueObservation]()
     
-    // swiftlint:disable cyclomatic_complexity
     /// Process Meter Notification
     ///
     /// - Parameter note:       a Notification instance
@@ -659,7 +656,6 @@ final class FlagViewController: NSViewController, NSTextFieldDelegate, NSGesture
             }
         }
     }
-    // swiftlint:enable cyclomatic_complexity
 }
 
 // --------------------------------------------------------------------------------
@@ -756,18 +752,3 @@ class FrequencyFormatter: NumberFormatter {
         return adjustedString
     }
 }
-// class FrequencyTransformer : ValueTransformer {
-//  
-//  override class func allowsReverseTransformation() -> Bool {
-//    return true
-//  }
-//  override class func transformedValueClass() -> AnyClass {
-//    return NSNumber.self
-//  }
-//  override func transformedValue(_ value: Any?) -> Any? {
-//    return ((value as? Int) ?? 0).intHzToDoubleMhz
-//  }
-//  override func reverseTransformedValue(_ value: Any?) -> Any? {
-//    return ((value as? Double) ?? 0).doubleMhzToIntHz
-//  }
-// }

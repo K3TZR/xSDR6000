@@ -320,6 +320,21 @@
                                                 <action selector="nextSliceMenu:" target="Ady-hI-5gd" id="adf-r6-dIV"/>
                                             </connections>
                                         </menuItem>
+                                        <menuItem title="Toggle TX" keyEquivalent="x" id="jBX-0h-JyF">
+                                            <connections>
+                                                <action selector="toggleXmit:" target="Ady-hI-5gd" id="3Uh-5z-CXr"/>
+                                            </connections>
+                                        </menuItem>
+                                        <menuItem title="Decr frequency" keyEquivalent="" id="UZt-sz-xy7">
+                                            <connections>
+                                                <action selector="decrFrequency:" target="Ady-hI-5gd" id="DUi-Bm-mze"/>
+                                            </connections>
+                                        </menuItem>
+                                        <menuItem title="Incr frequency" keyEquivalent="" id="Qt6-Zw-3wb">
+                                            <connections>
+                                                <action selector="incrFrequency:" target="Ady-hI-5gd" id="K0o-ao-AGR"/>
+                                            </connections>
+                                        </menuItem>
                                         <menuItem isSeparatorItem="YES" id="VGr-6a-S3Q"/>
                                         <menuItem title="xMini" enabled="NO" keyEquivalent="M" id="wof-Cb-Wtf">
                                             <connections>

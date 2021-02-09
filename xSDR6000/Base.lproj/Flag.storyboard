@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="17701" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
+        <deployment identifier="macosx"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="17701"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -193,7 +194,7 @@
                                                     <font key="font" metaFont="systemBold" size="18"/>
                                                 </buttonCell>
                                                 <connections>
-                                                    <action selector="txButton:" target="Lmw-yC-7qh" id="KCd-lS-uOt"/>
+                                                    <action selector="toggleXmit:" target="aAz-fc-KOY" id="pVL-GR-FwH"/>
                                                 </connections>
                                             </button>
                                             <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="1db-5H-JDr" userLabel="Alpha Button">
@@ -873,10 +874,10 @@
                         <rect key="frame" x="0.0" y="0.0" width="273" height="90"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
-                            <stackView distribution="equalSpacing" orientation="horizontal" alignment="top" spacing="3" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" ambiguous="YES" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="VKm-g4-MGQ" userLabel="Mode stack view">
+                            <stackView distribution="equalSpacing" orientation="horizontal" alignment="top" spacing="3" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="VKm-g4-MGQ" userLabel="Mode stack view">
                                 <rect key="frame" x="3" y="63" width="267" height="23"/>
                                 <subviews>
-                                    <popUpButton verticalHuggingPriority="750" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="xy8-oG-cXF">
+                                    <popUpButton verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="xy8-oG-cXF">
                                         <rect key="frame" x="-3" y="-1" width="62" height="25"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="55" id="hsr-KS-iYq"/>
@@ -892,7 +893,7 @@
                                             <binding destination="jnR-au-HBU" name="content" keyPath="representedObject.modeList" id="SXt-Bt-8h2"/>
                                         </connections>
                                     </popUpButton>
-                                    <button verticalHuggingPriority="750" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="W6n-fT-26X">
+                                    <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="W6n-fT-26X">
                                         <rect key="frame" x="51" y="-4" width="64" height="32"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="50" id="tEG-pa-da6"/>
@@ -905,7 +906,7 @@
                                             <action selector="quickModeButtons:" target="jnR-au-HBU" id="Eap-XY-uL0"/>
                                         </connections>
                                     </button>
-                                    <button verticalHuggingPriority="750" ambiguous="YES" tag="1" translatesAutoresizingMaskIntoConstraints="NO" id="IV0-jA-TFB">
+                                    <button verticalHuggingPriority="750" tag="1" translatesAutoresizingMaskIntoConstraints="NO" id="IV0-jA-TFB">
                                         <rect key="frame" x="104" y="-4" width="64" height="32"/>
                                         <buttonCell key="cell" type="push" title="MOD" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="KTB-gf-TcP">
                                             <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
@@ -915,7 +916,7 @@
                                             <action selector="quickModeButtons:" target="jnR-au-HBU" id="Erk-Ba-2ie"/>
                                         </connections>
                                     </button>
-                                    <button verticalHuggingPriority="750" ambiguous="YES" tag="2" translatesAutoresizingMaskIntoConstraints="NO" id="iKy-mO-SoA">
+                                    <button verticalHuggingPriority="750" tag="2" translatesAutoresizingMaskIntoConstraints="NO" id="iKy-mO-SoA">
                                         <rect key="frame" x="157" y="-4" width="64" height="32"/>
                                         <buttonCell key="cell" type="push" title="MOD" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="SXW-RV-dY2">
                                             <behavior key="behavior" lightByContents="YES"/>
@@ -925,7 +926,7 @@
                                             <action selector="quickModeButtons:" target="jnR-au-HBU" id="iLL-z1-oYj"/>
                                         </connections>
                                     </button>
-                                    <button verticalHuggingPriority="750" ambiguous="YES" tag="2" translatesAutoresizingMaskIntoConstraints="NO" id="VKh-Vc-OeG" userLabel="Quick Mode 3">
+                                    <button verticalHuggingPriority="750" tag="2" translatesAutoresizingMaskIntoConstraints="NO" id="VKh-Vc-OeG" userLabel="Quick Mode 3">
                                         <rect key="frame" x="210" y="-4" width="64" height="32"/>
                                         <buttonCell key="cell" type="push" title="MOD" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="t36-sx-6tn">
                                             <behavior key="behavior" lightByContents="YES"/>
@@ -956,10 +957,10 @@
                                     <real value="3.4028234663852886e+38"/>
                                 </customSpacing>
                             </stackView>
-                            <stackView distribution="fill" orientation="horizontal" alignment="top" spacing="11" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" ambiguous="YES" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="uCm-g0-756" userLabel="Top Filter Button stack view">
-                                <rect key="frame" x="2" y="30" width="269" height="20"/>
+                            <stackView distribution="fill" orientation="horizontal" alignment="top" spacing="11" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="uCm-g0-756" userLabel="Top Filter Button stack view">
+                                <rect key="frame" x="2" y="28" width="269" height="20"/>
                                 <subviews>
-                                    <button verticalHuggingPriority="750" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="iRM-W4-qaW" userLabel="FIlter 0">
+                                    <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="iRM-W4-qaW" userLabel="FIlter 0">
                                         <rect key="frame" x="-7" y="-7" width="59" height="32"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="45" id="UQo-hx-1h5"/>
@@ -972,7 +973,7 @@
                                             <action selector="filterButtons:" target="jnR-au-HBU" id="rQy-Cp-7c1"/>
                                         </connections>
                                     </button>
-                                    <button verticalHuggingPriority="750" ambiguous="YES" tag="1" translatesAutoresizingMaskIntoConstraints="NO" id="p8s-4x-GzA" userLabel="Filter 1">
+                                    <button verticalHuggingPriority="750" tag="1" translatesAutoresizingMaskIntoConstraints="NO" id="p8s-4x-GzA" userLabel="Filter 1">
                                         <rect key="frame" x="49" y="-7" width="59" height="32"/>
                                         <buttonCell key="cell" type="push" title="1.2k" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="JiO-IS-h5K">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -982,7 +983,7 @@
                                             <action selector="filterButtons:" target="jnR-au-HBU" id="ykG-ve-NiT"/>
                                         </connections>
                                     </button>
-                                    <button verticalHuggingPriority="750" ambiguous="YES" tag="2" translatesAutoresizingMaskIntoConstraints="NO" id="Gzs-Wc-jGN" userLabel="Filter 2">
+                                    <button verticalHuggingPriority="750" tag="2" translatesAutoresizingMaskIntoConstraints="NO" id="Gzs-Wc-jGN" userLabel="Filter 2">
                                         <rect key="frame" x="105" y="-7" width="59" height="32"/>
                                         <buttonCell key="cell" type="push" title="1.4k" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Zm3-f6-dJf">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -992,7 +993,7 @@
                                             <action selector="filterButtons:" target="jnR-au-HBU" id="ddi-wG-1I9"/>
                                         </connections>
                                     </button>
-                                    <button verticalHuggingPriority="750" ambiguous="YES" tag="3" translatesAutoresizingMaskIntoConstraints="NO" id="buZ-PW-x5r" userLabel="Filter 3">
+                                    <button verticalHuggingPriority="750" tag="3" translatesAutoresizingMaskIntoConstraints="NO" id="buZ-PW-x5r" userLabel="Filter 3">
                                         <rect key="frame" x="161" y="-7" width="59" height="32"/>
                                         <buttonCell key="cell" type="push" title="1.6k" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="NQa-yw-eDp">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -1002,7 +1003,7 @@
                                             <action selector="filterButtons:" target="jnR-au-HBU" id="hzZ-Vr-nmA"/>
                                         </connections>
                                     </button>
-                                    <button verticalHuggingPriority="750" ambiguous="YES" tag="4" translatesAutoresizingMaskIntoConstraints="NO" id="EHS-3k-Jwz" userLabel="Filter 4">
+                                    <button verticalHuggingPriority="750" tag="4" translatesAutoresizingMaskIntoConstraints="NO" id="EHS-3k-Jwz" userLabel="Filter 4">
                                         <rect key="frame" x="217" y="-7" width="59" height="32"/>
                                         <buttonCell key="cell" type="push" title="1.8k" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="nzq-gG-D5K">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -1014,6 +1015,7 @@
                                     </button>
                                 </subviews>
                                 <constraints>
+                                    <constraint firstAttribute="height" constant="20" id="HFT-a4-mDd"/>
                                     <constraint firstItem="buZ-PW-x5r" firstAttribute="width" secondItem="iRM-W4-qaW" secondAttribute="width" id="VZp-4y-2p5"/>
                                     <constraint firstItem="Gzs-Wc-jGN" firstAttribute="width" secondItem="iRM-W4-qaW" secondAttribute="width" id="Ybl-Hx-Hpn"/>
                                     <constraint firstItem="p8s-4x-GzA" firstAttribute="width" secondItem="iRM-W4-qaW" secondAttribute="width" id="h74-Er-863"/>
@@ -1034,10 +1036,10 @@
                                     <real value="3.4028234663852886e+38"/>
                                 </customSpacing>
                             </stackView>
-                            <stackView distribution="fill" orientation="horizontal" alignment="top" spacing="11" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" ambiguous="YES" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="7G2-JK-IGO" userLabel="Bottom Filter Button stack view">
-                                <rect key="frame" x="2" y="4" width="269" height="20"/>
+                            <stackView distribution="fill" orientation="horizontal" alignment="top" spacing="11" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="7G2-JK-IGO" userLabel="Bottom Filter Button stack view">
+                                <rect key="frame" x="2" y="3" width="269" height="20"/>
                                 <subviews>
-                                    <button verticalHuggingPriority="750" ambiguous="YES" tag="5" translatesAutoresizingMaskIntoConstraints="NO" id="IpC-dP-pAQ" userLabel="FIlter 5">
+                                    <button verticalHuggingPriority="750" tag="5" translatesAutoresizingMaskIntoConstraints="NO" id="IpC-dP-pAQ" userLabel="FIlter 5">
                                         <rect key="frame" x="-7" y="-7" width="59" height="32"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="45" id="Y29-zF-phN"/>
@@ -1050,7 +1052,7 @@
                                             <action selector="filterButtons:" target="jnR-au-HBU" id="4ri-qt-btx"/>
                                         </connections>
                                     </button>
-                                    <button verticalHuggingPriority="750" ambiguous="YES" tag="6" translatesAutoresizingMaskIntoConstraints="NO" id="SNR-Sx-MzH" userLabel="Filter 6">
+                                    <button verticalHuggingPriority="750" tag="6" translatesAutoresizingMaskIntoConstraints="NO" id="SNR-Sx-MzH" userLabel="Filter 6">
                                         <rect key="frame" x="49" y="-7" width="59" height="32"/>
                                         <buttonCell key="cell" type="push" title="2.2k" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="K9A-66-oZK">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -1060,7 +1062,7 @@
                                             <action selector="filterButtons:" target="jnR-au-HBU" id="NEh-1Y-GLW"/>
                                         </connections>
                                     </button>
-                                    <button verticalHuggingPriority="750" ambiguous="YES" tag="7" translatesAutoresizingMaskIntoConstraints="NO" id="2H4-fb-0jR" userLabel="Filter 7">
+                                    <button verticalHuggingPriority="750" tag="7" translatesAutoresizingMaskIntoConstraints="NO" id="2H4-fb-0jR" userLabel="Filter 7">
                                         <rect key="frame" x="105" y="-7" width="59" height="32"/>
                                         <buttonCell key="cell" type="push" title="2.4k" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="SGE-ZC-W40">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -1070,7 +1072,7 @@
                                             <action selector="filterButtons:" target="jnR-au-HBU" id="xjd-Ef-l70"/>
                                         </connections>
                                     </button>
-                                    <button verticalHuggingPriority="750" ambiguous="YES" tag="8" translatesAutoresizingMaskIntoConstraints="NO" id="gn1-ub-Cce" userLabel="Filter 8">
+                                    <button verticalHuggingPriority="750" tag="8" translatesAutoresizingMaskIntoConstraints="NO" id="gn1-ub-Cce" userLabel="Filter 8">
                                         <rect key="frame" x="161" y="-7" width="59" height="32"/>
                                         <buttonCell key="cell" type="push" title="2.6k" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="LkI-FY-Amx">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -1080,7 +1082,7 @@
                                             <action selector="filterButtons:" target="jnR-au-HBU" id="2WD-7Y-p8m"/>
                                         </connections>
                                     </button>
-                                    <button verticalHuggingPriority="750" ambiguous="YES" tag="9" translatesAutoresizingMaskIntoConstraints="NO" id="JPb-JF-rt7" userLabel="Filter 9">
+                                    <button verticalHuggingPriority="750" tag="9" translatesAutoresizingMaskIntoConstraints="NO" id="JPb-JF-rt7" userLabel="Filter 9">
                                         <rect key="frame" x="217" y="-7" width="59" height="32"/>
                                         <buttonCell key="cell" type="push" title="2.6k" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="GzI-Ce-bok">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -1095,6 +1097,7 @@
                                     <constraint firstItem="SNR-Sx-MzH" firstAttribute="width" secondItem="IpC-dP-pAQ" secondAttribute="width" id="0Fj-gC-gEo"/>
                                     <constraint firstItem="JPb-JF-rt7" firstAttribute="width" secondItem="IpC-dP-pAQ" secondAttribute="width" id="3is-Zi-G0V"/>
                                     <constraint firstItem="gn1-ub-Cce" firstAttribute="width" secondItem="IpC-dP-pAQ" secondAttribute="width" id="Hnc-iY-qHo"/>
+                                    <constraint firstAttribute="height" constant="20" id="MU8-v8-HoD"/>
                                     <constraint firstItem="2H4-fb-0jR" firstAttribute="width" secondItem="IpC-dP-pAQ" secondAttribute="width" id="kw0-LV-igF"/>
                                 </constraints>
                                 <visibilityPriorities>

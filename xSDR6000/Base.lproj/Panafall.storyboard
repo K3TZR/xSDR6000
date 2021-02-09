@@ -224,6 +224,7 @@
                     </splitView>
                     <connections>
                         <outlet property="_panadapterSplitViewItem" destination="zQO-dI-T06" id="cn8-0E-ldy"/>
+                        <outlet property="_waterfallSplitViewItem" destination="AEi-w2-Wai" id="9Lg-aO-Qj0"/>
                         <outlet property="splitView" destination="eSL-4j-ZUz" id="gOi-si-VQa"/>
                         <segue destination="ywe-lT-40r" kind="relationship" relationship="splitItems" id="34K-Ns-SGG"/>
                         <segue destination="3e5-8Z-HZ9" kind="relationship" relationship="splitItems" id="Kxe-hF-FPU"/>

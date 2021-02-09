@@ -22,8 +22,8 @@ Flex Radios can have one of four different version groups:
 *  v1.x.x, the ***v1 API*** - untested at this time
 *  v2.0.x thru v2.4.9, the ***v2 API***<<-- CURRENTLY SUPPORTED
 *  v2.5.1 to less than v3.0.0, the ***v3 API without MultiFlex*** <<-- CURRENTLY SUPPORTED
-*  v3.0.0 thru v3.1.12, the ***v3 API with MultiFlex*** <<-- CURRENTLY SUPPORTED
-*  greater than v3.1.12 - untested at this time (may work ???)
+*  v3.0.0 thru v3.2.14, the ***v3 API with MultiFlex*** <<-- CURRENTLY SUPPORTED
+*  greater than v3.2.14 - untested at this time (may work ???)
 
 ##### Credits
 [xLib6000](https://github.com/K3TZR/xLib6000.git)
@@ -34,7 +34,7 @@ Flex Radios can have one of four different version groups:
 
 [Opus](https://opus-codec.org/downloads/)
 
-[TpCircularBuffer](https://github.com/michaeltyson/TPCircularBuffer)
+[TPCircularBuffer](https://github.com/michaeltyson/TPCircularBuffer)
 
 
 ##### Other software
@@ -42,6 +42,12 @@ Flex Radios can have one of four different version groups:
 [![W6OP](https://img.shields.io/badge/W6OP-xVoiceKeyer,_xCW-informational)](https://w6op.com) A Mac-based Voice Keyer and a CW Keyer.  
 
 ---
+##### 1.2.11 Release Notes
+* corrected action of buttons on Flag
+* made panadapter and waterfall click / drag actions the same
+* added incrFrequency & decrFrequency to Radio menu with key equivalents Cmd-RightArrow & Cmd-LeftArrow
+* added xmit to Radio menu with key equivalent Cmd-X
+
 ##### 1.2.10 Release Notes
 * corrected disconnection process 
 * corrected ATU usage in TXViewController.swift

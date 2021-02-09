@@ -34,17 +34,18 @@ final class WaterfallViewController: NSViewController, NSGestureRecognizerDelega
     // ----------------------------------------------------------------------------
     // MARK: - Private properties
     
-    @IBOutlet private weak var _waterfallView : MTKView!
-    @IBOutlet private weak var _timeView      : NSView!
+    @IBOutlet private weak var _waterfallView   : MTKView!
+    @IBOutlet private weak var _timeView        : NSView!
     
-    private var _waterfallRenderer            : WaterfallRenderer!
-    
-    private var _params                       : Params!
-    private var _hzPerUnit                    : CGFloat { CGFloat(_params.end - _params.start) / _params.panadapter.xPixels }
+    private var _clickLeft                      : NSClickGestureRecognizer!
+    private var _hzPerUnit                      : CGFloat { CGFloat(_params.end - _params.start) / _params.panadapter.xPixels }
+    private weak var _panafallViewController    : PanafallViewController?
+    private var _params                         : Params!
+    private var _waterfallRenderer              : WaterfallRenderer!
     
     // constants
-    private let kGradientSize                 = 256  // number of color gradations for the waterfall
-    
+    private let kGradientSize                   = 256  // number of color gradations for the waterfall
+    private let kLeftButton                     = 0x01
     private enum Colors {
         static let clearColor = MTLClearColor(red: 0.0, green: 0.0, blue: 0.0, alpha: 1.0)
     }
@@ -58,11 +59,20 @@ final class WaterfallViewController: NSViewController, NSGestureRecognizerDelega
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        _panafallViewController = parent as? PanafallViewController
+        
         _waterfallRenderer = WaterfallRenderer(view: _waterfallView, params: _params)
         
         // configure the Metal view
         _waterfallView.isPaused = (Defaults.waterfallEnabled == false)
         _waterfallView.enableSetNeedsDisplay = false
+        
+        // Double-Click, LEFT in panadapter
+        _clickLeft = NSClickGestureRecognizer(target: self, action: #selector(clickLeft(_:)))
+        _clickLeft.buttonMask = kLeftButton
+        _clickLeft.numberOfClicksRequired = 2
+        _clickLeft.delegate = self
+        view.addGestureRecognizer(_clickLeft)
         
         // setup
         if let device = makeDevice(for: _waterfallView) {
@@ -109,6 +119,100 @@ final class WaterfallViewController: NSViewController, NSGestureRecognizerDelega
         
         return loadGradient(name: WaterfallViewController.gradientNames[i])
     }
+    
+    /// Respond to Click-Left gesture
+    ///
+    /// - Parameter gr:         the Click Gesture Recognizer
+    ///
+    @objc func clickLeft(_ gestureRecognizer: NSClickGestureRecognizer) {
+        // get the coordinates and convert to this View
+        let mouseLocation = gestureRecognizer.location(in: view)
+        
+        // calculate the frequency
+        let clickFrequency = (mouseLocation.x * _hzPerUnit) + CGFloat(_params.start)
+        
+        // is there a Slice at the clickFrequency?
+        
+        // is there a Slice at the indicated freq?
+        if let slice = hitTestSlice(at: clickFrequency, thisPanOnly: true) {
+            // YES, make it active
+            activateSlice(slice)
+            
+            // is there a slice on this pan?
+        } else if let slice = Api.sharedInstance.radio!.findActiveSlice(on: _params.panadapter.id) {
+            
+            // YES, move it to the nearest step value
+            let delta = Int(clickFrequency) % slice.step
+            if delta >= slice.step / 2 {
+                // move it to the step value above the click
+                slice.frequency = Int(clickFrequency) + (slice.step - delta)
+                
+            } else {
+                
+                // move it to the step value below the click
+                slice.frequency = Int(clickFrequency) - delta
+            }
+        }
+        // redraw
+        _panafallViewController?.redrawSlices()
+    }
+    
+    /// Find the Slice at a frequency (if any)
+    ///
+    /// - Parameter freq:       the target frequency
+    /// - Returns:              a slice or nil
+    ///
+    private func hitTestSlice(at freq: CGFloat, thisPanOnly: Bool = true) -> xLib6000.Slice? {
+        var hitSlice: xLib6000.Slice?
+        
+        // calculate a minimum width for hit testing
+        //    let effectiveWidth = Int( CGFloat(_p.bandwidth) * 0.01)
+        
+        for (_, slice) in _params.radio.slices {
+            
+            // only Slices on this Panadapter?
+            if thisPanOnly && slice.panadapterId != _params.panadapter.id {
+                
+                // YES, skip this Slice
+                continue
+            }
+            //      let testWidth = max(effectiveWidth, (slice.filterHigh - slice.filterLow))
+            let testWidth = slice.filterHigh - slice.filterLow
+            // is the Slice within the testWidth?
+            switch slice.mode {
+            case "USB", "DIGU":               // upper-side only
+                if Int(freq) >= slice.frequency && Int(freq) <= slice.frequency + testWidth { hitSlice = slice }
+            //        Swift.print("USB: \(Int(freq)) >= \(slice.frequency)  &&  <= \(slice.frequency + testWidth), \(hitSlice == nil ? "NO" : "YES")")
+            
+            case "LSB", "DIGL":                // lower-side only
+                if Int(freq) >= slice.frequency - testWidth && Int(freq) <= slice.frequency { hitSlice = slice }
+            //        Swift.print("LSB: \(Int(freq)) >= \(slice.frequency - testWidth)  &&  <= \(slice.frequency), \(hitSlice == nil ? "NO" : "YES")")
+            
+            case "AM", "SAM", "FM", "NFM":     // both sides
+                if Int(freq) >= slice.frequency - (testWidth/2) && Int(freq) <= slice.frequency + (testWidth/2) { hitSlice = slice }
+            //        Swift.print("AM: \(Int(freq)) >= \(slice.frequency - (testWidth/2))  &&  <= \(slice.frequency + (testWidth/2)), \(hitSlice == nil ? "NO" : "YES")")
+            
+            default:                          // both sides
+                if Int(freq) >= slice.frequency - (testWidth/2) && Int(freq) <= slice.frequency + (testWidth/2) { hitSlice = slice }
+            //        Swift.print("DEFAULT: \(Int(freq)) >= \(slice.frequency - (testWidth/2))  &&  <= \(slice.frequency + (testWidth/2)), \(hitSlice == nil ? "NO" : "YES")")
+            }
+            if hitSlice != nil { break }
+        }
+        return hitSlice
+    }
+    
+    /// Make a Slice active
+    ///
+    /// - Parameter freq:       the target frequency
+    ///
+    private func activateSlice(_ slice: xLib6000.Slice) {
+        // make all other Slices (if any) inactive
+        _params.radio.slices.forEach { $0.value.active = false }
+        
+        // make the specified Slice active
+        slice.active = true
+    }
+
     /// Load a gradient from the named file
     ///
     private func loadGradient(name: String) -> [UInt8] {

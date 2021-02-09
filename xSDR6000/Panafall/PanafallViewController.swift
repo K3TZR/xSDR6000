@@ -23,16 +23,45 @@ final class PanafallViewController: NSSplitViewController, NSGestureRecognizerDe
     
     // ----------------------------------------------------------------------------
     // MARK: - Private properties
+
+    enum DragType {
+        case dbm        // +/- Panadapter dbm upper/lower level
+        case frequency  // +/- Panadapter bandwidth
+        case slice      // +/- Slice frequency/width
+        case spectrum   // +/- Panadapter center frequency
+        case tnf        // +/- Tnf frequency/width
+        case none
+    }
     
+    struct Dragable {
+        var type        = DragType.spectrum
+        var original    = NSPoint(x: 0.0, y: 0.0)
+        var previous    = NSPoint(x: 0.0, y: 0.0)
+        var current     = NSPoint(x: 0.0, y: 0.0)
+        var percent     : CGFloat = 0.0
+        var frequency   : CGFloat = 0.0
+        var cursor      : NSCursor!
+        var object      : Any?
+    }
+
     @IBOutlet private weak var _panadapterSplitViewItem: NSSplitViewItem!
-    
+    @IBOutlet private weak var _waterfallSplitViewItem: NSSplitViewItem!
+
     private var _params                       : Params!
     private var _hzPerUnit                    : CGFloat { CGFloat(_params.end - _params.start) / view.frame.width }
     
     private weak var _panadapterViewController  : PanadapterViewController? { _panadapterSplitViewItem.viewController as? PanadapterViewController }
-    
-    private var _leftClick                    : NSClickGestureRecognizer!
-    private var _rightClick                   : NSClickGestureRecognizer!
+    private weak var _waterfallViewController   : WaterfallViewController? { _waterfallSplitViewItem.viewController as? WaterfallViewController }
+
+    private var _dragable                     = Dragable()
+    private var _rightSingleClickPanadapter   : NSClickGestureRecognizer!
+    private var _rightSingleClickWaterfall    : NSClickGestureRecognizer!
+    private var _dragLeftButtonPanadapter     : NSPanGestureRecognizer!
+    private var _dragLeftButtonWaterfall      : NSPanGestureRecognizer!
+    private var _panBandwidth                 : NSPanGestureRecognizer!
+    private var _panRightButton               : NSPanGestureRecognizer!
+    private var _panStart                     : NSPoint?
+
     private let kLeftButton                   = 0x01                          // masks for Gesture Recognizers
     private let kRightButton                  = 0x02
     private let kButtonViewWidth              : CGFloat = 75                  // Width of ButtonView when open
@@ -46,7 +75,10 @@ final class PanafallViewController: NSSplitViewController, NSGestureRecognizerDe
     private let kVeryDeepTnf                  = "Very Deep"
     private let kTnfFindWidth: CGFloat        = 0.01                          // * bandwidth = Tnf tolerance multiplier
     private let kSliceFindWidth: CGFloat      = 0.01                          // * bandwidth = Slice tolerance multiplier
-    
+
+    private let kDbLegendWidth                : CGFloat = 40                // width of Db legend
+    private let kFrequencyLegendHeight        : CGFloat = 20                // height of the Frequency legend
+
     // swiftlint:enable colon
     // ----------------------------------------------------------------------------
     // MARK: - Overridden methods
@@ -55,23 +87,32 @@ final class PanafallViewController: NSSplitViewController, NSGestureRecognizerDe
     ///
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         splitView.delegate = self
-        
         splitViewItems.forEach { $0.minimumThickness = 20 }
         
-        // setup Right Single Click recognizer
-        _rightClick = NSClickGestureRecognizer(target: self, action: #selector(rightClick(_:)))
-        _rightClick.buttonMask = kRightButton
-        _rightClick.numberOfClicksRequired = 1
-        splitView.addGestureRecognizer(_rightClick)
+        // Right-Button, Single-Click, Panadapter - presents context menu
+        _rightSingleClickPanadapter = NSClickGestureRecognizer(target: self, action: #selector(rightSingleClick(_:)))
+        _rightSingleClickPanadapter.buttonMask = kRightButton
+        _rightSingleClickPanadapter.numberOfClicksRequired = 1
+        _panadapterViewController?.view.addGestureRecognizer(_rightSingleClickPanadapter)
         
-        // setup Left Double Click recognizer
-        _leftClick = NSClickGestureRecognizer(target: self, action: #selector(leftClick(_:)))
-        _leftClick.buttonMask = kLeftButton
-        _leftClick.numberOfClicksRequired = 2
-        _leftClick.delegate = self
-        splitView.addGestureRecognizer(_leftClick)
+        // Right-Button, Single-Click, Waterfall - presents context menu
+        _rightSingleClickWaterfall = NSClickGestureRecognizer(target: self, action: #selector(rightSingleClick(_:)))
+        _rightSingleClickWaterfall.buttonMask = kRightButton
+        _rightSingleClickWaterfall.numberOfClicksRequired = 1
+        _waterfallViewController?.view.addGestureRecognizer(_rightSingleClickWaterfall)
+
+        // Left-Button, Drag, Panadapter - move slice / center
+        _dragLeftButtonPanadapter = NSPanGestureRecognizer(target: self, action: #selector(dragLeftButton(_:)))
+        _dragLeftButtonPanadapter.buttonMask = kLeftButton
+        _dragLeftButtonPanadapter.delegate = self
+        _panadapterViewController?.view.addGestureRecognizer(_dragLeftButtonPanadapter)
+
+        // Left-Button, Drag, Waterfall - move slice / center
+        _dragLeftButtonWaterfall = NSPanGestureRecognizer(target: self, action: #selector(dragLeftButton(_:)))
+        _dragLeftButtonWaterfall.buttonMask = kLeftButton
+        _dragLeftButtonWaterfall.delegate = self
+        _waterfallViewController?.view.addGestureRecognizer(_dragLeftButtonWaterfall)
 
         // save the divider position
         splitView.autosaveName = "Panadapter \(_params.panadapter.id.hex)"
@@ -86,7 +127,6 @@ final class PanafallViewController: NSSplitViewController, NSGestureRecognizerDe
     /// - Parameter theEvent: a Scroll Wheel event
     ///
     override func scrollWheel(with theEvent: NSEvent) {
-        
         // ignore events not in the Y direction
         if theEvent.deltaY != 0 {
             
@@ -102,7 +142,7 @@ final class PanafallViewController: NSSplitViewController, NSGestureRecognizerDe
                     // step value when the Option key is down
                     step = 10
                 } else if theEvent.modifierFlags.contains(.option)  && theEvent.modifierFlags.contains(.shift) {
-                    // step value when the Option key is down
+                    // step value when the Option and Shift keys are down
                     step = 1
                 }
                 var incr = 0
@@ -127,107 +167,122 @@ final class PanafallViewController: NSSplitViewController, NSGestureRecognizerDe
         _params = params
     }
     
-    /// Respond to Click-Left gesture
-    ///
-    /// - Parameter gr:         the Click Gesture Recognizer
-    ///
-    @objc func leftClick(_ gestureRecognizer: NSClickGestureRecognizer) {
-        // get the coordinates and convert to this View
-        let mouseLocation = gestureRecognizer.location(in: view)
-        
-        // calculate the frequency
-        let clickFrequency = (mouseLocation.x * _hzPerUnit) + CGFloat(_params.start)
-        
-        // is there a Slice at the clickFrequency?
-        
-        // is there a Slice at the indicated freq?
-        if let slice = hitTestSlice(at: clickFrequency, thisPanOnly: true) {
-            // YES, make it active
-            activateSlice(slice)
-            
-            // is there a slice on this pan?
-        } else if let slice = Api.sharedInstance.radio!.findActiveSlice(on: _params.panadapter.id) {
-            
-            // YES, move it to the nearest step value
-            let delta = Int(clickFrequency) % slice.step
-            if delta >= slice.step / 2 {
-                // move it to the step value above the click
-                slice.frequency = Int(clickFrequency) + (slice.step - delta)
-                
-            } else {
-                
-                // move it to the step value below the click
-                slice.frequency = Int(clickFrequency) - delta
-            }
-        }
-        // redraw
+    func redrawSlices() {
         _panadapterViewController?.redrawSlices()
     }
+    
+    /// Respond to Pan gesture (left mouse down)
+    /// - Parameter gr:         the Pan Gesture Recognizer
+    ///
+    @objc func dragLeftButton(_ gestureRecognizer: NSPanGestureRecognizer) {
+        
+        // ----------------------------------------------------------------------------
+        // nested function to update layers
+        func update(_ dragable: Dragable) {            
+            // call the appropriate function on the appropriate layer
+            switch dragable.type {
 
+            case .dbm:          _panadapterViewController?.updateDbmLevel(dragable: dragable)
+            case .frequency:    _panadapterViewController?.updateBandwidth(dragable: dragable)
+            case .slice:        _panadapterViewController?.updateSlice(dragable: dragable)
+            case .spectrum:     _panadapterViewController?.updateCenter(dragable: dragable)
+            case .tnf:          _panadapterViewController?.updateTnf(dragable: dragable)
+            case .none:         break
+            }
+        }
+        // ----------------------------------------------------------------------------
+        
+        // get the current position
+        _dragable.current = gestureRecognizer.location(in: view)
+        
+        // save the starting position
+        if gestureRecognizer.state == .began {
+            _dragable.original = _dragable.current
+            
+            // calculate start's percent of width & it's frequency
+            _dragable.percent = _dragable.current.x / view.frame.width
+            _dragable.frequency = (_dragable.percent * CGFloat(_params.bandwidth)) + CGFloat(_params.start)
+            
+            _dragable.object = nil
+            
+            // what type of drag?
+            if _dragable.original.y < kFrequencyLegendHeight {
+                
+                // in frequency legend, bandwidth drag
+                _dragable.type = .frequency
+                _dragable.cursor = NSCursor.resizeLeftRight
+                
+            } else if _dragable.original.x < view.frame.width - kDbLegendWidth {
+                
+                // in spectrum, check for presence of Slice or Tnf
+                let dragSlice = hitTestSlice(at: _dragable.frequency)
+                let dragTnf = hitTestTnf(at: _dragable.frequency)
+                if dragSlice != nil {
+                    // in Slice - drag Slice / resize Slice Filter
+                    _dragable.type = .slice
+                    _dragable.object = dragSlice
+                    _dragable.cursor = NSCursor.crosshair
+                    
+                } else if dragTnf != nil {
+                    // in Tnf - drag Tnf / resize Tnf width
+                    _dragable.type = .tnf
+                    _dragable.object = dragTnf
+                    _dragable.cursor = NSCursor.crosshair
+                    
+                } else {
+                    // spectrum drag
+                    _dragable.type = .spectrum
+                    _dragable.cursor = NSCursor.resizeLeftRight
+                }
+            } else {
+                // in db legend - db legend drag
+                if gestureRecognizer === _dragLeftButtonPanadapter {
+                    _dragable.type = .dbm
+                    _dragable.cursor = NSCursor.resizeUpDown
+                } else {
+                    _dragable.type = .none
+                    gestureRecognizer.state = .ended
+                }
+            }
+        }
+        // what portion of the drag are we in?
+        switch gestureRecognizer.state {
+        
+        case .began:
+            // set the cursor
+            _dragable.cursor.push()
+            
+            // save the starting coordinate
+            _dragable.previous = _dragable.current
+            
+        case .changed:
+            // update the appropriate layer
+            update(_dragable)
+            
+            // save the current (intermediate) location as the previous
+            _dragable.previous = _dragable.current
+            
+        case .ended:
+            // update the appropriate layer
+            update(_dragable)
+            
+            // restore the previous cursor
+            NSCursor.pop()
+            
+        default:
+            // ignore other states
+            break
+        }
+    }
+ 
     // ----------------------------------------------------------------------------
     // MARK: - Private methods
     
-    /// Find the Slice at a frequency (if any)
-    ///
-    /// - Parameter freq:       the target frequency
-    /// - Returns:              a slice or nil
-    ///
-    private func hitTestSlice(at freq: CGFloat, thisPanOnly: Bool = true) -> xLib6000.Slice? {
-        var hitSlice: xLib6000.Slice?
-        
-        // calculate a minimum width for hit testing
-        //    let effectiveWidth = Int( CGFloat(_p.bandwidth) * 0.01)
-        
-        for (_, slice) in _params.radio.slices {
-            
-            // only Slices on this Panadapter?
-            if thisPanOnly && slice.panadapterId != _params.panadapter.id {
-                
-                // YES, skip this Slice
-                continue
-            }
-            //      let testWidth = max(effectiveWidth, (slice.filterHigh - slice.filterLow))
-            let testWidth = slice.filterHigh - slice.filterLow
-            // is the Slice within the testWidth?
-            switch slice.mode {
-            case "USB", "DIGU":               // upper-side only
-                if Int(freq) >= slice.frequency && Int(freq) <= slice.frequency + testWidth { hitSlice = slice }
-            //        Swift.print("USB: \(Int(freq)) >= \(slice.frequency)  &&  <= \(slice.frequency + testWidth), \(hitSlice == nil ? "NO" : "YES")")
-            
-            case "LSB", "DIGL":                // lower-side only
-                if Int(freq) >= slice.frequency - testWidth && Int(freq) <= slice.frequency { hitSlice = slice }
-            //        Swift.print("LSB: \(Int(freq)) >= \(slice.frequency - testWidth)  &&  <= \(slice.frequency), \(hitSlice == nil ? "NO" : "YES")")
-            
-            case "AM", "SAM", "FM", "NFM":     // both sides
-                if Int(freq) >= slice.frequency - (testWidth/2) && Int(freq) <= slice.frequency + (testWidth/2) { hitSlice = slice }
-            //        Swift.print("AM: \(Int(freq)) >= \(slice.frequency - (testWidth/2))  &&  <= \(slice.frequency + (testWidth/2)), \(hitSlice == nil ? "NO" : "YES")")
-            
-            default:                          // both sides
-                if Int(freq) >= slice.frequency - (testWidth/2) && Int(freq) <= slice.frequency + (testWidth/2) { hitSlice = slice }
-            //        Swift.print("DEFAULT: \(Int(freq)) >= \(slice.frequency - (testWidth/2))  &&  <= \(slice.frequency + (testWidth/2)), \(hitSlice == nil ? "NO" : "YES")")
-            }
-            if hitSlice != nil { break }
-        }
-        return hitSlice
-    }
-    
-    /// Make a Slice active
-    ///
-    /// - Parameter freq:       the target frequency
-    ///
-    private func activateSlice(_ slice: xLib6000.Slice) {
-        // make all other Slices (if any) inactive
-        _params.radio.slices.forEach { $0.value.active = false }
-        
-        // make the specified Slice active
-        slice.active = true
-    }
-
     /// Respond to a Right Click gesture
     ///
     /// - Parameter gr: the GestureRecognizer
     ///
-    @objc private func rightClick(_ gestureRecognizer: NSClickGestureRecognizer) {
+    @objc private func rightSingleClick(_ gestureRecognizer: NSClickGestureRecognizer) {
         var item: NSMenuItem!
         var index = 0
         
@@ -397,5 +452,69 @@ final class PanafallViewController: NSSplitViewController, NSGestureRecognizerDe
         }
         // redraw all the slices
         _panadapterViewController?.redrawSlices()
+    }
+
+    /// Find the Slice at a frequency (if any)
+    ///
+    /// - Parameter freq:       the target frequency
+    /// - Returns:              a slice or nil
+    ///
+    private func hitTestSlice(at freq: CGFloat, thisPanOnly: Bool = true) -> xLib6000.Slice? {
+        var hitSlice: xLib6000.Slice?
+        
+        // calculate a minimum width for hit testing
+        //    let effectiveWidth = Int( CGFloat(_p.bandwidth) * 0.01)
+        
+        for (_, slice) in _params.radio.slices {
+            
+            // only Slices on this Panadapter?
+            if thisPanOnly && slice.panadapterId != _params.panadapter.id {
+                
+                // YES, skip this Slice
+                continue
+            }
+            //      let testWidth = max(effectiveWidth, (slice.filterHigh - slice.filterLow))
+            let testWidth = slice.filterHigh - slice.filterLow
+            // is the Slice within the testWidth?
+            switch slice.mode {
+            case "USB", "DIGU":               // upper-side only
+                if Int(freq) >= slice.frequency && Int(freq) <= slice.frequency + testWidth { hitSlice = slice }
+            //        Swift.print("USB: \(Int(freq)) >= \(slice.frequency)  &&  <= \(slice.frequency + testWidth), \(hitSlice == nil ? "NO" : "YES")")
+            
+            case "LSB", "DIGL":                // lower-side only
+                if Int(freq) >= slice.frequency - testWidth && Int(freq) <= slice.frequency { hitSlice = slice }
+            //        Swift.print("LSB: \(Int(freq)) >= \(slice.frequency - testWidth)  &&  <= \(slice.frequency), \(hitSlice == nil ? "NO" : "YES")")
+            
+            case "AM", "SAM", "FM", "NFM":     // both sides
+                if Int(freq) >= slice.frequency - (testWidth/2) && Int(freq) <= slice.frequency + (testWidth/2) { hitSlice = slice }
+            //        Swift.print("AM: \(Int(freq)) >= \(slice.frequency - (testWidth/2))  &&  <= \(slice.frequency + (testWidth/2)), \(hitSlice == nil ? "NO" : "YES")")
+            
+            default:                          // both sides
+                if Int(freq) >= slice.frequency - (testWidth/2) && Int(freq) <= slice.frequency + (testWidth/2) { hitSlice = slice }
+            //        Swift.print("DEFAULT: \(Int(freq)) >= \(slice.frequency - (testWidth/2))  &&  <= \(slice.frequency + (testWidth/2)), \(hitSlice == nil ? "NO" : "YES")")
+            }
+            if hitSlice != nil { break }
+        }
+        return hitSlice
+    }
+    
+    /// Find the Tnf at or near a frequency (if any)
+    ///
+    /// - Parameter freq:       the target frequency
+    /// - Returns:              a tnf or nil
+    ///
+    private func hitTestTnf(at freq: CGFloat) -> Tnf? {
+        var tnf: Tnf?
+        
+        // calculate a minimum width for hit testing
+        let effectiveWidth = Hz( CGFloat(_params.bandwidth) * 0.01)
+        
+        _params.radio.tnfs.forEach {
+            let halfWidth = max(effectiveWidth, $0.value.width/2)
+            if $0.value.frequency - halfWidth <= UInt(freq) && $0.value.frequency + halfWidth >= UInt(freq) {
+                tnf = $0.value
+            }
+        }
+        return tnf
     }
 }

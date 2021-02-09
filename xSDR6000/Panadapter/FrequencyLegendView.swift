@@ -112,7 +112,7 @@ public final class FrequencyLegendView: NSView {
     ///
     /// - Parameter dr:         the draggable
     ///
-    func updateBandwidth(dragable: PanadapterViewController.Dragable) {
+    func updateBandwidth(dragable: PanafallViewController.Dragable) {
         // CGFloat versions of params
         let end = CGFloat(_end)                     // end frequency (Hz)
         let start = CGFloat(_start)                 // start frequency (Hz)
@@ -146,7 +146,7 @@ public final class FrequencyLegendView: NSView {
     ///
     /// - Parameter dr:       the draggable
     ///
-    func updateCenter(dragable: PanadapterViewController.Dragable) {
+    func updateCenter(dragable: PanafallViewController.Dragable) {
         // adjust the center
         _panadapter!.center = _panadapter!.center - Int( (dragable.current.x - dragable.previous.x) * _hzPerUnit)
         
@@ -158,7 +158,7 @@ public final class FrequencyLegendView: NSView {
     ///
     /// - Parameter dr:         the draggable
     ///
-    func updateTnf(dragable: PanadapterViewController.Dragable) {
+    func updateTnf(dragable: PanafallViewController.Dragable) {
         // calculate offsets in x & y
         let deltaX = dragable.current.x - dragable.previous.x
         let deltaY = dragable.current.y - dragable.previous.y
@@ -186,14 +186,13 @@ public final class FrequencyLegendView: NSView {
     ///
     /// - Parameter dr:         the draggable
     ///
-    func updateSlice(dragable: PanadapterViewController.Dragable) {
+    func updateSlice(dragable: PanafallViewController.Dragable) {
         // calculate offsets in x & y
         let deltaX = dragable.current.x - dragable.previous.x
         let deltaY = dragable.current.y - dragable.previous.y
         
         // is there a slice object?
         if let slice = dragable.object as? xLib6000.Slice {
-            
             // YES, drag or resize?
             if abs(deltaX) > abs(deltaY) {
                 
@@ -202,8 +201,7 @@ public final class FrequencyLegendView: NSView {
                 
                 adjustSliceFrequency(slice, incr: Int(deltaX * _hzPerUnit))
                 
-            } else {
-                
+            } else {                
                 // resize the filter
                 switch slice.mode {
                 case "USB", "DIGU":               // upper-side only

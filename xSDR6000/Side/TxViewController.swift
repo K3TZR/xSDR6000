@@ -45,7 +45,7 @@ final class TxViewController: NSViewController {
         view.translatesAutoresizingMaskIntoConstraints = false
         
         // setup Right Single Click recognizer
-        _rightClick = NSClickGestureRecognizer(target: self, action: #selector(rightClick(_:)))
+        _rightClick = NSClickGestureRecognizer(target: self, action: #selector(rightSingleClick(_:)))
         _rightClick.buttonMask = 0x02
         _rightClick.numberOfClicksRequired = 1
         view.addGestureRecognizer(_rightClick)
@@ -110,7 +110,7 @@ final class TxViewController: NSViewController {
     ///
     /// - Parameter gr: the GestureRecognizer
     ///
-    @objc private func rightClick(_ gestureRecognizer: NSClickGestureRecognizer) {
+    @objc private func rightSingleClick(_ gestureRecognizer: NSClickGestureRecognizer) {
         
         // get the "click" coordinates and convert to this View
         let mouseLocation = gestureRecognizer.location(in: view)

@@ -81,7 +81,7 @@ public final class DbLegendView: NSView {
     ///
     /// - Parameter dr:         the draggable
     ///
-    func updateDbmLevel(dragable: PanadapterViewController.Dragable) {
+    func updateDbmLevel(dragable: PanafallViewController.Dragable) {
         
         // Upper half of the legend?
         if dragable.original.y > frame.height/2 {

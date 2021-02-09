@@ -54,7 +54,7 @@ final class PanafallsViewController: NSSplitViewController {
         // add notification subscriptions
         addNotifications()
     }
-    
+
     // ----------------------------------------------------------------------------
     // MARK: - Notification Methods
     
@@ -62,29 +62,17 @@ final class PanafallsViewController: NSSplitViewController {
     ///     (as of 10.11, subscriptions are automatically removed on deinit when using the Selector-based approach)
     ///
     private func addNotifications() {
-        
-        // Panadapter initialized
         NCtr.makeObserver(self, with: #selector(panadapterHasBeenAdded(_:)), of: .panadapterHasBeenAdded)
-        
-        // Waterfall initialized
         NCtr.makeObserver(self, with: #selector(waterfallHasBeenAdded(_:)), of: .waterfallHasBeenAdded)
     }
-    //
-    //  Panafall creation:
-    //
-    //      Step 1 .panadapterInitialized
-    //      Step 2 .waterfallInitialized
-    //
+    
     /// Process .panadapterHasBeenAdded Notification
     ///
     /// - Parameter note: a Notification instance
     ///
     @objc private func panadapterHasBeenAdded(_ note: Notification) {
-        // a Panadapter model has been added to the Panadapters collection and Initialized
-        
         // does the Notification contain a Panadapter?
         if let panadapter = note.object as? Panadapter {
-            
             // In V3, check is it for this Client
             if _radio!.version.isOldApi || _radio!.version.isNewApi && panadapter.clientHandle == _api.connectionHandle {
                 // log the event
@@ -92,16 +80,14 @@ final class PanafallsViewController: NSSplitViewController {
             }
         }
     }
+    
     /// Process .waterfallHasBeenAdded Notification
     ///
     /// - Parameter note: a Notification instance
     ///
     @objc private func waterfallHasBeenAdded(_ note: Notification) {
-        // a Waterfall model has been added to the Waterfalls collection and Initialized
-        
         // does the Notification contain a Waterfall?
         if let waterfall = note.object as? Waterfall {
-            
             // In V3, check is it for this Client
             if  _radio!.version.isOldApi || _radio!.version.isNewApi && waterfall.clientHandle == _api.connectionHandle {
                 // log the event
@@ -111,10 +97,8 @@ final class PanafallsViewController: NSSplitViewController {
                 
                 // interact with the UI
                 DispatchQueue.main.sync { [weak self] in
-                    
                     // create a Panafall Button View Controller
-                    if let panafallButtonVc = _storyboard!.instantiateController(withIdentifier: kPanafallButtonIdentifier) as? PanafallButtonViewController {
-                        
+                    if let panafallButtonVc = _storyboard!.instantiateController(withIdentifier: kPanafallButtonIdentifier) as? PanafallButtonViewController {                        
                         // pass needed parameters
                         panafallButtonVc.configure(params: Params(api: _api,
                                                                   log: _log,
