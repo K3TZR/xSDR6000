@@ -124,13 +124,16 @@ public final class WaterfallRenderer: NSObject, MTKViewDelegate {
     // ----------------------------------------------------------------------------
     // MARK: - Initialization
     
-    init(view: MTKView, params: Params) {
+    init(view: MTKView, params: Params, clearColor color: NSColor) {
         
         _metalView = view
         _params = params
         _metalView.preferredFramesPerSecond = 30
         
         super.init()
+
+        // set the Metal view Clear color
+        clearColor(color)
     }
     
     // ----------------------------------------------------------------------------
@@ -160,7 +163,7 @@ public final class WaterfallRenderer: NSObject, MTKViewDelegate {
         guard let buffer = _commandQueue.makeCommandBuffer() else { fatalError("Unable to create a Command Queue") }
         guard let desc = view.currentRenderPassDescriptor else { fatalError("Unable to create a Render Pass Descriptor") }
         desc.colorAttachments[0].loadAction = .clear
-        desc.colorAttachments[0].storeAction = .dontCare
+//        desc.colorAttachments[0].storeAction = .dontCare  // causes an issue in M1 Macs
         guard let encoder = buffer.makeRenderCommandEncoder(descriptor: desc) else { fatalError("Unable to create a Command Encoder") }
         
         encoder.pushDebugGroup("Draw")
@@ -235,6 +238,17 @@ public final class WaterfallRenderer: NSObject, MTKViewDelegate {
         makeCommandQueue(device: device)
     }
     
+    /// Set the Metal view clear color
+    ///
+    /// - Parameter color:        an NSColor
+    ///
+    func clearColor(_ color: NSColor) {
+        _metalView.clearColor = MTLClearColorMake(Double(color.redComponent),
+                                                  Double(color.greenComponent),
+                                                  Double(color.blueComponent),
+                                                  Double(color.alphaComponent) )
+    }
+
     // ----------------------------------------------------------------------------
     // MARK: - Private methods
     

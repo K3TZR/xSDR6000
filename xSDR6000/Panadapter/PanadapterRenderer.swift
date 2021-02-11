@@ -155,10 +155,10 @@ public final class PanadapterRenderer: NSObject {
     /// - Parameter color:        an NSColor
     ///
     func clearColor(_ color: NSColor) {
-        _metalView.clearColor = MTLClearColor(red: Double(color.redComponent),
-                                              green: Double(color.greenComponent),
-                                              blue: Double(color.blueComponent),
-                                              alpha: Double(color.alphaComponent) )
+        _metalView.clearColor = MTLClearColorMake(Double(color.redComponent),
+                                                  Double(color.greenComponent),
+                                                  Double(color.blueComponent),
+                                                  Double(color.alphaComponent) )
     }
     
     // ----------------------------------------------------------------------------
@@ -236,7 +236,7 @@ extension PanadapterRenderer: MTKViewDelegate {
               let descriptor = view.currentRenderPassDescriptor else { return }
         
         descriptor.colorAttachments[0].loadAction = .clear
-        descriptor.colorAttachments[0].storeAction = .dontCare
+//        descriptor.colorAttachments[0].storeAction = .dontCare   // causes an issue in M1 Macs
         
         // Create a render encoder
         let encoder = cmdBuffer.makeRenderCommandEncoder(descriptor: descriptor)!

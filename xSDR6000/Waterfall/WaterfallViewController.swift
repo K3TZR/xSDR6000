@@ -47,7 +47,7 @@ final class WaterfallViewController: NSViewController, NSGestureRecognizerDelega
     private let kGradientSize                   = 256  // number of color gradations for the waterfall
     private let kLeftButton                     = 0x01
     private enum Colors {
-        static let clearColor = MTLClearColor(red: 0.0, green: 0.0, blue: 0.0, alpha: 1.0)
+        static let clearColor = MTLClearColorMake(0.0, 0.0, 0.0, 1.0 )
     }
     
     // swiftlint:enable colon
@@ -61,7 +61,7 @@ final class WaterfallViewController: NSViewController, NSGestureRecognizerDelega
         
         _panafallViewController = parent as? PanafallViewController
         
-        _waterfallRenderer = WaterfallRenderer(view: _waterfallView, params: _params)
+        _waterfallRenderer = WaterfallRenderer(view: _waterfallView, params: _params, clearColor: Defaults.spectrumBackground)
         
         // configure the Metal view
         _waterfallView.isPaused = (Defaults.waterfallEnabled == false)
@@ -306,10 +306,10 @@ final class WaterfallViewController: NSViewController, NSGestureRecognizerDelega
             Defaults.observe(\.spectrumBackground, options: [.initial, .new]) { [weak self] update in
                 let color = update.newValue!
                 // reset the spectrum background color
-                self?._waterfallView.clearColor = MTLClearColor(red: Double(color.redComponent),
-                                                                green: Double(color.greenComponent),
-                                                                blue: Double(color.blueComponent),
-                                                                alpha: Double(color.alphaComponent) )}
+                self?._waterfallView.clearColor = MTLClearColorMake(Double(color.redComponent),
+                                                                    Double(color.greenComponent),
+                                                                    Double(color.blueComponent),
+                                                                    Double(color.alphaComponent) )}
         ]
     }
     

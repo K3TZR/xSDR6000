@@ -578,7 +578,7 @@ extension PanadapterViewController {
             self._panadapterRenderer.updateColor(spectrumColor: Defaults.spectrum, fillLevel: self._params.panadapter.fillLevel, fillColor: Defaults.spectrum)
             
             // Panadapter background color
-            self._panadapterView.clearColor = Defaults.spectrumBackground.metalClearColor
+            self._panadapterRenderer.clearColor(Defaults.spectrumBackground)
         }
     }
     
@@ -589,8 +589,7 @@ extension PanadapterViewController {
             self._panadapterRenderer.updateColor(spectrumColor: Defaults.spectrum, fillLevel: self._params.panadapter.fillLevel, fillColor: Defaults.spectrum)
             
             // Panadapter background color
-            self._panadapterView.clearColor = Defaults.spectrumBackground.metalClearColor
-            
+            self._panadapterRenderer.clearColor(Defaults.spectrumBackground)
         }
     }
     

@@ -371,13 +371,6 @@ extension NSColor {
         // return the UInt32 (in bgra format)
         return alpha + red + green + blue
     }
-    // return a Metal Clear Color version of an NSColor
-    var metalClearColor: MTLClearColor {
-        return MTLClearColor(red: Double(self.redComponent),
-                             green: Double(self.greenComponent),
-                             blue: Double(self.blueComponent),
-                             alpha: Double(self.alphaComponent) )
-    }
 }
 
 extension String {

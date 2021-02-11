@@ -4,7 +4,7 @@
 
 ##### Built on:
 
-*  macOS 11.2
+*  macOS 11.2.1
 *  Xcode 12.4 (12D4e)
 *  Swift 5.3
 
@@ -42,6 +42,9 @@ Flex Radios can have one of four different version groups:
 [![W6OP](https://img.shields.io/badge/W6OP-xVoiceKeyer,_xCW-informational)](https://w6op.com) A Mac-based Voice Keyer and a CW Keyer.  
 
 ---
+##### 1.2.12 Release Notes
+* corrections to PanadapterRenderer & WaterfallRenderer to eliminate pink screen on M1 Macs
+
 ##### 1.2.11 Release Notes
 * corrected action of buttons on Flag
 * made panadapter and waterfall click / drag actions the same
