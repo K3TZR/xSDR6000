@@ -35,6 +35,7 @@ final class PanadapterViewController: NSViewController, NSGestureRecognizerDeleg
     private var _leftDoubleClick        : NSClickGestureRecognizer!
     private var _rightSingleClick       : NSClickGestureRecognizer!
     private var _dragLeftButton         : NSPanGestureRecognizer!
+    private var _dragLeftButtonPanadapter         : NSPanGestureRecognizer!
     private var _panRightButton         : NSPanGestureRecognizer!
     private var _newCursor              : NSCursor?
     private var _dbLegendSpacings       = [String]()                  // Db spacing choices
@@ -101,6 +102,12 @@ final class PanadapterViewController: NSViewController, NSGestureRecognizerDeleg
             _dragLeftButton.delegate = self
             _frequencyLegendView.addGestureRecognizer(_dragLeftButton)
             
+            // Left-Button, Drag, Panadapter - move slice / center
+            _dragLeftButtonPanadapter = NSPanGestureRecognizer(target: self, action: #selector(dragLeftButton(_:)))
+            _dragLeftButtonPanadapter.buttonMask = kLeftButton
+            _dragLeftButtonPanadapter.delegate = self
+            view.addGestureRecognizer(_dragLeftButton)
+
             // pass a reference to the Panadapter
             _frequencyLegendView.configure(panadapter: _params.panadapter)
             _dbLegendView.configure(panadapter: _params.panadapter)
@@ -677,16 +684,15 @@ extension PanadapterViewController {
                 // observe removal of this Slice
                 NCtr.makeObserver(self, with: #selector(sliceWillBeRemoved(_:)), of: .sliceWillBeRemoved, object: slice)
                 
+                DispatchQueue.main.async { [self] in
                 // add a Flag for this Slice
-//                sliceFlag(slice: slice, pan: _params.panadapter, viewController: self)
-                sliceFlag(slice: slice, pan: _params.panadapter, viewController: self)
+                    sliceFlag(slice: slice, pan: _params.panadapter, viewController: self)
 
-                activateSlice(slice)
+                    activateSlice(slice)
                 
-                _frequencyLegendView.redraw()
+                    _frequencyLegendView.redraw()
                 
-                DispatchQueue.main.async { [weak self] in
-                    self?.positionFlags()
+                    positionFlags()
                 }
             }
         }
@@ -777,7 +783,7 @@ extension PanadapterViewController {
             
             // add the Flag to the view hierarchy
             FlagViewController.addFlag(flagVc,
-                                       to: viewController.view,
+                                       to: viewController.parent!.view,
                                        flagPosition: flagPosition,
                                        flagHeight: FlagViewController.kLargeFlagHeight,
                                        flagWidth: FlagViewController.kLargeFlagWidth)

@@ -42,6 +42,9 @@ Flex Radios can have one of four different version groups:
 [![W6OP](https://img.shields.io/badge/W6OP-xVoiceKeyer,_xCW-informational)](https://w6op.com) A Mac-based Voice Keyer and a CW Keyer.  
 
 ---
+##### 1.2.13 Release Notes
+* corrected left-button drag in Panadapter and Flag sub views
+
 ##### 1.2.12 Release Notes
 * corrections to PanadapterRenderer & WaterfallRenderer to eliminate pink screen on M1 Macs
 

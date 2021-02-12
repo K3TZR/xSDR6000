@@ -422,13 +422,13 @@
         <!--Controls View Controller-->
         <scene sceneID="MM0-eW-7DT">
             <objects>
-                <tabViewController storyboardIdentifier="Controls" selectedTabViewItemIndex="0" tabStyle="unspecified" id="VKq-N2-bay" customClass="ControlsViewController" customModule="xSDR6000" customModuleProvider="target" sceneMemberID="viewController">
+                <tabViewController identifier="Controls View Controller" storyboardIdentifier="Controls" selectedTabViewItemIndex="0" tabStyle="unspecified" id="VKq-N2-bay" customClass="ControlsViewController" customModule="xSDR6000" customModuleProvider="target" sceneMemberID="viewController">
                     <tabViewItems>
-                        <tabViewItem id="QD0-DB-eI4"/>
-                        <tabViewItem id="IZB-mJ-Oz8"/>
-                        <tabViewItem id="vCM-sL-ywI"/>
-                        <tabViewItem id="Q4d-JI-ziJ"/>
-                        <tabViewItem id="sxj-Yj-DFi"/>
+                        <tabViewItem identifier="Audio tab" id="QD0-DB-eI4"/>
+                        <tabViewItem identifier="DSP tab" id="IZB-mJ-Oz8"/>
+                        <tabViewItem identifier="Mode tab" id="vCM-sL-ywI"/>
+                        <tabViewItem identifier="Xrit tab" id="Q4d-JI-ziJ"/>
+                        <tabViewItem identifier="Dax tab" id="sxj-Yj-DFi"/>
                     </tabViewItems>
                     <viewControllerTransitionOptions key="transitionOptions" allowUserInteraction="YES"/>
                     <tabView key="tabView" identifier="ControlsTabView" autoresizesSubviews="NO" type="noTabsNoBorder" id="0E9-Z5-MHB">

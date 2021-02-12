@@ -47,7 +47,7 @@ final class XritViewController: NSViewController {
         view.translatesAutoresizingMaskIntoConstraints = false
         
         if Defaults.flagBorderEnabled {
-            view.layer?.borderColor = NSColor.darkGray.cgColor
+            view.layer?.borderColor = .init(gray: 0.3, alpha: 1.0)
             view.layer?.borderWidth = 0.5
         }
         _monitor = NSEvent.addLocalMonitorForEvents(matching: .flagsChanged) { [unowned self] in

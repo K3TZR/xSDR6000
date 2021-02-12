@@ -103,10 +103,10 @@ final class PanafallViewController: NSSplitViewController, NSGestureRecognizerDe
         _waterfallViewController?.view.addGestureRecognizer(_rightSingleClickWaterfall)
 
         // Left-Button, Drag, Panadapter - move slice / center
-        _dragLeftButtonPanadapter = NSPanGestureRecognizer(target: self, action: #selector(dragLeftButton(_:)))
-        _dragLeftButtonPanadapter.buttonMask = kLeftButton
-        _dragLeftButtonPanadapter.delegate = self
-        _panadapterViewController?.view.addGestureRecognizer(_dragLeftButtonPanadapter)
+//        _dragLeftButtonPanadapter = NSPanGestureRecognizer(target: self, action: #selector(dragLeftButton(_:)))
+//        _dragLeftButtonPanadapter.buttonMask = kLeftButton
+//        _dragLeftButtonPanadapter.delegate = self
+//        _panadapterViewController?.view.addGestureRecognizer(_dragLeftButtonPanadapter)
 
         // Left-Button, Drag, Waterfall - move slice / center
         _dragLeftButtonWaterfall = NSPanGestureRecognizer(target: self, action: #selector(dragLeftButton(_:)))

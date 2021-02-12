@@ -148,6 +148,7 @@ final class FlagViewController: NSViewController, NSTextFieldDelegate, NSGesture
     class func addFlag(_ flagVc: FlagViewController, to parent: NSView, flagPosition: CGFloat, flagHeight: CGFloat, flagWidth: CGFloat) {
         
         // add the Flag & Controls views
+//        parent.addSubview(flagVc.view, positioned: .above, relativeTo: parent)
         parent.addSubview(flagVc.view)
         parent.addSubview(flagVc.controlsVc!.view)
         
@@ -214,13 +215,12 @@ final class FlagViewController: NSViewController, NSTextFieldDelegate, NSGesture
         super.viewWillAppear()
         
         // set the background color of the Flag
-        if _viewController is SideViewController || _viewController is MiniViewController {
-            // make it opague if a Side or Mini view
-            view.layer?.backgroundColor = NSColor.black.cgColor
-        } else {
-            // can be less opague as a Slice flag
-            view.layer?.backgroundColor = ControlsViewController.kBackgroundColor
+        view.layer?.backgroundColor = .black
+        if Defaults.flagBorderEnabled {
+            view.layer?.borderColor = .init(gray: 0.3, alpha: 1.0)
+            view.layer?.borderWidth = 0.5
         }
+
     }
     
     public func controlTextDidBeginEditing(_ note: Notification) {
@@ -515,7 +515,7 @@ extension FlagViewController {
                 if let panVc = self?._viewController as? PanadapterViewController {
                     // this is a Slice Flag, move the Flag(s)
                     panVc.positionFlags() }},
-            
+
             slice.observe(\.nbEnabled, options: [.initial, .new]) { [weak self] (slice, _) in
                 DispatchQueue.main.async { self?._nbButton.boolState = slice.nbEnabled }},
             

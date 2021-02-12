@@ -621,7 +621,6 @@ func defaults(from file: String) {
 // ----------------------------------------------------------------------------
 // MARK: - DEBUG FUNCTIONS
 
-#if XDEBUG
 /// Print a Responder Chain on the console
 ///
 /// - Parameter view:               a view at the root of the chain
@@ -639,7 +638,7 @@ func responderChain(for rootView: NSView) {
                 if let view = responder as? NSView {
                     Swift.print("\t\(view.identifier?.rawValue ?? String(describing: view))")
                 } else if let viewController = responder as? NSViewController {
-                    Swift.print("\t\(viewController.identifier?.rawValue ?? String(describing: vc))")
+                    Swift.print("\t\(viewController.identifier?.rawValue ?? String(describing: viewController))")
                 }
                 currentResponder = responder
             } else {
@@ -688,4 +687,3 @@ func listConstraints(for name: String, view: NSView) {
     }
     Swift.print("")
 }
-#endif

@@ -41,6 +41,13 @@ final class ControlsViewController: NSTabViewController {
         view.translatesAutoresizingMaskIntoConstraints = false
         
         view.isHidden = true
+
+        // set the background color of the Flag
+        view.layer?.backgroundColor = NSColor.black.cgColor
+//        if !(_viewController is SideViewController) {
+            view.layer?.borderWidth = 0.5
+            view.layer?.borderColor = .init(gray: 0.4, alpha: 1.0)
+//        }
     }
     
     override func viewWillAppear() {

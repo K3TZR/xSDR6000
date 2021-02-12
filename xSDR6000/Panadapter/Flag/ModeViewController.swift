@@ -64,7 +64,7 @@ final class ModeViewController: NSViewController {
         view.translatesAutoresizingMaskIntoConstraints = false
         
         if Defaults.flagBorderEnabled {
-            view.layer?.borderColor = NSColor.darkGray.cgColor
+            view.layer?.borderColor = .init(gray: 0.3, alpha: 1.0)
             view.layer?.borderWidth = 0.5
         }
         // populate the choices
