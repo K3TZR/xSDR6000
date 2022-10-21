@@ -17,7 +17,8 @@ import xLib6000
 final class ModeViewController: NSViewController {
     
     // swiftlint:disable colon
-    static let filterValues    = [                              // Values of filters (by mode)
+    // filter values dictionary (by mode)
+    static let filterValues = [
         "AM"    : [3_000, 4_000, 5_600, 6_000, 8_000, 10_000, 12_000, 14_000, 16_000, 20_000],
         "SAM"   : [3_000, 4_000, 5_600, 6_000, 8_000, 10_000, 12_000, 14_000, 16_000, 20_000],
         "CW"    : [50, 75, 100, 150, 250, 400, 800, 1_000, 1_500, 3_000],
@@ -28,7 +29,9 @@ final class ModeViewController: NSViewController {
         "DFM"   : [3_000, 4_000, 6_000, 8_000, 10_000, 12_000, 14_000, 16_000, 18_000, 20_000],
         "DIGU"  : [100, 200, 300, 400, 600, 1_000, 1_500, 2_000, 3_000, 5_000],
         "DIGL"  : [100, 200, 300, 400, 600, 1_000, 1_500, 2_000, 3_000, 5_000],
-        "RTTY"  : [250, 300, 350, 400, 450, 500, 750, 1_000, 1_500, 3_000]
+        "RTTY"  : [250, 300, 350, 400, 450, 500, 750, 1_000, 1_500, 3_000],
+        "RAW"   : [1_400, 1_800, 2_100, 2_400, 2_700, 2_900, 3_300, 4_000, 5_000, 6_000],
+        "ARQ"   : [1_400, 1_800, 2_100, 2_400, 2_700, 2_900, 3_300, 4_000, 5_000, 6_000],
     ]
     
     // ----------------------------------------------------------------------------
@@ -58,27 +61,29 @@ final class ModeViewController: NSViewController {
     // ----------------------------------------------------------------------------
     // MARK: - Overridden methods
     
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        
-        view.translatesAutoresizingMaskIntoConstraints = false
-        
-        if Defaults.flagBorderEnabled {
-            view.layer?.borderColor = .init(gray: 0.3, alpha: 1.0)
-            view.layer?.borderWidth = 0.5
-        }
-        // populate the choices
-        _modePopUp.addItems(withTitles: xLib6000.Slice.Mode.allCases.map {$0.rawValue})
-        
-        // populate the Quick Mode buttons
-        _quickMode0.title = _slice?.modeList.contains(Defaults.quickMode0.uppercased()) ?? false ? Defaults.quickMode0.uppercased() : "??"
-        _quickMode1.title = _slice?.modeList.contains(Defaults.quickMode1.uppercased()) ?? false ? Defaults.quickMode1.uppercased() : "??"
-        _quickMode2.title = _slice?.modeList.contains(Defaults.quickMode2.uppercased()) ?? false ? Defaults.quickMode2.uppercased() : "??"
-        _quickMode3.title = _slice?.modeList.contains(Defaults.quickMode3.uppercased()) ?? false ? Defaults.quickMode3.uppercased() : "??"
-        
-        // start observing
-        addObservations()
+  override func viewDidLoad() {
+    super.viewDidLoad()
+    
+    view.translatesAutoresizingMaskIntoConstraints = false
+    
+    if Defaults.flagBorderEnabled {
+      view.layer?.borderColor = .init(gray: 0.3, alpha: 1.0)
+      view.layer?.borderWidth = 0.5
     }
+    // populate the choices
+    if let slice = _slice {
+      _modePopUp.addItems(withTitles: slice.modeList)
+      
+      // populate the Quick Mode buttons
+      _quickMode0.title = slice.modeList.contains(Defaults.quickMode0.uppercased()) ? Defaults.quickMode0.uppercased() : "??"
+      _quickMode1.title = slice.modeList.contains(Defaults.quickMode1.uppercased()) ? Defaults.quickMode1.uppercased() : "??"
+      _quickMode2.title = slice.modeList.contains(Defaults.quickMode2.uppercased()) ? Defaults.quickMode2.uppercased() : "??"
+      _quickMode3.title = slice.modeList.contains(Defaults.quickMode3.uppercased()) ? Defaults.quickMode3.uppercased() : "??"
+    }
+    
+    // start observing
+    addObservations()
+  }
     
     override func viewWillAppear() {
         super.viewWillAppear()
@@ -92,7 +97,7 @@ final class ModeViewController: NSViewController {
     
     @IBAction func filterButtons(_ sender: NSButton) {
         if let slice = _slice {
-            // get the possible filters for the current mode
+            // get the possible filters for the current mode, IGNORE UNKNOWN MODES
             guard let filters = ModeViewController.filterValues[ slice.mode] else { return }
             
             // get the width of the filter
@@ -160,8 +165,15 @@ final class ModeViewController: NSViewController {
             let side = (width - shift) / 2
             hiCut = side
             loCut = -1 * (shift + side)
+        
+        case "RAW", "ARQ":
+            loCut = 100
+            hiCut = loCut + width
+
         default:
-            return
+            // UNKNOWN MODE, no change
+            loCut = slice.filterLow
+            hiCut = slice.filterHigh
         }
         slice.filterLow = loCut
         slice.filterHigh = hiCut
@@ -173,21 +185,25 @@ final class ModeViewController: NSViewController {
     ///
     private func filterStrings( for mode: String) -> [String] {
         var array = [String]()
+        var values: [Int]? = []
         
-        if let values = ModeViewController.filterValues[mode] {
-            var formattedWidth = ""
-            
-            values.forEach {
-                switch $0 {
-                case 1_000...:
-                    formattedWidth = String(format: "%2.1fk", Float($0)/1000.0)
-                case 0..<1_000:
-                    formattedWidth = String(format: "%3d", $0)
-                default:
-                    formattedWidth = "0"
-                }
-                array.append(formattedWidth)
+        // get the filter values for the mode
+        values = ModeViewController.filterValues[mode]
+        
+        // if no values for the mode, use RAW
+        if values == nil { values = ModeViewController.filterValues["RAW"] }
+        var formattedWidth = ""
+        
+        values!.forEach {
+            switch $0 {
+            case 1_000...:
+                formattedWidth = String(format: "%2.1fk", Float($0)/1000.0)
+            case 0..<1_000:
+                formattedWidth = String(format: "%3d", $0)
+            default:
+                formattedWidth = "0"
             }
+            array.append(formattedWidth)
         }
         return array
     }

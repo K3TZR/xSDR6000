@@ -14,7 +14,7 @@ import JWTDecode
 // MARK: - WanManager Delegate protocol
 // --------------------------------------------------------------------------------
 
-protocol WanManagerDelegate: class {
+protocol WanManagerDelegate: AnyObject {
     // swiftlint:disable colon
     
     var userEmail               : String? { get set}
@@ -30,7 +30,7 @@ protocol WanManagerDelegate: class {
     // swiftlint:enable colon
 }
 
-public final class WanManager: WanServerDelegate, Auth0Delegate {
+public final class WanManager: WanServerDelegate, Auth0Delegate {  
     
     // swiftlint:disable colon
     // ----------------------------------------------------------------------------
@@ -45,7 +45,7 @@ public final class WanManager: WanServerDelegate, Auth0Delegate {
     
     private var _auth0ViewController    : Auth0ViewController?
     private let _log                    = Logger.sharedInstance.logMessage
-    private var _previousIdToken        : IdToken = nil
+    private var _previousIdToken        : IdToken? = nil
     private var _wanServer              : WanServer?
     
     // constants
@@ -131,7 +131,7 @@ public final class WanManager: WanServerDelegate, Auth0Delegate {
     /// - Parameter userEmail:      saved email (if any)
     /// - Returns:                  an ID Token (if any)
     ///
-    private func getIdToken(_ userEmail: String?) -> IdToken {
+    private func getIdToken(_ userEmail: String?) -> IdToken? {
         // is there a saved Auth0 token which has not expired?
         if let previousToken = _previousIdToken, isValidIdToken(previousToken) {
             // YES, use the saved token
@@ -160,7 +160,7 @@ public final class WanManager: WanServerDelegate, Auth0Delegate {
     /// - Parameter refreshToken:     a Refresh Token
     /// - Returns:                    the Data (if created)
     ///
-    private func requestIdToken(from refreshToken: String) -> IdToken {
+    private func requestIdToken(from refreshToken: String) -> IdToken? {
         // build a URL Request
         let url = URL(string: "https://frtest.auth0.com/delegation")
         var urlRequest = URLRequest(url: url!)
@@ -211,7 +211,7 @@ public final class WanManager: WanServerDelegate, Auth0Delegate {
     /// - Parameter idToken:        the Id Token
     /// - Returns:                  nil if valid, else a ValidationError
     ///
-    private func isValidIdToken(_ idToken: IdToken) -> Bool {
+    private func isValidIdToken(_ idToken: IdToken?) -> Bool {
         guard idToken != nil else { return false }
         
         do {
@@ -289,15 +289,15 @@ public final class WanManager: WanServerDelegate, Auth0Delegate {
     // ----------------------------------------------------------------------------
     // MARK: - WanServerDelegate methods
     
-    public func wanUserSettings(name: String, call: String) {
+    public func wanSettings(name: String, call: String) {
         _delegate.smartLinkUserSettings(name: name, call: call)
     }
     
-    public func wanRadioConnectReady(handle: String, serial: String) {
+    public func wanConnectReady(handle: String, serial: String) {
         _delegate.smartLinkConnectionReady(handle: handle, serial: serial)
     }
     
-    public func wanTestResultsReceived(results: WanTestConnectionResults) {
+  public func wanTestResults(_ results: WanTestConnectionResults) {
         _delegate.smartLinkTestResults(results: results)
     }
 }

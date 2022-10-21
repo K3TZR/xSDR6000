@@ -12,7 +12,7 @@ import xLib6000
 // MARK: - MiniView Delegate protocol
 // --------------------------------------------------------------------------------
 
-protocol MiniViewDelegate: class {
+protocol MiniViewDelegate: AnyObject {
     
     func closeMiniWindows(_ item: AnyObject?)
 }

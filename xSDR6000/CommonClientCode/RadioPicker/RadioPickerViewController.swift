@@ -14,7 +14,7 @@ import xLib6000
 // MARK: - RadioPicker delegate protocol
 // --------------------------------------------------------------------------------
 
-protocol RadioPickerDelegate: class {
+protocol RadioPickerDelegate: AnyObject {
     
     var smartLinkEnabled: Bool {get}
     var smartLinkIsLoggedIn: Bool {get}

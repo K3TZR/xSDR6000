@@ -632,7 +632,7 @@ final class MainWindowController: NSWindowController, NSWindowDelegate {
             // NewApi
             _opusPlayer?.stop()
             _opusPlayer = nil
-            _api.radio!.removeRemoteRxAudioStream(for: _api.connectionHandle!)
+            _api.radio!.removeRemoteRxAudioStream()
         } else {
             // OldApi
             Api.sharedInstance.radio!.startStopOpusRxAudioStream(state: false)

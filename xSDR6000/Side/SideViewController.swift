@@ -111,7 +111,7 @@ final class SideViewController: NSViewController {
             _txContainerHeight.constant = (sender.boolState ? kTxHeightOpen : kHeightClosed)
         case "PcwButton":
             Defaults.sidePcwOpen = sender.boolState
-            if _flagVc?.slice?.mode == xLib6000.Slice.Mode.CW.rawValue {
+            if _flagVc?.slice?.mode == "CW" {
                 _cwContainerHeight.constant = (sender.boolState ? kCwHeightOpen : kHeightClosed)
             } else {
                 _pcwContainerHeight.constant = (sender.boolState ? kPcwHeightOpen : kHeightClosed)
@@ -143,7 +143,7 @@ final class SideViewController: NSViewController {
             // YES, get the active Slice (if any)
             if _flagVc != nil {
                 // CW or non-CW?
-                if _flagVc?.slice?.mode == xLib6000.Slice.Mode.CW.rawValue {
+                if _flagVc?.slice?.mode == "CW" {
                     // CW
                     _pcwContainerHeight.constant = kHeightClosed
                     _cwContainerHeight.constant = kCwHeightOpen

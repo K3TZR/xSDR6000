@@ -15,7 +15,7 @@ import xLib6000
 // MARK: - Auth0 Delegate definition
 // --------------------------------------------------------------------------------
 
-protocol Auth0Delegate: class {
+protocol Auth0Delegate: AnyObject {
     
     /// set the id and refresh token
     ///

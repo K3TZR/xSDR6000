@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="17701" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="21225" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="17701"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="21225"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -18,7 +18,7 @@
                                 <rect key="frame" x="-3" y="70" width="146" height="20"/>
                                 <subviews>
                                     <button horizontalHuggingPriority="750" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Ce0-Xg-TdH" userLabel="X Bevel Button">
-                                        <rect key="frame" x="0.0" y="-2" width="20" height="24"/>
+                                        <rect key="frame" x="0.0" y="-1.5" width="20.5" height="24"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="20" id="d21-nD-KhW"/>
                                             <constraint firstAttribute="width" constant="20" id="hU5-sz-C7y"/>
@@ -33,7 +33,7 @@
                                         </connections>
                                     </button>
                                     <popUpButton identifier="rxAnt" toolTip="Rx Ant" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Zp6-Oe-dIV" userLabel="RxAnt popup">
-                                        <rect key="frame" x="13" y="-3" width="59" height="25"/>
+                                        <rect key="frame" x="13" y="-7" width="59" height="32"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="45" id="i0J-cE-5ri"/>
                                         </constraints>
@@ -47,7 +47,7 @@
                                         </connections>
                                     </popUpButton>
                                     <popUpButton identifier="txAnt" toolTip="Tx Ant" verticalHuggingPriority="750" horizontalCompressionResistancePriority="749" translatesAutoresizingMaskIntoConstraints="NO" id="9Hl-BA-XFJ" userLabel="TxAnt popup">
-                                        <rect key="frame" x="58" y="-3" width="59" height="25"/>
+                                        <rect key="frame" x="58" y="-7" width="59" height="32"/>
                                         <popUpButtonCell key="cell" type="push" bezelStyle="rounded" alignment="center" lineBreakMode="truncatingTail" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" arrowPosition="noArrow" id="8lD-MP-8Gu">
                                             <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="label" size="11"/>
@@ -166,13 +166,13 @@
                                 </customSpacing>
                             </stackView>
                             <stackView distribution="fill" orientation="vertical" alignment="trailing" spacing="0.0" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="qui-El-IVB" userLabel="Corner Stack View">
-                                <rect key="frame" x="152" y="43" width="120" height="47"/>
+                                <rect key="frame" x="152" y="44" width="120" height="46"/>
                                 <subviews>
                                     <stackView distribution="fill" orientation="horizontal" alignment="centerY" spacing="0.0" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Y91-Jn-yZh" userLabel="Split Stack View">
-                                        <rect key="frame" x="14" y="25" width="106" height="22"/>
+                                        <rect key="frame" x="14" y="25" width="106" height="21"/>
                                         <subviews>
                                             <button translatesAutoresizingMaskIntoConstraints="NO" id="WX7-HX-umE" userLabel="Split button">
-                                                <rect key="frame" x="0.0" y="0.0" width="52" height="22"/>
+                                                <rect key="frame" x="0.0" y="0.0" width="52" height="21"/>
                                                 <constraints>
                                                     <constraint firstAttribute="width" constant="52" id="Wg9-dK-f0x"/>
                                                 </constraints>
@@ -185,7 +185,7 @@
                                                 </connections>
                                             </button>
                                             <button translatesAutoresizingMaskIntoConstraints="NO" id="f1H-1i-UGn" userLabel="TX button">
-                                                <rect key="frame" x="52" y="0.0" width="27" height="22"/>
+                                                <rect key="frame" x="52" y="0.0" width="27" height="21"/>
                                                 <constraints>
                                                     <constraint firstAttribute="width" constant="27" id="Mn9-Qa-55X"/>
                                                 </constraints>
@@ -198,7 +198,7 @@
                                                 </connections>
                                             </button>
                                             <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="1db-5H-JDr" userLabel="Alpha Button">
-                                                <rect key="frame" x="79" y="0.0" width="27" height="22"/>
+                                                <rect key="frame" x="79" y="0.0" width="27" height="21"/>
                                                 <constraints>
                                                     <constraint firstAttribute="width" constant="27" id="ssN-yU-vlx"/>
                                                 </constraints>
@@ -1387,7 +1387,7 @@
                                         </textFieldCell>
                                     </textField>
                                     <popUpButton verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="8Uo-67-Pwa" userLabel="DAX popup">
-                                        <rect key="frame" x="100" y="-3" width="64" height="25"/>
+                                        <rect key="frame" x="100" y="-6" width="64" height="32"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="50" id="j0k-CG-DTa"/>
                                         </constraints>
@@ -1434,7 +1434,7 @@
     </scenes>
     <resources>
         <image name="Locked" width="128" height="128"/>
-        <image name="NSStopProgressTemplate" width="15" height="13"/>
+        <image name="NSStopProgressTemplate" width="14" height="13"/>
         <image name="Speaker-Off" width="512" height="512"/>
         <image name="Speaker-On" width="512" height="512"/>
         <image name="Unlocked" width="128" height="128"/>
