@@ -4,9 +4,9 @@
 
 ##### Built on:
 
-*  macOS 11.2.1
-*  Xcode 12.4 (12D4e)
-*  Swift 5.3
+*  macOS 12.6
+*  Xcode 14.0.1 (14A400)
+*  Swift 5.7
 
 ##### Runs on:
 * macOS 10.15 and higher
